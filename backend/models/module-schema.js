@@ -41,4 +41,5 @@ const modulesSchema = new mongoose.Schema(
   schemaOptions
 );
 
-module.exports = mongoose.model('Module', module-schema);
+module.exports = mongoose.model('Module', modulesSchema);
+
