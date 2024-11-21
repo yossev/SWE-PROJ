@@ -14,12 +14,12 @@ const progressSchema = new mongoose.Schema(
     },
 
     user_id : { 
-      type: Schema.Types.ObjectId, 
+      type: mongoose.Schema.Types.ObjectId, 
       ref: 'User' , 
       required: true 
     },
     course_id  : { 
-      type: Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
        ref: 'Course', 
        required: true
       },
@@ -36,6 +36,7 @@ const progressSchema = new mongoose.Schema(
       required: true,
     },
   },
+  schemaOptions
 );
 
 module.exports = mongoose.model('ProgressModel', progressSchema);
