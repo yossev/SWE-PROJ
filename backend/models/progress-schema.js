@@ -13,8 +13,16 @@ const progressSchema = new mongoose.Schema(
       minlength: 1, 
     },
 
-    user_id : [{ type: Schema.Types.ObjectId, ref: 'User' , required: true}],
-    course_id  : [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    user_id : { 
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: 'User' , 
+      required: true 
+    },
+    course_id  : { 
+      type: mongoose.Schema.Types.ObjectId,
+       ref: 'Course', 
+       required: true
+      },
 
     completion_percentage: {
       type: Number, 
@@ -28,6 +36,7 @@ const progressSchema = new mongoose.Schema(
       required: true,
     },
   },
+  schemaOptions
 );
 
 module.exports = mongoose.model('ProgressModel', progressSchema);
