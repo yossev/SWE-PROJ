@@ -3,12 +3,6 @@ import mongoose, { HydratedDocument } from 'mongoose';
 
 export type ModuleDocument = HydratedDocument<Module>;
 
-const url = "mongodb://localhost:27017/"
-mongoose.connect(url).then((ans) => { 
-    console.log("Connecting SuccesFul!") 
-  }).catch((err) => { 
-    console.log("Error in the Connection") 
-  })
 @Schema()
 export class Module extends Document {
 
