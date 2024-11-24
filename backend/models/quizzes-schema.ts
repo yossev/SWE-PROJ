@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 
 export type QuizDocument = HydratedDocument<Quiz>;
+
 const url = "mongodb://localhost:27017/"
 mongoose.connect(url).then((ans) => { 
     console.log("Connecting SuccesFul!") 
@@ -12,8 +13,8 @@ mongoose.connect(url).then((ans) => {
 @Schema()
 export class Quiz {
 
-  @Prop({ type: String, required: true })
-  module_id: string;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref:'Module',required: true })
+  module_id: mongoose.Schema.Types.ObjectId;
 
   @Prop({
     type: [

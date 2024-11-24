@@ -1,5 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
+
+export type NoteDocument = HydratedDocument<Note>;
+
 const url = "mongodb://localhost:27017/"
 mongoose.connect(url).then((ans) => { 
     console.log("Connecting SuccesFul!") 
@@ -8,8 +11,6 @@ mongoose.connect(url).then((ans) => {
   })
 @Schema()
 export class Note {
-    @Prop({ type: String , required : true , unique: true , minlength: 1})
-    note_id : String;
 
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
     user_id: mongoose.Schema.Types.ObjectId; 

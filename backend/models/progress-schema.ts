@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
+
 export type ProgressDocument = HydratedDocument<Progress>;
 
 const url = "mongodb://localhost:27017/"

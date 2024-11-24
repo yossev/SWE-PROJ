@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose,{ HydratedDocument } from 'mongoose';
 
 export type ResponseDocument = HydratedDocument<Response>;
+
 const url = "mongodb://localhost:27017/"
 mongoose.connect(url).then((ans) => { 
     console.log("Connecting SuccesFul!") 
@@ -10,14 +11,12 @@ mongoose.connect(url).then((ans) => {
   })
 @Schema({ timestamps: true, strict: false })
 export class Response {
-  @Prop({ type: String, unique: true, required: true })
-  responseId: string;
 
-  @Prop({ type: String, required: true })
-  userId: string;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
+  user_id: mongoose.Schema.Types.ObjectId;
 
-  @Prop({ type: String, required: true })
-  quizId: string;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Quiz', required: true })
+  quiz_id: mongoose.Schema.Types.ObjectId;
 
   @Prop({
     type: [

@@ -2,6 +2,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 
+export type UserDocument = HydratedDocument<User>;
+
 const url = "mongodb://localhost:27017/"
 mongoose.connect(url).then((ans) => { 
     console.log("Connecting SuccesFul!") 
