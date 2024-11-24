@@ -7,7 +7,7 @@ mongoose.connect(url).then((ans) => {
     console.log("Connecting SuccesFul!") 
   }).catch((err) => { 
     console.log("Error in the Connection") 
-  }) 
+}) 
 
 @Schema()
 export class User
