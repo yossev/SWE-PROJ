@@ -1,12 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 
+export type CourseDocument = HydratedDocument<Course>;
 
 @Schema()
 export class Course {
-  @Prop({ type: String, required: true, unique: true, minLength: 3 })
-  course_id: string;
-
   @Prop({ type: String, required: true, minLength: 3, maxLength: 100 })
   title: string;
 
