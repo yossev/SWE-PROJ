@@ -1,10 +1,10 @@
 {
+  "scripts": {
+    "start": "nest start"
+  },
   "dependencies": {
     "@nestjs/mongoose": "^10.1.0",
     "mongoose": "^8.8.2",
     "nestjs": "^0.0.1"
-  },
-  "devDependencies": {
-    "@types/mongoose": "^5.x.x" 
   }
 }
