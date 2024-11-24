@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
-export type CourseDocument = HydratedDocument<Progress>;
+export type ProgressDocument = HydratedDocument<Progress>;
 
 const url = "mongodb://localhost:27017/"
 mongoose.connect(url).then((ans) => { 
@@ -8,7 +8,7 @@ mongoose.connect(url).then((ans) => {
   }).catch((err) => { 
     console.log("Error in the Connection") 
   })
-  
+
 @Schema()
 
 export class Progress { 
@@ -19,10 +19,10 @@ export class Progress {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true })
   course_id: mongoose.Schema.Types.ObjectId; 
 
-  @Prop({ type: String, required: true, minLength: 0, maxLength: 100 })
+  @Prop({ type: Number, required: true, min: 0, max: 100 })
   completion_percentage: Number;
 
-  @Prop({ type: Date, default: new Date(), required: true})
+  @Prop({ type: Date, default: () => new Date(), required: true})
   last_accessed: Date;
 
 }
