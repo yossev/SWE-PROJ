@@ -6,5 +6,8 @@
     "@nestjs/mongoose": "^10.1.0",
     "mongoose": "^8.8.2",
     "nestjs": "^0.0.1"
+  },
+  "devDependencies": {
+    "axios": "^1.7.7"
   }
 }
