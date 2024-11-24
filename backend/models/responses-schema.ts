@@ -16,13 +16,16 @@ export class Response {
   @Prop({
     type: [
       {
-        questionId: { type: String, required: true },
-        answer: { type: String, required: true },
+        questionId: { type: mongoose.Schema.Types.ObjectId, ref: 'Quiz.questions', required: true }, // Reference to the question in the Quiz schema
+        answer: { type: String, required: true }, // User's answer to the question
       },
     ],
     required: true,
   })
-  answers: { questionId: string; answer: string }[];
+  answers: Array<{
+    questionId: mongoose.Types.ObjectId; // Reference to a question in the Quiz schema
+    answer: string; // User's answer to the question
+  }>;
 
   @Prop({ type: Number, min: 0 })
   score: number;
