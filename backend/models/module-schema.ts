@@ -18,7 +18,7 @@ export class Module extends Document {
   @Prop({ type: [String], required: false })
   resources: string[];
 
-  @Prop({ type: Date, default: Date.now })
+  @Prop({ type: Date,  default: () => new Date() })
   created_at: Date;
 }
 

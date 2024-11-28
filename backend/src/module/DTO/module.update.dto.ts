@@ -1,21 +1,25 @@
-import { IsOptional, IsEnum, IsNumber, Min, IsArray, ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer';
-import { QuestionType } from '../DTO/module.question.dto';
-import { QuestionDto } from '../DTO/module.question.dto';
+import { IsNotEmpty, IsString, IsOptional, IsArray, IsDate, Length } from 'class-validator';
+import { Types } from 'mongoose';
 
-export class UpdateQuizDto {
-  @IsOptional()
-  @IsEnum(QuestionType)
-  questionType?: QuestionType;
+export class UpdateModuleDto {
+  course_id: Types.ObjectId;
 
   @IsOptional()
-  @IsNumber()
-  @Min(1)
-  numberOfQuestions?: number;
+  @IsString()
+  @Length(1, 100)
+  title?: string;
+
+  @IsOptional()
+  @IsString()
+  @Length(1, 5000)
+  content?: string;
 
   @IsOptional()
   @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => QuestionDto)
-  questions?: QuestionDto[];
+  @IsString({ each: true })
+  resources?: string[];
+
+  @IsOptional()
+  @IsDate()
+  created_at?: Date;
 }

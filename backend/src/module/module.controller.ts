@@ -1,48 +1,41 @@
 import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import { ModuleService } from './module.service'; 
 import {Quiz } from '../../models/quizzes-schema';   
-import { CreateQuizDto } from './DTO/module.create.dto';
-import { UpdateQuizDto } from './DTO/module.update.dto';
+import {Module } from '../../models/module-schema'; 
+import { UpdateModuleDto } from './DTO/module.update.dto';
+import { CreateModuleDto } from './DTO/module.create.dto';
+
 @Controller('interactive')
 export class ModuleController {
     constructor(private readonly moduleService: ModuleService) {} 
 
     @Get()
-    async getAllQuizzes(): Promise<Quiz[]> {
+    async getAllModules(): Promise<Module[]> {
         return await this.moduleService.findAll();
     }
     @Get(':id')
-    async getQuizById(@Param('id') id: string):Promise<Quiz> {
-        const quiz = await this.moduleService.findById(id);
-        return quiz;
+    async getModuleById(@Param('id') id: string):Promise<Module> {
+        const module = await this.moduleService.findById(id);
+        return module;
     }
 
     @Post()
-    async createQuiz(@Body()quizData: CreateQuizDto) :Promise<Quiz> {
-        const newQuiz = await this.moduleService.create(quizData);
-        return newQuiz;
+    async createModule(@Body()moduleData: CreateModuleDto) :Promise<Module> {
+        const newModule= await this.moduleService.create(moduleData);
+        return newModule;
     }
 
     @Put(':id')
-    async updateQuiz(@Param('id') id:string,@Body()quizData: UpdateQuizDto) :Promise<Quiz>{
-        const updatedQuiz = await this.moduleService.update(id, quizData);
-        return updatedQuiz;       
+    async updateModule(@Param('id') id:string,@Body()moduleData: UpdateModuleDto) :Promise<Module>{
+        const updatedModule = await this.moduleService.update(id, moduleData);
+        return updatedModule;       
     }
     
     @Delete(':id')
-    async deleteQuiz(@Param('id')id:string):Promise<Quiz>  {
-        const deletedquiz = await this.moduleService.delete(id);
-       return deletedquiz;
+    async deleteModule(@Param('id')id:string):Promise<Module>  {
+        const deletedmodule = await this.moduleService.delete(id);
+       return deletedmodule;
     }
-
-     @Post('generate/:moduleId')
-     async generateQuiz(
-       @Param('moduleId') moduleId: string,
-       @Body('userAnswers') userAnswers: string[] 
-     ): Promise<any> {
-       const generatedQuiz = await this.moduleService.generateQuiz(moduleId, userAnswers);
-       return generatedQuiz;
-     }
 
 }
 
