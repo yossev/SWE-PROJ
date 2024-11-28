@@ -8,19 +8,17 @@ export class ModuleController {
     constructor(private readonly moduleService: ModuleService) {} 
 
     @Get()
-    // Get all quizzes
     async getAllQuizzes(): Promise<Quiz[]> {
         return await this.moduleService.findAll();
     }
     @Get(':id')
-    // Get a single quiz by ID
     async getQuizById(@Param('id') id: string):Promise<Quiz> {
         const quiz = await this.moduleService.findById(id);
         return quiz;
     }
 
     @Post()
-    async createQuiz(@Body()quizData: CreateQuizDto) :Promise<Quiz> {// Get the new student data from the request body
+    async createQuiz(@Body()quizData: CreateQuizDto) :Promise<Quiz> {
         const newQuiz = await this.moduleService.create(quizData);
         return newQuiz;
     }
@@ -36,11 +34,11 @@ export class ModuleController {
         const deletedquiz = await this.moduleService.delete(id);
        return deletedquiz;
     }
-     // Generate a dynamic quiz for a user
+
      @Post('generate/:moduleId')
      async generateQuiz(
        @Param('moduleId') moduleId: string,
-       @Body('userAnswers') userAnswers: string[]  // Array of answers from the user
+       @Body('userAnswers') userAnswers: string[] 
      ): Promise<any> {
        const generatedQuiz = await this.moduleService.generateQuiz(moduleId, userAnswers);
        return generatedQuiz;
