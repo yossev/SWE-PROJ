@@ -15,7 +15,6 @@ export class Progress {
   @Prop({ type: Number, required: true, min: 0, max: 100 })
   completion_percentage: number; 
 
-
   @Prop({ type: Date, default: () => new Date(), required: true})
   last_accessed: Date;
 

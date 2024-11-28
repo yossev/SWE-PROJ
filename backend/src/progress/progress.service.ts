@@ -2,9 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Progress, ProgressDocument } from '../../models/progress-schema';
-import { CreateProgressDTO } from './createProgress.dto'; 
-import { UpdateProgressDTO } from './updateProgress.dto';  
-import {Types} from 'mongoose';
+import { CreateProgressDTO } from './dto/createProgress.dto'; 
+import { UpdateProgressDTO } from './dto/updateProgress.dto';  
 
 @Injectable()
 export class ProgressService {
@@ -13,18 +12,10 @@ export class ProgressService {
     ) { }
 
   async create(createProgressDto: CreateProgressDTO): Promise<Progress> {
-    const { user_id, course_id, completion_percentage, last_accessed } = createProgressDto;
-    // Convert user_id and course_id from string to ObjectId
-    const newProgress = new this.progressModel({
-      user_id: new Types.ObjectId(user_id),  
-      course_id: new Types.ObjectId(course_id),  
-      completion_percentage,
-      last_accessed,
-    });
+    const newProgress = new this.progressModel(createProgressDto);
     return newProgress.save();  
   }
       
-     
     async findAll(): Promise<Progress[]> {
         return this.progressModel.find().exec();
     }
@@ -38,16 +29,10 @@ export class ProgressService {
     }
 
     async update(id: string, updateProgressDto: UpdateProgressDTO): Promise<Progress> {
-        const { user_id, course_id, completion_percentage, last_accessed } = updateProgressDto;
         const updatedProgress = await this.progressModel
-          .findOneAndUpdate(
+          .findByIdAndUpdate(
             { _id: id },
-            {
-              user_id: new Types.ObjectId(user_id),  
-              course_id: new Types.ObjectId(course_id),  
-              completion_percentage,
-              last_accessed,
-            },
+            { updateProgressDto},
             { new: true }  
           )
           .exec();
