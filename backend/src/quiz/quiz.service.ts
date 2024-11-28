@@ -66,10 +66,7 @@ export class QuizService {
     let totalQuestions = 0;
     let currentDifficulty = 'Easy';
     let feedback = [];
-
     let incorrectQuestions = [];
-  
-
     let selectedQuestions = easyQuestions;
     let currentIndex = 0;
 
