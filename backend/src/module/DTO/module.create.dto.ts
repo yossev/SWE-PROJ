@@ -1,33 +1,21 @@
-import { IsString, IsArray, IsNotEmpty, IsEnum, IsNumber, Min, ValidateNested } from 'class-validator'; 
+import { IsString, IsNotEmpty, IsEnum, IsNumber, Min, IsArray, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
-
-// Enum for Question Type
-enum QuestionType {
-  MCQ = 'MCQ',
-  TrueFalse = 'TrueFalse',
-  Both = 'Both'
-}
-
+import { QuestionType } from '../DTO/module.question.dto';
+import { QuestionDto } from '../DTO/module.question.dto';
 export class CreateQuizDto {
-  
   @IsString()
   @IsNotEmpty()
-  moduleId: string;  // Link to the Module
+  moduleId: string;
 
-  @IsEnum(QuestionType)  // Use enum for stronger type validation
-  questionType: QuestionType;  
+  @IsEnum(QuestionType)
+  questionType: QuestionType;
 
   @IsNumber()
-  numberOfQuestions: number;  
+  @Min(1)
+  numberOfQuestions: number;
 
   @IsArray()
-  @IsNotEmpty()
-  @Type(() => Object)
-  questions: Array<{
-    question: string | number;  // The question can be a string or a number
-    options: (string | number)[];  // The options can be an array of strings or numbers
-    correctAnswer: string | number;  // The correct answer can be a string or a number
-    difficultyLevel: 'Easy' | 'Medium' | 'Hard';  // The difficulty level can be 'Easy', 'Medium', or 'Hard'
-  }>;
-
+  @ValidateNested({ each: true })
+  @Type(() => QuestionDto)
+  questions: QuestionDto[];
 }

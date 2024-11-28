@@ -36,6 +36,14 @@ export class ModuleController {
         const deletedquiz = await this.moduleService.delete(id);
        return deletedquiz;
     }
+     // Generate a dynamic quiz for a user
+  @Post('generate/:moduleId')
+  async generateQuiz(
+    @Param('moduleId') moduleId: string,
+    @Body('performanceLevel') performanceLevel: 'Easy' | 'Medium' | 'Hard'
+  ): Promise<Quiz> {
+    return await this.moduleService.generateQuiz(moduleId, performanceLevel);
+  }
 
 
 }

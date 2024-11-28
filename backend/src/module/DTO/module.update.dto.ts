@@ -1,30 +1,21 @@
-import { IsString, IsArray, IsOptional, IsEnum, IsNumber, IsNotEmpty } from 'class-validator';
+import { IsOptional, IsEnum, IsNumber, Min, IsArray, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
+import { QuestionType } from '../DTO/module.question.dto';
+import { QuestionDto } from '../DTO/module.question.dto';
 
-enum QuestionType {
-  MCQ = 'MCQ',
-  TrueFalse = 'TrueFalse',
-  Both = 'Both'
-}
 export class UpdateQuizDto {
-  
   @IsOptional()
-  @IsEnum(QuestionType)  // Ensure the questionType is valid if provided
+  @IsEnum(QuestionType)
   questionType?: QuestionType;
 
   @IsOptional()
   @IsNumber()
+  @Min(1)
   numberOfQuestions?: number;
 
   @IsOptional()
   @IsArray()
-  @IsNotEmpty()
-  @Type(() => Object)
-  questions?: Array<{
-    question: string | number;
-    options: (string | number)[];
-    correctAnswer: string | number;
-    difficultyLevel: 'Easy' | 'Medium' | 'Hard';
-  }>;
-
+  @ValidateNested({ each: true })
+  @Type(() => QuestionDto)
+  questions?: QuestionDto[];
 }
