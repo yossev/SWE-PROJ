@@ -22,6 +22,9 @@ export class Course {
 
   @Prop({ type: Date, default: new Date(), required: true })
   created_at: Date;
+
+  @Prop({type: [String], default: []}) // Possible Changes here, Default can be 1s
+  versions: string[]; 
 }
 
 export const CourseSchema = SchemaFactory.createForClass(Course);

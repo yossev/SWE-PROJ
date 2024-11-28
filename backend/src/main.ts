@@ -1,13 +1,14 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 const dotenv = require("dotenv");
+dotenv.config({ path: './.env' });
 const mongoose=require('mongoose');
 const express=require('express');
 
 const mongoUri = process.env.MONGODB_URI;
-dotenv.config({ path: './.env' });
 
 console.log('MongoDB URI:', process.env.MONGO_URI);
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   await mongoose.connect(mongoUri , {
