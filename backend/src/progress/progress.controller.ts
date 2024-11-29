@@ -13,6 +13,12 @@ export class ProgressController {
     async create(@Body() progressData: CreateProgressDTO): Promise<Progress> {
         return this.progressService.create(progressData);
     }
+    // Get dashboard
+    @Get('dashboard/:userId/:courseId')
+    async getDashboard(@Param('userId') userId: string, @Param('courseId') courseId: string) {
+      return await this.progressService.getDashboard(userId, courseId);
+    }
+    
     // Get all progress records
     @Get()
     async findAll(): Promise<Progress[]> {

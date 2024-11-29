@@ -4,19 +4,23 @@ export type ProgressDocument = HydratedDocument<Progress>;
 
 @Schema()
 
-export class Progress { 
+export class Progress {
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
   user_id: mongoose.Schema.Types.ObjectId;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true })
-  course_id: mongoose.Schema.Types.ObjectId; 
+  course_id: mongoose.Schema.Types.ObjectId;
 
   @Prop({ type: Number, required: true, min: 0, max: 100 })
-  completion_percentage: number; 
+  completion_percentage: number;
 
-  @Prop({ type: Date, default: () => new Date(), required: true})
+  @Prop({ type: Date, default: () => new Date(), required: true })
   last_accessed: Date;
+
+  // Added attendance to include it in engagement trends
+  @Prop({ type: Boolean, required: true })
+  attendance: Boolean;
 
 }
 

@@ -5,12 +5,12 @@ export class UpdateProgressDTO {
   @IsOptional()
   @IsMongoId()
   @IsNotEmpty()
-  user_id?: mongoose.Types.ObjectId;
+  user_id?: string;
 
   @IsOptional()
   @IsMongoId()
   @IsNotEmpty()
-  course_id?: mongoose.Types.ObjectId; 
+  course_id?: string; 
 
   @IsOptional()
   @IsNumber()

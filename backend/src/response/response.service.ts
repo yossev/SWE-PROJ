@@ -11,16 +11,16 @@ export class ResponseService {
         @InjectModel(Response.name) private responseModel: Model<ResponsesDocument>,
     ) { }
 
-  async create(createResponseDto: CreateResponseDto): Promise<Response> {
+  async create(createResponseDto: CreateResponseDto): Promise<Responses> {
     const newResponse = new this.responseModel(createResponseDto);
     return newResponse.save();  
   }
       
-    async findAll(): Promise<Response[]> {
+    async findAll(): Promise<Responses[]> {
         return this.responseModel.find().exec();
     }
 
-    async findOne(id: string): Promise<Response> {
+    async findOne(id: string): Promise<Responses> {
         const response = await this.responseModel.findOne({ _id: id }).exec();
         if (!response) {
             throw new NotFoundException(`Response record with ID ${id} not found`);
@@ -28,7 +28,7 @@ export class ResponseService {
         return response;
     }
 
-    async update(id: string, updateResponseDto: UpdateResponseDto): Promise<Response> {
+    async update(id: string, updateResponseDto: UpdateResponseDto): Promise<Responses> {
         const updatedResponse = await this.responseModel
           .findByIdAndUpdate(id, updateResponseDto, { new: true }).exec();
         if (!updatedResponse) {

@@ -3,17 +3,17 @@ import mongoose from 'mongoose';
 export class UpdateResponseDto {
   @IsMongoId()
   @IsOptional()
-  user_id?: mongoose.Types.ObjectId; 
+  user_id?: string; 
 
   @IsMongoId()
   @IsOptional()
-  quiz_id?: mongoose.Types.ObjectId; 
+  quiz_id?: string; 
 
   @IsArray()
   @IsOptional()
   @IsNotEmpty({ each: true })
   answers?: Array<{
-    questionId: mongoose.Types.ObjectId; 
+    questionId: string; 
     answer: string;
   }>;
 

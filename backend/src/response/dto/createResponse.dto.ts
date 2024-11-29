@@ -3,16 +3,16 @@ import mongoose from 'mongoose';
 export class CreateResponseDto {
   @IsMongoId()
   @IsNotEmpty()
-  user_id: mongoose.Types.ObjectId;
+  user_id: string;
 
   @IsMongoId()
   @IsNotEmpty()
-  quiz_id: mongoose.Types.ObjectId;
+  quiz_id: string;
 
   @IsArray()
   @IsNotEmpty()
   answers: Array<{
-    questionId: mongoose.Types.ObjectId;
+    questionId: string;
     answer: string;
   }>;
 

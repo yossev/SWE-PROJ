@@ -4,11 +4,11 @@ import mongoose from 'mongoose';
 export class CreateProgressDTO {
   @IsMongoId()
   @IsNotEmpty()
-  user_id: mongoose.Types.ObjectId; 
+  user_id: string; 
 
   @IsMongoId()
   @IsNotEmpty()
-  course_id: mongoose.Types.ObjectId; 
+  course_id: string; 
   
   @IsNumber()
   @Min(0)
