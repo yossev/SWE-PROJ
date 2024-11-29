@@ -12,7 +12,7 @@ export class CreateResponseDto {
   @IsArray()
   @IsNotEmpty()
   answers: Array<{
-    questionId: string;
+    questionId: mongoose.Types.ObjectId;
     answer: string;
   }>;
 
