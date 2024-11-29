@@ -31,4 +31,11 @@ export class CourseService {
     }
     return null;
   }
+  // note: might add debounce function ( Limit Calls while searching )
+  async search(searchTerm: string) {
+    return this.courseModel.find({
+      $text: {$search: searchTerm} // Search on the indexed texts
+    }).exec()
+  }
+
 }
