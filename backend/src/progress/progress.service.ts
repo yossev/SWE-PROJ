@@ -29,20 +29,14 @@ export class ProgressService {
     }
 
     async update(id: string, updateProgressDto: UpdateProgressDTO): Promise<Progress> {
-        const updatedProgress = await this.progressModel
-          .findByIdAndUpdate(
-            { _id: id },
-            { updateProgressDto},
-            { new: true }  
-          )
-          .exec();
-
-        if (!updatedProgress) {
-          throw new NotFoundException(`Progress record with ID ${id} not found`);
-        }
-    
-        return updatedProgress;
+      const updatedProgress = await this.progressModel
+        .findByIdAndUpdate(id, updateProgressDto, { new: true }).exec();
+      if (!updatedProgress) {
+        throw new NotFoundException(`Progress record with ID ${id} not found`);
       }
+  
+      return updatedProgress;
+    }
 
     async delete(id: string): Promise<void> {
         const result = await this.progressModel.deleteOne({ _id: id }).exec();

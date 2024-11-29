@@ -1,6 +1,48 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Progress, ProgressDocument } from '../../models/progress-schema';
+import { Responses, ResponsesDocument } from '../../models/responses-schema';
 import { CreateResponseDto } from './dto/createResponse.dto'; 
-import { UpdateResponseDto, UpdateAnswerDto } from './dto/updateResponse.dto'; 
+import { UpdateResponseDto } from './dto/updateResponse.dto'; 
+ 
+@Injectable()
+export class ResponseService {
+    constructor(
+        @InjectModel(Response.name) private responseModel: Model<ResponsesDocument>,
+    ) { }
+
+  async create(createResponseDto: CreateResponseDto): Promise<Response> {
+    const newResponse = new this.responseModel(createResponseDto);
+    return newResponse.save();  
+  }
+      
+    async findAll(): Promise<Response[]> {
+        return this.responseModel.find().exec();
+    }
+
+    async findOne(id: string): Promise<Response> {
+        const response = await this.responseModel.findOne({ _id: id }).exec();
+        if (!response) {
+            throw new NotFoundException(`Response record with ID ${id} not found`);
+        }
+        return response;
+    }
+
+    async update(id: string, updateResponseDto: UpdateResponseDto): Promise<Response> {
+        const updatedResponse = await this.responseModel
+          .findByIdAndUpdate(id, updateResponseDto, { new: true }).exec();
+        if (!updatedResponse) {
+          throw new NotFoundException(`Response record with ID ${id} not found`);
+        }
+    
+        return updatedResponse;
+      }
+
+    async delete(id: string): Promise<void> {
+        const result = await this.responseModel.deleteOne({ _id: id }).exec();
+        if (result.deletedCount === 0) {
+            throw new NotFoundException(`Response record with ID ${id} not found`);
+        }
+    }
+
+}
