@@ -16,7 +16,7 @@ export class ProgressController {
     // Get dashboard
     @Get('dashboard/:userId/:courseId')
     async getDashboard(@Param('userId') userId: string, @Param('courseId') courseId: string) {
-      return await this.progressService.getDashboard(userId, courseId);
+      return await this.progressService.getDashboard(userId);
     }
     
     // Get all progress records
@@ -44,6 +44,11 @@ export class ProgressController {
     @Delete(':id')
     async delete(@Param('id') id: string): Promise<void> {
         return this.progressService.delete(id);
+    }
+
+    @Get('completed/:userId')
+    async getCompletedCourses(@Param('userId') userId: string) {
+        return await this.progressService.getCompletedCourses(userId);
     }
 
 }

@@ -20,7 +20,7 @@ export class Progress {
 
   // Added attendance to include it in engagement trends
   @Prop({ type: Boolean, required: true })
-  attendance: Boolean;
+  attendance: Boolean; 
 
 }
 
