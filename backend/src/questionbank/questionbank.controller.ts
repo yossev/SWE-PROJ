@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, BadRequestException } from '@nestjs/common';
-import { QuestionBankService } from './questionbank.service'; 
-import { QuestionBank } from '../../models/questionbank-schema'; 
+import { QuestionBankService } from './questionbank.service';
+import { QuestionBank } from '../../models/questionbank-schema';
 import { UpdateQuestionBankDto } from './DTO/questionbank.update.dto';
 import { CreateQuestionBankDto } from './DTO/questionbank.create.dto';
 
@@ -9,34 +9,34 @@ export class QuestionBankController {
   constructor(private readonly questionBankService: QuestionBankService) {}
 
   @Get()
-  async getAllQuestionBanks(): Promise<QuestionBank[]> {
-    return await this.questionBankService.findAll();
+  async getAllQuestionBanks(@Body('userId') userId: string): Promise<QuestionBank[]> {
+    return await this.questionBankService.findAll(userId);
   }
 
   @Get(':id')
-  async getQuestionBankById(@Param('id') id: string): Promise<QuestionBank> {
-    const questionBank = await this.questionBankService.findById(id);
-    return questionBank;
+  async getQuestionBankById(@Param('id') id: string, @Body('userId') userId: string): Promise<QuestionBank> {
+    return await this.questionBankService.findById(id, userId); 
   }
 
   @Post()
   async createQuestionBank(
-    @Body() questionBankData: CreateQuestionBankDto, 
-    @Body('userId') userId: string // Include userId in the request body
+    @Body() questionBankData: CreateQuestionBankDto,
+    @Body('userId') userId: string
   ): Promise<QuestionBank> {
-    const newQuestionBank = await this.questionBankService.create(questionBankData, userId); // Pass userId to service
-    return newQuestionBank;
+    return await this.questionBankService.create(questionBankData, userId);
   }
 
   @Put(':id')
-  async updateQuestionBank(@Param('id') id: string, @Body() questionBankData: UpdateQuestionBankDto): Promise<QuestionBank> {
-    const updatedQuestionBank = await this.questionBankService.update(id, questionBankData);
-    return updatedQuestionBank;
+  async updateQuestionBank(
+    @Param('id') id: string,
+    @Body() questionBankData: UpdateQuestionBankDto,
+    @Body('userId') userId: string
+  ): Promise<QuestionBank> {
+    return await this.questionBankService.update(id, questionBankData, userId); 
   }
 
   @Delete(':id')
-  async deleteQuestionBank(@Param('id') id: string): Promise<QuestionBank> {
-    const deletedQuestionBank = await this.questionBankService.delete(id);
-    return deletedQuestionBank;
+  async deleteQuestionBank(@Param('id') id: string, @Body('userId') userId: string): Promise<QuestionBank> {
+    return await this.questionBankService.delete(id, userId);
   }
 }
