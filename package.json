@@ -12,7 +12,8 @@
     "class-validator": "^0.14.1",
     "dotenv": "^16.4.5",
     "mongoose": "^8.8.2",
-    "nestjs": "^0.0.1"
+    "nestjs": "^0.0.1",
+    "socket.io": "^4.8.1"
   },
   "devDependencies": {
     "axios": "^1.7.7"
