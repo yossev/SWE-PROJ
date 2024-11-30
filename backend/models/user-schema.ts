@@ -3,7 +3,7 @@
 
 
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument } from 'mongoose';
+import mongoose, { HydratedDocument, Types } from 'mongoose';
 
 export type UserDocument = HydratedDocument<User>;
 
@@ -11,8 +11,8 @@ export type UserDocument = HydratedDocument<User>;
 @Schema()
 export class User
  {
-    @Prop({type:String,required:true,unique:true,minLength:1})
-    user_id: string;
+    @Prop({type: String,unique:true,minLength:1})
+    user_id: String;
     @Prop({type:String,required:true,minLength:3,maxLength:50})
     name: string;
     @Prop({type:String,
@@ -21,9 +21,8 @@ export class User
         required:true})
         email:string;
     @Prop({type:String,
-        minLength:5,
-        required:true})
-    password_hash:string;
+        minLength:5})
+    password_hash:String;
     @Prop({type:String,
         enum:['student','instructor','admin'],
         required:true})
