@@ -12,8 +12,14 @@ export class Module extends Document {
   @Prop({ type: String, required: true, minlength: 1, maxlength: 100 })
   title: string;
 
+  @Prop({type: String , required : true , enum: ['Easy', 'Medium', 'Hard']})
+  difficulty: string;
+
   @Prop({ type: String, required: true, minlength: 1, maxlength: 5000 })
   content: string;
+
+  @Prop( {type : Boolean , required: true})
+  valid_content : Boolean
 
   @Prop({ type: [String], required: false })
   resources: string[];

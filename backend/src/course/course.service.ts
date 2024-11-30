@@ -25,7 +25,6 @@ export class CourseService {
   async update(id: string, updateCourseDto: UpdateCourseDto) { // Use UpdateCourseDto
     const course = await this.courseModel.findById(id).exec()
     if (course) {
-        course.versions.push(JSON.stringify(course))
         Object.assign(course, UpdateCourseDto) // Update Course
         return course.save()
     }

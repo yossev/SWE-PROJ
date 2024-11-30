@@ -3,9 +3,30 @@ import { ModuleService } from './module.service';
 import {Quiz } from '../../models/quizzes-schema';   
 import { CreateQuizDto } from './DTO/module.create.dto';
 import { UpdateQuizDto } from './DTO/module.update.dto';
+import { CreateModuleDto } from './DTO/createModule.dto';
+import { UpdateModuleDto } from './DTO/updateModule.dto';
 @Controller('interactive')
 export class ModuleController {
     constructor(private readonly moduleService: ModuleService) {} 
+
+    @Post()
+    async createModule(@Body() createModuleDto: CreateModuleDto)
+    {
+        return this.moduleService.createModule(createModuleDto);
+
+    }
+
+    @Put(':id')
+    async updateModule(@Param('id') id: string, @Body() updateModuleDto: UpdateModuleDto) {
+        return this.moduleService.updateModule(id, updateModuleDto);
+    }
+
+    async checkModuleCompatibility(@Param('id') id: string)
+    {
+        return this.moduleService.checkModuleCompatibility(id , 'Above Average');
+        //placeholder value , CHANGE ASAP!!
+    }
+
 
     @Get()
     async getAllQuizzes(): Promise<Quiz[]> {

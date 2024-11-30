@@ -4,6 +4,8 @@ import { Model } from 'mongoose';
 import { Quiz } from '../../models/quizzes-schema';
 import { Module } from '../../models/module-schema'; 
 import { QuestionBank } from '../../models/questionbank-schema';
+import { CreateModuleDto } from './DTO/createModule.dto';
+import { UpdateModuleDto } from './DTO/updateModule.dto';
 import { CreateQuizDto } from './DTO/module.create.dto';
 import { UpdateQuizDto } from './DTO/module.update.dto';
 
@@ -14,6 +16,66 @@ export class ModuleService {
     @InjectModel('Module') private readonly moduleModel: Model<Module>, 
     @InjectModel('QuestionBank') private readonly questionBankModel: Model<QuestionBank>,
   ) {}
+
+  async createModule(createModuleDto : CreateModuleDto)
+  {
+    const createdModule = new this.moduleModel(createModuleDto);
+    return createdModule.save();
+  }
+
+  async updateModule(id : string , updateModuleDto : UpdateModuleDto)
+  {
+    const module = await this.moduleModel.findById(id).exec();
+    if(module)
+    {
+      Object.assign(module, updateModuleDto) // Update Course
+        return module.save()
+    }
+    return null;
+  }
+
+  async checkModuleCompatibility(moduleId: string , performanceMetric : string)
+  {
+    var performanceLevel : String;
+    if (performanceMetric === 'Above Average') {
+      performanceLevel = 'Hard';
+    } else if (performanceMetric === 'Average') {
+      performanceLevel = 'Medium';
+    } else {
+      performanceLevel = 'East';
+    }
+
+    var moduleDifficulty : String = (await this.moduleModel.findById(moduleId).exec()).difficulty;
+    switch(performanceLevel)
+    {
+      case 'Hard':
+        return true;
+      break;
+
+      case 'Medium':
+        if(moduleDifficulty === 'Hard')
+        {
+          return false;
+        }
+        else
+        {
+          return true;
+        }
+      break;
+
+      case 'Easy':
+        if(moduleDifficulty === 'Easy')
+        {
+          return true;
+        }
+        else
+        {
+          return false;
+        }
+    }
+
+    return false;
+  }
 
   async findAll(): Promise<Quiz[]> {
     return await this.quizModel.find();
@@ -134,5 +196,8 @@ export class ModuleService {
       questions: questionDetails, 
     };
   }
+
+
+
   
 }
