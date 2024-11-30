@@ -69,4 +69,8 @@ export class StudentController {
         const deletedUser = await this.userService.delete(id);
        return deletedUser;
     }
+    @Get('courses')
+    async getAllCourses() {
+        return await this.userService.findAllCourses();
+    }
 }

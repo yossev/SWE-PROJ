@@ -3,9 +3,11 @@ import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { User, UserSchema, } from 'models/user-schema';
 import updateUserDto from './dto/updateUser.dto';
+import { Course } from 'models/course-schema';
 
 @Injectable()
 export class UserService {
+    courseModel: mongoose.Model<Course>;
     constructor(
         @InjectModel(User.name) private userModel: mongoose.Model<User>
     ) { }
@@ -44,4 +46,13 @@ export class UserService {
     async delete(id: string): Promise<User> {
         return await this.userModel.findByIdAndDelete(id);  // Find and delete the student
     }
+// ngebha men courses
+    async findAllCourses(): Promise<Course[]> {
+        return await this.courseModel.find(); // Fetch all courses
+    }
+    async findEnrolledCourses(): Promise<Course[]> {
+        return await this.courseModel.find(); // Fetch all courses
+    }
+    
+
 }
