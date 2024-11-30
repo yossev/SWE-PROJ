@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable ,UnauthorizedException} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Quiz } from '../../models/quizzes-schema';
@@ -6,6 +6,7 @@ import { Module } from '../../models/module-schema';
 import { QuestionBank } from '../../models/questionbank-schema';
 import { CreateQuizDto } from './DTO/quiz.create.dto';
 import { UpdateQuizDto } from './DTO/quiz.update.dto';
+import { User } from '../../models/user-schema';
 import { QuestionType, DifficultyLevel } from './DTO/quiz.question.dto'; 
 
 @Injectable()
@@ -14,6 +15,7 @@ export class QuizService {
     @InjectModel('Quiz') private readonly quizModel: Model<Quiz>,
     @InjectModel('Module') private readonly moduleModel: Model<Module>,
     @InjectModel('QuestionBank') private readonly questionBankModel: Model<QuestionBank>,
+    @InjectModel('User') private readonly userModel: Model<User>,
   ) {}
 
   async findAll(): Promise<Quiz[]> {
@@ -33,9 +35,16 @@ export class QuizService {
   }
 
   async generateQuiz(createQuizDto: CreateQuizDto, performance_metric: string, userAnswers: string[], userId: string): Promise<any> {
+    // Ensure the user is an instructor
+    const user = await this.userModel.findById(userId);
+    if (!user || user.role !== 'instructor') {
+      throw new UnauthorizedException('Only instructors can create quizzes.');
+    }
+
     const { moduleId, numberOfQuestions, questionType } = createQuizDto;
-  
-    let difficultyLevels: string[]; 
+
+    // Define difficulty distribution based on performance metric
+    let difficultyLevels: string[];
     if (performance_metric === 'Above Average') {
       difficultyLevels = [DifficultyLevel.Medium, DifficultyLevel.Hard];
     } else if (performance_metric === 'Average') {
@@ -43,9 +52,9 @@ export class QuizService {
     } else {
       difficultyLevels = [DifficultyLevel.Easy];
     }
-  
+
     let questionFilter: any = { moduleId, difficulty_level: { $in: difficultyLevels } };
-  
+
     if (questionType === QuestionType.MCQ) {
       questionFilter.question_type = 'MCQ';
     } else if (questionType === QuestionType.TrueFalse) {
@@ -53,15 +62,16 @@ export class QuizService {
     } else if (questionType === QuestionType.Both) {
       questionFilter.question_type = { $in: ['MCQ', 'True/False'] };
     }
-  
+
     const questions = await this.questionBankModel.find(questionFilter).lean();
-  
     if (questions.length < numberOfQuestions) {
       throw new Error('Not enough questions in the question bank to generate the quiz.');
     }
-  
+
+    // Randomly select the required number of questions
     let selectedQuestions = this.getRandomQuestions(questions, numberOfQuestions);
-  
+
+    // Evaluate user answers
     let correctAnswersCount = 0;
     let incorrectAnswers = [];
     selectedQuestions.forEach((question, index) => {
@@ -76,16 +86,19 @@ export class QuizService {
         });
       }
     });
-  
+
+    // Calculate score
     const score = (correctAnswersCount / numberOfQuestions) * 100;
-  
+
+    // Provide feedback if the score is low
     let feedbackMessage = '';
     if (score < 60) {
       feedbackMessage = 'You have not scored enough. We recommend revisiting the module content and studying the material again.';
     } else {
       feedbackMessage = 'Great job! You have passed the quiz. Keep up the good work!';
     }
-  
+
+    // Save the quiz result (optional: you can save the result to a database)
     const quizResult = {
       moduleId,
       questions: selectedQuestions,
@@ -96,7 +109,7 @@ export class QuizService {
       created_at: new Date(),
       userId,
     };
-  
+
     return {
       success: true,
       score,
@@ -105,7 +118,6 @@ export class QuizService {
       message: 'Quiz completed and feedback provided.',
     };
   }
-  
   private getRandomQuestions(questions: any[], count: number): any[] {
     return questions.sort(() => 0.5 - Math.random()).slice(0, count);
   }
@@ -113,5 +125,5 @@ export class QuizService {
   private shuffleArray(array: any[]): any[] {
     return array.sort(() => 0.5 - Math.random());
   }
-  
+   
 }

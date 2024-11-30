@@ -4,7 +4,7 @@ const mongoose=require('mongoose');
 const express=require('express');
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  await mongoose.connect('mongodb://localhost:27017/' , {
+  await mongoose.connect('XnKPHwzCQsZ9t5Kl@swe-proj-db.pvbso.mongodb.net' , {
   }).then( () => {
      console.log('Connected');
   }).catch((err) => {

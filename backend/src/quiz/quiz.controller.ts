@@ -33,21 +33,18 @@ export class QuizController {
     async generateQuiz(
       @Body() createQuizDto: CreateQuizDto,
       @Body('performance_metric') performanceMetric: string,
-      @Body('userAnswers') userAnswers: string[], // Answers submitted by the user
-      @Body('userId') userId: string, // User ID to identify the student
+      @Body('userId') userId: string, // Assume userId is passed in the body
     ) {
-      // Validate performance metric
-      if (!['Above Average', 'Average', 'Below Average'].includes(performanceMetric)) {
+      if (!['Above Average', 'Medium', 'Below Average'].includes(performanceMetric)) {
         throw new BadRequestException('Invalid performance metric provided.');
       }
   
       try {
-        // Call service to generate the quiz and provide feedback
-        const quizResult = await this.quizService.generateQuiz(createQuizDto, performanceMetric, userAnswers, userId);
+        const quiz = await this.quizService.generateQuiz(createQuizDto, performanceMetric, [], userId);  // Pass userId
         return {
           success: true,
-          message: 'Quiz completed successfully.',
-          data: quizResult,
+          message: 'Quiz generated successfully.',
+          data: quiz,
         };
       } catch (error) {
         throw new BadRequestException(error.message);
