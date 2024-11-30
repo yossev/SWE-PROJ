@@ -1,21 +1,20 @@
-import { IsString, IsNotEmpty, IsEnum, IsNumber, Min, IsArray, ValidateNested } from 'class-validator';
+import { IsString, IsArray, IsNotEmpty, IsEnum, IsOptional, IsNumber } from 'class-validator';
 import { Type } from 'class-transformer';
-import { QuestionType } from './quiz.question.dto';
-import { QuestionDto } from './quiz.question.dto';
+import { QuestionType, DifficultyLevel } from './quiz.question.dto'; 
+import { QuestionDto } from './quiz.question.dto'; 
 export class CreateQuizDto {
   @IsString()
   @IsNotEmpty()
-  moduleId: string;
+  moduleId: string; 
 
   @IsEnum(QuestionType)
-  questionType: QuestionType;
-
+  questionType: QuestionType; 
+  @IsNotEmpty()
   @IsNumber()
-  @Min(1)
-  numberOfQuestions: number;
+  numberOfQuestions: number; 
 
   @IsArray()
-  @ValidateNested({ each: true })
+  @IsOptional()
   @Type(() => QuestionDto)
-  questions: QuestionDto[];
+  questions: QuestionDto[]; 
 }

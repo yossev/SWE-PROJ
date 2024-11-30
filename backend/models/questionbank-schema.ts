@@ -13,10 +13,13 @@ export class QuestionBank {
 
   @Prop({ type: [String], required: true })
   options: string[];
+
   @Prop({ required: true })
   correct_answer: string;
+
   @Prop({ enum: ['Easy', 'Medium', 'Hard'], required: true })
   difficulty_level: string; 
+  
   @Prop({ required: false })
   explanation?: string; 
 }

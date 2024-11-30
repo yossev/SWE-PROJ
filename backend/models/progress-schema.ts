@@ -20,6 +20,7 @@ export class Progress {
 
   @Prop({ type: Date, default: () => new Date(), required: true})
   last_accessed: Date;
+  
 
 }
 

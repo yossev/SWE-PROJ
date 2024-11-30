@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put,BadRequestException } from '@nestjs/common';
 import { QuizService } from './quiz.service'; 
 import {Quiz } from '../../models/quizzes-schema';   
 import { CreateQuizDto } from './DTO/quiz.create.dto';
@@ -17,12 +17,6 @@ export class QuizController {
         return quiz;
     }
 
-    @Post()
-    async createQuiz(@Body()quizData: CreateQuizDto) :Promise<Quiz> {
-        const newQuiz = await this.quizService.create(quizData);
-        return newQuiz;
-    }
-
     @Put(':id')
     async updateQuiz(@Param('id') id:string,@Body()quizData: UpdateQuizDto) :Promise<Quiz>{
         const updatedQuiz = await this.quizService.update(id, quizData);
@@ -35,14 +29,29 @@ export class QuizController {
        return deletedquiz;
     }
 
-     @Post('generate/:moduleId')
-     async generateQuiz(
-       @Param('moduleId') moduleId: string,
-       @Body('userAnswers') userAnswers: string[] 
-     ): Promise<any> {
-       const generatedQuiz = await this.quizService.generateQuiz(moduleId, userAnswers);
-       return generatedQuiz;
-     }
+    @Post('generate')
+async generateQuiz(
+  @Body() createQuizDto: CreateQuizDto,
+  @Body('performance_metric') performanceMetric: string,
+  @Body('userAnswers') userAnswers: string[], // Add userAnswers here
+) {
+ 
+  if (!['Above Average', 'Medium', 'Below Average'].includes(performanceMetric)) {
+    throw new BadRequestException('Invalid performance metric provided.');
+  }
+
+  try {
+    
+    const quiz = await this.quizService.generateQuiz(createQuizDto, performanceMetric, userAnswers); // Pass userAnswers here
+    return {
+      success: true,
+      message: 'Quiz generated successfully.',
+      data: quiz,
+    };
+  } catch (error) {
+    throw new BadRequestException(error.message);
+  }
+}
 
 }
 
