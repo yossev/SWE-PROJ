@@ -30,28 +30,29 @@ export class QuizController {
     }
 
     @Post('generate')
-async generateQuiz(
-  @Body() createQuizDto: CreateQuizDto,
-  @Body('performance_metric') performanceMetric: string,
-  @Body('userAnswers') userAnswers: string[], // Add userAnswers here
-) {
- 
-  if (!['Above Average', 'Medium', 'Below Average'].includes(performanceMetric)) {
-    throw new BadRequestException('Invalid performance metric provided.');
-  }
-
-  try {
-    
-    const quiz = await this.quizService.generateQuiz(createQuizDto, performanceMetric, userAnswers); // Pass userAnswers here
-    return {
-      success: true,
-      message: 'Quiz generated successfully.',
-      data: quiz,
-    };
-  } catch (error) {
-    throw new BadRequestException(error.message);
-  }
-}
+    async generateQuiz(
+      @Body() createQuizDto: CreateQuizDto,
+      @Body('performance_metric') performanceMetric: string,
+      @Body('userAnswers') userAnswers: string[], // Answers submitted by the user
+      @Body('userId') userId: string, // User ID to identify the student
+    ) {
+      // Validate performance metric
+      if (!['Above Average', 'Average', 'Below Average'].includes(performanceMetric)) {
+        throw new BadRequestException('Invalid performance metric provided.');
+      }
+  
+      try {
+        // Call service to generate the quiz and provide feedback
+        const quizResult = await this.quizService.generateQuiz(createQuizDto, performanceMetric, userAnswers, userId);
+        return {
+          success: true,
+          message: 'Quiz completed successfully.',
+          data: quizResult,
+        };
+      } catch (error) {
+        throw new BadRequestException(error.message);
+      }
+    }
 
 }
 

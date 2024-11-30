@@ -32,10 +32,10 @@ export class QuizService {
     return await this.quizModel.findByIdAndDelete(id);
   }
 
-  async generateQuiz(createQuizDto: CreateQuizDto, performance_metric: string, userAnswers: string[]): Promise<any> {
+  async generateQuiz(createQuizDto: CreateQuizDto, performance_metric: string, userAnswers: string[], userId: string): Promise<any> {
     const { moduleId, numberOfQuestions, questionType } = createQuizDto;
   
-    let difficultyLevels: string[];  
+    let difficultyLevels: string[]; 
     if (performance_metric === 'Above Average') {
       difficultyLevels = [DifficultyLevel.Medium, DifficultyLevel.Hard];
     } else if (performance_metric === 'Average') {
@@ -44,7 +44,6 @@ export class QuizService {
       difficultyLevels = [DifficultyLevel.Easy];
     }
   
-
     let questionFilter: any = { moduleId, difficulty_level: { $in: difficultyLevels } };
   
     if (questionType === QuestionType.MCQ) {
@@ -52,7 +51,7 @@ export class QuizService {
     } else if (questionType === QuestionType.TrueFalse) {
       questionFilter.question_type = 'True/False';
     } else if (questionType === QuestionType.Both) {
-      questionFilter.question_type = { $in: ['MCQ', 'True/False'] }; 
+      questionFilter.question_type = { $in: ['MCQ', 'True/False'] };
     }
   
     const questions = await this.questionBankModel.find(questionFilter).lean();
@@ -61,53 +60,52 @@ export class QuizService {
       throw new Error('Not enough questions in the question bank to generate the quiz.');
     }
   
-
-    const distribution = Math.floor(numberOfQuestions / difficultyLevels.length);
-    const remaining = numberOfQuestions % difficultyLevels.length;
+    let selectedQuestions = this.getRandomQuestions(questions, numberOfQuestions);
   
-    let selectedQuestions = [];
-    for (let i = 0; i < difficultyLevels.length; i++) {
-      const levelQuestions = questions.filter(q => q.difficulty_level === difficultyLevels[i]);
-      const count = i === difficultyLevels.length - 1 ? distribution + remaining : distribution;
-      selectedQuestions.push(...this.getRandomQuestions(levelQuestions, count));
-    }
-
-    selectedQuestions = this.shuffleArray(selectedQuestions);
-  
-    let score = 0;
-    let feedback: any[] = [];
+    let correctAnswersCount = 0;
+    let incorrectAnswers = [];
     selectedQuestions.forEach((question, index) => {
       const userAnswer = userAnswers[index];
-      const correctAnswer = question.correctAnswer;
-  
-      if (userAnswer === correctAnswer) {
-        score += 1; 
+      if (userAnswer === question.correctAnswer) {
+        correctAnswersCount++;
       } else {
-        
-        feedback.push({
+        incorrectAnswers.push({
           question: question.question,
-          userAnswer,
-          correctAnswer,
-          feedback: `Incorrect. The correct answer is: ${correctAnswer}, please revise this topic `, 
+          correctAnswer: question.correctAnswer,
+          userAnswer: userAnswer,
         });
       }
     });
   
-    const quiz = new this.quizModel({
+    const score = (correctAnswersCount / numberOfQuestions) * 100;
+  
+    let feedbackMessage = '';
+    if (score < 60) {
+      feedbackMessage = 'You have not scored enough. We recommend revisiting the module content and studying the material again.';
+    } else {
+      feedbackMessage = 'Great job! You have passed the quiz. Keep up the good work!';
+    }
+  
+    const quizResult = {
       moduleId,
       questions: selectedQuestions,
+      userAnswers,
+      score,
+      feedbackMessage,
+      incorrectAnswers,
       created_at: new Date(),
-    });
-  
-    await quiz.save();
+      userId,
+    };
   
     return {
-      score: `${score} / ${numberOfQuestions}`, 
-      feedback, 
+      success: true,
+      score,
+      feedbackMessage,
+      incorrectAnswers,
+      message: 'Quiz completed and feedback provided.',
     };
   }
   
-
   private getRandomQuestions(questions: any[], count: number): any[] {
     return questions.sort(() => 0.5 - Math.random()).slice(0, count);
   }
