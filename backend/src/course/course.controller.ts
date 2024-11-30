@@ -1,5 +1,5 @@
 // SWE-PROJ/backend/src/course/course.controller.ts
-import { Controller, Get, Post, Body, Put, Param, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param, Query, Delete } from '@nestjs/common';
 import { CourseService } from './course.service';
 import { CreateCourseDto } from './dto/createCourse.dto'; 
 import { UpdateCourseDto } from './dto/updateCourse.dto'; 
@@ -17,6 +17,11 @@ export class CourseController {
     @Get()
     findAll() {
         return this.courseService.findAll();
+    }
+
+    @Delete(':id')
+    async delete(@Param('id') id: string){
+        return this.courseService.delete(id);
     }
 
     @Get('search')
