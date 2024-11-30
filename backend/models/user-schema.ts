@@ -28,13 +28,14 @@ export class User
         required:true})
         role:string;
     @Prop({type:String,
-        minLength:10})
-    profile_picture_url:string;
+        minLength:10,required:false})
+    profile_picture_url?:string;
     @Prop({type:Date,
         default:Date.now,
         required:true})
     created_at:Date;
-        
+    @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'Course' })
+    courses: mongoose.Types.ObjectId[];
   }
 
   export const UserSchema = SchemaFactory.createForClass(User);

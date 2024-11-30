@@ -40,7 +40,6 @@ export class UserService {
     async update(id: string, updateData: updateUserDto): Promise<User> {
         return await this.userModel.findByIdAndUpdate(id, updateData, { new: true });  // Find and update the student
     }
-
     // Delete a student by ID
     async delete(id: string): Promise<User> {
         return await this.userModel.findByIdAndDelete(id);  // Find and delete the student

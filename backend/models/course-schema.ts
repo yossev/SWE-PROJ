@@ -30,6 +30,12 @@ export class Course {
 
   @Prop({ type: Date, default: new Date(), required: true })
   created_at: Date;
+  
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+    instructor: mongoose.Types.ObjectId;
+
+    @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'User' })
+    students: mongoose.Types.ObjectId[];
 }
 
 export const CourseSchema = SchemaFactory.createForClass(Course);

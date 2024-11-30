@@ -57,9 +57,11 @@ export class StudentController {
     }
     // Update a student's details
     @Put(':id')
-    async updateUser(@Param('id') id:string,@Body()userData: updateUserDto) {
-        const updatedUser = await this.userService.update(id, userData);
-        return updatedUser;       
+    async updateUser(
+        @Param('id') id: string,
+        @Body() updateData: updateUserDto
+    ) {
+        return await this.userService.update(id, updateData);
     }
     // Delete a student by ID
     @Delete(':id')

@@ -1,8 +1,21 @@
-import {  Course,CourseSchema } from "models/course-schema";
+import { IsString, IsEmail, IsOptional } from 'class-validator';
 
 export default class updateUserDto {
+    @IsOptional()
+    @IsString()
     name?: string;
-    age?: Number;
-    courses?: Course[];
-  }
+
+    @IsOptional()
+    @IsEmail()
+    email?: string;
+
+    @IsOptional()
+    @IsString()
+    password?: string;
+
+    @IsOptional()
+    @IsString()
+    profile_picture_url?: string;
+}
+
 
