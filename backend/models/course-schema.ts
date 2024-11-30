@@ -1,10 +1,14 @@
+/* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
-  
+
 export type CourseDocument = HydratedDocument<Course>;
 
 @Schema()
 export class Course {
+  // eslint-disable-next-line prettier/prettier
   @Prop({ type: String, required: true, minLength: 3, maxLength: 100 })
   title: string;
 
@@ -14,7 +18,11 @@ export class Course {
   @Prop({ type: String, required: true, minLength: 2, maxLength: 50 })
   category: string;
 
-  @Prop({ type: String, required: true, enum: ['Beginner', 'Intermediate', 'Advanced'] })
+  @Prop({
+    type: String,
+    required: true,
+    enum: ['Beginner', 'Intermediate', 'Advanced'],
+  })
   difficulty_level: 'Beginner' | 'Intermediate' | 'Advanced';
 
   @Prop({ type: String, required: true, minLength: 20, maxLength: 500 })

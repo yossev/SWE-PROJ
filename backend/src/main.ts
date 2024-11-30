@@ -1,3 +1,5 @@
+/* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-require-imports */
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 const mongoose=require('mongoose');

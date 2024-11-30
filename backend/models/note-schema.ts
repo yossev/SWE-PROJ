@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 
@@ -13,7 +14,7 @@ export class Note {
     course_id: mongoose.Schema.Types.ObjectId; 
 
     @Prop({ type: String , required : true , unique: true , minlength: 1})
-    content: String;
+    content: string;
 
     @Prop({ type: Date, default: Date.now, required: true})
     created_at: Date;

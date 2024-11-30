@@ -1,3 +1,6 @@
+/* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
@@ -9,25 +12,25 @@ export type UserDocument = HydratedDocument<User>;
 export class User
  {
     @Prop({type:String,required:true,unique:true,minLength:1})
-    user_id: String;
+    user_id: string;
     @Prop({type:String,required:true,minLength:3,maxLength:50})
-    name: String;
+    name: string;
     @Prop({type:String,
         minLength: 10,
         maxLength: 50,
         required:true})
-        email:String;
+        email:string;
     @Prop({type:String,
         minLength:5,
         required:true})
-    password_hash:String;
+    password_hash:string;
     @Prop({type:String,
         enum:['student','instructor','admin'],
         required:true})
-        role:String;
+        role:string;
     @Prop({type:String,
         minLength:10})
-    profile_picture_url:String;
+    profile_picture_url:string;
     @Prop({type:Date,
         default:Date.now,
         required:true})
