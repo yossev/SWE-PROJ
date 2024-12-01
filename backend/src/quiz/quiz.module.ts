@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { QuizController } from './quiz.controller';
+import { quizController } from './quiz.controller';
 import { QuizService } from './quiz.service';
 import { QuizSchema } from '../../models/quizzes-schema';
 import { ModuleSchema } from '../../models/module-schema';
@@ -16,7 +16,7 @@ import { UserSchema } from '../../models/user-schema';
       { name: 'User', schema: UserSchema } 
     ]),
   ],
-  controllers: [QuizController],
+  controllers: [quizController],
   providers: [QuizService],
 })
 export class QuizModule {}

@@ -6,8 +6,8 @@ import { UpdateQuizDto } from './DTO/quiz.update.dto';
 import { QuestionBank } from '../../models/questionbank-schema';
 import { UserModule} from '../user/user/user.module';
 
-@Controller('Quiz')
-export class QuizController {
+@Controller('quiz')
+export class quizController {
     constructor(private readonly quizService: QuizService) {} 
 
     @Get()
@@ -36,7 +36,7 @@ export class QuizController {
     async generateQuiz(
       @Body() createQuizDto: CreateQuizDto,
       @Body('performance_metric') performanceMetric: string,
-      @Body('userId') userId: string, // Assume userId is passed in the body
+      @Body('userId') userId: string, 
     ) {
       if (!['Above Average', 'Medium', 'Below Average'].includes(performanceMetric)) {
         throw new BadRequestException('Invalid performance metric provided.');
