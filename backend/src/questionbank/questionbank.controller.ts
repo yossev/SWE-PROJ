@@ -18,7 +18,7 @@ export class QuestionBankController {
     return await this.questionBankService.findById(id, userId); 
   }
 
-  @Post()
+  @Post('createquestion')
   async createQuestionBank(
     @Body() questionBankData: CreateQuestionBankDto,
     @Body('userId') userId: string

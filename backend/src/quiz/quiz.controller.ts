@@ -3,6 +3,9 @@ import { QuizService } from './quiz.service';
 import {Quiz } from '../../models/quizzes-schema';   
 import { CreateQuizDto } from './DTO/quiz.create.dto';
 import { UpdateQuizDto } from './DTO/quiz.update.dto';
+import { QuestionBank } from '../../models/questionbank-schema';
+import { UserModule} from '../user/user/user.module';
+
 @Controller('Quiz')
 export class QuizController {
     constructor(private readonly quizService: QuizService) {} 
