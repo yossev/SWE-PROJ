@@ -8,6 +8,19 @@ import { CreateModuleDto } from './DTO/createModule.dto';
 import { UpdateModuleDto } from './DTO/updateModule.dto';
 import { CreateQuizDto } from './DTO/module.create.dto';
 import { UpdateQuizDto } from './DTO/module.update.dto';
+import { UploadedFile } from '@nestjs/common';
+
+import { PipeTransform, ArgumentMetadata } from '@nestjs/common';
+
+@Injectable()
+export class FileSizeValidationPipe implements PipeTransform {
+  transform(value: any, metadata: ArgumentMetadata) {
+    // "value" is an object containing the file's attributes and metadata
+    const oneKb = 1000;
+    return value.size < oneKb;
+  }
+}
+
 
 @Injectable()
 export class ModuleService {
@@ -75,6 +88,11 @@ export class ModuleService {
     }
 
     return false;
+  }
+
+  uploadFile(@UploadedFile() file: Express.Multer.File) {
+    console.log('file', file);
+    return 'File upload API';
   }
 
   async findAll(): Promise<Quiz[]> {
