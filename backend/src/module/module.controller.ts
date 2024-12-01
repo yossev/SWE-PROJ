@@ -3,7 +3,7 @@ import { ModuleService } from './module.service';
 import {Quiz } from '../../models/quizzes-schema';   
 import { CreateModuleDto } from './DTO/createModule.dto';
 import { UpdateModuleDto } from './DTO/updateModule.dto';
-import { UseInterceptors } from '@nestjs/common';
+import { UseInterceptors , Query } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { StreamableFile } from '@nestjs/common';
 import { createReadStream } from 'fs';
@@ -12,6 +12,8 @@ import { UploadedFile } from '@nestjs/common';
 import { Express } from 'express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+
+var currentFileName : string;
 
 @Controller('interactive')
 export class ModuleController {
@@ -44,9 +46,10 @@ export class ModuleController {
             destination: './uploads',
             filename: (req, file, callback) => {
               const uniqueSuffix =
-                Date.now() + '-' + Math.round(Math.random() * 1e9);
+              Date.now() + '-' + Math.round(Math.random() * 1e9);
               const ext = extname(file.originalname);
               const filename = `${uniqueSuffix}${ext}`;
+              currentFileName = filename;
               callback(null, filename);
             },
           }),
@@ -54,13 +57,15 @@ export class ModuleController {
       )
     async uploadFile(@UploadedFile() file: Express.Multer.File)
     {
-        return this.moduleService.uploadFile(file);
+      const fileName = currentFileName;
+      console.log("Test -- filename is: " + fileName);
+      return this.moduleService.uploadFile(file , '674cc290f77c8fcd1ea299be' , fileName);
     }
 
     @Get('download')
-    getFile(): StreamableFile {
-      
-      return this.moduleService.getFile();
+    getFile(@Query('fileUrl') fileUrl : string): StreamableFile {
+      console.log('fileUrl is: ' + fileUrl);
+      return this.moduleService.getFile(fileUrl);
     }
 
 

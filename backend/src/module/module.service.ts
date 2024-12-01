@@ -5,6 +5,7 @@ import { Module } from '../../models/module-schema';
 import { StreamableFile } from '@nestjs/common';
 import { createReadStream } from 'fs';
 import { join } from 'path';
+import mongoose from 'mongoose';
 import { CreateModuleDto } from './DTO/createModule.dto';
 import { UpdateModuleDto } from './DTO/updateModule.dto';
 import { CreateQuizDto } from './DTO/module.create.dto';
@@ -89,19 +90,21 @@ export class ModuleService {
     return false;
   }
 
-  uploadFile(@UploadedFile() file: Express.Multer.File) {
+  async uploadFile(@UploadedFile() file: Express.Multer.File , moduleId : string , fileName: string) {
+    var currentModule = await this.moduleModel.findById(new mongoose.Types.ObjectId(moduleId)).exec();
+    console.log('Current Module title is: ' + currentModule.title)
+    currentModule.resources.push(fileName);
+    currentModule.save();
     console.log('file is: ' + file);
     return 'File upload API';
   }
 
-  getFile(): StreamableFile {
-    const fileurl =  'uploads/Course-Module-Quiz Elaboration.pdf';
-    const filearray = fileurl.split("/", 2); 
-    const filedest = filearray[1];
-    const file = createReadStream(join(process.cwd(), fileurl));
+  getFile(fileUrl : string): StreamableFile {
+    const fileRelativeUrl =  'uploads/' + fileUrl;
+    const file = createReadStream(join(process.cwd(), fileRelativeUrl));
     return new StreamableFile(file , {
       type: 'application/octet-stream',
-      disposition: 'attachment; filename="' + filedest + '"',
+      disposition: 'attachment; filename="' + fileUrl + '"',
     });
   }
 
