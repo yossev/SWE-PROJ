@@ -14,8 +14,8 @@ export class ProgressController {
         return this.progressService.create(progressData);
     }
     // Get dashboard
-    @Get('dashboard/:userId/:courseId')
-    async getDashboard(@Param('userId') userId: string, @Param('courseId') courseId: string) {
+    @Get('dashboard/:userId')
+    async getDashboard(@Param('userId') userId: string) {
       return await this.progressService.getDashboard(userId);
     }
     

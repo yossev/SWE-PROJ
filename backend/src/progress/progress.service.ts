@@ -71,9 +71,9 @@ export class ProgressService {
     }
 
     // Calculate average score from responses **CURRENTLY INCORRECT
-    const responses = await this.responseModel.find({ user_id: userId }).exec();
-    const totalScore = responses.reduce((sum, response) => sum + response.score, 0);
-    const averageScore = responses.length ? totalScore / responses.length : 0;
+    // const responses = await this.responseModel.find({ user_id: userId }).exec();
+    // const totalScore = responses.reduce((sum, response) => sum + response.score, 0);
+    // const averageScore = responses.length ? totalScore / responses.length : 0;
     //averg for each course NOT DONE YET
 
 
@@ -83,7 +83,7 @@ export class ProgressService {
 
     for (const progress of progressData) {
       const course = await this.courseModel.findById(progress.course_id).exec();
-      const completionRate = progress.completion_percentage; 
+      const completionRate = progress.completion_percentage;
 
       courseCompletionRates.push({
         courseTitle: course.title,
@@ -96,7 +96,7 @@ export class ProgressService {
     // const completedStudents = progressDataForCourse.filter(progress => progress.completion_percentage === 100).length;
 
     return {
-      averageScore,
+      // averageScore,
       courseCompletionRates,
       //engagementTrends,
       progress,
@@ -128,13 +128,11 @@ export class ProgressService {
     };
 
     for (const studentId of enrolledStudents) {
-      const studentResponses = await this.responseModel
-        .find({ user_id: studentId })
-        .exec();
-        // AVERAGE SCORE LOGIC IS CURRENTLY INCORRECT
-
-      const totalScore = studentResponses.reduce((sum, response) => sum + response.score, 0);
-      const averageScore = totalScore / studentResponses.length; 
+      // Calculating **total** average score of student - this logic is same as GPA logic
+      // This is students overall performance -- not tied to any course or module but overall
+        const responses = await this.responseModel.find({ user_id: studentId }).exec();
+        const totalScore = responses.reduce((sum, response) => sum + (response.score || 0), 0);
+        const averageScore = responses.length ? totalScore / responses.length : 0;
 
       if (averageScore < 50) {
         performanceMetrics.belowAverage += 1;
@@ -145,7 +143,7 @@ export class ProgressService {
       } else {
         performanceMetrics.excellent += 1;
       }
-    }
+    }  //perf metric function 
 
     return {
       enrolledStudentsCount: enrolledStudents.length,
@@ -153,10 +151,11 @@ export class ProgressService {
       performanceMetrics,
     };
   }
+
   // Instructor Analytics -- Reports on content effectiveness 
   // getting the rating --
 
-}
+}// Downloadable Analytics --allow instructors to download detailed reports about student progress and performance.
 
 
 

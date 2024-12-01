@@ -18,10 +18,6 @@ export class Progress {
   @Prop({ type: Date, default: () => new Date(), required: true })
   last_accessed: Date;
 
-  // Added attendance to include it in engagement trends
-  @Prop({ type: Boolean, required: true })
-  attendance: Boolean; 
-
 }
 
 export const ProgressSchema = SchemaFactory.createForClass(Progress);
