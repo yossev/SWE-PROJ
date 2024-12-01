@@ -1,16 +1,18 @@
 import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import { ModuleService } from './module.service'; 
 import {Quiz } from '../../models/quizzes-schema';   
-import { CreateQuizDto } from './DTO/module.create.dto';
-import { UpdateQuizDto } from './DTO/module.update.dto';
 import { CreateModuleDto } from './DTO/createModule.dto';
 import { UpdateModuleDto } from './DTO/updateModule.dto';
 import { UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { StreamableFile } from '@nestjs/common';
+import { createReadStream } from 'fs';
+import { join } from 'path';
 import { UploadedFile } from '@nestjs/common';
 import { Express } from 'express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+
 @Controller('interactive')
 export class ModuleController {
     constructor(private readonly moduleService: ModuleService) {} 
@@ -27,6 +29,7 @@ export class ModuleController {
         return this.moduleService.updateModule(id, updateModuleDto);
     }
 
+    @Post('moduleLevel')
     async checkModuleCompatibility(@Param('id') id: string)
     {
         return this.moduleService.checkModuleCompatibility(id , 'Above Average');
@@ -51,47 +54,15 @@ export class ModuleController {
       )
     async uploadFile(@UploadedFile() file: Express.Multer.File)
     {
-        this.moduleService.uploadFile(file);
+        return this.moduleService.uploadFile(file);
     }
 
-
-
-    @Get()
-    async getAllQuizzes(): Promise<Quiz[]> {
-        return await this.moduleService.findAll();
-    }
-    @Get(':id')
-    async getQuizById(@Param('id') id: string):Promise<Quiz> {
-        const quiz = await this.moduleService.findById(id);
-        return quiz;
+    @Get('download')
+    getFile(): StreamableFile {
+      
+      return this.moduleService.getFile();
     }
 
-    @Post()
-    async createQuiz(@Body()quizData: CreateQuizDto) :Promise<Quiz> {
-        const newQuiz = await this.moduleService.create(quizData);
-        return newQuiz;
-    }
-
-    @Put(':id')
-    async updateQuiz(@Param('id') id:string,@Body()quizData: UpdateQuizDto) :Promise<Quiz>{
-        const updatedQuiz = await this.moduleService.update(id, quizData);
-        return updatedQuiz;       
-    }
-    
-    @Delete(':id')
-    async deleteQuiz(@Param('id')id:string):Promise<Quiz>  {
-        const deletedquiz = await this.moduleService.delete(id);
-       return deletedquiz;
-    }
-
-     @Post('generate/:moduleId')
-     async generateQuiz(
-       @Param('moduleId') moduleId: string,
-       @Body('userAnswers') userAnswers: string[] 
-     ): Promise<any> {
-       const generatedQuiz = await this.moduleService.generateQuiz(moduleId, userAnswers);
-       return generatedQuiz;
-     }
 
 }
 
