@@ -8,7 +8,9 @@ import { UpdateProgressDTO } from './dto/updateProgress.dto';
 import { Responses } from '../../models/responses-schema';
 import { Course, CourseDocument } from '../../models/course-schema';
 import mongoose from 'mongoose';
+import * as PDFDocument from 'pdfkit';
 
+import { Response } from 'express';
 @Injectable()
 export class ProgressService {
   constructor(
@@ -113,10 +115,10 @@ export class ProgressService {
     }
 
     // Number of enrolled students
-    const enrolledStudents = await this.progressModel.distinct('user_id', { course_id: courseId }).exec(); 
+    const enrolledStudents = await this.progressModel.distinct('user_id', { course_id: courseId }).exec();
 
     // Number of students completed the course
-    const completedStudents = await this.progressModel.find({course_id: courseId, completion_percentage: 100,}).exec();
+    const completedStudents = await this.progressModel.find({ course_id: courseId, completion_percentage: 100, }).exec();
     const completedStudentCount = completedStudents.length;
 
     // Number of students based on performance metrics
@@ -130,9 +132,9 @@ export class ProgressService {
     for (const studentId of enrolledStudents) {
       // Calculating **total** average score of student - this logic is same as GPA logic
       // This is students overall performance -- not tied to any course or module but overall
-        const responses = await this.responseModel.find({ user_id: studentId }).exec();
-        const totalScore = responses.reduce((sum, response) => sum + (response.score || 0), 0);
-        const averageScore = responses.length ? totalScore / responses.length : 0;
+      const responses = await this.responseModel.find({ user_id: studentId }).exec();
+      const totalScore = responses.reduce((sum, response) => sum + (response.score || 0), 0);
+      const averageScore = responses.length ? totalScore / responses.length : 0;
 
       if (averageScore < 50) {
         performanceMetrics.belowAverage += 1;
@@ -155,9 +157,28 @@ export class ProgressService {
   // Instructor Analytics -- Reports on content effectiveness 
   // getting the rating --
 
-}// Downloadable Analytics --allow instructors to download detailed reports about student progress and performance.
+
+  // Downloadable Analytics --allow instructors to download detailed reports about student progress and performance.
+  async exportInstructorAnalyticsPDF(courseId: string, res: Response) {
+    const analytics = await this.getInstructorAnalytics(courseId);
+
+    const doc = new PDFDocument();
+    res.header('Content-Type', 'application/pdf');
+    res.attachment('instructor_analytics.pdf');
+    doc.pipe(res);
+    doc.fontSize(16).text('Instructor Analytics Report', { align: 'center' }).moveDown();
+    doc.text(`Number of enrolled students: ${analytics.enrolledStudentsCount}`);
+    doc.text(`Number of students who completed the course: ${analytics.completedStudentsCount}`);
+    doc.text('Performance Metrics:');
+    doc.text(`Number of students who are below average: ${analytics.performanceMetrics.belowAverage}`);
+    doc.text(`Number of students who are Average: ${analytics.performanceMetrics.average}`);
+    doc.text(`Number of students who are Above Average: ${analytics.performanceMetrics.aboveAverage}`);
+    doc.text(`Number of students who are Excellent: ${analytics.performanceMetrics.excellent}`);
+    doc.end();
+  } 
 
 
+}
 
 
 

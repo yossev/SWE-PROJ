@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Put, Delete, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Res } from '@nestjs/common';
 import { ProgressService } from './progress.service';
 import { Progress, ProgressDocument } from '../../models/progress-schema';
-import { CreateProgressDTO } from './dto/createProgress.dto'; 
-import { UpdateProgressDTO } from './dto/updateProgress.dto';  
+import { CreateProgressDTO } from './dto/createProgress.dto';
+import { UpdateProgressDTO } from './dto/updateProgress.dto';
+import { Response } from 'express';
 
 @Controller('progress')
 export class ProgressController {
@@ -16,9 +17,9 @@ export class ProgressController {
     // Get dashboard
     @Get('dashboard/:userId')
     async getDashboard(@Param('userId') userId: string) {
-      return await this.progressService.getDashboard(userId);
+        return await this.progressService.getDashboard(userId);
     }
-    
+
     // Get all progress records
     @Get()
     async findAll(): Promise<Progress[]> {
@@ -50,5 +51,12 @@ export class ProgressController {
     async getCompletedCourses(@Param('userId') userId: string) {
         return await this.progressService.getCompletedCourses(userId);
     }
+
+    @Get('/export/pdf/:courseId')
+    async exportPDF(@Param('courseId') courseId: string, @Res() res: Response) {
+        await this.progressService.exportInstructorAnalyticsPDF(courseId, res);
+    }
+
+
 
 }
