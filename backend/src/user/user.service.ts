@@ -1,9 +1,11 @@
+/* eslint-disable prettier/prettier */
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { Model } from 'mongoose';
-import { User, UserSchema, } from 'models/user-schema';
+
+import { User  } from 'models/user-schema';
 import updateUserDto from './dto/updateUser.dto';
 import { Course } from 'models/course-schema';
+import mongoose from 'mongoose';
 
 @Injectable()
 export class UserService {
@@ -26,10 +28,11 @@ export class UserService {
     }
     // Get all students
     async findAll(): Promise<User[]> {
-        let students= await this.userModel.find();  // Fetch all students from the database
-        console.log(students)
-        return students
+        const students = await this.userModel.find(); // Fetch all students from the database
+        console.log(students);
+        return students;
     }
+    
 
     // Get a student by ID
     async findById(id: string): Promise<User> {

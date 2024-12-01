@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Module } from '@nestjs/common';
 import { UserSchema } from 'models/user-schema';
 import { MongooseModule } from '@nestjs/mongoose';

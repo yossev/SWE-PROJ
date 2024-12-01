@@ -10,7 +10,7 @@ async function bootstrap() {
   }).then( () => {
      console.log('Connected');
   }).catch((err) => {
-     console.error('MongoDB connection error: ', err);
+     console.error('MongoDB connection error:', err);
   });
   app.use(express.json());
 }

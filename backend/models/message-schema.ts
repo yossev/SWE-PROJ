@@ -1,16 +1,17 @@
+/* eslint-disable prettier/prettier */
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import mongoose, { Document } from 'mongoose';
 // group chat
 @Schema()
 export class Message extends Document {
-  @Prop({ type: String, required: true })
-  userId: string; // ID of the user sending the message
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+  user_id: mongoose.Types.ObjectId;
 
   @Prop({ type: String, required: true })
   content: string; // Content of the message
 
-  @Prop({ type: String, required: true })
-  roomId: string; // Chat room ID (optional, if needed for group chats)
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'room' })
+    roomId: mongoose.Types.ObjectId;// Chat room ID (optional, if needed for group chats)
 
   @Prop({ type: Date, default: Date.now })
   createdAt: Date; // Timestamp when the message was sent

@@ -1,5 +1,8 @@
+/* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { BadRequestException, ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { UserService } from '../user/user/user.service';  
+import { UserService } from '../user/user.service';  
 
 
 
@@ -36,7 +39,7 @@ export class AuthService {
         return 'registered successfully';
       }
 
-    async signIn(email: string, password: string): Promise<{ access_token: string; payload: { userid: String; role: String } }> {
+    async signIn(email: string, password: string): Promise<{ access_token: string; payload: { userid: string; role: string } }> {
     const user = await this.usersService.findByEmail(email);
     if (!user) {
         throw new NotFoundException('User not found');

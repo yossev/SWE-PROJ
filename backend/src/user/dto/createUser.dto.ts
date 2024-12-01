@@ -1,3 +1,6 @@
+/* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 // createUser.dto.ts
 import { Course,CourseSchema } from 'models/course-schema';  // Assuming you want to use the Course schema
 import {IsOptional} from 'class-validator';

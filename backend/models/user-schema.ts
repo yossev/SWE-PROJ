@@ -12,7 +12,7 @@ export type UserDocument = HydratedDocument<User>;
 export class User
  {
     @Prop({type: String,unique:true,minLength:1})
-    user_id: String;
+    user_id: string;
 
     @Prop({type:String,required:true,minLength:3,maxLength:50})
     name: string;
@@ -25,7 +25,7 @@ export class User
 
     @Prop({type:String,
         minLength:5})
-    password_hash:String;
+    password_hash:string;
 
     @Prop({type:String,
         enum:['student','instructor','admin'],
@@ -43,6 +43,10 @@ export class User
     
     @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'Course' })
     courses?: mongoose.Types.ObjectId[];
+
+     @Prop({ type: [Types.ObjectId], ref: 'Notification' })
+  notifications?: Types.ObjectId[]; // Array of notifications for the user
+  
   }
 
   export const UserSchema = SchemaFactory.createForClass(User);

@@ -1,17 +1,18 @@
+/* eslint-disable prettier/prettier */
 import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
-import { User,UserSchema } from 'models/user-schema';
+import { User } from 'models/user-schema';
 import * as bcrypt from 'bcrypt';
 
 import { createUserDto } from './dto/createUser.dto';
 import updateUserDto from './dto/updateUser.dto';
 
 
-import { AuthGuard } from '../../auth/guards/authentication.guards';
-import { Public } from '../../auth/decorators/public.decorator';
+import { AuthGuard } from '../auth/guards/authentication.guards';
+import { Public } from '../auth/decorators/public.decorator';
 
-import { Role, Roles } from '../../auth/decorators/roles.decorator';
-import { authorizationGaurd } from '../../auth/guards/authorization.guards';
+import { Role, Roles } from '../auth/decorators/roles.decorator';
+import { authorizationGaurd } from '../auth/guards/authorization.guards';
 import mongoose from 'mongoose';
 
 

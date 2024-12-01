@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 // Enhanced Authorization Middleware
 import { UnauthorizedException } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
