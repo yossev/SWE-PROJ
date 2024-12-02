@@ -1,4 +1,4 @@
-import { Injectable ,UnauthorizedException} from '@nestjs/common';
+import { Injectable ,UnauthorizedException,BadRequestException} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Quiz } from '../../models/quizzes-schema';
@@ -43,16 +43,7 @@ async delete(id: string): Promise<Quiz> {
   return await this.quizModel.findByIdAndDelete(objectId).exec();
 }
 
-
 async generateQuiz(createQuizDto: CreateQuizDto, performance_metric: string, userAnswers: string[], userId: string): Promise<any> {
-  const inpStr: string= userId;
-  const objectIdUser = new mongoose.Types.ObjectId(inpStr); 
-  const user = await this.userModel.findById(objectIdUser).exec();
-  
-  if (!user || user.role !== 'instructor') {
-    throw new UnauthorizedException('Only instructors can create quizzes.');
-  }
-
   const { moduleId, numberOfQuestions, questionType } = createQuizDto;
 
   let difficultyLevels: string[];  
@@ -112,7 +103,7 @@ async generateQuiz(createQuizDto: CreateQuizDto, performance_metric: string, use
     feedbackMessage,
     incorrectAnswers,
     created_at: new Date(),
-    userId: objectIdUser, // Use ObjectId for userId
+    userId: new mongoose.Types.ObjectId(userId), // Use ObjectId for userId
   };
 
   return {
@@ -123,6 +114,7 @@ async generateQuiz(createQuizDto: CreateQuizDto, performance_metric: string, use
     message: 'Quiz completed and feedback provided.',
   };
 }
+
 
   private getRandomQuestions(questions: any[], count: number): any[] {
     return questions.sort(() => 0.5 - Math.random()).slice(0, count);

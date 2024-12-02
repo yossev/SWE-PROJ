@@ -6,6 +6,7 @@ import { QuestionBank } from '../../models/questionbank-schema';
 import { UpdateQuestionBankDto } from './DTO/questionbank.update.dto';
 import { CreateQuestionBankDto } from './DTO/questionbank.create.dto';
 import { User } from '../../models/user-schema';
+import mongoose from 'mongoose';
 
 @Injectable()
 export class QuestionBankService {
@@ -16,47 +17,32 @@ export class QuestionBankService {
   ) {}
 
  
-  async findAll(userId: string): Promise<QuestionBank[]> {
-    const user = await this.userModel.findById(userId);
-    if (!user || user.role !== 'instructor') {
-      throw new UnauthorizedException('Only instructors can search for questions in the question bank.');
-    }
-    return await this.questionBankModel.find();
+  async findAll(): Promise<QuestionBank[]> {
+    return await this.questionBankModel.find().exec();
+}
+
+  async findById(id: string): Promise<QuestionBank> {
+    const inpStrId: string = id;
+    const objectId = new mongoose.Types.ObjectId(inpStrId);
+    return await this.questionBankModel.findById(objectId).exec();
   }
-
-
-  async findById(id: string, userId: string): Promise<QuestionBank> {
-    const user = await this.userModel.findById(userId);
-    if (!user || user.role !== 'instructor') {
-      throw new UnauthorizedException('Only instructors can search for specific question in the question bank.');
-    }
-    return await this.questionBankModel.findById(id);
-  }
-
-  async create(createQuestionBankDto: CreateQuestionBankDto, userId: string): Promise<QuestionBank> {
-    const user = await this.userModel.findById(userId);
-    if (!user || user.role !== 'instructor') {
-      throw new UnauthorizedException('Only instructors can add questions to the question bank.');
-    }
+  
+  async create(createQuestionBankDto: CreateQuestionBankDto): Promise<QuestionBank> {
     const newQuestionBank = new this.questionBankModel(createQuestionBankDto);
     return await newQuestionBank.save();
   }
-
-
-  async update(id: string, updateData: UpdateQuestionBankDto, userId: string): Promise<QuestionBank> {
-    const user = await this.userModel.findById(userId);
-    if (!user || user.role !== 'instructor') {
-      throw new UnauthorizedException('Only instructors can update questions in the question bank.');
-    }
-    return await this.questionBankModel.findByIdAndUpdate(id, updateData, { new: true });
+  
+  async update(id: string, updateData: UpdateQuestionBankDto): Promise<QuestionBank> {
+    const inpStrId: string = id;
+    const objectId = new mongoose.Types.ObjectId(inpStrId);
+    return await this.questionBankModel.findByIdAndUpdate(objectId, updateData, { new: true }).exec();
   }
-
-
-  async delete(id: string, userId: string): Promise<QuestionBank> {
-    const user = await this.userModel.findById(userId);
-    if (!user || user.role !== 'instructor') {
-      throw new UnauthorizedException('Only instructors can delete questions in the question bank.');
-    }
-    return await this.questionBankModel.findByIdAndDelete(id);
+  
+  
+  async delete(id: string): Promise<QuestionBank> {
+    const inpStrId: string = id;
+    const objectId = new mongoose.Types.ObjectId(inpStrId);
+    return await this.questionBankModel.findByIdAndDelete(objectId).exec(); 
   }
-}
+  
+} 
