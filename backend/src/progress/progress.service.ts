@@ -2,22 +2,24 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Progress, ProgressDocument } from '../../models/progress-schema';
-import { Quiz, QuizDocument } from '../../models/quizzes-schema';
+import { Quiz } from '../../models/quizzes-schema';
 import { CreateProgressDTO } from './dto/createProgress.dto';
 import { UpdateProgressDTO } from './dto/updateProgress.dto';
 import { Responses } from '../../models/responses-schema';
-import { Course, CourseDocument } from '../../models/course-schema';
+import { Course } from '../../models/course-schema';
+import { Module } from '../../models/module-schema';
 import mongoose from 'mongoose';
 import * as PDFDocument from 'pdfkit';
-
 import { Response } from 'express';
+
 @Injectable()
 export class ProgressService {
   constructor(
-    @InjectModel(Progress.name) private progressModel: Model<ProgressDocument>,
-    @InjectModel(Response.name) private responseModel: Model<Responses>,
-    @InjectModel(Course.name) private courseModel: Model<Course>,
-    @InjectModel(Quiz.name) private quizModel: Model<Quiz>,
+    @InjectModel('Progress') private progressModel: Model<ProgressDocument>,
+    @InjectModel('Responses') private responseModel: Model<Responses>,
+    @InjectModel('Course') private courseModel: Model<Course>,
+    @InjectModel('Quiz') private quizModel: Model<Quiz>,
+    @InjectModel('Module') private moduleModel: Model<Module>,
 
   ) { }
 
@@ -72,11 +74,22 @@ export class ProgressService {
       throw new NotFoundException(`Dashboard for user ${userId} not found`);
     }
 
-    // Calculate average score from responses **CURRENTLY INCORRECT
-    // const responses = await this.responseModel.find({ user_id: userId }).exec();
-    // const totalScore = responses.reduce((sum, response) => sum + response.score, 0);
-    // const averageScore = responses.length ? totalScore / responses.length : 0;
-    //averg for each course NOT DONE YET
+    // Calculate student's average score for each course 
+    const modules = await this.moduleModel.find({ course_id: progress.course_id }).exec();
+
+    const quizIds = [];
+    for (const module of modules) {
+      const quizzes = await this.quizModel.find({ module_id: module._id }).exec();
+      quizzes.forEach(quiz => quizIds.push(quiz._id));
+    }
+
+    const responses = await this.responseModel.find({
+      user_id: userId,
+      quiz_id: { $in: quizIds },
+    }).exec();
+
+    const totalScore = responses.reduce((sum, response) => sum + (response.score || 0), 0);
+    const averageScore = responses.length ? totalScore / responses.length : 0;
 
 
     // Calculate course completion rate 
@@ -94,11 +107,11 @@ export class ProgressService {
     }
 
     // Engagement trends [attendance, how many students completed the course] -- disregard for now
-    // const progressDataForCourse = await this.progressModel.find({ course_id: courseId }).exec();
+     //const progressDataForCourse = await this.progressModel.find({ course_id: courseId }).exec();
     // const completedStudents = progressDataForCourse.filter(progress => progress.completion_percentage === 100).length;
 
     return {
-      // averageScore,
+      averageScore,
       courseCompletionRates,
       //engagementTrends,
       progress,
@@ -175,7 +188,7 @@ export class ProgressService {
     doc.text(`Number of students who are Above Average: ${analytics.performanceMetrics.aboveAverage}`);
     doc.text(`Number of students who are Excellent: ${analytics.performanceMetrics.excellent}`);
     doc.end();
-  } 
+  }
 
 
 }
