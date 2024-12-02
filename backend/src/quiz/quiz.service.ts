@@ -31,20 +31,23 @@ export class QuizService {
 
 
 async update(id: string, updateData: UpdateQuizDto): Promise<Quiz> {
-  const objectId = new mongoose.Types.ObjectId(id);  
+  const inpStr: string= id;
+  const objectId = new mongoose.Types.ObjectId(inpStr);  
   return await this.quizModel.findByIdAndUpdate(objectId, updateData, { new: true }).exec();
 }
 
 
 async delete(id: string): Promise<Quiz> {
-  const objectId = new mongoose.Types.ObjectId(id);  
+  const inpStr: string= id;
+  const objectId = new mongoose.Types.ObjectId(inpStr);  
   return await this.quizModel.findByIdAndDelete(objectId).exec();
 }
 
 
 async generateQuiz(createQuizDto: CreateQuizDto, performance_metric: string, userAnswers: string[], userId: string): Promise<any> {
-  const objectIdUser = new mongoose.Types.ObjectId(userId); // Convert userId to ObjectId
-  const user = await this.userModel.findById(objectIdUser);
+  const inpStr: string= userId;
+  const objectIdUser = new mongoose.Types.ObjectId(inpStr); 
+  const user = await this.userModel.findById(objectIdUser).exec();
   
   if (!user || user.role !== 'instructor') {
     throw new UnauthorizedException('Only instructors can create quizzes.');
