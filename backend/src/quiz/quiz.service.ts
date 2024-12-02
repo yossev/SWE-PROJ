@@ -32,13 +32,13 @@ export class QuizService {
 
 async update(id: string, updateData: UpdateQuizDto): Promise<Quiz> {
   const objectId = new mongoose.Types.ObjectId(id);  
-  return await this.quizModel.findByIdAndUpdate(objectId, updateData, { new: true });
+  return await this.quizModel.findByIdAndUpdate(objectId, updateData, { new: true }).exec();
 }
 
 
 async delete(id: string): Promise<Quiz> {
   const objectId = new mongoose.Types.ObjectId(id);  
-  return await this.quizModel.findByIdAndDelete(objectId);
+  return await this.quizModel.findByIdAndDelete(objectId).exec();
 }
 
 
