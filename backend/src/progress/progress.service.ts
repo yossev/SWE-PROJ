@@ -10,7 +10,10 @@ import { Course, CourseDocument } from '../../models/course-schema';
 import mongoose from 'mongoose';
 import * as PDFDocument from 'pdfkit';
 
-import { Response } from 'express';
+import { Response } from 'express'; 
+
+
+
 @Injectable()
 export class ProgressService {
   constructor(
@@ -175,7 +178,28 @@ export class ProgressService {
     doc.text(`Number of students who are Above Average: ${analytics.performanceMetrics.aboveAverage}`);
     doc.text(`Number of students who are Excellent: ${analytics.performanceMetrics.excellent}`);
     doc.end();
-  } 
+  }
+
+ async getStudentPerformace(userId: string, courseId: string){
+  const quizzes = await this.quizModel.find({course_id: courseId})
+
+  const quizPerformanceList = [];
+
+  for (const quiz of quizzes) {
+    const performance = await this.responseModel.findOne({user_id: userId, quiz_id: quiz._id })
+
+    if (performance) {
+      quizPerformanceList.push({
+        quizId: quiz._id,
+        score: performance.score,
+        SubmittedAt: performance.submittedAt
+      })
+    }
+  }
+  return quizPerformanceList;
+ }
+
+
 
 
 }
