@@ -33,7 +33,8 @@ export class ModuleService {
   async createModule(createModuleDto : CreateModuleDto)
   {
     const createdModule = new this.moduleModel(createModuleDto);
-    return createdModule.save();
+    createdModule.save();
+    return "Module created and added";
   }
 
   async updateModule(id : string , updateModuleDto : UpdateModuleDto)

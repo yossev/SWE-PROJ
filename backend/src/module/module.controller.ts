@@ -19,7 +19,7 @@ var currentFileName : string;
 export class ModuleController {
     constructor(private readonly moduleService: ModuleService) {} 
 
-    @Post()
+    @Post('create')
     async createModule(@Body() createModuleDto: CreateModuleDto)
     {
         return this.moduleService.createModule(createModuleDto);
