@@ -9,6 +9,7 @@ import { UpdateQuizDto } from './DTO/quiz.update.dto';
 import { User ,UserSchema } from '../../models/user-schema';
 import { QuestionType, DifficultyLevel } from './DTO/quiz.question.dto'; 
 import { UserModule} from '../user/user/user.module';
+import mongoose from 'mongoose';
 @Injectable()
 export class QuizService {
   constructor(
@@ -23,99 +24,103 @@ export class QuizService {
   }
 
   async findById(id: string): Promise<Quiz> {
-    return await this.quizModel.findById(id);
-  }
-
-  async update(id: string, updateData: UpdateQuizDto): Promise<Quiz> {
-    return await this.quizModel.findByIdAndUpdate(id, updateData, { new: true });
-  }
-
-  async delete(id: string): Promise<Quiz> {
-    return await this.quizModel.findByIdAndDelete(id);
-  }
-
-  async generateQuiz(createQuizDto: CreateQuizDto, performance_metric: string, userAnswers: string[], userId: string): Promise<any> {
- 
-    const user = await this.userModel.findById(userId);
-    if (!user || user.role !== 'instructor') {
-      throw new UnauthorizedException('Only instructors can create quizzes.');
-    }
-
-    const { moduleId, numberOfQuestions, questionType } = createQuizDto;
-
-    let difficultyLevels: string[];
-    if (performance_metric === 'Above Average') {
-      difficultyLevels = [DifficultyLevel.Medium, DifficultyLevel.Hard];
-    } else if (performance_metric === 'Average') {
-      difficultyLevels = [DifficultyLevel.Easy, DifficultyLevel.Medium];
-    } else {
-      difficultyLevels = [DifficultyLevel.Easy];
-    }
-
-    let questionFilter: any = { moduleId, difficulty_level: { $in: difficultyLevels } };
-
-    if (questionType === QuestionType.MCQ) {
-      questionFilter.question_type = 'MCQ';
-    } else if (questionType === QuestionType.TrueFalse) {
-      questionFilter.question_type = 'True/False';
-    } else if (questionType === QuestionType.Both) {
-      questionFilter.question_type = { $in: ['MCQ', 'True/False'] };
-    }
-
-    const questions = await this.questionBankModel.find(questionFilter).lean();
-    if (questions.length < numberOfQuestions) {
-      throw new Error('Not enough questions in the question bank to generate the quiz.');
-    }
-
-    let selectedQuestions = this.getRandomQuestions(questions, numberOfQuestions);
+    const inpStr: string= id;
+    const objectId = new mongoose.Types.ObjectId(inpStr);  
+    return await this.quizModel.findById(objectId).exec();
+}
 
 
-    let correctAnswersCount = 0;
-    let incorrectAnswers = [];
-    selectedQuestions.forEach((question, index) => {
-      const userAnswer = userAnswers[index];
-      if (userAnswer === question.correctAnswer) {
-        correctAnswersCount++;
-      } else {
-        incorrectAnswers.push({
-          question: question.question,
-          correctAnswer: question.correctAnswer,
-          userAnswer: userAnswer,
-        });
-      }
-    });
+async update(id: string, updateData: UpdateQuizDto): Promise<Quiz> {
+  const objectId = new mongoose.Types.ObjectId(id);  
+  return await this.quizModel.findByIdAndUpdate(objectId, updateData, { new: true });
+}
 
-   
-    const score = (correctAnswersCount / numberOfQuestions) * 100;
 
+async delete(id: string): Promise<Quiz> {
+  const objectId = new mongoose.Types.ObjectId(id);  
+  return await this.quizModel.findByIdAndDelete(objectId);
+}
+
+
+async generateQuiz(createQuizDto: CreateQuizDto, performance_metric: string, userAnswers: string[], userId: string): Promise<any> {
+  const objectIdUser = new mongoose.Types.ObjectId(userId); // Convert userId to ObjectId
+  const user = await this.userModel.findById(objectIdUser);
   
-    let feedbackMessage = '';
-    if (score < 60) {
-      feedbackMessage = 'You have not scored enough. We recommend revisiting the module content and studying the material again.';
-    } else {
-      feedbackMessage = 'Great job! You have passed the quiz. Keep up the good work!';
-    }
-
-    
-    const quizResult = {
-      moduleId,
-      questions: selectedQuestions,
-      userAnswers,
-      score,
-      feedbackMessage,
-      incorrectAnswers,
-      created_at: new Date(),
-      userId,
-    };
-
-    return {
-      success: true,
-      score,
-      feedbackMessage,
-      incorrectAnswers,
-      message: 'Quiz completed and feedback provided.',
-    };
+  if (!user || user.role !== 'instructor') {
+    throw new UnauthorizedException('Only instructors can create quizzes.');
   }
+
+  const { moduleId, numberOfQuestions, questionType } = createQuizDto;
+
+  let difficultyLevels: string[];  
+  if (performance_metric === 'Above Average') {
+    difficultyLevels = [DifficultyLevel.Medium, DifficultyLevel.Hard];
+  } else if (performance_metric === 'Average') {
+    difficultyLevels = [DifficultyLevel.Easy, DifficultyLevel.Medium];
+  } else {
+    difficultyLevels = [DifficultyLevel.Easy];
+  }
+
+  let questionFilter: any = { moduleId, difficulty_level: { $in: difficultyLevels } };
+
+  if (questionType === QuestionType.MCQ) {
+    questionFilter.question_type = 'MCQ';
+  } else if (questionType === QuestionType.TrueFalse) {
+    questionFilter.question_type = 'True/False';
+  } else if (questionType === QuestionType.Both) {
+    questionFilter.question_type = { $in: ['MCQ', 'True/False'] };
+  }
+
+  const questions = await this.questionBankModel.find(questionFilter).lean();
+  if (questions.length < numberOfQuestions) {
+    throw new Error('Not enough questions in the question bank to generate the quiz.');
+  }
+
+  let selectedQuestions = this.getRandomQuestions(questions, numberOfQuestions);
+  let correctAnswersCount = 0;
+  let incorrectAnswers = [];
+  selectedQuestions.forEach((question, index) => {
+    const userAnswer = userAnswers[index];
+    if (userAnswer === question.correctAnswer) {
+      correctAnswersCount++;
+    } else {
+      incorrectAnswers.push({
+        question: question.question,
+        correctAnswer: question.correctAnswer,
+        userAnswer: userAnswer,
+      });
+    }
+  });
+
+  const score = (correctAnswersCount / numberOfQuestions) * 100;
+
+  let feedbackMessage = '';
+  if (score < 60) {
+    feedbackMessage = 'You have not scored enough. We recommend revisiting the module content and studying the material again.';
+  } else {
+    feedbackMessage = 'Great job! You have passed the quiz. Keep up the good work!';
+  }
+
+  const quizResult = {
+    moduleId,
+    questions: selectedQuestions,
+    userAnswers,
+    score,
+    feedbackMessage,
+    incorrectAnswers,
+    created_at: new Date(),
+    userId: objectIdUser, // Use ObjectId for userId
+  };
+
+  return {
+    success: true,
+    score,
+    feedbackMessage,
+    incorrectAnswers,
+    message: 'Quiz completed and feedback provided.',
+  };
+}
+
   private getRandomQuestions(questions: any[], count: number): any[] {
     return questions.sort(() => 0.5 - Math.random()).slice(0, count);
   }
