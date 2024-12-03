@@ -66,6 +66,46 @@ export class ProgressService {
       .populate('course_id');
   }
 
+  // LOGIC FOR ATTENDANCE
+
+  // RECORD ATTENDANCE
+  async recordAttendance(userId: string, courseId: string, status: 'present' | 'absent'): Promise<void> {
+
+    const progress = await this.progressModel.findOne({ user_id: userId, course_id: userId }).exec()
+
+    if (!progress) {
+      throw new NotFoundException(`Progress record for user ${userId} in course ${courseId} not found`);
+    }
+
+    const attendanceRecord = { date: new Date(), status }
+    progress.attendance = progress.attendance || [];
+    progress.attendance.push(attendanceRecord);
+
+    await progress.save();
+
+  }
+  // GET ATTENDANCE
+
+  async getAttendance(userId: string, courseId: string): Promise<any> {
+
+    const progress = await this.progressModel.findOne({ user_id: userId, course_id: userId }).exec()
+
+    if (!progress) {
+      throw new NotFoundException(`Progress record for user ${userId} in course ${courseId} not found`);
+    }
+
+    return progress.attendance || [];
+
+  }
+
+  async calculateAttendanceRate(userId: string, courseId: string): Promise<any> {
+    const attendanceRecords = await this.getAttendance(userId, courseId)
+    const totalClasses = attendanceRecords.length;
+    const presentCount = attendanceRecords.filter(record => record.status === 'Present')
+
+    return totalClasses ? (presentCount / totalClasses) * 100 : 0;
+
+  }
 
   async getDashboard(userId: string): Promise<any> {
 
@@ -76,17 +116,17 @@ export class ProgressService {
 
     // Looks good to me :P ~Yossef
     // Calculate student's average score for each course (THIS***)
-    const modules = await this.moduleModel.find({ course_id: progress.course_id }).exec();
+    const modules = await this.moduleModel.find({ course_id: progress.course_id }).exec(); //fetch all modules related to specific course
 
-    const quizIds = [];
-    for (const module of modules) {
+    const quizIds = []; 
+    for (const module of modules) { //FOR EACH MODULE OF THIS COURSE - COURSE MAY HAVE MORE THAN 1 MODULE
       const quizzes = await this.quizModel.find({ module_id: module._id }).exec();
       quizzes.forEach(quiz => quizIds.push(quiz._id));
     }
 
     const responses = await this.responseModel.find({
       user_id: userId,
-      quiz_id: { $in: quizIds },
+      quiz_id: { $in: quizIds }, //quiz_id present in quizIds array
     }).exec();
 
     const totalScore = responses.reduce((sum, response) => sum + (response.score || 0), 0);
@@ -107,14 +147,33 @@ export class ProgressService {
       });
     }
 
-    // Engagement trends [attendance, how many students completed the course] -- disregard for now
-    //const progressDataForCourse = await this.progressModel.find({ course_id: courseId }).exec();
-    // const completedStudents = progressDataForCourse.filter(progress => progress.completion_percentage === 100).length;
+    // Engagement trends [attendance, how many students completed the course] 
+
+    const engagementTrends = [];
+
+    for (const progress of progressData) {
+      const courseId = progress.course_id; 
+      const courseIdString: string = courseId.toString(); 
+
+      const attendanceRate = await this.calculateAttendanceRate(userId, courseIdString);
+
+      const completedStudents = await this.progressModel.find({
+        course_id: courseId,
+        completion_percentage: 100,
+      }).exec();
+      const completedStudentCount = completedStudents.length;
+
+      engagementTrends.push({
+        courseId: courseIdString,
+        attendanceRate,
+        completedStudentCount,
+      });
+    }
 
     return {
       averageScore,
       courseCompletionRates,
-      //engagementTrends,
+      engagementTrends,
       progress,
     };
   }
@@ -172,7 +231,7 @@ export class ProgressService {
   // getting the rating -- 
 
   async getInstructorAnalyticsContentEffectiveness(courseId: string) {
-//(THIS******)
+
     const course = await this.courseModel.findById(courseId).exec();
 
     if (!course) {
@@ -187,6 +246,7 @@ export class ProgressService {
     if (!course) {
       throw new Error('Course not found');
     }
+
     const quizzes = await this.quizModel.find({ course_id: courseId }).exec();
 
     if (!quizzes || quizzes.length === 0) {
@@ -214,11 +274,14 @@ export class ProgressService {
   // Downloadable Analytics for student engagement --allow instructors to download detailed reports about student progress and performance.
   async exportInstructorAnalyticsStudentEngagementPDF(courseId: string, res: Response) {
     const analytics = await this.getInstructorAnalyticsStudentEngagement(courseId);
+    if (!analytics) {
+      return res.status(404).send('Analytics data not found');
+    }
     const doc = new PDFDocument();
     res.header('Content-Type', 'application/pdf');
     res.attachment('instructor_analytics.pdf');
     doc.pipe(res);
-    doc.fontSize(16).text('Instructor Analytics Report', { align: 'center' }).moveDown();
+    doc.fontSize(16).text('Instructor Analytics Report - student engagement', { align: 'center' }).moveDown();
     doc.text(`Number of enrolled students: ${analytics.enrolledStudentsCount}`);
     doc.text(`Number of students who completed the course: ${analytics.completedStudentsCount}`);
     doc.text('Performance Metrics:');
@@ -231,6 +294,30 @@ export class ProgressService {
   //Downloadable Analytics for content effectiveness
 
   //Downlodable Analytics for Assessment Results
+  async exportInstructorAnalyticsAssessmentResultsPDF(courseId: string, res: Response) {
+    const analytics = await this.getInstructorAnalyticsAssessmentResults(courseId);
+
+    if (!analytics.results || analytics.results.length === 0) {
+      return res.status(404).send('No assessment results found for this course.');
+    }
+
+    const doc = new PDFDocument();
+    res.header('Content-Type', 'application/pdf');
+    res.attachment('instructor_assessment_results.pdf');
+    doc.pipe(res);
+    doc.fontSize(16).text('Instructor Analytics - Assessment Results', { align: 'center' }).moveDown();
+    doc.text(`Course: ${analytics.courseName}`);
+    doc.text(`Course ID: ${analytics.courseId}`).moveDown();
+    doc.text('Assessment Results:', { underline: true }).moveDown();
+    analytics.results.forEach(result => {
+      doc.text(`Quiz ID: ${result.quizId}`);
+      doc.text(`Average Score: ${result.averageScore}`); 
+      doc.text(`Number of Participants: ${result.numParticipants}`).moveDown();
+    });
+
+    doc.end();
+}
+
 
   async getStudentPerformace(userId: string, courseId: string) {
     const quizzes = await this.quizModel.find({ course_id: courseId })
@@ -251,46 +338,6 @@ export class ProgressService {
     return quizPerformanceList;
   }
 
-  // LOGIC FOR ATTENDANCE
-  
-  // RECORD ATTENDANCE
-  async recordAttendance(userId: string, courseId: string, status: 'present' | 'absent'): Promise<void> {
-
-    const progress = await this.progressModel.findOne({user_id: userId, course_id: userId }).exec()
-
-    if (!progress) {
-      throw new NotFoundException(`Progress record for user ${userId} in course ${courseId} not found`);
-    }
-
-    const attendanceRecord = {date: new Date(), status}
-    progress.attendance = progress.attendance || [];
-    progress.attendance.push(attendanceRecord);
-
-    await progress.save();
-
-  }
-  // GET ATTENDANCE
-
-  async getAttendance(userId: string, courseId: string): Promise<any> {
-
-    const progress = await this.progressModel.findOne({user_id: userId, course_id: userId }).exec()
-
-    if(!progress) {
-      throw new NotFoundException(`Progress record for user ${userId} in course ${courseId} not found`);
-    }
-
-    return progress.attendance || [];
-
-  }
-
-  async calculateAttendanceRate(userId: string, courseId: string): Promise<any> {
-    const attendanceRecords =  await this.getAttendance(userId, courseId)
-    const totalClasses = attendanceRecords.length;
-    const presentCount = attendanceRecords.filter(record => record.status  === 'Present')
-
-    return totalClasses? (presentCount/ totalClasses) * 100 : 0;
-
-  }
 }
 
 
