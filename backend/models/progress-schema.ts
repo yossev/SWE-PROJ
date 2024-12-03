@@ -18,6 +18,9 @@ export class Progress {
   @Prop({ type: Date, default: () => new Date(), required: true })
   last_accessed: Date;
 
+  @Prop({ type: [{ date: { type: Date, required: true }, status: { type: String, enum: ['present', 'absent'], required: true } }] })
+  attendance: { date: Date; status: 'present' | 'absent' }[];
+
 }
 
 export const ProgressSchema = SchemaFactory.createForClass(Progress);

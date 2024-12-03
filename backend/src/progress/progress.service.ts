@@ -74,6 +74,7 @@ export class ProgressService {
       throw new NotFoundException(`Dashboard for user ${userId} not found`);
     }
 
+    // Looks good to me :P ~Yossef
     // Calculate student's average score for each course (THIS***)
     const modules = await this.moduleModel.find({ course_id: progress.course_id }).exec();
 
@@ -250,10 +251,49 @@ export class ProgressService {
     return quizPerformanceList;
   }
 
+  // LOGIC FOR ATTENDANCE
+  
+  // RECORD ATTENDANCE
+  async recordAttendance(userId: string, courseId: string, status: 'present' | 'absent'): Promise<void> {
 
+    const progress = await this.progressModel.findOne({user_id: userId, course_id: userId }).exec()
 
+    if (!progress) {
+      throw new NotFoundException(`Progress record for user ${userId} in course ${courseId} not found`);
+    }
 
+    const attendanceRecord = {date: new Date(), status}
+    progress.attendance = progress.attendance || [];
+    progress.attendance.push(attendanceRecord);
+
+    await progress.save();
+
+  }
+  // GET ATTENDANCE
+
+  async getAttendance(userId: string, courseId: string): Promise<any> {
+
+    const progress = await this.progressModel.findOne({user_id: userId, course_id: userId }).exec()
+
+    if(!progress) {
+      throw new NotFoundException(`Progress record for user ${userId} in course ${courseId} not found`);
+    }
+
+    return progress.attendance || [];
+
+  }
+
+  async calculateAttendanceRate(userId: string, courseId: string): Promise<any> {
+    const attendanceRecords =  await this.getAttendance(userId, courseId)
+    const totalClasses = attendanceRecords.length;
+    const presentCount = attendanceRecords.filter(record => record.status  === 'Present')
+
+    return totalClasses? (presentCount/ totalClasses) * 100 : 0;
+
+  }
 }
+
+
 
 
 
