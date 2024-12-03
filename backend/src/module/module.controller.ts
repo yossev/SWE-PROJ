@@ -26,8 +26,8 @@ export class ModuleController {
 
     }
 
-    @Put(':id')
-    async updateModule(@Param('id') id: string, @Body() updateModuleDto: UpdateModuleDto) {
+    @Put('update')
+    async updateModule(@Query('id') id: string, @Body() updateModuleDto: UpdateModuleDto) {
         return this.moduleService.updateModule(id, updateModuleDto);
     }
 
@@ -38,6 +38,11 @@ export class ModuleController {
         //placeholder value , CHANGE ASAP!!
     }
 
+    @Post('findcoursemodules')
+    async findAllCourseModules(@Query('id') id : string)
+    {
+      return this.moduleService.findAllCourseModules(id);
+    }
     
     @Post('upload')
     @UseInterceptors(
@@ -55,11 +60,11 @@ export class ModuleController {
           }),
         }),
       )
-    async uploadFile(@UploadedFile() file: Express.Multer.File)
+    async uploadFile(@UploadedFile() file: Express.Multer.File , @Query('id') moduleId: string)
     {
       const fileName = currentFileName;
       console.log("Test -- filename is: " + fileName);
-      return this.moduleService.uploadFile(file , '674cc290f77c8fcd1ea299be' , fileName);
+      return this.moduleService.uploadFile(file , moduleId , fileName);
     }
 
     @Get('download')

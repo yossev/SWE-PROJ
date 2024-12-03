@@ -39,13 +39,19 @@ export class ModuleService {
 
   async updateModule(id : string , updateModuleDto : UpdateModuleDto)
   {
-    const module = await this.moduleModel.findById(id).exec();
+    const module = await this.moduleModel.findById(new mongoose.Types.ObjectId(id)).exec();
     if(module)
     {
       Object.assign(module, updateModuleDto) // Update Course
         return module.save()
     }
     return null;
+  }
+
+  async findAllCourseModules(id: string)
+  {
+    const result = await this.moduleModel.find({"course_id" : id});
+    return result;
   }
 
   async checkModuleCompatibility(moduleId: string , performanceMetric : string)
