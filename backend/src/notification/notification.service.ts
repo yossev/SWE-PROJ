@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-
+//contains all the functions that are used in creating and saving notifications
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
@@ -46,11 +46,11 @@ async createNotification(userId: string, message: string, relatedMessageId?: str
   async getUserNotifications(userId: string): Promise<Notification[]> {
     return this.notificationModel.find({ userId }).sort({ createdAt: -1 }).exec();
   }
-// maek a notification as seen
+// mark a notification as seen
   async markAsRead(notificationId: string): Promise<Notification> {
     return this.notificationModel.findByIdAndUpdate(notificationId, { read: true }, { new: true });
   }
-  // get notification with message
+  // get notification with message content
   async getUserNotificationsWithMessages(userId: string): Promise<any[]> {
     return this.notificationModel
       .find({ userId })
@@ -62,7 +62,7 @@ async createNotification(userId: string, message: string, relatedMessageId?: str
     // Query the Notification collection using the user_id directly
     return this.notificationModel
       .find({ userId: new Types.ObjectId(user_id), read: false }) // Query notifications for this user with read status false
-      .select('message createdAt read badge body data dir') // Optionally, select only necessary fields
+      .select('message createdAt read') 
       .exec();
   }
   

@@ -21,12 +21,9 @@ export class MessageService {
 
   // Save a new message to the database
   async saveMessage(userId: string, content: string, roomId: string): Promise<Message> {
-    const newMessage = new this.messageModel({
-      userId,
-      content,
-      roomId,
-    });
-    return newMessage.save();
+    const newMessage = new this.messageModel({ userId, content, roomId });
+    const savedMessage = await newMessage.save();
+     return savedMessage;
   }
 
   async sendMessage(createMessageDto: CreateMessageDto): Promise<Message> {

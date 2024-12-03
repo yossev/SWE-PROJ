@@ -7,7 +7,7 @@ import { RoomService } from "src/room/room.service";
 import { MessageService } from "./chat.service";
 import { CreateMessageDto } from "./dto/createMessage.dto";
 import { UserService } from "src/user/user.service";
-
+import { NotificationService } from "src/notification/notification.service";
 @WebSocketGateway()
 export class ChatGateway {
   @WebSocketServer() server: Server;
@@ -15,7 +15,8 @@ export class ChatGateway {
   constructor(
     private readonly messageService: MessageService,
     private readonly roomService: RoomService,
-    private readonly userService: UserService, // Injecting RoomService
+    private readonly userService: UserService,
+    private readonly notificationService: NotificationService, // Injecting RoomService
   ) {}
 
   @SubscribeMessage('send_message')
@@ -23,36 +24,48 @@ export class ChatGateway {
     @MessageBody() createMessageDto: CreateMessageDto,
     client: Socket,
   ): Promise<WsResponse<any>> {
-    // Fetch sender and recipient information
+    // Fetch sender information
     const sender = await this.userService.findById(createMessageDto.userId);
-    let recipient;
-
+    if (!sender) {
+      throw new Error('Sender not found.');
+    }
+  
+    let recipient = null;
     if (createMessageDto.chatType === 'individual') {
       recipient = await this.userService.findById(createMessageDto.recipientId);
-    }
-
-    // Check if either sender or recipient is an instructor
-    if (
-      (sender.role === 'Instructor') ||
-      (recipient && recipient.role === 'Instructor')
-    ) {
-      // If either is an instructor, continue processing the message
-      if (createMessageDto.chatType === 'group') {
-        // Handle group message
-        client.broadcast.to(createMessageDto.roomId).emit('receive_message', createMessageDto);
-      } else if (createMessageDto.chatType === 'individual') {
-        // Handle individual message (unique roomId based on user IDs)
-        const roomId = this.generateRoomId(createMessageDto.userId, createMessageDto.recipientId);
-        client.broadcast.to(roomId).emit('receive_message', createMessageDto);
+      if (!recipient) {
+        throw new Error('Recipient not found for individual chat.');
       }
-
-      // Return the message in the appropriate format
-      return { event: 'receive_message', data: createMessageDto };
-    } else {
-      // If neither sender nor recipient is an instructor, you can reject the message or handle it differently
-      throw new Error('You do not have permission to send a message.');
+      // Check if either sender or recipient is an instructor
+      const isInstructorInvolved =
+      sender.role === 'Instructor' || (recipient && recipient.role === 'Instructor');
+       if (!isInstructorInvolved) {
+        throw new Error('You do not have permission to send a message.');
+       }
     }
+    // Save the message
+    const { userId, content, roomId } = createMessageDto;
+    const savedMessage = await this.messageService.saveMessage(userId, content, roomId);
+  
+    // Broadcast the message based on chat type
+    if (createMessageDto.chatType === 'group') {
+      client.broadcast.to(roomId).emit('receive_message', savedMessage);
+    } else if (createMessageDto.chatType === 'individual') {
+      const individualRoomId = this.generateRoomId(userId, createMessageDto.recipientId);
+      client.broadcast.to(individualRoomId).emit('receive_message', savedMessage);
+  
+      // Create a notification for the recipient
+      await this.notificationService.createNotification(
+        createMessageDto.recipientId,
+        `New message from ${sender.name}`,
+        savedMessage._id.toString(),
+      );
+    }
+  
+    // Return the message in the appropriate format
+    return { event: 'receive_message', data: savedMessage };
   }
+  
 
   private generateRoomId(senderId: string, recipientId: string): string {
     const ids = [senderId, recipientId].sort();

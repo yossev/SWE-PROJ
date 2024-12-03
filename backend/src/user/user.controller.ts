@@ -12,7 +12,7 @@ import { AuthGuard } from '../auth/guards/authentication.guards';
 import { Public } from '../auth/decorators/public.decorator';
 
 import { Role, Roles } from '../auth/decorators/roles.decorator';
-import { authorizationGaurd } from '../auth/guards/authorization.guards';
+import { authorizationGuard } from '../auth/guards/authorization.guards';
 import mongoose from 'mongoose';
 
 
@@ -22,12 +22,14 @@ export class StudentController {
     constructor(private userService: UserService) { }
     @Public()
     @Get() 
+    @Roles(Role.Instructor)
+    @UseGuards(authorizationGuard)
     // Get all students
     async getAllStudents(): Promise<User[]> {
         return await this.userService.findAll();
     }
+    @Roles(Role.Instructor)
     @UseGuards(AuthGuard)// handler level
-
     @Get('currentUser')
     async getCurrentUser(@Req() {user}): Promise<User> {
         const student = await this.userService.findById(user.userid);
@@ -37,7 +39,7 @@ export class StudentController {
 
 
     @Roles(Role.User)
-    @UseGuards(authorizationGaurd)
+    @UseGuards(authorizationGuard)
     @Get(':id')// /student/:id
     // Get a single student by ID
     async getUserById(@Param('id') id: string):Promise<User> {// Get the student ID from the route parameters
@@ -45,6 +47,8 @@ export class StudentController {
         return user;
     }
     // Create a new student
+    @Roles(Role.Admin)
+    @UseGuards(authorizationGuard)
     @Post()
     async createUser(@Body()userData: createUserDto) {// Get the new student data from the request body
         const userId = new mongoose.Types.ObjectId().toString();
@@ -57,6 +61,8 @@ export class StudentController {
         return newUser;
     }
     // Update a student's details
+    @Roles(Role.Admin)
+    @UseGuards(authorizationGuard)
     @Put(':id')
     async updateUser(
         @Param('id') id: string,
@@ -65,11 +71,14 @@ export class StudentController {
         return await this.userService.update(id, updateData);
     }
     // Delete a student by ID
+    @Roles(Role.Admin)
+    @UseGuards(authorizationGuard)
     @Delete(':id')
     async deleteUser(@Param('id')id:string) {
         const deletedUser = await this.userService.delete(id);
        return deletedUser;
     }
+    
     @Get('courses')
     async getAllCourses() {
         return await this.userService.findAllCourses();

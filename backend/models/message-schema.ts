@@ -4,6 +4,9 @@ import mongoose, { Document } from 'mongoose';
 // group chat
 @Schema()
 export class Message extends Document {
+  @Prop({ type: mongoose.Schema.Types.ObjectId })
+  message_id: mongoose.Types.ObjectId;
+
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   user_id: mongoose.Types.ObjectId;
 
