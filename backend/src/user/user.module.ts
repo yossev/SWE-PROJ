@@ -1,9 +1,20 @@
-/* eslint-disable prettier/prettier */
 import { Module } from '@nestjs/common';
-import { UserSchema } from 'models/user-schema';
+import { UserService } from './user.service';
+import { BackupService } from '../backup/backup.service';
 import { MongooseModule } from '@nestjs/mongoose';
-@Module({
-    imports:[MongooseModule.forFeature([{name:'user',schema:UserSchema}])]
-})
+import { UserSchema } from 'models/user-schema';
+import { CourseSchema } from 'models/course-schema';
 
-export class UserModule {}
+@Module({
+  imports: [
+    MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]),
+    MongooseModule.forFeature([{ name: 'Course', schema: CourseSchema }]),
+  ],
+  providers: [UserService, BackupService],
+})
+export class UserModule {
+  constructor(private readonly backupService: BackupService) {
+    // Start backup scheduler
+    this.backupService.scheduleBackup();
+  }
+}
