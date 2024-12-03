@@ -1,7 +1,7 @@
 import { Injectable ,UnauthorizedException,BadRequestException} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Quiz } from '../../models/quizzes-schema';
+import { Quiz, QuizDocument } from '../../models/quizzes-schema';
 import { Module } from '../../models/module-schema';
 import { QuestionBank } from '../../models/questionbank-schema';
 import { CreateQuizDto } from './DTO/quiz.create.dto';
@@ -13,7 +13,7 @@ import mongoose from 'mongoose';
 @Injectable()
 export class QuizService {
   constructor(
-    @InjectModel('Quiz') private readonly quizModel: Model<Quiz>,
+    @InjectModel('Quiz') private readonly quizModel: Model<QuizDocument>,
     @InjectModel('Module') private readonly moduleModel: Model<Module>,
     @InjectModel('QuestionBank') private readonly questionBankModel: Model<QuestionBank>,
     @InjectModel('User') private readonly userModel: Model<User>, 
@@ -66,9 +66,6 @@ async generateQuiz(createQuizDto: CreateQuizDto, performance_metric: string, use
   }
 
   const questions = await this.questionBankModel.find(questionFilter).lean();
-  if (questions.length < numberOfQuestions) {
-    throw new Error('Not enough questions in the question bank to generate the quiz.');
-  }
 
   let selectedQuestions = this.getRandomQuestions(questions, numberOfQuestions);
   let correctAnswersCount = 0;
@@ -96,25 +93,19 @@ async generateQuiz(createQuizDto: CreateQuizDto, performance_metric: string, use
   }
 
   const quizResult = {
-    moduleId,
-    questions: selectedQuestions,
-    userAnswers,
-    score,
-    feedbackMessage,
-    incorrectAnswers,
+    module_id: moduleId, 
+    questions: selectedQuestions.map(q => ({
+      question: q.question,
+      options: q.options,
+      correct_answer: q.correctAnswer, 
+    })),
     created_at: new Date(),
-    userId: new mongoose.Types.ObjectId(userId), // Use ObjectId for userId
+    userId: new mongoose.Types.ObjectId(userId),
   };
-
-  return {
-    success: true,
-    score,
-    feedbackMessage,
-    incorrectAnswers,
-    message: 'Quiz completed and feedback provided.',
-  };
+  
+  const savedQuiz = await new this.quizModel(quizResult).save();
+  return savedQuiz;
 }
-
 
   private getRandomQuestions(questions: any[], count: number): any[] {
     return questions.sort(() => 0.5 - Math.random()).slice(0, count);

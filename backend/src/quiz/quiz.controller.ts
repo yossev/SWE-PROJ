@@ -41,23 +41,13 @@ async generateQuiz(
   @Query('performance_metric') performanceMetric: string,
   @Query('userId') userId: string
 ) {
-  if (!['Above Average', 'Medium', 'Below Average'].includes(performanceMetric)) {
-    throw new BadRequestException('Invalid performance metric provided.');
-  }
-
-  try {
-    const quiz = await this.quizService.generateQuiz(createQuizDto, performanceMetric, [], userId); 
-    return {
-      success: true,
-      message: 'Quiz generated successfully.',
-      data: quiz,
-    };
-  } catch (error) {
-    throw new BadRequestException(error.message);
-  }
+  const quiz = await this.quizService.generateQuiz(createQuizDto, 'Above Average', [], userId);
+  return {
+    success: true,
+    message: 'Quiz generated successfully.',
+    data: quiz,
+  };
 }
-
-
 }
 
 

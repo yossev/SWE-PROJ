@@ -32,6 +32,7 @@ export class QuestionBankService {
     return await newQuestionBank.save();
   }
   
+  
   async update(id: string, updateData: UpdateQuestionBankDto): Promise<QuestionBank> {
     const inpStrId: string = id;
     const objectId = new mongoose.Types.ObjectId(inpStrId);
