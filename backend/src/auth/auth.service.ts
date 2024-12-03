@@ -13,6 +13,7 @@ import { RegisterRequestDto } from '../auth/dto/RegisterRequestDto';  // Going u
 
 import mongoose, { ObjectId, Types } from 'mongoose';
 import { User } from 'models/user-schema';
+import { InjectModel } from '@nestjs/mongoose';
 @Injectable()
 export class AuthService {
     constructor(

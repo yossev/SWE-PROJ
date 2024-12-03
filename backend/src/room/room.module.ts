@@ -12,7 +12,7 @@ import { Room, RoomSchema } from 'models/room-schema';
   imports: [
     MongooseModule.forFeature([{ name: Room.name, schema: RoomSchema }]),
     MongooseModule.forFeature([{ name: Course.name, schema: CourseSchema }]),
-    CourseModule, // Import the CourseModule to use Course services
+    //CourseModule, // Import the CourseModule to use Course services
   ],
   controllers: [RoomController],
   providers: [RoomService],

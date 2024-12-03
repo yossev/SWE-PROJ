@@ -8,10 +8,10 @@ import {ConfigModule} from '@nestjs/config';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 
-
+const url = "mongodb://localhost:27017/";
 @Module({
   imports: [ConfigModule.forRoot({ isGlobal: true }),
-    MongooseModule.forRoot(process.env.DATABASE_URL),
+    MongooseModule.forRoot(url),
     UserModule, // Handles user-related logic
     AuthModule, // Handles authentication and authorization
   ],
