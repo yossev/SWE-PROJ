@@ -55,12 +55,12 @@ export class ProgressController {
 
   @Get('analytics/:courseId')
   async getInstructorAnalytics(@Param('courseId') courseId: string,) {
-    return await this.progressService.getInstructorAnalytics(courseId);
+    return await this.progressService.getInstructorAnalyticsStudentEngagement(courseId);
   }
 
   @Get('/export/pdf/:courseId')
   async exportPDF(@Param('courseId') courseId: string, @Res() res: Response) {
-    await this.progressService.exportInstructorAnalyticsPDF(courseId, res);
+    await this.progressService.exportInstructorAnalyticsStudentEngagementPDF(courseId, res);
   }
 
 

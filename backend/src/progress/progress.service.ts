@@ -10,8 +10,8 @@ import { Course } from '../../models/course-schema';
 import { Module } from '../../models/module-schema';
 import mongoose from 'mongoose';
 import * as PDFDocument from 'pdfkit';
-import { Response } from 'express';
 
+import { Response } from 'express';
 @Injectable()
 export class ProgressService {
   constructor(
@@ -74,7 +74,7 @@ export class ProgressService {
       throw new NotFoundException(`Dashboard for user ${userId} not found`);
     }
 
-    // Calculate student's average score for each course 
+    // Calculate student's average score for each course (THIS***)
     const modules = await this.moduleModel.find({ course_id: progress.course_id }).exec();
 
     const quizIds = [];
@@ -107,7 +107,7 @@ export class ProgressService {
     }
 
     // Engagement trends [attendance, how many students completed the course] -- disregard for now
-     //const progressDataForCourse = await this.progressModel.find({ course_id: courseId }).exec();
+    //const progressDataForCourse = await this.progressModel.find({ course_id: courseId }).exec();
     // const completedStudents = progressDataForCourse.filter(progress => progress.completion_percentage === 100).length;
 
     return {
@@ -119,7 +119,7 @@ export class ProgressService {
   }
 
   // Instructor Analytics -- student engagement
-  async getInstructorAnalytics(courseId: string) {
+  async getInstructorAnalyticsStudentEngagement(courseId: string) {
 
     const course = await this.courseModel.findById(courseId).exec();
 
@@ -158,7 +158,7 @@ export class ProgressService {
       } else {
         performanceMetrics.excellent += 1;
       }
-    }  //perf metric function 
+    }
 
     return {
       enrolledStudentsCount: enrolledStudents.length,
@@ -168,13 +168,51 @@ export class ProgressService {
   }
 
   // Instructor Analytics -- Reports on content effectiveness 
-  // getting the rating --
+  // getting the rating -- 
 
+  async getInstructorAnalyticsContentEffectiveness(courseId: string) {
+//(THIS******)
+    const course = await this.courseModel.findById(courseId).exec();
 
-  // Downloadable Analytics --allow instructors to download detailed reports about student progress and performance.
-  async exportInstructorAnalyticsPDF(courseId: string, res: Response) {
-    const analytics = await this.getInstructorAnalytics(courseId);
+    if (!course) {
+      throw new Error('Course not found');
+    }
+  }
+  //Instructor Analytics -- Reports on assessment results
+  async getInstructorAnalyticsAssessmentResults(courseId: string) {
 
+    const course = await this.courseModel.findById(courseId).exec();
+
+    if (!course) {
+      throw new Error('Course not found');
+    }
+    const quizzes = await this.quizModel.find({ course_id: courseId }).exec();
+
+    if (!quizzes || quizzes.length === 0) {
+      return { message: 'No quizzes available for this course', results: [] };
+    }
+
+    const results = [];
+    for (const quiz of quizzes) {
+
+      const responses = await this.responseModel.find({ quiz_id: quiz._id }).exec();
+      const totalScores = responses.reduce((sum, response) => sum + response.score, 0);
+      const numParticipants = responses.length;
+      const averageScore = numParticipants > 0 ? totalScores / numParticipants : 0;
+
+      results.push({
+        quizId: quiz._id,
+        averageScore,
+        numParticipants,
+      });
+    }
+
+    return { courseId, courseName: course.title, results };
+  }
+
+  // Downloadable Analytics for student engagement --allow instructors to download detailed reports about student progress and performance.
+  async exportInstructorAnalyticsStudentEngagementPDF(courseId: string, res: Response) {
+    const analytics = await this.getInstructorAnalyticsStudentEngagement(courseId);
     const doc = new PDFDocument();
     res.header('Content-Type', 'application/pdf');
     res.attachment('instructor_analytics.pdf');
@@ -189,6 +227,30 @@ export class ProgressService {
     doc.text(`Number of students who are Excellent: ${analytics.performanceMetrics.excellent}`);
     doc.end();
   }
+  //Downloadable Analytics for content effectiveness
+
+  //Downlodable Analytics for Assessment Results
+
+  async getStudentPerformace(userId: string, courseId: string) {
+    const quizzes = await this.quizModel.find({ course_id: courseId })
+
+    const quizPerformanceList = [];
+
+    for (const quiz of quizzes) {
+      const performance = await this.responseModel.findOne({ user_id: userId, quiz_id: quiz._id })
+
+      if (performance) {
+        quizPerformanceList.push({
+          quizId: quiz._id,
+          score: performance.score,
+          SubmittedAt: performance.submittedAt
+        })
+      }
+    }
+    return quizPerformanceList;
+  }
+
+
 
 
 }
