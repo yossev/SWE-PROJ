@@ -1,8 +1,8 @@
 /* eslint-disable prettier/prettier */
-import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsMongoId } from 'class-validator';
 
 export class CreateNotificationDto {
-  @IsString()
+  @IsMongoId()
   @IsNotEmpty()
   userId: string; // ID of the user receiving the notification
 

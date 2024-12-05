@@ -4,8 +4,8 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { RoomController } from './room.controller';
 import { RoomService } from './room.service';
-import { Course, CourseSchema } from 'models/course-schema';
-import { Room, RoomSchema } from 'models/room-schema';
+import { Course, CourseSchema } from 'src/models/course-schema';
+import { Room, RoomSchema } from 'src/models/room-schema';
 
 
 @Module({

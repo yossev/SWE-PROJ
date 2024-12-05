@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { IsString, IsNotEmpty, IsEnum, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty, IsEnum, IsOptional, IsMongoId } from 'class-validator';
 
 // Enum for chat type (group or individual)
 export enum ChatType {
@@ -8,7 +8,7 @@ export enum ChatType {
 }
 
 export class CreateMessageDto {
-  @IsString()
+  @IsMongoId()
   @IsNotEmpty()
   userId: string; // ID of the user sending the message
 
@@ -16,14 +16,14 @@ export class CreateMessageDto {
   @IsNotEmpty()
   content: string; // Content of the message
 
-  @IsString()
+  @IsMongoId()
   @IsNotEmpty()
   roomId: string; // The room where the message is being sent (group or individual)
 
   @IsEnum(ChatType)
   chatType: ChatType; // Type of chat, either group or individual
 
-  @IsString()
+  @IsMongoId()
   @IsOptional()
   recipientId?: string; // Recipient ID (for individual chat only, optional)
 }

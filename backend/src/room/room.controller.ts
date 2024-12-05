@@ -2,7 +2,7 @@
 // room.controller.ts
 import { Controller, Get, Post, Param, Body } from '@nestjs/common';
 import { RoomService } from './room.service';
-import { Room } from 'models/room-schema';
+import { Room } from 'src/models/room-schema';
 import { CreateRoomDto } from './dto/createRoom.dto';
 
 

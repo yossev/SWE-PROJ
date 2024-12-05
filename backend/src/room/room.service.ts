@@ -2,8 +2,8 @@
 // room.service.ts
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Course } from 'models/course-schema';
-import { Room } from 'models/room-schema';
+import { Course } from 'src/models/course-schema';
+import { Room } from 'src/models/room-schema';
 import { Model } from 'mongoose';
 import { CreateRoomDto } from './dto/createRoom.dto';
 
