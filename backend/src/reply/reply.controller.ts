@@ -9,7 +9,7 @@ import { CreateReplyDto } from './dto/createReply.dto';
 @Controller('Reply')
 export class ReplyController {
   constructor(private replyService: ReplyService) {}
-  @Roles(Role.User)
+ // @Roles(Role.User)
   @Post('create')
   async createReply(@Body() createReplyDto : CreateReplyDto) {
     return this.replyService.createReply(createReplyDto);

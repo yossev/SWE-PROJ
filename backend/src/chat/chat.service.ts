@@ -26,13 +26,13 @@ export class MessageService {
      return savedMessage;
   }
 
-  async sendMessage(createMessageDto: CreateMessageDto): Promise<Message> {
+  /*async sendMessage(createMessageDto: CreateMessageDto): Promise<Message> {
     // Save the message to the database
     const { userId, content, roomId } = createMessageDto;
     const message = await this.saveMessage(userId, content, roomId);
 
     // Notify other users in the room (exclude the sender)
-    const roomUsers = await this.getRoomUsers(roomId); // Assume this fetches users in the room
+   const roomUsers = await this.getRoomUsers(roomId); // Assume this fetches users in the room
     const notifications = roomUsers
       .filter(user => user.id !== userId) // Exclude the sender
       .map(user => 
@@ -41,17 +41,17 @@ export class MessageService {
 
     await Promise.all(notifications); // Wait for all notifications to be created
     return message;
-  }
+  }*/
 
   // Retrieve all messages from a specific room (or user-specific if needed)
   async getMessagesByRoom(roomId: string): Promise<Message[]> {
     return this.messageModel.find({ roomId }).sort({ createdAt: 1 }); // Sorted by timestamp
   }
 
-  private async getRoomUsers(roomId: string): Promise<{ id: string }[]> {
+  /*private async getRoomUsers(roomId: string): Promise<{ id: string }[]> {
     const room = await this.roomModel.findById(roomId).populate('users', '_id');
     if (!room) throw new Error('Room not found');
     return room.users.map(user => ({ id: user._id.toString() }));
-  }
+  }*/
   
 }
