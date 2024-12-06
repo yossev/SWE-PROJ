@@ -3,7 +3,8 @@
 
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
-
+import { title } from 'process';
+  
 export type CourseDocument = HydratedDocument<Course>;
 
 @Schema()
@@ -30,12 +31,12 @@ export class Course {
 
   @Prop({ type: Date, default: new Date(), required: true })
   created_at: Date;
-  
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
-    instructor: mongoose.Types.ObjectId;
 
-    @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'User' })
-    students: mongoose.Types.ObjectId[];
+  @Prop({type: [String], default: []}) // Possible Changes here, Default can be 1s
+  versions: string[]; 
 }
 
 export const CourseSchema = SchemaFactory.createForClass(Course);
+
+// 
+CourseSchema.index({ title: 'text', description: 'text' });
