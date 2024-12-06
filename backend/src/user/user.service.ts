@@ -16,31 +16,43 @@ import { JwtService } from '@nestjs/jwt/dist/jwt.service';
 @Injectable()
 export class UserService {
     constructor(
-        private jwtService: JwtService, 
+        private readonly jwtService: JwtService, 
         @InjectModel(User.name) private userModel: Model<UserDocument>,
     ) { }
-
+   
    async register(createUserDto:createUserDto): Promise<User> {
         const user = new this.userModel(createUserDto);  // Create a new student document
         await this.isEmailUnique(createUserDto.email);
         return await user.save();  // Save it to the database
     }
       // Login existing user
-  async login(loginDto: LoginDto): Promise<{ token: string }> {
-    const { email, password } = loginDto;
-
-    // Find user by email
-    const user = await this.userModel.findOne({ email }).exec();
-    if (!user) {
-      throw new UnauthorizedException('Invalid email or password');
-    }
-    const isPasswordMatched = await bcrypt.compare(password, user.password_hash);
-    if (!isPasswordMatched) {
-      throw new UnauthorizedException('Invalid email or password');
-    }
-    const token = this.jwtService.sign({ id: user._id });
-    return { token };
-  }
+      async login(loginDto: LoginDto): Promise<{ token: string }> {
+        const { email, password } = loginDto;
+    
+        // 1. Find the user by email
+        const user = await this.userModel.findOne({ email });
+    
+        // 2. Check if the user exists
+        if (!user) {
+          throw new UnauthorizedException('user invalid');
+        }
+    
+        // 3. Check if the password is correct (e.g., using bcrypt to compare the hashed password)
+        const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+        console.log('loginDto.password:', loginDto.password);
+        console.log('user.password (hashed):', user.password_hash);
+  
+        if (!isPasswordValid) {
+          throw new UnauthorizedException('Invalid credentials');
+        }
+    
+        // 4. Generate a JWT token
+        const token = this.jwtService.sign(
+          { email: user.email, userId: user._id },  // Data to include in the token
+          { secret: process.env.JWT_SECRET },  // Secret key from environment variable
+        );
+        return { token }; // Return the token to the client
+      }
     async findByName(username: string):Promise<User> {
         return await this.userModel.findOne({username});  // Fetch a instructor by username
     }
@@ -49,11 +61,20 @@ export class UserService {
         return user;  // Fetch a student by username
     }
     // instructor or admin Get all students
-    async findAll(): Promise<User[]> {
-        const students = await this.userModel.find(); // Fetch all students from the database
-        console.log(students);
-        return students;
-    }
+    async findAll(role?: string): Promise<User[]> {
+      // If a role is provided, filter users by the role
+      let filter = {};
+      if (role) {
+          filter = { role }; // { role: 'student' } or { role: 'instructor' }
+      }
+  
+      // Fetch users from the database based on the filter
+      const users = await this.userModel.find(filter);
+  
+      console.log(users); // Log the fetched users
+      return users;
+  }
+  
     // will register
     private async isEmailUnique(email: string) {
         const user = await this.userModel.findOne({ email });

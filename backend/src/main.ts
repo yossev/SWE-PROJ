@@ -4,6 +4,8 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 const mongoose=require('mongoose');
 const express=require('express');
+console.log('JWT_SECRET2:', process.env.JWT_SECRET);
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   await mongoose.connect(process.env.DATABASE_URL , {

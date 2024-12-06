@@ -15,7 +15,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       inject: [ConfigService],
       
       useFactory: async (config: ConfigService) => ({
-        secret: config.get<string>('JWT_SECRET'),  // Ensure JWT_SECRET is defined in .env or config
+        secret: config.get<string>(process.env.JWT_SECRET),  // Ensure JWT_SECRET is defined in .env or config
         signOptions: {
           expiresIn: config.get<string | number>('JWT_EXPIRES') || '1h',  // Default expiration
         },
