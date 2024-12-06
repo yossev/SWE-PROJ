@@ -1,13 +1,13 @@
 /* eslint-disable prettier/prettier */
 import { WebSocketGateway, WebSocketServer, SubscribeMessage, MessageBody, WsResponse } from "@nestjs/websockets";
-import { Socket } from 'socket.io'; 
-
-import { Server } from "http";
+import { Server,Socket } from 'socket.io'; 
 import { RoomService } from "src/room/room.service";
 import { MessageService } from "./chat.service";
 import { CreateMessageDto } from "./dto/createMessage.dto";
 import { UserService } from "src/user/user.service";
 import { NotificationService } from "src/notification/notification.service";
+import { JwtService } from "@nestjs/jwt/dist/jwt.service";
+
 @WebSocketGateway()
 export class ChatGateway {
   @WebSocketServer() server: Server;
@@ -17,6 +17,7 @@ export class ChatGateway {
     private readonly roomService: RoomService,
     private readonly userService: UserService,
     private readonly notificationService: NotificationService, // Injecting RoomService
+    private readonly jwtService: JwtService,
   ) {}
 
   @SubscribeMessage('send_message')
@@ -70,5 +71,24 @@ export class ChatGateway {
   private generateRoomId(senderId: string, recipientId: string): string {
     const ids = [senderId, recipientId].sort();
     return ids.join('-');
+  }
+  @SubscribeMessage('join_room')
+async handleJoinRoom(
+  @MessageBody() roomId: string,
+  client: Socket,
+): Promise<void> {
+  const user = client.data.user; // Retrieve the authenticated user
+  // Add the user to the room
+  client.join(roomId);
+  this.server.to(roomId).emit('user_joined', { userId: user.id, roomId });
+}
+  @SubscribeMessage('leave_room')
+  handleLeaveRoom(@MessageBody() roomId: string, client: Socket) {
+    client.leave(roomId); // Remove user from the room
+  }
+  @SubscribeMessage('get_chat_history')
+  async handleGetHistory(@MessageBody() roomId: string, client: Socket) {
+    const messages = await this.messageService.getMessagesByRoom(roomId);
+    client.emit('chat_history', messages); // Send the message history to the client
   }
 }

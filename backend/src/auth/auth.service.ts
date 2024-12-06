@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { BadRequestException, ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { UserService } from '../user/user.service';  
 
 
@@ -11,14 +11,15 @@ import { JwtService } from '@nestjs/jwt';
 import { RegisterRequestDto } from '../auth/dto/RegisterRequestDto';  // Going up one level to 'auth' folder
 
 
-import mongoose, { ObjectId, Types } from 'mongoose';
+import mongoose, { Model, ObjectId, Types } from 'mongoose';
 import { User } from 'models/user-schema';
 import { InjectModel } from '@nestjs/mongoose';
 @Injectable()
 export class AuthService {
     constructor(
         private usersService: UserService,
-        private jwtService: JwtService
+        private jwtService: JwtService,
+        @InjectModel('User') private readonly userModel: Model<User>,
     ) { }
     async register(user: RegisterRequestDto): Promise<string> {
         const existingUser = await this.usersService.findByEmail(user.email);
@@ -40,23 +41,29 @@ export class AuthService {
         return 'registered successfully';
       }
 
-    async signIn(email: string, password: string): Promise<{ access_token: string; payload: { userid: string; role: string } }> {
-    const user = await this.usersService.findByEmail(email);
-    if (!user) {
-        throw new NotFoundException('User not found');
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password_hash);
-    if (!isPasswordValid) {
-        throw new UnauthorizedException('Invalid credentials');
-    }
-
-    const payload = { userid: user.user_id, role: user.role }; // user_id is Types.ObjectId
-
-    return {
-        access_token: await this.jwtService.signAsync(payload),
-        payload,
-    };
-}
+      async signIn(email: string, password: string): Promise<{ access_token: string; payload: any }> {
+        console.log(`Attempting login for email: ${email}`);
+      
+        const user = await this.userModel.findOne({ email });
+        if (!user) {
+          console.error('User not found');
+          throw new HttpException('Invalid email or password', HttpStatus.UNAUTHORIZED);
+        }
+      
+        console.log('User found, validating password...');
+        const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+        if (!isPasswordValid) {
+          console.error('Invalid password');
+          throw new HttpException('Invalid email or password', HttpStatus.UNAUTHORIZED);
+        }
+      
+        console.log('Password validated, generating token...');
+        const payload = { userId: user.id, role: user.role };
+        const access_token = this.jwtService.sign(payload);
+      
+        console.log('Token generated successfully');
+        return { access_token, payload };
+      }
+      
 
 }

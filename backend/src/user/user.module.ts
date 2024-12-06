@@ -4,6 +4,7 @@ import { BackupService } from '../backup/backup.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserSchema } from 'models/user-schema';
 import { CourseSchema } from 'models/course-schema';
+import { UserController } from './user.controller';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { CourseSchema } from 'models/course-schema';
     MongooseModule.forFeature([{ name: 'Course', schema: CourseSchema }]),
   ],
   providers: [UserService, BackupService],
+  controllers:[UserController]
 })
 export class UserModule {
   constructor(private readonly backupService: BackupService) {

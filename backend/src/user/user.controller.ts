@@ -17,8 +17,8 @@ import mongoose from 'mongoose';
 
 
 // @UseGuards(AuthGuard) //class level
-@Controller('users') // it means anything starts with /student
-export class StudentController {
+@Controller('users') // it means anything starts with /users
+export class UserController {
     constructor(private userService: UserService) { }
     @Public()
     @Get() 
