@@ -14,7 +14,7 @@ export class CreateQuizDto {
   numberOfQuestions: number; 
 
   @IsArray()
-  @IsOptional()
   @Type(() => QuestionDto)
-  questions: QuestionDto[]; 
+  @IsOptional()
+  questions?: QuestionDto[];
 }

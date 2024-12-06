@@ -26,6 +26,9 @@ export class QuestionDto {
   @IsString()
   @IsNotEmpty()
   correctAnswer: string; 
+  
+  @IsOptional() 
   @IsEnum(DifficultyLevel)
-  difficultyLevel: DifficultyLevel; 
+  difficultyLevel?: DifficultyLevel;
+  
 }

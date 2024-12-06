@@ -36,18 +36,34 @@ async updateQuiz(@Query('id') id: string, @Body() quizData: UpdateQuizDto): Prom
     }
 
     @Post('generate')
-async generateQuiz(
-  @Body() createQuizDto: CreateQuizDto, 
-  @Query('performance_metric') performanceMetric: string,
-  @Query('userId') userId: string
-) {
-  const quiz = await this.quizService.generateQuiz(createQuizDto, 'Above Average', [], userId);
-  return {
-    success: true,
-    message: 'Quiz generated successfully.',
-    data: quiz,
-  };
-}
+  async generateQuiz(
+    @Body() createQuizDto: CreateQuizDto,
+    @Query('performance_metric') performanceMetric: string,
+    @Query('userId') userId: string
+  ) {
+    const quiz = await this.quizService.generateQuiz(createQuizDto, performanceMetric, userId);
+
+    return {
+      success: true,
+      message: 'Quiz generated and saved successfully.',
+      data: quiz,
+    };
+    
+  }
+  @Post('evaluate')
+  async evaluateQuiz(
+    @Body('userAnswers') userAnswers: string[],
+    @Body('selectedQuestions') selectedQuestions: any[],
+    @Query('userId') userId: string,
+    @Query('moduleId') moduleId: string
+  ) {
+    const evaluation = await this.quizService.evaluateQuiz(userAnswers, selectedQuestions, userId, moduleId);
+    return {
+      success: true,
+      message: 'Quiz evaluated successfully.',
+      data: evaluation,
+    };
+  } 
 }
 
 
