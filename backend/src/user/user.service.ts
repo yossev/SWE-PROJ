@@ -21,6 +21,7 @@ export class UserService {
     ) { }
    
    async register(createUserDto:createUserDto): Promise<User> {
+    console.log('Registering user:', createUserDto);
         const user = new this.userModel(createUserDto);  // Create a new student document
         await this.isEmailUnique(createUserDto.email);
         return await user.save();  // Save it to the database
@@ -46,11 +47,12 @@ export class UserService {
           throw new UnauthorizedException('Invalid credentials');
         }
     
-        // 4. Generate a JWT token
-        const token = this.jwtService.sign(
-          { email: user.email, userId: user._id },  // Data to include in the token
-          { secret: process.env.JWT_SECRET },  // Secret key from environment variable
-        );
+           // Generate JWT token
+    const token = this.jwtService.sign(
+      { email: user.email, userId: user._id },
+      { secret: process.env.JWT_SECRET, expiresIn: '1h' },
+    );  // Secret key from environment variable
+      
         return { token }; // Return the token to the client
       }
     async findByName(username: string):Promise<User> {

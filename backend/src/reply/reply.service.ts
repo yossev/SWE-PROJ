@@ -16,7 +16,7 @@ export class ReplyService {
 
   // Create a reply within a thread
   async createReply(createReplyDto: CreateReplyDto) {
-    const { threadId, content, createdBy } = createReplyDto;
+    const { threadId} = createReplyDto;
 
     const thread = await this.threadModel.findById(threadId);
     if (!thread) {

@@ -1,4 +1,6 @@
 /* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from 'src/models/user-schema';
@@ -22,7 +24,6 @@ import { LoginDto } from './dto/login.dto';
 @Controller('users') // it means anything starts with /student
 export class UserController {
     constructor(private userService: UserService) { }
-    
     @Get('/all') 
     @UseGuards(JwtAuthGuard)
     @Roles(Role.Instructor, Role.Admin)
@@ -43,9 +44,9 @@ export class UserController {
     //Create a new student
     @Public()
     @Post('/login')
-  login(@Body() loginDto: LoginDto): Promise<{ token: string }> {
-    return this.userService.login(loginDto);
-  }
+    login(@Body() loginDto: LoginDto): Promise<{ token: string }> {
+         return this.userService.login(loginDto);
+     }
     @Public()
     @Post('/register')
     async register(@Body()userData: createUserDto) {// Get the new student data from the request body

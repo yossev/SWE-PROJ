@@ -1,8 +1,9 @@
+/* eslint-disable prettier/prettier */
 import { Controller, Get, Logger } from '@nestjs/common';
 import { BackupService } from './backup.service';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as cron from 'node-cron';
+
 @Controller('backup')
 export class BackupController {
   private readonly logger = new Logger(BackupController.name);

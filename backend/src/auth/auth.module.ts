@@ -9,6 +9,7 @@ import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
 import { User, UserSchema } from 'src/models/user-schema';
 import { UserService } from 'src/user/user.service';
+import { RefreshToken, RefreshTokenSchema } from 'models/refreshToken-schema';
 
 
 @Module({
@@ -26,7 +27,8 @@ import { UserService } from 'src/user/user.service';
         },
       }),
     }),
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]), // Use Mongoose for User
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema },
+       { name: RefreshToken.name, schema: RefreshTokenSchema },]), // Use Mongoose for User
   ],
   
   providers: [AuthService, UserService,JwtStrategy],

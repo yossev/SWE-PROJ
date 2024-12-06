@@ -6,6 +6,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Message } from '../models/message-schema';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { CreateMessageDto } from './dto/createMessage.dto';
 import { NotificationService } from '../notification/notification.service'; 
 import { Room } from '../models/room-schema'; 
