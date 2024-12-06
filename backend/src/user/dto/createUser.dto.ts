@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 // createUser.dto.ts
-import { Course,CourseSchema } from 'models/course-schema';  // Assuming you want to use the Course schema
+import { Course,CourseSchema } from 'src/models/course-schema';  // Assuming you want to use the Course schema
 import {IsOptional} from 'class-validator';
 import { Types } from 'mongoose';
 export class createUserDto {

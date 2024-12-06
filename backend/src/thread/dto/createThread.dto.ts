@@ -1,8 +1,13 @@
 /* eslint-disable prettier/prettier */
 import { IsMongoId, IsString, IsNotEmpty } from 'class-validator';
+import { Types } from 'mongoose';
 //import { Types } from 'mongoose';
 
 export class CreateThreadDto {
+
+  @IsMongoId()
+  @IsNotEmpty()
+  threadId: Types.ObjectId; // The title of the thread
 
   @IsString()
   @IsNotEmpty()
@@ -12,7 +17,7 @@ export class CreateThreadDto {
   @IsNotEmpty()
   content: string; // The content of the thread
 
-  @IsString()
+  @IsMongoId()
   @IsNotEmpty()
   forum: string;
 

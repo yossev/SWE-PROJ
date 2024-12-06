@@ -1,26 +1,33 @@
 /* eslint-disable prettier/prettier */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
-import { AuthController } from './auth.controller';
-import { AuthService } from '../auth/auth.service'; 
-import { UserService } from 'src/user/user.service';
-import { User, UserSchema } from 'models/user-schema';
 import { JwtModule } from '@nestjs/jwt';
-import * as dotenv from 'dotenv';
-dotenv.config();
+import { PassportModule } from '@nestjs/passport';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { MongooseModule } from '@nestjs/mongoose';  // Use Mongoose
+import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
+import { JwtStrategy } from './jwt.strategy';
+import { User, UserSchema } from 'src/models/user-schema';
+
 
 @Module({
-  controllers: [AuthController],
-  providers: [AuthService , UserService],
-  imports:[User,
-    JwtModule.register({
-      global: true,
-      secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: process.env.JWT_EXPIRES_IN },
+  imports: [
+    PassportModule.register({ defaultStrategy: 'jwt' }),
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      
+      useFactory: async (config: ConfigService) => ({
+        secret: config.get<string>('JWT_SECRET'),  // Ensure JWT_SECRET is defined in .env or config
+        signOptions: {
+          expiresIn: config.get<string | number>('JWT_EXPIRES') || '1h',  // Default expiration
+        },
+      }),
     }),
-    MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]),
-  ]
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]), // Use Mongoose for User
+  ],
+  controllers: [AuthController],
+  providers: [AuthService, JwtStrategy],
+  exports: [JwtStrategy, PassportModule],  // Export for use in other modules
 })
 export class AuthModule {}

@@ -4,8 +4,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { Notification } from '../../models/notification-schema';
-import { Message } from '../../models/message-schema';
+import { Notification } from '../models/notification-schema';
+import { Message } from '../models/message-schema';
 
 @Injectable()
 export class NotificationService {

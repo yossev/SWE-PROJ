@@ -1,10 +1,8 @@
 /* eslint-disable prettier/prettier */
-import { IsString, IsNotEmpty } from 'class-validator';
 
 export class UpdateThreadDto {
 
   threadId : string;
-  
   threadTitle?: string; // The title of the thread
 
 

@@ -5,10 +5,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Message } from '../../models/message-schema';
+import { Message } from '../models/message-schema';
 import { CreateMessageDto } from './dto/createMessage.dto';
 import { NotificationService } from '../notification/notification.service'; 
-import { Room } from '../../models/room-schema'; 
+import { Room } from '../models/room-schema'; 
 
 @Injectable()
 export class MessageService {

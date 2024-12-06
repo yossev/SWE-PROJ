@@ -1,12 +1,11 @@
 /* eslint-disable prettier/prettier */
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Forum, ForumSchema } from 'models/forum-schema';
-import { Thread, ThreadSchema } from 'models/thread-schema';
-import { Topic, TopicSchema } from 'models/topic-schema';
+import { Forum, ForumSchema } from 'src/models/forum-schema';
+import { Thread , ThreadSchema } from 'src/models/thread-schema';
 import { ThreadController } from './thread.controller';
 import { ThreadService } from './thread.service';
-
+import { Topic, TopicSchema } from 'src/models/topic-schema';
 
 
 

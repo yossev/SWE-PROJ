@@ -3,11 +3,10 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ForumService } from './forum.service';
 import { ForumController } from './forum.controller';
-import { Forum, ForumSchema } from 'models/forum-schema';
-import { Reply, ReplySchema } from 'models/reply-schema';
-import { Thread, ThreadSchema } from 'models/thread-schema';
-import { Topic, TopicSchema } from 'models/topic-schema';
-
+import { Forum, ForumSchema } from 'src/models/forum-schema';
+import { Thread, ThreadSchema } from 'src/models/thread-schema';
+import { Reply, ReplySchema } from 'src/models/reply-schema';
+import { Topic , TopicSchema } from 'src/models/topic-schema';
 
 @Module({
   imports: [

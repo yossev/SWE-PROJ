@@ -17,14 +17,14 @@ export class Response {
   @Prop({
     type: [
       {
-        questionId: { type: mongoose.Schema.Types.ObjectId, ref: 'Quiz.questions', required: true }, // Reference to the question in the Quiz schema
+        question_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Quiz.questions', required: true }, // Reference to the question in the Quiz schema
         answer: { type: String, required: true }, // User's answer to the question
       },
     ],
     required: true,
   })
   answers: Array<{
-    questionId: mongoose.Types.ObjectId; // Reference to a question in the Quiz schema
+    question_id: mongoose.Schema.Types.ObjectId; // Reference to a question in the Quiz schema
     answer: string; // User's answer to the question
   }>;
 

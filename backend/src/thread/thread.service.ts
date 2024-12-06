@@ -1,13 +1,12 @@
 /* eslint-disable prettier/prettier */
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { Thread, ThreadDocument } from "models/thread-schema";
-import { Topic, TopicDocument } from "models/topic-schema";
+import { Topic, TopicDocument } from "src/models/topic-schema";
+import { Thread, ThreadDocument } from "src/models/thread-schema";
 import { Model, Types } from "mongoose";
 import { CreateThreadDto } from "./dto/createThread.dto";
 import { SearchThreadDto } from "./dto/searchThread.dto";
 import { UpdateThreadDto } from "./dto/updateThread.dto";
-
 
 
 @Injectable()

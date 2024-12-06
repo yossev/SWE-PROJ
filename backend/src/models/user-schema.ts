@@ -3,7 +3,7 @@
 
 
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument, Types } from 'mongoose';
+import mongoose, { HydratedDocument, Types , Document } from 'mongoose';
 
 export type UserDocument = HydratedDocument<User>;
 
@@ -11,8 +11,7 @@ export type UserDocument = HydratedDocument<User>;
 @Schema()
 export class User
  {
-    @Prop({type: String,unique:true,minLength:1})
-    user_id: string;
+   
 
     @Prop({type:String,required:true,minLength:3,maxLength:50})
     name: string;
@@ -42,11 +41,17 @@ export class User
     created_at:Date;
     
     @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'Course' })
-    courses?: mongoose.Types.ObjectId[];
+    course_id?: mongoose.Types.ObjectId[];
 
-     @Prop({ type: [Types.ObjectId], ref: 'Notification' })
-  notifications?: Types.ObjectId[]; // Array of notifications for the user
+     @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'Notification' })
+  notification_id?: Types.ObjectId[]; 
   
+  // Array of notifications for the user
+  @Prop({ type: String, required: false })
+  refresh_token?: string; // Refresh token for the user
+  
+
+
   }
 
   export const UserSchema = SchemaFactory.createForClass(User);

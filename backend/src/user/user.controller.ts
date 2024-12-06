@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
-import { User } from 'models/user-schema';
+import { User } from 'src/models/user-schema';
 import * as bcrypt from 'bcrypt';
 
 import { createUserDto } from './dto/createUser.dto';
@@ -17,9 +17,9 @@ import mongoose from 'mongoose';
 
 
 // @UseGuards(AuthGuard) //class level
-@Controller('users') // it means anything starts with /users
+@Controller('users') // it means anything starts with /student
 export class UserController {
-    constructor(private userService: UserService) { }
+    constructor(private userService: UserService) { }n
     @Public()
     @Get() 
     @Roles(Role.Instructor)
@@ -38,7 +38,7 @@ export class UserController {
     }
 
 
-    @Roles(Role.User)
+    @Roles(Role.Student)
     @UseGuards(authorizationGuard)
     @Get(':id')// /student/:id
     // Get a single student by ID
@@ -57,8 +57,8 @@ export class UserController {
         const passwordHash = await bcrypt.hash(userData.password_hash, 10);
         userData.password_hash=passwordHash;
         userData.user_id=userId;
-        const newUser = await this.userService.create(userData);
-        return newUser;
+       // const newUser = await this.userService.create(userData);
+     //   return newUser;
     }
     // Update a student's details
     @Roles(Role.Admin)
@@ -79,8 +79,8 @@ export class UserController {
        return deletedUser;
     }
     
-    @Get('courses')
-    async getAllCourses() {
-        return await this.userService.findAllCourses();
-    }
+    // @Get('courses')
+    // async getAllCourses() {
+    //     return await this.userService.findAllCourses();
+    // }
 }

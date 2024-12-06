@@ -5,7 +5,7 @@ import { Types } from 'mongoose';
 export class CreateForumDto {
   @IsMongoId()
   @IsNotEmpty()
-  courseId: Types.ObjectId; // Reference to the associated course (use ObjectId)
+  courseId: Types.ObjectId;; // Reference to the associated course (use ObjectId)
 
   @IsString()
   @IsNotEmpty()
