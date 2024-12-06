@@ -35,7 +35,7 @@ async updateQuiz(@Query('id') id: string, @Body() quizData: UpdateQuizDto): Prom
        return deletedquiz;
     }
 
-    @Post('generate')
+    @Post('generateQuiz')
   async generateQuiz(
     @Body() createQuizDto: CreateQuizDto,
     @Query('performance_metric') performanceMetric: string,
