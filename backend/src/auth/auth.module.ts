@@ -8,7 +8,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
 import { User, UserSchema } from 'src/models/user-schema';
-import { UserService } from 'src/user/user.service';
 import { RefreshToken, RefreshTokenSchema } from 'models/refreshToken-schema';
 
 
@@ -31,7 +30,7 @@ import { RefreshToken, RefreshTokenSchema } from 'models/refreshToken-schema';
        { name: RefreshToken.name, schema: RefreshTokenSchema },]), // Use Mongoose for User
   ],
   
-  providers: [AuthService, UserService,JwtStrategy],
+  providers: [AuthService,JwtStrategy],
   exports: [JwtStrategy, PassportModule,JwtModule],  // Export for use in other modules
 })
 export class AuthModule {}

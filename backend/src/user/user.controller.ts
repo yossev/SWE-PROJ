@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpException, HttpStatus, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from 'src/models/user-schema';
 import * as bcrypt from 'bcrypt';
@@ -17,6 +17,7 @@ import { Role, Roles } from '../auth/decorators/roles.decorator';
 import { authorizationGuard } from '../auth/guards/authorization.guards';
 import mongoose from 'mongoose';
 import { LoginDto } from './dto/login.dto';
+import { RefreshAccessTokenDto } from './dto/refreshAccessTokenDto.dto';
 
 
 
@@ -61,7 +62,7 @@ export class UserController {
     // Update a student's details
    
     @Put('me')
-    async updateUserProfile(@Req() req, @Body() updateData: updateUserDto) {
+    async updateUserProfile(@Param() req, @Body() updateData: updateUserDto) {
         const userId = req.user.userId; // Extract logged-in user's ID from request
         return await this.userService.update(userId, updateData);
     }
@@ -75,6 +76,17 @@ export class UserController {
        return deletedUser;
     }
     
+    @Post('token/refresh')
+  @HttpCode(HttpStatus.CREATED)
+  async refreshAccessToken(
+    @Body() refreshAccessTokenDto: RefreshAccessTokenDto,
+  ) {
+    try {
+      return await this.userService.refreshAccessToken(refreshAccessTokenDto);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
     // @Get('courses')
     // async getAllCourses() {
     //     return await this.userService.findAllCourses();

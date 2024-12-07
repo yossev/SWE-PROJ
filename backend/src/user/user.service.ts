@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
- import { BadRequestException, Injectable, UnauthorizedException, /*UnauthorizedException*/ } from '@nestjs/common';
+ import { BadRequestException, Inject, Injectable, UnauthorizedException, /*UnauthorizedException*/ } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 
 import { User, UserDocument  } from 'src/models/user-schema';
@@ -10,12 +10,17 @@ import { createUserDto } from './dto/createUser.dto';
 import { LoginDto } from './dto/login.dto';
  import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt/dist/jwt.service';
+import { AuthService } from 'src/auth/auth.service';
+import { RefreshAccessTokenDto } from './dto/refreshAccessTokenDto.dto';
 // import { LoginDto } from './dto/loginDto.dto';
 // import { RefreshAccessTokenDto } from './dto/refreshAccessTokenDto.dto';
-
+import { forwardRef } from '@nestjs/common';
 @Injectable()
 export class UserService {
+
     constructor(
+      @Inject(forwardRef(() => AuthService))
+    private authService: AuthService,
         private readonly jwtService: JwtService, 
         @InjectModel(User.name) private userModel: Model<UserDocument>,
     ) { }
@@ -101,6 +106,21 @@ export class UserService {
     async delete(id: string): Promise<User> {
         return await this.userModel.findByIdAndDelete(id);  // Find and delete the student
     }
+    async refreshAccessToken(refreshAccessTokenDto: RefreshAccessTokenDto) {
+      const userId = await this.authService.findRefreshToken(
+        refreshAccessTokenDto.refreshToken,
+      );
+      const user = await this.userModel.findById(userId);
+      if (!user) {
+        throw new BadRequestException('Bad request');
+      }
+      return {
+        accessToken: await this.authService.createAccessToken(user._id.toString()),
+      };
+    }
+
+  
+    
 // ngebha men courses
     // async findAllCourses(): Promise<Course[]> {
     //     return await this.courseModel.find(); // Fetch all courses
