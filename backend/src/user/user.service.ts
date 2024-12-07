@@ -23,6 +23,7 @@ export class UserService {
      
         private readonly jwtService: JwtService, 
         @InjectModel(User.name) private userModel: Model<UserDocument>,
+        @InjectModel(Course.name) private courseModel: Model<CourseDocument>,
        // @Inject(forwardRef(() => AuthService))
         private authService: AuthService
     ) { }
