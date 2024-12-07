@@ -13,6 +13,7 @@
     "dotenv": "^16.4.5",
     "mongoose": "^8.8.2",
     "nestjs": "^0.0.1",
+    "passport-jwt": "^4.0.1",
     "socket.io": "^4.8.1"
   },
   "devDependencies": {

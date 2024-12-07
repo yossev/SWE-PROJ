@@ -5,11 +5,15 @@ import { AppModule } from './app.module';
 import { JwtAuthGuard } from './auth/guards/jwtAuthGuard.guard';
 const mongoose=require('mongoose');
 const express=require('express');
-console.log('JWT_SECRET2:', process.env.JWT_SECRET);
+
+const mongoUri = "mongodb://localhost:27017/";
+
+console.log('MongoDB URI:', process.env.DATABASE_URL);
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  await mongoose.connect(process.env.DATABASE_URL , {
+  await mongoose.connect(mongoUri , {
+  
   }).then( () => {
      console.log('Connected');
   }).catch((err) => {

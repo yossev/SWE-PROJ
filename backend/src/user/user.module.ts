@@ -24,7 +24,7 @@ import { AuthModule } from 'src/auth/auth.module';
           expiresIn: config.get<string | number>('JWT_EXPIRES') || '1h',  // Default expiration
         },
       }),
-    }),
+    }), 
   ],
   controllers: [UserController],
   providers: [UserService,JwtService,AuthService],

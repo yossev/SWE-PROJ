@@ -1,9 +1,9 @@
 /* eslint-disable prettier/prettier */
 import { forwardRef, Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { MongooseModule } from '@nestjs/mongoose'; 
+import { MongooseModule } from '@nestjs/mongoose';
 
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
@@ -19,13 +19,12 @@ import { UserModule } from 'src/user/user.module';
     ConfigModule.forRoot({ isGlobal: true }),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
-      imports: [ConfigModule],
+      imports: [ConfigModule, forwardRef(() => UserModule)], // Support for circular dependencies with forwardRef
       inject: [ConfigService],
-      
       useFactory: async (config: ConfigService) => ({
-        secret: config.get('JWT_SECRET'),  // Ensure JWT_SECRET is defined in .env or config
+        secret: config.get('JWT_SECRET'), // Load secret from configuration
         signOptions: {
-          expiresIn: config.get<string | number>('JWT_EXPIRES') || '1h',  // Default expiration
+          expiresIn: config.get<string | number>('JWT_EXPIRES') || '1h', // Default token expiration
         },
       }),
     }),

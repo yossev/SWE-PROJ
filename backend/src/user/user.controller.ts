@@ -26,8 +26,8 @@ import { RefreshAccessTokenDto } from './dto/refreshAccessTokenDto.dto';
 export class UserController {
     constructor(private userService: UserService) { }
     @Get('/all') 
-    @UseGuards(JwtAuthGuard)
     @Roles(Role.Instructor, Role.Admin)
+    @UseGuards(JwtAuthGuard)
     // Get all students
     async getAllStudents(): Promise<User[]> {
         return await this.userService.findAll();
@@ -46,7 +46,8 @@ export class UserController {
     @Public()
     @Post('/login')
     login(@Body() loginDto: LoginDto): Promise<{ token: string }> {
-         return this.userService.login(loginDto);
+        
+        return this.userService.login(loginDto);
      }
     @Public()
     @Post('/register')
