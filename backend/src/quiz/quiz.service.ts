@@ -43,9 +43,12 @@ async delete(id: string): Promise<Quiz> {
   const objectId = new mongoose.Types.ObjectId(inpStr);  
   return await this.quizModel.findByIdAndDelete(objectId).exec();
 }
-
 async generateQuiz(createQuizDto: CreateQuizDto, performanceMetric: string, userId: string): Promise<any> {
   const { moduleId, numberOfQuestions, questionType } = createQuizDto;
+  const allQuestions = await this.questionBankModel.find().lean();
+  console.log('All Questions from Question Bank:', allQuestions);
+
+  // Determine the difficulty levels based on performance metric
   let difficultyLevels: string[];
   if (performanceMetric === 'Above Average') {
     difficultyLevels = [DifficultyLevel.Medium, DifficultyLevel.Hard];
@@ -55,8 +58,21 @@ async generateQuiz(createQuizDto: CreateQuizDto, performanceMetric: string, user
     difficultyLevels = [DifficultyLevel.Easy];
   }
 
-  let questionFilter: any = { module_id: moduleId, difficulty_level: { $in: difficultyLevels } };
+  // Log the input filter conditions
+  console.log('Input Filter Conditions:', {
+    moduleId,
+    difficultyLevels,
+    questionType,
+  });
 
+  // Define the question filter based on input parameters
+  let questionFilter: any = {
+    module_id: moduleId,
+    difficulty_level: { $in: difficultyLevels },
+  };
+
+  // Adjust question filter based on question type
+  console.log('Question Type from DTO:', questionType);
   if (questionType === QuestionType.MCQ) {
     questionFilter.question_type = 'MCQ';
   } else if (questionType === QuestionType.TrueFalse) {
@@ -65,91 +81,66 @@ async generateQuiz(createQuizDto: CreateQuizDto, performanceMetric: string, user
     questionFilter.question_type = { $in: ['MCQ', 'True/False'] };
   }
 
-  const questions = await this.questionBankModel.find(questionFilter).lean();
+  // Log the final filter condition before applying
+  console.log('Final Question Filter:', questionFilter);
 
-  const selectedQuestions = this.getRandomQuestions(questions, numberOfQuestions);
+  // Apply the filter to allQuestions in-memory
+  const questions = allQuestions.filter((q) => {
+    console.log('Filtering question:', q);
+    console.log('Question type from DB:', q.question_type);
+    const matchesType =
+      questionFilter.question_type === 'Both' ||
+      q.question_type === questionFilter.question_type;
+    console.log('Matches type:', matchesType);
 
-  const transformedQuestions = [];
-  for (const q of selectedQuestions) {
-    transformedQuestions.push({
-      question: q.question,
-      options: q.options,
-      correct_answer: q.correct_answer,
-      difficultyLevel: q.difficulty_level,
+    const matchesDifficulty = difficultyLevels.includes(q.difficulty_level);
+    console.log('Matches difficulty:', matchesDifficulty);
 
-    });
+    return (
+      q.module_id.toString() === moduleId.toString() &&
+      matchesDifficulty &&
+      matchesType
+    );
+  });
+
+  console.log('Filtered Questions:', questions);
+
+  // Check if questions are empty
+  if (questions.length === 0) {
+    console.log('No questions matched the filter conditions.');
   }
+
+  // Select random questions from the filtered list
+  const selectedQuestions = this.getRandomQuestions(questions, numberOfQuestions);
+  console.log('Selected Questions:', selectedQuestions);
+
+  const transformedQuestions = selectedQuestions.map((q) => ({
+    question: q.question,
+    options: q.options,
+    correct_answer: q.correct_answer,
+    difficultyLevel: q.difficulty_level,
+  }));
+
   const quiz = {
     module_id: moduleId,
     questions: transformedQuestions,
     created_at: new Date(),
-    userId: new mongoose.Types.ObjectId(userId),
+    userId: new mongoose.Types.ObjectId(userId), // Consider ensuring userId is valid
   };
 
   const savedQuiz = await new this.quizModel(quiz).save();
-  const responseQuestions = [];
-  for (const q of selectedQuestions) {
-    responseQuestions.push({
-      question: q.question,
-      options: q.options,
-      id: q._id,
-    });
-  }
+  console.log('Saved Quiz:', savedQuiz);
 
- 
-  console.log('Question Filter:', questionFilter);
-  console.log('Fetched Questions:', questions);
-  console.log('Selected Questions:', selectedQuestions);
+  // Prepare response questions with minimal data
+  const responseQuestions = selectedQuestions.map((q) => ({
+    question: q.question,
+    options: q.options,
+    id: q._id,
+  }));
 
   return {
     quizId: savedQuiz._id,
     questions: responseQuestions,
-  };
-}
-
-async evaluateQuiz(
-  userAnswers: string[],
-  selectedQuestions: any[],
-  userId: string,
-  moduleId: string
-): Promise<any> {
-  let correctAnswersCount = 0;
-  let incorrectAnswers = [];
-  selectedQuestions.forEach((question, index) => {
-    const userAnswer = userAnswers[index];
-    if (userAnswer === question.correctAnswer) {
-      correctAnswersCount++;
-    } else {
-      incorrectAnswers.push({
-        question: question.question,
-        correctAnswer: question.correctAnswer,
-        userAnswer: userAnswer,
-      });
-    }
-  });
-  const score = (correctAnswersCount / selectedQuestions.length) * 100;
-  let feedbackMessage = '';
-  if (score < 60) {
-    feedbackMessage = 'You have not scored enough. We recommend revisiting the module content and studying the material again.';
-  } else {
-    feedbackMessage = 'Great job! You have passed the quiz. Keep up the good work!';
-  }
-  await this.quizModel.updateOne(
-    { module_id: moduleId, userId: new mongoose.Types.ObjectId(userId) },
-    {
-      $set: {
-        user_answers: userAnswers,
-        score,
-        feedback: feedbackMessage,
-        evaluated_at: new Date(),
-      },
-    }
-  );
-
-  return {
-    score,
-    feedback: feedbackMessage,
-    incorrectAnswers,
   };
 }
 
@@ -162,5 +153,50 @@ async evaluateQuiz(
   private shuffleArray(array: any[]): any[] {
     return array.sort(() => 0.5 - Math.random());
   }
-   
+
+  async evaluateQuiz(
+    userAnswers: string[],
+    selectedQuestions: any[],
+    userId: string,
+    moduleId: string
+  ): Promise<any> {
+    let correctAnswersCount = 0;
+    let incorrectAnswers = [];
+    selectedQuestions.forEach((question, index) => {
+      const userAnswer = userAnswers[index];
+      if (userAnswer === question.correctAnswer) {
+        correctAnswersCount++;
+      } else {
+        incorrectAnswers.push({
+          question: question.question,
+          correctAnswer: question.correctAnswer,
+          userAnswer: userAnswer,
+        });
+      }
+    });
+    const score = (correctAnswersCount / selectedQuestions.length) * 100;
+    let feedbackMessage = '';
+    if (score < 60) {
+      feedbackMessage = 'You have not scored enough. We recommend revisiting the module content and studying the material again.';
+    } else {
+      feedbackMessage = 'Great job! You have passed the quiz. Keep up the good work!';
+    }
+    await this.quizModel.updateOne(
+      { module_id: moduleId, userId: new mongoose.Types.ObjectId(userId) },
+      {
+        $set: {
+          user_answers: userAnswers,
+          score,
+          feedback: feedbackMessage,
+          evaluated_at: new Date(),
+        },
+      }
+    );
+  
+    return {
+      score,
+      feedback: feedbackMessage,
+      incorrectAnswers,
+    };
+  }
 }

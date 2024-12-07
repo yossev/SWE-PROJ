@@ -65,6 +65,3 @@ async updateQuiz(@Query('id') id: string, @Body() quizData: UpdateQuizDto): Prom
     };
   } 
 }
-
-
- 
