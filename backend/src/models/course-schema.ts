@@ -34,6 +34,12 @@ export class Course {
 
   @Prop({type: [String], default: []}) // Possible Changes here, Default can be 1s
   versions: string[]; 
+   
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+    instructor: mongoose.Types.ObjectId;
+
+    @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'User' })
+    students: mongoose.Types.ObjectId[];
 }
 
 export const CourseSchema = SchemaFactory.createForClass(Course);

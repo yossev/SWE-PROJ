@@ -1,4 +1,10 @@
 export class CreateCourseDto {
+    userId(userId: any, arg1: string, courseName: any) {
+      throw new Error('Method not implemented.');
+    }
+    courseName(userId: any, arg1: string, courseName: any) {
+      throw new Error('Method not implemented.');
+    }
     id: string; 
     title: string;
     description: string;

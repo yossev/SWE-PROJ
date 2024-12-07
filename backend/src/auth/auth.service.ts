@@ -5,7 +5,7 @@ import { forwardRef, Inject, Injectable, UnauthorizedException } from '@nestjs/c
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from 'src/models/user-schema';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { RefreshToken, RefreshTokenDocument} from'../models/refreshToken-schema';
 import { LoginDto } from '../user/dto/login.dto';
