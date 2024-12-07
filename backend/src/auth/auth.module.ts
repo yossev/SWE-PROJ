@@ -1,20 +1,22 @@
 /* eslint-disable prettier/prettier */
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { MongooseModule } from '@nestjs/mongoose'; 
+import { MongooseModule } from '@nestjs/mongoose';
 
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
-import { User, UserSchema } from 'src/models/user-schema';
-import { UserService } from 'src/user/user.service';
 
+import { RefreshToken, RefreshTokenSchema } from 'src/models/refreshToken-schema'; // Use correct path
+import { UserModule } from 'src/user/user.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    forwardRef(() => UserModule), // Resolve circular dependencies
+    MongooseModule.forFeature([{ name: RefreshToken.name, schema: RefreshTokenSchema }]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
+    ConfigModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -26,10 +28,8 @@ import { UserService } from 'src/user/user.service';
         },
       }),
     }),
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]), // Use Mongoose for User
   ],
-  
-  providers: [AuthService, UserService,JwtStrategy],
-  exports: [JwtStrategy, PassportModule,JwtModule],  // Export for use in other modules
+  providers: [AuthService, JwtStrategy],
+  exports: [AuthService, JwtStrategy, JwtModule], // Export necessary services for other modules
 })
 export class AuthModule {}

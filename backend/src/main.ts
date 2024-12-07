@@ -1,9 +1,11 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-require-imports */
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
-const dotenv = require("dotenv");
-dotenv.config({ path: './.env' });
+import * as cookieParser from 'cookie-parser';
+import { AuthGuard } from './auth/guards/authentication.guards';
+import { JwtService } from '@nestjs/jwt';
+
 const mongoose=require('mongoose');
 const express=require('express');
 
@@ -23,7 +25,9 @@ async function bootstrap() {
   });
   await app.listen(3000);
   app.use(express.json());
-  
+  const reflector = app.get(Reflector);
+  app.use(cookieParser());
+  app.listen(3000);
 }
 bootstrap();
 

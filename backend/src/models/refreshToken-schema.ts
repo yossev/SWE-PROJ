@@ -1,10 +1,10 @@
 /* eslint-disable prettier/prettier */
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
-import { Document } from 'mongoose';
+import { Document, HydratedDocument } from 'mongoose';
 import { User } from './user-schema';
 
-
+export type RefreshTokenDocument = HydratedDocument<RefreshToken>;
 @Schema({
   versionKey: false,
   timestamps: true,

@@ -1,28 +1,39 @@
 /* eslint-disable prettier/prettier */
-import { Module } from '@nestjs/common';
-import { UserService } from './user.service';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { User, UserSchema } from 'src/models/user-schema';
-import { UserController } from './user.controller';
-import { JwtModule, JwtService } from '@nestjs/jwt';
+import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+
+import { UserService } from './user.service';
+import { UserController } from './user.controller';
+import { User, UserSchema } from 'src/models/user-schema';
+import { AuthModule } from 'src/auth/auth.module';
+import { Course, CourseSchema } from 'models/course-schema';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]), // Use Mongoose for User
+    //forwardRef(() => AuthModule), // Resolve circular dependencies
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MongooseModule.forFeature([{ name: Course.name, schema: CourseSchema }]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      
-      useFactory: async (config: ConfigService) => ({
-        secret: config.get<string>(process.env.JWT_SECRET),  // Ensure JWT_SECRET is defined in .env or config
-        signOptions: {
-          expiresIn: config.get<string | number>('JWT_EXPIRES') || '1h',  // Default expiration
-        },
-      }),
+      useFactory: (config: ConfigService) => {
+        const secret = config.get<string>('JWT_SECRET');
+        if (!secret) {
+          throw new Error('JWT_SECRET is not defined in the environment variables');
+        }
+        return {
+          secret,
+          signOptions: {
+            expiresIn: config.get<string | number>('JWT_EXPIRES') || '1h',
+          },
+        };
+      },
     }),
   ],
   controllers: [UserController],
-  providers: [UserService,JwtService],
+  providers: [UserService],
+  exports: [UserService, MongooseModule], // Export UserService for use in AuthModule
 })
 export class UserModule {}

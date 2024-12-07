@@ -1,5 +1,7 @@
 /* eslint-disable prettier/prettier */
-import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
+import { Body, Controller, Delete, Get, HttpCode, HttpException, HttpStatus, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from 'src/models/user-schema';
 import * as bcrypt from 'bcrypt';
@@ -7,7 +9,7 @@ import * as bcrypt from 'bcrypt';
 import { createUserDto } from './dto/createUser.dto';
 import updateUserDto from './dto/updateUser.dto';
 
-import { JwtAuthGuard } from '../auth/guards/jwtAuthGuard.guard';
+
 import { AuthGuard } from '../auth/guards/authentication.guards';
 import { Public } from '../auth/decorators/public.decorator';
 
@@ -15,6 +17,7 @@ import { Role, Roles } from '../auth/decorators/roles.decorator';
 import { authorizationGuard } from '../auth/guards/authorization.guards';
 import mongoose from 'mongoose';
 import { LoginDto } from './dto/login.dto';
+import { RefreshAccessTokenDto } from './dto/refreshAccessTokenDto.dto';
 
 
 
@@ -22,10 +25,9 @@ import { LoginDto } from './dto/login.dto';
 @Controller('users') // it means anything starts with /student
 export class UserController {
     constructor(private userService: UserService) { }
-    
     @Get('/all') 
-    @UseGuards(JwtAuthGuard)
     @Roles(Role.Instructor, Role.Admin)
+    @UseGuards(JwtAuthGuard)
     // Get all students
     async getAllStudents(): Promise<User[]> {
         return await this.userService.findAll();
@@ -43,9 +45,9 @@ export class UserController {
     //Create a new student
     @Public()
     @Post('/login')
-  login(@Body() loginDto: LoginDto): Promise<{ token: string }> {
-    return this.userService.login(loginDto);
-  }
+    login(@Body() loginDto: LoginDto): Promise<{ token: string }> {
+         return this.userService.login(loginDto);
+     }
     @Public()
     @Post('/register')
     async register(@Body()userData: createUserDto) {// Get the new student data from the request body
@@ -59,21 +61,35 @@ export class UserController {
     }
     // Update a student's details
    
+
+
     @Put('me')
     async updateUserProfile(@Req() req, @Body() updateData: updateUserDto) {
-        const userId = req.user.userId; // Extract logged-in user's ID from request
+        console.log("entered function");
+        const userId = req.cookies['userId']; // Extract logged-in user's ID from request
+        console.log("userId is: " , userId);
         return await this.userService.update(userId, updateData);
     }
     
     // Delete a student by ID
-    @Roles(Role.Admin)
-    @UseGuards(authorizationGuard)
     @Delete(':id')
     async deleteUser(@Param('id')id:string) {
         const deletedUser = await this.userService.delete(id);
        return deletedUser;
     }
-    
+    /*
+    @Post('token/refresh')
+  @HttpCode(HttpStatus.CREATED)
+  async refreshAccessToken(
+    @Body() refreshAccessTokenDto: RefreshAccessTokenDto,
+  ) {
+    try {
+      return await this.userService.refreshAccessToken(refreshAccessTokenDto);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+    */
     // @Get('courses')
     // async getAllCourses() {
     //     return await this.userService.findAllCourses();

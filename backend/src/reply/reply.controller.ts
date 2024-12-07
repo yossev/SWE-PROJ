@@ -1,8 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { Body, Controller, Post } from '@nestjs/common';
 import { ReplyService } from './reply.service';
-import { Roles, Role } from 'src/auth/decorators/roles.decorator';
-import { CreateForumDto } from 'src/forum/dto/createForum.dto';
+
 import { CreateReplyDto } from './dto/createReply.dto';
 
 
