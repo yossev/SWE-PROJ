@@ -8,7 +8,7 @@ import { UpdateProgressDTO } from './dto/updateProgress.dto';
 import { Responses } from '../../models/responses-schema';
 import { Course } from '../../models/course-schema';
 import { Module } from '../../models/module-schema';
-import { RatingService } from '../rating/rating.service'; 
+import { RatingService } from '../rating/rating.service';
 import mongoose from 'mongoose';
 import * as PDFDocument from 'pdfkit';
 import { Response } from 'express';
@@ -118,7 +118,7 @@ export class ProgressService {
     }
 
     // Calculate student's average score for each course 
-    const modules = await this.moduleModel.find({ course_id: progress.course_id }).exec(); 
+    const modules = await this.moduleModel.find({ course_id: progress.course_id }).exec();
 
     const quizIds = [];
     for (const module of modules) { //FOR EACH MODULE OF THIS COURSE - COURSE MAY HAVE MORE THAN 1 MODULE
@@ -231,39 +231,41 @@ export class ProgressService {
 
   // Instructor Analytics -- Reports on content effectiveness 
   // getting the rating -- 
- 
-    async getInstructorAnalyticsContentEffectiveness(courseId: string) {
-     
-      const course = await this.courseModel.findById(courseId).exec();
-      if (!course) {
-          throw new NotFoundException('Course not found');
-      }
-  
-      const instructorId = course.created_by;
-  
-      const courseRating = await this.ratingService.getCourseRating(courseId);
-  
-      const modules = await this.moduleModel.find({ course_id: courseId }).exec();
-      const moduleRatings: { [moduleId: string]: number } = {};
+  async getInstructorAnalyticsContentEffectiveness(courseId: string, userId: string) {
 
-  
-      for (const module of modules) {
-          const moduleIdStr = module._id.toString(); 
-          const moduleRating = await this.ratingService.getModuleRating(moduleIdStr);
-          moduleRatings[moduleIdStr] = moduleRating;
-      }
-  
-      const instructorRating = await this.ratingService.getInstructorRating(instructorId);
-  
-      return {
-          courseId,
-          courseTitle: course.title,
-          courseRating,
-          moduleRatings,
-          instructorRating,
-      };
+    const course = await this.courseModel.findById(courseId).exec();
+    if (!course) {
+      throw new NotFoundException('Course not found');
+    }
+
+    const instructor = await this.courseModel.findById(userId).exec();
+    if (!instructor) {
+      throw new NotFoundException('Instructor not found');
+    }
+
+    const courseRating = await this.ratingService.getCourseRating(courseId);
+
+    const modules = await this.moduleModel.find({ course_id: courseId }).exec();
+    const moduleRatings: { [moduleId: string]: number } = {};
+
+    for (const module of modules) {
+      const moduleIdStr = module._id.toString();
+      const moduleRating = await this.ratingService.getModuleRating(moduleIdStr);
+      moduleRatings[moduleIdStr] = moduleRating;
+    }
+
+    const instructorRating = await this.ratingService.getInstructorRating(userId);
+
+    return {
+      courseId,
+      courseTitle: course.title,
+      courseRating,
+      moduleRatings,
+      instructorRating,
+    };
   }
-  
+
+
   //Instructor Analytics -- Reports on assessment results
   async getInstructorAnalyticsAssessmentResults(courseId: string) {
 
@@ -320,7 +322,7 @@ export class ProgressService {
   //Downloadable Analytics for content effectiveness
   async exportInstructorAnalyticsContentEffectivenessPDF(courseId: string, res: Response) {
     const analytics = await this.getInstructorAnalyticsContentEffectiveness(courseId);
-    
+
     if (!analytics) {
       return res.status(404).send('Analytics data not found');
     }
