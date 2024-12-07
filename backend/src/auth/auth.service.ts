@@ -15,12 +15,12 @@ import { UserService } from 'src/user/user.service';
 export class AuthService {
 
   constructor(
-    @Inject(forwardRef(() => UserService))
-    private userService: UserService,
-    @InjectModel(User.name) private userModel: Model<UserDocument>,
-    @InjectModel(RefreshToken.name) private refreshTokenModel: Model<RefreshTokenDocument>,
-    private jwtService: JwtService,  // JwtService is injected here
-    
+   
+    @InjectModel(User.name) private  userModel: Model<UserDocument>, // <-- This is likely causing the error
+  @InjectModel(RefreshToken.name) private  refreshTokenModel: Model<RefreshTokenDocument>,
+  private readonly jwtService: JwtService,
+  @Inject(forwardRef(() => UserService))
+  private readonly userService: UserService,
   ) {}
   async createAccessToken(userId: string) {
     return await this.jwtService.signAsync({ userId });
@@ -86,5 +86,3 @@ export class AuthService {
     return refreshToken.userId;
   }
   }
-
-

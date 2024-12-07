@@ -1,7 +1,8 @@
 /* eslint-disable prettier/prettier */
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document, Types } from 'mongoose';
+import mongoose, { Document, HydratedDocument, Types } from 'mongoose';
 
+export type NotificationDocument = HydratedDocument<Notification>;
 
 @Schema()
 export class Notification extends Document {

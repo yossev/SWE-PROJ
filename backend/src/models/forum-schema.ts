@@ -1,13 +1,13 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable prettier/prettier */
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, HydratedDocument } from 'mongoose';
 import { Types } from 'mongoose';
 
 import {  Schema as MongooseSchema } from 'mongoose';
  // Import the folder schema
 
-export type ForumDocument = Forum & Document;
+export type ForumDocument = HydratedDocument<Forum>;
 
 @Schema({ timestamps: true })
 export class Forum {

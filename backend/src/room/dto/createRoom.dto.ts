@@ -3,7 +3,7 @@ import { IsString, IsArray, IsMongoId, ArrayNotEmpty } from 'class-validator';
 import { Types } from 'mongoose';
 
 export class CreateRoomDto {
-  @IsString()
+  
   @IsMongoId()
   instructor: Types.ObjectId; // Reference to the instructor (User ID)
 
