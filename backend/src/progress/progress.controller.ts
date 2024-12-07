@@ -42,6 +42,7 @@ export class ProgressController {
     return this.progressService.delete(id);
   }
 
+  // Get completed courses
   @Get('completed/:userId')
   async getCompletedCourses(@Param('userId') userId: string) {
     return await this.progressService.getCompletedCourses(userId);
@@ -53,14 +54,36 @@ export class ProgressController {
     return await this.progressService.getDashboard(userId);
   }
 
-  @Get('analytics/:courseId')
-  async getInstructorAnalytics(@Param('courseId') courseId: string,) {
+  //getInstructorAnalyticsAssessmentResults
+  @Get('assessment-results/:userId')
+  async getInstructorAnalyticsAssessmentResults(@Param('userId') courseId: string) {
+    return await this.progressService.getInstructorAnalyticsAssessmentResults(courseId);
+  }
+  //getInstructorAnalyticsContentEffectiveness
+  @Get('content-effectiveness/:courseId')
+  async getInstructorAnalyticsContentEffectiveness(@Param('courseId') courseId: string) {
+    return await this.progressService.getInstructorAnalyticsContentEffectiveness(courseId);
+  }
+
+  // getInstructorAnalyticsStudentEngagement
+  @Get('student-engagement/:courseId')
+  async getInstructorAnalyticsStudentEngagement(@Param('courseId') courseId: string,) {
     return await this.progressService.getInstructorAnalyticsStudentEngagement(courseId);
   }
 
-  @Get('/export/pdf/:courseId')
-  async exportPDF(@Param('courseId') courseId: string, @Res() res: Response) {
+  @Get('/export-student-engagement/pdf/:courseId')
+  async exportStudentEngagementPDF(@Param('courseId') courseId: string, @Res() res: Response) {
     await this.progressService.exportInstructorAnalyticsStudentEngagementPDF(courseId, res);
+  }
+
+  @Get('/export-assessment-results/pdf/:courseId')
+  async exportAssessmentResultPDF(@Param('courseId') courseId: string, @Res() res: Response) {
+    await this.progressService.exportInstructorAnalyticsAssessmentResultsPDF(courseId, res);
+  }
+
+  @Get('/export-content-effectivenes/pdf/:courseId')
+  async exportContentEffectivenessPDF(@Param('courseId') courseId: string, @Res() res: Response) {
+    await this.progressService.exportInstructorAnalyticsContentEffectivenessPDF(courseId, res);
   }
 
 

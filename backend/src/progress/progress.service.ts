@@ -8,10 +8,11 @@ import { UpdateProgressDTO } from './dto/updateProgress.dto';
 import { Responses } from '../../models/responses-schema';
 import { Course } from '../../models/course-schema';
 import { Module } from '../../models/module-schema';
+import { RatingService } from '../rating/rating.service'; 
 import mongoose from 'mongoose';
 import * as PDFDocument from 'pdfkit';
-
 import { Response } from 'express';
+import { Rating } from 'models/rating-schema';
 @Injectable()
 export class ProgressService {
   constructor(
@@ -20,6 +21,8 @@ export class ProgressService {
     @InjectModel('Course') private courseModel: Model<Course>,
     @InjectModel('Quiz') private quizModel: Model<Quiz>,
     @InjectModel('Module') private moduleModel: Model<Module>,
+    @InjectModel('Rating') private ratingModel: Model<Rating>,
+    private ratingService: RatingService,
 
   ) { }
 
@@ -114,11 +117,10 @@ export class ProgressService {
       throw new NotFoundException(`Dashboard for user ${userId} not found`);
     }
 
-    // Looks good to me :P ~Yossef
-    // Calculate student's average score for each course (THIS***)
-    const modules = await this.moduleModel.find({ course_id: progress.course_id }).exec(); //fetch all modules related to specific course
+    // Calculate student's average score for each course 
+    const modules = await this.moduleModel.find({ course_id: progress.course_id }).exec(); 
 
-    const quizIds = []; 
+    const quizIds = [];
     for (const module of modules) { //FOR EACH MODULE OF THIS COURSE - COURSE MAY HAVE MORE THAN 1 MODULE
       const quizzes = await this.quizModel.find({ module_id: module._id }).exec();
       quizzes.forEach(quiz => quizIds.push(quiz._id));
@@ -152,8 +154,8 @@ export class ProgressService {
     const engagementTrends = [];
 
     for (const progress of progressData) {
-      const courseId = progress.course_id; 
-      const courseIdString: string = courseId.toString(); 
+      const courseId = progress.course_id;
+      const courseIdString: string = courseId.toString();
 
       const attendanceRate = await this.calculateAttendanceRate(userId, courseIdString);
 
@@ -229,15 +231,39 @@ export class ProgressService {
 
   // Instructor Analytics -- Reports on content effectiveness 
   // getting the rating -- 
+ 
+    async getInstructorAnalyticsContentEffectiveness(courseId: string) {
+     
+      const course = await this.courseModel.findById(courseId).exec();
+      if (!course) {
+          throw new NotFoundException('Course not found');
+      }
+  
+      const instructorId = course.created_by;
+  
+      const courseRating = await this.ratingService.getCourseRating(courseId);
+  
+      const modules = await this.moduleModel.find({ course_id: courseId }).exec();
+      const moduleRatings: { [moduleId: string]: number } = {};
 
-  async getInstructorAnalyticsContentEffectiveness(courseId: string) {
-
-    const course = await this.courseModel.findById(courseId).exec();
-
-    if (!course) {
-      throw new Error('Course not found');
-    }
+  
+      for (const module of modules) {
+          const moduleIdStr = module._id.toString(); 
+          const moduleRating = await this.ratingService.getModuleRating(moduleIdStr);
+          moduleRatings[moduleIdStr] = moduleRating;
+      }
+  
+      const instructorRating = await this.ratingService.getInstructorRating(instructorId);
+  
+      return {
+          courseId,
+          courseTitle: course.title,
+          courseRating,
+          moduleRatings,
+          instructorRating,
+      };
   }
+  
   //Instructor Analytics -- Reports on assessment results
   async getInstructorAnalyticsAssessmentResults(courseId: string) {
 
@@ -279,21 +305,43 @@ export class ProgressService {
     }
     const doc = new PDFDocument();
     res.header('Content-Type', 'application/pdf');
-    res.attachment('instructor_analytics.pdf');
+    res.attachment('instructor_analytics_student_engagement.pdf');
     doc.pipe(res);
     doc.fontSize(16).text('Instructor Analytics Report - student engagement', { align: 'center' }).moveDown();
-    doc.text(`Number of enrolled students: ${analytics.enrolledStudentsCount}`);
-    doc.text(`Number of students who completed the course: ${analytics.completedStudentsCount}`);
-    doc.text('Performance Metrics:');
-    doc.text(`Number of students who are below average: ${analytics.performanceMetrics.belowAverage}`);
-    doc.text(`Number of students who are Average: ${analytics.performanceMetrics.average}`);
-    doc.text(`Number of students who are Above Average: ${analytics.performanceMetrics.aboveAverage}`);
-    doc.text(`Number of students who are Excellent: ${analytics.performanceMetrics.excellent}`);
+    doc.text(`Number of enrolled students: ${analytics.enrolledStudentsCount}`).moveDown();
+    doc.text(`Number of students who completed the course: ${analytics.completedStudentsCount}`).moveDown();
+    doc.text('Performance Metrics:').moveDown();
+    doc.text(`Number of students who are below average: ${analytics.performanceMetrics.belowAverage}`).moveDown();
+    doc.text(`Number of students who are Average: ${analytics.performanceMetrics.average}`).moveDown();
+    doc.text(`Number of students who are Above Average: ${analytics.performanceMetrics.aboveAverage}`).moveDown();
+    doc.text(`Number of students who are Excellent: ${analytics.performanceMetrics.excellent}`).moveDown();
     doc.end();
   }
   //Downloadable Analytics for content effectiveness
+  async exportInstructorAnalyticsContentEffectivenessPDF(courseId: string, res: Response) {
+    const analytics = await this.getInstructorAnalyticsContentEffectiveness(courseId);
+    
+    if (!analytics) {
+      return res.status(404).send('Analytics data not found');
+    }
 
-  //Downlodable Analytics for Assessment Results
+    const doc = new PDFDocument();
+    res.header('Content-Type', 'application/pdf');
+    res.attachment('instructor_analytics_content_effectiveness.pdf');
+    doc.pipe(res);
+    doc.fontSize(16).text('Instructor Analytics Report - Content Effectiveness', { align: 'center' }).moveDown();
+    doc.text(`Course Title: ${analytics.courseTitle}`).moveDown();
+    doc.text(`Course Rating: ${analytics.courseRating}`).moveDown();
+    doc.text('Module Ratings:');
+    for (const [moduleId, rating] of Object.entries(analytics.moduleRatings)) {
+      doc.text(`Module ID: ${moduleId}, Rating: ${rating}`).moveDown();
+    }
+    doc.text(`Instructor Rating: ${analytics.instructorRating}`).moveDown();
+    doc.end();
+  }
+
+
+  //Downlodable Analytics for Assessment Results 
   async exportInstructorAnalyticsAssessmentResultsPDF(courseId: string, res: Response) {
     const analytics = await this.getInstructorAnalyticsAssessmentResults(courseId);
 
@@ -303,7 +351,7 @@ export class ProgressService {
 
     const doc = new PDFDocument();
     res.header('Content-Type', 'application/pdf');
-    res.attachment('instructor_assessment_results.pdf');
+    res.attachment('instructor_analytics_assessment_results.pdf');
     doc.pipe(res);
     doc.fontSize(16).text('Instructor Analytics - Assessment Results', { align: 'center' }).moveDown();
     doc.text(`Course: ${analytics.courseName}`);
@@ -311,13 +359,12 @@ export class ProgressService {
     doc.text('Assessment Results:', { underline: true }).moveDown();
     analytics.results.forEach(result => {
       doc.text(`Quiz ID: ${result.quizId}`);
-      doc.text(`Average Score: ${result.averageScore}`); 
+      doc.text(`Average Score: ${result.averageScore}`);
       doc.text(`Number of Participants: ${result.numParticipants}`).moveDown();
     });
 
     doc.end();
-}
-
+  }
 
   async getStudentPerformace(userId: string, courseId: string) {
     const quizzes = await this.quizModel.find({ course_id: courseId })
