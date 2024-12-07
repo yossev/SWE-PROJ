@@ -1,15 +1,18 @@
 /* eslint-disable prettier/prettier */
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { UserService } from './user.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from 'src/models/user-schema';
 import { UserController } from './user.controller';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AuthService } from 'src/auth/auth.service';
+import { AuthModule } from 'src/auth/auth.module';
 
 
 @Module({
   imports: [
+    forwardRef(()=>AuthModule),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]), // Use Mongoose for User
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -24,7 +27,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     }),
   ],
   controllers: [UserController],
-  providers: [UserService,JwtService],
+  providers: [UserService,JwtService,AuthService],
   exports: [UserService], 
 })
 export class UserModule {}

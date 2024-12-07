@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
- import { BadRequestException, Inject, Injectable, UnauthorizedException, /*UnauthorizedException*/ } from '@nestjs/common';
+ import { BadRequestException, Injectable, UnauthorizedException, /*UnauthorizedException*/ } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 
 import { User, UserDocument  } from 'src/models/user-schema';
@@ -14,15 +14,16 @@ import { AuthService } from 'src/auth/auth.service';
 import { RefreshAccessTokenDto } from './dto/refreshAccessTokenDto.dto';
 // import { LoginDto } from './dto/loginDto.dto';
 // import { RefreshAccessTokenDto } from './dto/refreshAccessTokenDto.dto';
-import { forwardRef } from '@nestjs/common';
+
 @Injectable()
 export class UserService {
 
     constructor(
-      @Inject(forwardRef(() => AuthService))
-    private authService: AuthService,
+     
         private readonly jwtService: JwtService, 
         @InjectModel(User.name) private userModel: Model<UserDocument>,
+       // @Inject(forwardRef(() => AuthService))
+        private authService: AuthService
     ) { }
    
    async register(createUserDto:createUserDto): Promise<User> {

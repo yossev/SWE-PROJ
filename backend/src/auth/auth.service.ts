@@ -20,6 +20,7 @@ export class AuthService {
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectModel(RefreshToken.name) private refreshTokenModel: Model<RefreshTokenDocument>,
     private jwtService: JwtService,  // JwtService is injected here
+    
   ) {}
   async createAccessToken(userId: string) {
     return await this.jwtService.signAsync({ userId });
