@@ -5,14 +5,13 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument  } from 'src/models/user-schema';
 import updateUserDto from './dto/updateUser.dto';
 // import { Course } from 'src/models/course-schema';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { createUserDto } from './dto/createUser.dto';
 import { LoginDto } from './dto/login.dto';
  import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt/dist/jwt.service';
+import { CourseDocument } from 'models/course-schema';
 import { AuthService } from 'src/auth/auth.service';
-import { RefreshAccessTokenDto } from './dto/refreshAccessTokenDto.dto';
-import { Course, CourseDocument } from 'models/course-schema';
 // import { LoginDto } from './dto/loginDto.dto';
 // import { RefreshAccessTokenDto } from './dto/refreshAccessTokenDto.dto';
 
@@ -20,12 +19,11 @@ import { Course, CourseDocument } from 'models/course-schema';
 export class UserService {
 
     constructor(
-     
         private readonly jwtService: JwtService, 
         @InjectModel(User.name) private userModel: Model<UserDocument>,
-        @InjectModel(Course.name) private courseModel: Model<CourseDocument>,
-       // @Inject(forwardRef(() => AuthService))
-        private authService: AuthService
+        @InjectModel('Course') private courseModel: Model<CourseDocument>,
+        @Inject(forwardRef(() => AuthService))
+        private readonly authService: AuthService
     ) { }
    
    async register(createUserDto:createUserDto): Promise<User> {
@@ -65,37 +63,47 @@ export class UserService {
       console.log("Returner control");
         return { token , userId }; // Return the token to the client
       }
-      async findByName(username: string): Promise<User> {
-        return await this.userModel.findOne({ username, role: 'instructor' }); // Filter by role
+      async findAll(): Promise<User[]> {
+        return await this.userModel.find().exec();
       }
       
-    async findByEmail(email: string):Promise<User> { // instructor malhas
+      async findByName(name: string): Promise<User> {
+        return await this.userModel.findOne({ name, role: 'instructor' }); // Filter by role
+      }
+      
+     async findByEmail(email: string):Promise<User> { // instructor malhas
         const user=await this.userModel.findOne({email})
         return user;  // Fetch a student by username
+     }
+     async findAllInstructors(): Promise<User[]> {
+      return await this.userModel.find({ role: 'instructor' }).exec();
     }
-    // instructor or admin Get all students
-    async findAll(role?: string, instructorId?: string): Promise<User[]> {
-      let filter = {};
+    async findAllByRole(role: string): Promise<User[]> {
+      return await this.userModel.find({ role }).exec();
+    }
     
-      if (role === 'student') {
-        // Students should see all instructors
-        filter = { role: 'instructor' };
-      } else if (role === 'instructor' && instructorId) {
-        if (role === 'instructor' && instructorId) {
-          const courses = await this.courseModel.find({ instructor: instructorId });
-          const courseIds = courses.map(course => course._id);
-          filter = { role: 'student', course: { $in: courseIds } };
-        }
-        // Instructors should see students in their courses
-        // Assuming "courseInstructor" is a field in the "students" user model
-        filter = { role: 'student', courseInstructor: instructorId };
-      } else {
-        // Optional: Handle other cases if needed or throw an error
-        throw new Error('Invalid role or missing instructor ID');
+    
+    // instructor or admin Get all students
+    async findStudentsByInstructor(instructorId: string): Promise<User[]> {
+      if (!Types.ObjectId.isValid(instructorId)) {
+        throw new BadRequestException('Invalid instructor ID');
       }
     
-      return await this.userModel.find(filter).exec(); // Execute the query
+      const validInstructorId = new Types.ObjectId(instructorId);
+    
+      // Find courses taught by this instructor
+      const courses = await this.courseModel.find({ instructor: validInstructorId }).exec();
+      if (courses.length === 0) {
+        return []; // Return an empty list if the instructor has no courses
+      }
+    
+      const courseIds = courses.map((course) => course._id); // Extract course IDs
+    
+      // Find students enrolled in these courses
+      return await this.userModel.find({ role: 'student', course: { $in: courseIds } }).exec();
     }
+    
+    
     
   
     // will register
@@ -120,9 +128,17 @@ export class UserService {
     }
     
     // Delete a user  by ID admin bas aw user y delete his account
-    async delete(id: string): Promise<User> {
-        return await this.userModel.findByIdAndDelete(id);  // Find and delete the student
-    }
+    async delete(currentUserId: string): Promise<User> {
+      // Proceed with deleting the user
+      const deletedUser = await this.userModel.findByIdAndDelete(currentUserId);
+  
+      if (!deletedUser) {
+        throw new UnauthorizedException('User not found or deletion failed');
+      }
+  
+      return deletedUser;
+     }
+     /*
     async refreshAccessToken(refreshAccessTokenDto: RefreshAccessTokenDto) {
       const userId = await this.authService.findRefreshToken(
         refreshAccessTokenDto.refreshToken,

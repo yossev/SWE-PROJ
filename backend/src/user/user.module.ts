@@ -7,19 +7,19 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { User, UserSchema } from 'src/models/user-schema';
-import { AuthModule } from 'src/auth/auth.module';
 import { Course, CourseSchema } from 'models/course-schema';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports: [
-    //forwardRef(() => AuthModule), // Resolve circular dependencies
+    forwardRef(() => AuthModule), // Resolve circular dependencies
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     MongooseModule.forFeature([{ name: Course.name, schema: CourseSchema }]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
-        const secret = config.get<string>('JWT_SECRET');
+        const secret = process.env.JWT_SECRET; //config.get<string>('JWT_SECRET');
         if (!secret) {
           throw new Error('JWT_SECRET is not defined in the environment variables');
         }

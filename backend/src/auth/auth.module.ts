@@ -13,7 +13,7 @@ import { UserModule } from 'src/user/user.module';
 
 @Module({
   imports: [
-    forwardRef(() => UserModule), // Resolve circular dependencies
+     // Resolve circular dependencies
     MongooseModule.forFeature([{ name: RefreshToken.name, schema: RefreshTokenSchema }]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     ConfigModule,
@@ -27,7 +27,7 @@ import { UserModule } from 'src/user/user.module';
           expiresIn: config.get<string | number>('JWT_EXPIRES') || '1h',  // Default expiration
         },
       }),
-    }),
+    }),forwardRef(() => UserModule),
   ],
   providers: [AuthService, JwtStrategy],
   exports: [AuthService, JwtStrategy, JwtModule], // Export necessary services for other modules
