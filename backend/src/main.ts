@@ -8,19 +8,16 @@ import { JwtService } from '@nestjs/jwt';
 
 const mongoose=require('mongoose');
 const express=require('express');
-console.log('JWT_SECRET2:', process.env.JWT_SECRET);
-
+const url: string = "mongodb://localhost:27017/";
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  await mongoose.connect("mongodb://localhost:27017/" , {
+  await mongoose.connect(url , {
   }).then( () => {
      console.log('Connected');
   }).catch((err) => {
      console.error('MongoDB connection error:', err);
   });
   app.use(express.json());
-  const reflector = app.get(Reflector);
-  app.use(cookieParser());
-  app.listen(3000);
+  await app.listen(3000);
 }
 bootstrap();
