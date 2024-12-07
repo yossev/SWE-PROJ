@@ -14,7 +14,7 @@ export function AuthenticationMiddleware(req: Request, res: Response, next: Next
   }
 
   try {
-    const decoded: any = verify(token, String("process.env.JWT_SECRET"));
+    const decoded: any = verify(token, String(process.env.JWT_SECRET));
     res.locals.user = decoded.user; // Attach user payload to res.locals for secure handling
     next(); 
   } catch (err) {

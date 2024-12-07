@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { Body, Controller, Delete, Get, HttpCode, HttpException, HttpStatus, InternalServerErrorException, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpException, HttpStatus, NotFoundException, Param, Post, Put, Req, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from 'src/models/user-schema';
 import * as bcrypt from 'bcrypt';
@@ -26,27 +26,76 @@ import { RefreshAccessTokenDto } from './dto/refreshAccessTokenDto.dto';
 export class UserController {
     constructor(private userService: UserService) { }
     @Get('/all') 
-    @UseGuards(JwtAuthGuard)
     @Roles(Role.Instructor, Role.Admin)
+    @UseGuards(JwtAuthGuard)
     // Get all students
     async getAllStudents(): Promise<User[]> {
         return await this.userService.findAll();
     }
 
     @Roles(Role.Instructor, Role.Admin)
-    @UseGuards(authorizationGuard)
+    @UseGuards(JwtAuthGuard)
     @Get(':id')// /student/:id
     // Get a single student by ID
     async getUserById(@Param('id') id: string):Promise<User> {// Get the student ID from the route parameters
         const user = await this.userService.findById(id);
         return user;
     }
-
+    @Delete('me') // We can use 'me' as a route to delete the logged-in user
+    async delete(@Req() req): Promise<any> {
+      const currentUser = req.user;
+  
+      if (!currentUser) {
+        throw new UnauthorizedException('You must be logged in to delete your account.');
+      }
+  
+      // Call the delete method, passing in the current user's ID
+      return await this.userService.delete(currentUser._id);
+    }
+  
+    @Get('instructor/:username')
+    async findInstructorByName(@Param('username') username: string): Promise<User> {
+      const instructor = await this.userService.findByName(username);
+      if (!instructor) {
+        throw new NotFoundException(`Instructor with username '${username}' not found`);
+      }
+      return instructor;
+    }
+    @Get('instructors')
+   
+    async getAllInstructors(@Req() req): Promise<User[]> {
+      const currentUser = req.user
+  
+      // Students requesting all instructors
+      return await this.userService.findAll('student');
+    }
+  
+    @Get('students')
+    @Roles(Role.Instructor) 
+    @UseGuards(JwtAuthGuard)// Only instructors can access this route
+    async getStudents(@Req() req): Promise<User[]> {
+      const currentUser = req.user;
+  
+      if (!currentUser || currentUser.role !== Role.Instructor) {
+        throw new UnauthorizedException('You must be an instructor to access this resource.');
+      }
+  
+      // Instructors requesting students in their courses
+      return await this.userService.findAll('instructor', currentUser._id);
+    }
+  
     //Create a new student
     @Public()
     @Post('/login')
-    login(@Body() loginDto: LoginDto): Promise<{ token: string }> {
-         return this.userService.login(loginDto);
+    async login(@Req() req , @Res({ passthrough : true}) response, @Body() loginDto: LoginDto) {
+        
+        const value = await this.userService.login(loginDto);
+        console.log("retrived control");
+        response.cookie('Token' , value.token);
+        response.cookie('userId' , value.userId);
+
+        console.log("returning value");
+        return value;
      }
     @Public()
     @Post('/register')
@@ -62,26 +111,19 @@ export class UserController {
     // Update a student's details
    
     @Put('me')
-    async updateUserProfile(@Param() req, @Body() updateData: updateUserDto) {
-        const userId = req.user._id; // Extract logged-in user's ID from request
-        try {
-          return await this.userService.update(userId, updateData);
-        } catch (error) {
-          console.error("Error updating user:", error);
-          throw new InternalServerErrorException("Failed to update user profile");
-        }
-        
+    async updateUserProfile(@Req() req, @Body() updateData: updateUserDto) {
+        const userId = req.cookies['userId']; // Extract logged-in user's ID from request
+        console.log("userId is: " , userId);
+        return await this.userService.update(userId, updateData);
     }
     
     // Delete a student by ID
-    @Roles(Role.Admin)
-    @UseGuards(authorizationGuard)
     @Delete(':id')
     async deleteUser(@Param('id')id:string) {
         const deletedUser = await this.userService.delete(id);
        return deletedUser;
     }
-    
+    /*
     @Post('token/refresh')
   @HttpCode(HttpStatus.CREATED)
   async refreshAccessToken(
@@ -93,6 +135,7 @@ export class UserController {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
+    */
     // @Get('courses')
     // async getAllCourses() {
     //     return await this.userService.findAllCourses();

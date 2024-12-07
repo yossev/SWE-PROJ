@@ -44,10 +44,10 @@ const url = "mongodb://localhost:27017/";
   controllers: [AppController],
   providers: [
     AppService,
-    {
+    /*{
       provide: APP_GUARD, // Register AuthGuard globally
       useClass: AuthGuard,
-    },JwtStrategy
+    }*/JwtStrategy
   ],
   
 })

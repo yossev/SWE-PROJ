@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
- import { BadRequestException, forwardRef, Inject, Injectable, UnauthorizedException, /*UnauthorizedException*/ } from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject, Injectable, UnauthorizedException} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 
 import { User, UserDocument  } from 'src/models/user-schema';
@@ -12,6 +12,7 @@ import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt/dist/jwt.service';
 import { AuthService } from 'src/auth/auth.service';
 import { RefreshAccessTokenDto } from './dto/refreshAccessTokenDto.dto';
+import { Course, CourseDocument } from 'models/course-schema';
 // import { LoginDto } from './dto/loginDto.dto';
 // import { RefreshAccessTokenDto } from './dto/refreshAccessTokenDto.dto';
 
@@ -22,8 +23,9 @@ export class UserService {
      
         private readonly jwtService: JwtService, 
         @InjectModel(User.name) private userModel: Model<UserDocument>,
-        @Inject(forwardRef(() => AuthService))
-        private readonly authService: AuthService
+        @InjectModel('Course') private courseModel: Model<CourseDocument>,
+        //@Inject(forwardRef(() => AuthService))
+        //private readonly authService: AuthService
     ) { }
    
    async register(createUserDto:createUserDto): Promise<User> {
@@ -33,12 +35,12 @@ export class UserService {
         return await user.save();  // Save it to the database
     }
       // Login existing user
-      async login(loginDto: LoginDto): Promise<{ token: string }> {
+      async login(loginDto: LoginDto) {
         const { email, password } = loginDto;
     
         // 1. Find the user by email
         const user = await this.userModel.findOne({ email });
-    
+        const userId = user._id;
         // 2. Check if the user exists
         if (!user) {
           throw new UnauthorizedException('user invalid');
@@ -58,30 +60,43 @@ export class UserService {
       { email: user.email, userId: user._id },
       { secret: process.env.JWT_SECRET, expiresIn: '1h' },
     );  // Secret key from environment variable
-      
-        return { token }; // Return the token to the client
+
+
+      console.log("Returner control");
+        return { token , userId }; // Return the token to the client
       }
-    async findByName(username: string):Promise<User> {
-        return await this.userModel.findOne({username});  // Fetch a instructor by username
-    }
-    async findByEmail(email: string):Promise<User> { // instructor
+      async findByName(username: string): Promise<User> {
+        return await this.userModel.findOne({ username, role: 'instructor' }); // Filter by role
+      }
+      
+    async findByEmail(email: string):Promise<User> { // instructor malhas
         const user=await this.userModel.findOne({email})
         return user;  // Fetch a student by username
     }
     // instructor or admin Get all students
-    async findAll(role?: string): Promise<User[]> {
-      // If a role is provided, filter users by the role
+    async findAll(role?: string, instructorId?: string): Promise<User[]> {
       let filter = {};
-      if (role) {
-          filter = { role }; // { role: 'student' } or { role: 'instructor' }
+    
+      if (role === 'student') {
+        // Students should see all instructors
+        filter = { role: 'instructor' };
+      } else if (role === 'instructor' && instructorId) {
+        if (role === 'instructor' && instructorId) {
+          const courses = await this.courseModel.find({ instructor: instructorId });
+          const courseIds = courses.map(course => course._id);
+          filter = { role: 'student', course: { $in: courseIds } };
+        }
+        // Instructors should see students in their courses
+        // Assuming "courseInstructor" is a field in the "students" user model
+        filter = { role: 'student', courseInstructor: instructorId };
+      } else {
+        // Optional: Handle other cases if needed or throw an error
+        throw new Error('Invalid role or missing instructor ID');
       }
-  
-      // Fetch users from the database based on the filter
-      const users = await this.userModel.find(filter);
-  
-      console.log(users); // Log the fetched users
-      return users;
-  }
+    
+      return await this.userModel.find(filter).exec(); // Execute the query
+    }
+    
   
     // will register
     private async isEmailUnique(email: string) {
@@ -103,10 +118,19 @@ export class UserService {
     async update(id: string, updateData: updateUserDto): Promise<User> {
         return await this.userModel.findByIdAndUpdate(id, updateData, { new: true });  // Find and update the student
     }
+    
     // Delete a user  by ID admin bas aw user y delete his account
-    async delete(id: string): Promise<User> {
-        return await this.userModel.findByIdAndDelete(id);  // Find and delete the student
-    }
+    async delete(currentUserId: string): Promise<User> {
+      // Proceed with deleting the user
+      const deletedUser = await this.userModel.findByIdAndDelete(currentUserId);
+  
+      if (!deletedUser) {
+        throw new UnauthorizedException('User not found or deletion failed');
+      }
+  
+      return deletedUser;
+     }
+     /*
     async refreshAccessToken(refreshAccessTokenDto: RefreshAccessTokenDto) {
       const userId = await this.authService.findRefreshToken(
         refreshAccessTokenDto.refreshToken,
@@ -119,6 +143,7 @@ export class UserService {
         accessToken: await this.authService.createAccessToken(user._id.toString()),
       };
     }
+      */
 
   
     

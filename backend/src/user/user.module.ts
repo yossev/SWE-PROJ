@@ -8,11 +8,13 @@ import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { User, UserSchema } from 'src/models/user-schema';
 import { AuthModule } from 'src/auth/auth.module';
+import { Course, CourseSchema } from 'models/course-schema';
 
 @Module({
   imports: [
-    forwardRef(() => AuthModule), // Resolve circular dependencies
+    //forwardRef(() => AuthModule), // Resolve circular dependencies
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MongooseModule.forFeature([{ name: Course.name, schema: CourseSchema }]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
