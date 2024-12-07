@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { Body, Controller, Delete, Get, HttpCode, HttpException, HttpStatus, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpException, HttpStatus, InternalServerErrorException, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from 'src/models/user-schema';
 import * as bcrypt from 'bcrypt';
@@ -63,8 +63,14 @@ export class UserController {
    
     @Put('me')
     async updateUserProfile(@Param() req, @Body() updateData: updateUserDto) {
-        const userId = req.user.userId; // Extract logged-in user's ID from request
-        return await this.userService.update(userId, updateData);
+        const userId = req.user._id; // Extract logged-in user's ID from request
+        try {
+          return await this.userService.update(userId, updateData);
+        } catch (error) {
+          console.error("Error updating user:", error);
+          throw new InternalServerErrorException("Failed to update user profile");
+        }
+        
     }
     
     // Delete a student by ID
