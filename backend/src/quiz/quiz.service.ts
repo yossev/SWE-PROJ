@@ -43,10 +43,13 @@ async delete(id: string): Promise<Quiz> {
   const objectId = new mongoose.Types.ObjectId(inpStr);  
   return await this.quizModel.findByIdAndDelete(objectId).exec();
 }
+
+// DONT TOUCH THIS VODOO SHIT ( IT WORKS AND IDK HOW )
 async generateQuiz(createQuizDto: CreateQuizDto, performanceMetric: string, userId: string): Promise<any> {
   const { moduleId, numberOfQuestions, questionType } = createQuizDto;
-  const allQuestions = await this.questionBankModel.find().lean();
-  console.log('All Questions from Question Bank:', allQuestions);
+  const allQuestions = await this.questionBankModel.find();
+  //console.log('All Questions from Question Bank:', allQuestions);
+  performanceMetric = "Average";
 
   // Determine the difficulty levels based on performance metric
   let difficultyLevels: string[];
@@ -77,27 +80,35 @@ async generateQuiz(createQuizDto: CreateQuizDto, performanceMetric: string, user
     questionFilter.question_type = 'MCQ';
   } else if (questionType === QuestionType.TrueFalse) {
     questionFilter.question_type = 'True/False';
-  } else if (questionType === QuestionType.Both) {
+  } else {
     questionFilter.question_type = { $in: ['MCQ', 'True/False'] };
   }
-
-  // Log the final filter condition before applying
-  console.log('Final Question Filter:', questionFilter);
 
   // Apply the filter to allQuestions in-memory
   const questions = allQuestions.filter((q) => {
     console.log('Filtering question:', q);
     console.log('Question type from DB:', q.question_type);
-    const matchesType =
-      questionFilter.question_type === 'Both' ||
-      q.question_type === questionFilter.question_type;
-    console.log('Matches type:', matchesType);
+    console.log('Question Filter Type:', questionFilter.question_type);
 
+    
+    // Check if the question type matches
+    const matchesType = 
+    (questionFilter.question_type?.$in?.includes(q.question_type)) || 
+    questionFilter.question_type === q.question_type;
+
+  
+    console.log('Matches type:', matchesType);
+  
+    // Check if the question difficulty matches
     const matchesDifficulty = difficultyLevels.includes(q.difficulty_level);
     console.log('Matches difficulty:', matchesDifficulty);
-
+  
+    // Ensure both conditions are satisfied
+    const isModuleMatch = q.module_id.toString() === moduleId.toString();
+    console.log('Module ID matches:', isModuleMatch);
+  
     return (
-      q.module_id.toString() === moduleId.toString() &&
+      isModuleMatch &&
       matchesDifficulty &&
       matchesType
     );
@@ -144,15 +155,28 @@ async generateQuiz(createQuizDto: CreateQuizDto, performanceMetric: string, user
   };
 }
 
+private shuffleArray(array: any[]): any[] {
+  for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1)); // Random index from 0 to i
+      [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+  }
+  return array;
+}
+
 
   private getRandomQuestions(questions: any[], count: number): any[] {
-    return questions.sort(() => 0.5 - Math.random()).slice(0, count);
+    console.log("Number of Questions Selected:", count);
+    console.log("Total Available Questions:", questions.length);
+
+    const validCount = Math.min(count, questions.length);
+    console.log("Valid Count for Selection:", validCount);
     
+    return this.shuffleArray(questions).slice(0, validCount);    
+
   }
+
+
   
-  private shuffleArray(array: any[]): any[] {
-    return array.sort(() => 0.5 - Math.random());
-  }
 
   async evaluateQuiz(
     userAnswers: string[],

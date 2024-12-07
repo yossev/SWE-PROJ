@@ -9,12 +9,15 @@ export class CreateQuizDto {
 
   @IsEnum(QuestionType)
   questionType: QuestionType; 
-  @IsNotEmpty()
-  @IsNumber()
-  numberOfQuestions: number; 
 
   @IsArray()
   @Type(() => QuestionDto)
   @IsOptional()
   questions?: QuestionDto[];
+
+  @IsNotEmpty()
+  @IsNumber()
+  numberOfQuestions: number; 
+
+
 }

@@ -23,7 +23,7 @@ export class QuestionBank {
   @Prop({ required: false })
   explanation?: string; 
 
-  @Prop({ enum: ['MCQ', 'True/False'], required: false })
+  @Prop({ enum: ['MCQ', 'True/False', 'Both'], required: false })
   question_type?: string;
 }
 
