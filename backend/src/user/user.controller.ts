@@ -9,7 +9,6 @@ import * as bcrypt from 'bcrypt';
 import { createUserDto } from './dto/createUser.dto';
 import updateUserDto from './dto/updateUser.dto';
 
-
 import { AuthGuard } from '../auth/guards/authentication.guards';
 import { Public } from '../auth/decorators/public.decorator';
 
@@ -19,22 +18,20 @@ import mongoose from 'mongoose';
 import { LoginDto } from './dto/login.dto';
 import { RefreshAccessTokenDto } from './dto/refreshAccessTokenDto.dto';
 
-
-
 // @UseGuards(AuthGuard) //class level
 @Controller('users') // it means anything starts with /student
 export class UserController {
     constructor(private userService: UserService) { }
     @Get('/all') 
     @Roles(Role.Instructor, Role.Admin)
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(AuthGuard)
     // Get all students
     async getAllStudents(): Promise<User[]> {
         return await this.userService.findAll();
     }
 
     @Roles(Role.Instructor, Role.Admin)
-    @UseGuards(authorizationGuard)
+    @UseGuards(AuthGuard)
     @Get(':id')// /student/:id
     // Get a single student by ID
     async getUserById(@Param('id') id: string):Promise<User> {// Get the student ID from the route parameters
@@ -61,8 +58,6 @@ export class UserController {
     }
     // Update a student's details
    
-
-
     @Put('me')
     async updateUserProfile(@Req() req, @Body() updateData: updateUserDto) {
         console.log("entered function");
