@@ -44,14 +44,14 @@ async delete(id: string): Promise<Quiz> {
   return await this.quizModel.findByIdAndDelete(objectId).exec();
 }
 
-// DONT TOUCH THIS VODOO SHIT ( IT WORKS AND IDK HOW )
+// DONT TOUCH THIS VODOO ( IT WORKS AND IDK HOW )
 async generateQuiz(createQuizDto: CreateQuizDto, performanceMetric: string, userId: string): Promise<any> {
   const { moduleId, numberOfQuestions, questionType } = createQuizDto;
   const allQuestions = await this.questionBankModel.find();
   //console.log('All Questions from Question Bank:', allQuestions);
   performanceMetric = "Average";
 
-  // Determine the difficulty levels based on performance metric
+
   let difficultyLevels: string[];
   if (performanceMetric === 'Above Average') {
     difficultyLevels = [DifficultyLevel.Medium, DifficultyLevel.Hard];
@@ -61,20 +61,17 @@ async generateQuiz(createQuizDto: CreateQuizDto, performanceMetric: string, user
     difficultyLevels = [DifficultyLevel.Easy];
   }
 
-  // Log the input filter conditions
   console.log('Input Filter Conditions:', {
     moduleId,
     difficultyLevels,
     questionType,
   });
 
-  // Define the question filter based on input parameters
   let questionFilter: any = {
     module_id: moduleId,
     difficulty_level: { $in: difficultyLevels },
   };
 
-  // Adjust question filter based on question type
   console.log('Question Type from DTO:', questionType);
   if (questionType === QuestionType.MCQ) {
     questionFilter.question_type = 'MCQ';
@@ -84,14 +81,12 @@ async generateQuiz(createQuizDto: CreateQuizDto, performanceMetric: string, user
     questionFilter.question_type = { $in: ['MCQ', 'True/False'] };
   }
 
-  // Apply the filter to allQuestions in-memory
   const questions = allQuestions.filter((q) => {
     console.log('Filtering question:', q);
     console.log('Question type from DB:', q.question_type);
     console.log('Question Filter Type:', questionFilter.question_type);
 
     
-    // Check if the question type matches
     const matchesType = 
     (questionFilter.question_type?.$in?.includes(q.question_type)) || 
     questionFilter.question_type === q.question_type;
@@ -99,11 +94,10 @@ async generateQuiz(createQuizDto: CreateQuizDto, performanceMetric: string, user
   
     console.log('Matches type:', matchesType);
   
-    // Check if the question difficulty matches
+
     const matchesDifficulty = difficultyLevels.includes(q.difficulty_level);
     console.log('Matches difficulty:', matchesDifficulty);
-  
-    // Ensure both conditions are satisfied
+
     const isModuleMatch = q.module_id.toString() === moduleId.toString();
     console.log('Module ID matches:', isModuleMatch);
   
@@ -116,12 +110,12 @@ async generateQuiz(createQuizDto: CreateQuizDto, performanceMetric: string, user
 
   console.log('Filtered Questions:', questions);
 
-  // Check if questions are empty
+
   if (questions.length === 0) {
     console.log('No questions matched the filter conditions.');
   }
 
-  // Select random questions from the filtered list
+
   const selectedQuestions = this.getRandomQuestions(questions, numberOfQuestions);
   console.log('Selected Questions:', selectedQuestions);
 
@@ -136,13 +130,12 @@ async generateQuiz(createQuizDto: CreateQuizDto, performanceMetric: string, user
     module_id: moduleId,
     questions: transformedQuestions,
     created_at: new Date(),
-    userId: new mongoose.Types.ObjectId(userId), // Consider ensuring userId is valid
+    userId: new mongoose.Types.ObjectId(userId), 
   };
 
   const savedQuiz = await new this.quizModel(quiz).save();
   console.log('Saved Quiz:', savedQuiz);
 
-  // Prepare response questions with minimal data
   const responseQuestions = selectedQuestions.map((q) => ({
     question: q.question,
     options: q.options,
@@ -157,8 +150,8 @@ async generateQuiz(createQuizDto: CreateQuizDto, performanceMetric: string, user
 
 private shuffleArray(array: any[]): any[] {
   for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1)); // Random index from 0 to i
-      [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+      const j = Math.floor(Math.random() * (i + 1)); 
+      [array[i], array[j]] = [array[j], array[i]]; 
   }
   return array;
 }
