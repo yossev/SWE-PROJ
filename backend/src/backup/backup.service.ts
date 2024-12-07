@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as cron from 'node-cron';
 import { UserService } from '../user/user.service'; // Import your user service
-
+import { CronJob } from 'cron';
 @Injectable()
 export class BackupService {
     private readonly logger = new Logger(BackupService.name);
