@@ -135,7 +135,7 @@ export class UserService {
         accessToken: await this.authService.createAccessToken(user._id.toString()),
       };
     }
-      */
+}
 
   
     
@@ -186,4 +186,3 @@ export class UserService {
     //     };
     //   }
 
-}
