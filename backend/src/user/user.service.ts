@@ -23,9 +23,8 @@ export class UserService {
      
         private readonly jwtService: JwtService, 
         @InjectModel(User.name) private userModel: Model<UserDocument>,
-        @InjectModel(Course.name) private courseModel: Model<CourseDocument>,
-        @Inject(forwardRef(() => AuthService))
-        private readonly authService: AuthService
+       // @Inject(forwardRef(() => AuthService))
+        private authService: AuthService
     ) { }
    
    async register(createUserDto:createUserDto): Promise<User> {
@@ -35,16 +34,16 @@ export class UserService {
         return await user.save();  // Save it to the database
     }
       // Login existing user
-      async login(loginDto: LoginDto): Promise<{ token: string }> {
+      async login(loginDto: LoginDto) {
         const { email, password } = loginDto;
     
         // 1. Find the user by email
         const user = await this.userModel.findOne({ email });
-    
-        // 2. Check if the user exists
         if (!user) {
           throw new UnauthorizedException('user invalid');
         }
+        const userId = user._id;
+
     
         // 3. Check if the password is correct (e.g., using bcrypt to compare the hashed password)
         const isPasswordValid = await bcrypt.compare(password, user.password_hash);
@@ -60,8 +59,10 @@ export class UserService {
       { email: user.email, userId: user._id },
       { secret: process.env.JWT_SECRET, expiresIn: '1h' },
     );  // Secret key from environment variable
-      
-        return { token }; // Return the token to the client
+
+
+      console.log("Returner control");
+        return { token , userId }; // Return the token to the client
       }
       async findByName(username: string): Promise<User> {
         return await this.userModel.findOne({ username, role: 'instructor' }); // Filter by role
@@ -116,17 +117,11 @@ export class UserService {
     async update(id: string, updateData: updateUserDto): Promise<User> {
         return await this.userModel.findByIdAndUpdate(id, updateData, { new: true });  // Find and update the student
     }
+    
     // Delete a user  by ID admin bas aw user y delete his account
-    async delete(currentUserId: string): Promise<User> {
-      // Proceed with deleting the user
-      const deletedUser = await this.userModel.findByIdAndDelete(currentUserId);
-  
-      if (!deletedUser) {
-        throw new UnauthorizedException('User not found or deletion failed');
-      }
-  
-      return deletedUser;
-     }
+    async delete(id: string): Promise<User> {
+        return await this.userModel.findByIdAndDelete(id);  // Find and delete the student
+    }
     async refreshAccessToken(refreshAccessTokenDto: RefreshAccessTokenDto) {
       const userId = await this.authService.findRefreshToken(
         refreshAccessTokenDto.refreshToken,
@@ -139,6 +134,7 @@ export class UserService {
         accessToken: await this.authService.createAccessToken(user._id.toString()),
       };
     }
+      */
 
   
     

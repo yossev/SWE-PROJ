@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { Body, Controller, Delete, Get, HttpCode, HttpException, HttpStatus, NotFoundException, Param, Post, Put, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpException, HttpStatus, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from 'src/models/user-schema';
 import * as bcrypt from 'bcrypt';
@@ -9,7 +9,7 @@ import * as bcrypt from 'bcrypt';
 import { createUserDto } from './dto/createUser.dto';
 import updateUserDto from './dto/updateUser.dto';
 
-import { JwtAuthGuard } from '../auth/guards/jwtAuthGuard.guard';
+
 import { AuthGuard } from '../auth/guards/authentication.guards';
 import { Public } from '../auth/decorators/public.decorator';
 
@@ -34,62 +34,19 @@ export class UserController {
     }
 
     @Roles(Role.Instructor, Role.Admin)
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(authorizationGuard)
     @Get(':id')// /student/:id
     // Get a single student by ID
     async getUserById(@Param('id') id: string):Promise<User> {// Get the student ID from the route parameters
         const user = await this.userService.findById(id);
         return user;
     }
-    @Delete('me') // We can use 'me' as a route to delete the logged-in user
-    async delete(@Req() req): Promise<any> {
-      const currentUser = req.user;
-  
-      if (!currentUser) {
-        throw new UnauthorizedException('You must be logged in to delete your account.');
-      }
-  
-      // Call the delete method, passing in the current user's ID
-      return await this.userService.delete(currentUser._id);
-    }
-  
-    @Get('instructor/:username')
-    async findInstructorByName(@Param('username') username: string): Promise<User> {
-      const instructor = await this.userService.findByName(username);
-      if (!instructor) {
-        throw new NotFoundException(`Instructor with username "${username}" not found.`);
-      }
-      return instructor;
-    }
-    @Get('instructors')
-   
-    async getAllInstructors(@Req() req): Promise<User[]> {
-      const currentUser = req.user
-  
-      // Students requesting all instructors
-      return await this.userService.findAll('student');
-    }
-  
-    @Get('students')
-    @Roles(Role.Instructor) 
-    @UseGuards(JwtAuthGuard)// Only instructors can access this route
-    async getStudents(@Req() req): Promise<User[]> {
-      const currentUser = req.user;
-  
-      if (!currentUser || currentUser.role !== Role.Instructor) {
-        throw new UnauthorizedException('You must be an instructor to access this resource.');
-      }
-  
-      // Instructors requesting students in their courses
-      return await this.userService.findAll('instructor', currentUser._id);
-    }
-  
+
     //Create a new student
     @Public()
     @Post('/login')
     login(@Body() loginDto: LoginDto): Promise<{ token: string }> {
-        
-        return this.userService.login(loginDto);
+         return this.userService.login(loginDto);
      }
     @Public()
     @Post('/register')
@@ -104,9 +61,13 @@ export class UserController {
     }
     // Update a student's details
    
+
+
     @Put('me')
-    async updateUserProfile(@Param() req, @Body() updateData: updateUserDto) {
-        const userId = req.user.userId; // Extract logged-in user's ID from request
+    async updateUserProfile(@Req() req, @Body() updateData: updateUserDto) {
+        console.log("entered function");
+        const userId = req.cookies['userId']; // Extract logged-in user's ID from request
+        console.log("userId is: " , userId);
         return await this.userService.update(userId, updateData);
     }
     
@@ -116,7 +77,7 @@ export class UserController {
         const deletedUser = await this.userService.delete(id);
        return deletedUser;
     }
-    
+    /*
     @Post('token/refresh')
   @HttpCode(HttpStatus.CREATED)
   async refreshAccessToken(
@@ -128,6 +89,7 @@ export class UserController {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
+    */
     // @Get('courses')
     // async getAllCourses() {
     //     return await this.userService.findAllCourses();

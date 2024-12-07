@@ -20,18 +20,13 @@ import { UserModule } from 'src/user/user.module';
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => {
-        const secret = config.get<string>('JWT_SECRET');
-        if (!secret) {
-          throw new Error('JWT_SECRET is not defined in the environment variables');
-        }
-        return {
-          secret,
-          signOptions: {
-            expiresIn: config.get<string | number>('JWT_EXPIRES') || '1h',
-          },
-        };
-      },
+      
+      useFactory: async (config: ConfigService) => ({
+        secret: config.get('JWT_SECRET'),  // Ensure JWT_SECRET is defined in .env or config
+        signOptions: {
+          expiresIn: config.get<string | number>('JWT_EXPIRES') || '1h',  // Default expiration
+        },
+      }),
     }),
   ],
   providers: [AuthService, JwtStrategy],

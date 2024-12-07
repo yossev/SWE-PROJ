@@ -12,9 +12,9 @@ import { Course, CourseSchema } from 'models/course-schema';
 
 @Module({
   imports: [
-    forwardRef(() => AuthModule), // Resolve circular dependencies
+    //forwardRef(() => AuthModule), // Resolve circular dependencies
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    MongooseModule.forFeature([{ name: Course.name, schema:CourseSchema }]),
+    MongooseModule.forFeature([{ name: Course.name, schema: CourseSchema }]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
