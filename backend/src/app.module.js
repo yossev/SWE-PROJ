@@ -49,23 +49,13 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -84,7 +74,6 @@ exports.AppModule = void 0;
 /* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 const common_1 = require("@nestjs/common");
-const core_1 = require("@nestjs/core"); // Import APP_GUARD for global guards
 const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
 const mongoose_1 = require("@nestjs/mongoose");
@@ -94,7 +83,6 @@ const user_module_1 = require("./user/user.module");
 const auth_module_1 = require("./auth/auth.module");
 const forum_module_1 = require("./forum/forum.module");
 const thread_module_1 = require("./thread/thread.module");
-const authentication_guards_1 = require("./auth/guards/authentication.guards");
 const jwt_strategy_1 = require("./auth/jwt.strategy");
 const user_schema_1 = require("models/user-schema");
 const dotenv = __importStar(require("dotenv"));
@@ -127,10 +115,10 @@ let AppModule = (() => {
             controllers: [app_controller_1.AppController],
             providers: [
                 app_service_1.AppService,
-                {
-                    provide: core_1.APP_GUARD, // Register AuthGuard globally
-                    useClass: authentication_guards_1.AuthGuard,
-                }, jwt_strategy_1.JwtStrategy
+                /*{
+                  provide: APP_GUARD, // Register AuthGuard globally
+                  useClass: AuthGuard,
+                }*/ jwt_strategy_1.JwtStrategy
             ],
         })];
     let _classDescriptor;

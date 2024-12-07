@@ -60,7 +60,7 @@ let AuthModule = (() => {
                     imports: [config_1.ConfigModule],
                     inject: [config_1.ConfigService],
                     useFactory: (config) => {
-                        const secret = config.get('JWT_SECRET');
+                        const secret = "habiba"; //config.get<string>('JWT_SECRET');
                         if (!secret) {
                             throw new Error('JWT_SECRET is not defined in the environment variables');
                         }

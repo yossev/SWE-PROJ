@@ -40,11 +40,11 @@ export class UserService {
     
         // 1. Find the user by email
         const user = await this.userModel.findOne({ email });
-        const userId = user._id;
-        // 2. Check if the user exists
         if (!user) {
           throw new UnauthorizedException('user invalid');
         }
+        const userId = user._id;
+
     
         // 3. Check if the password is correct (e.g., using bcrypt to compare the hashed password)
         const isPasswordValid = await bcrypt.compare(password, user.password_hash);

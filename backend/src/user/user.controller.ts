@@ -9,7 +9,7 @@ import * as bcrypt from 'bcrypt';
 import { createUserDto } from './dto/createUser.dto';
 import updateUserDto from './dto/updateUser.dto';
 
-import { JwtAuthGuard } from '../auth/guards/jwtAuthGuard.guard';
+
 import { AuthGuard } from '../auth/guards/authentication.guards';
 import { Public } from '../auth/decorators/public.decorator';
 
@@ -27,14 +27,12 @@ export class UserController {
     constructor(private userService: UserService) { }
     @Get('/all') 
     @Roles(Role.Instructor, Role.Admin)
-    @UseGuards(JwtAuthGuard)
     // Get all students
     async getAllStudents(): Promise<User[]> {
         return await this.userService.findAll();
     }
 
     @Roles(Role.Instructor, Role.Admin)
-    @UseGuards(JwtAuthGuard)
     @Get(':id')// /student/:id
     // Get a single student by ID
     async getUserById(@Param('id') id: string):Promise<User> {// Get the student ID from the route parameters
@@ -72,7 +70,6 @@ export class UserController {
   
     @Get('students')
     @Roles(Role.Instructor) 
-    @UseGuards(JwtAuthGuard)// Only instructors can access this route
     async getStudents(@Req() req): Promise<User[]> {
       const currentUser = req.user;
   
@@ -110,8 +107,11 @@ export class UserController {
     }
     // Update a student's details
    
+
+
     @Put('me')
     async updateUserProfile(@Req() req, @Body() updateData: updateUserDto) {
+        console.log("entered function");
         const userId = req.cookies['userId']; // Extract logged-in user's ID from request
         console.log("userId is: " , userId);
         return await this.userService.update(userId, updateData);

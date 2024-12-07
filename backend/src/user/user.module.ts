@@ -19,7 +19,7 @@ import { Course, CourseSchema } from 'models/course-schema';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
-        const secret = config.get<string>('JWT_SECRET');
+        const secret = "habiba";//config.get<string>('JWT_SECRET');
         if (!secret) {
           throw new Error('JWT_SECRET is not defined in the environment variables');
         }

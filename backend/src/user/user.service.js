@@ -49,23 +49,13 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -92,11 +82,10 @@ let UserService = (() => {
     let _classExtraInitializers = [];
     let _classThis;
     var UserService = _classThis = class {
-        constructor(jwtService, userModel, courseModel, authService) {
+        constructor(jwtService, userModel, courseModel) {
             this.jwtService = jwtService;
             this.userModel = userModel;
             this.courseModel = courseModel;
-            this.authService = authService;
         }
         register(createUserDto) {
             return __awaiter(this, void 0, void 0, function* () {
@@ -112,6 +101,7 @@ let UserService = (() => {
                 const { email, password } = loginDto;
                 // 1. Find the user by email
                 const user = yield this.userModel.findOne({ email });
+                const userId = user._id;
                 // 2. Check if the user exists
                 if (!user) {
                     throw new common_1.UnauthorizedException('user invalid');
@@ -125,7 +115,8 @@ let UserService = (() => {
                 }
                 // Generate JWT token
                 const token = this.jwtService.sign({ email: user.email, userId: user._id }, { secret: process.env.JWT_SECRET, expiresIn: '1h' }); // Secret key from environment variable
-                return { token }; // Return the token to the client
+                console.log("Returner control");
+                return { token, userId }; // Return the token to the client
             });
         }
         findByName(username) {
@@ -196,18 +187,6 @@ let UserService = (() => {
                     throw new common_1.UnauthorizedException('User not found or deletion failed');
                 }
                 return deletedUser;
-            });
-        }
-        refreshAccessToken(refreshAccessTokenDto) {
-            return __awaiter(this, void 0, void 0, function* () {
-                const userId = yield this.authService.findRefreshToken(refreshAccessTokenDto.refreshToken);
-                const user = yield this.userModel.findById(userId);
-                if (!user) {
-                    throw new common_1.BadRequestException('Bad request');
-                }
-                return {
-                    accessToken: yield this.authService.createAccessToken(user._id.toString()),
-                };
             });
         }
     };

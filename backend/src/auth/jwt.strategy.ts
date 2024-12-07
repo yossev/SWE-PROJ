@@ -13,7 +13,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: process.env.JWT_SECRET,  // Ensure this secret is defined in your .env file
+      secretOrKey: "habiba",  // Ensure this secret is defined in your .env file
     });
   }
 

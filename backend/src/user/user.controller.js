@@ -51,23 +51,13 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -85,7 +75,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserController = void 0;
 const common_1 = require("@nestjs/common");
 const bcrypt = __importStar(require("bcrypt"));
-const jwtAuthGuard_guard_1 = require("../auth/guards/jwtAuthGuard.guard");
 const public_decorator_1 = require("../auth/decorators/public.decorator");
 const roles_decorator_1 = require("../auth/decorators/roles.decorator");
 // @UseGuards(AuthGuard) //class level
@@ -105,7 +94,6 @@ let UserController = (() => {
     let _register_decorators;
     let _updateUserProfile_decorators;
     let _deleteUser_decorators;
-    let _refreshAccessToken_decorators;
     var UserController = _classThis = class {
         constructor(userService) {
             this.userService = (__runInitializers(this, _instanceExtraInitializers), userService);
@@ -158,8 +146,15 @@ let UserController = (() => {
             });
         }
         //Create a new student
-        login(loginDto) {
-            return this.userService.login(loginDto);
+        login(req, response, loginDto) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const value = yield this.userService.login(loginDto);
+                console.log("retrived control");
+                response.cookie('Token', value.token);
+                response.cookie('userId', value.userId);
+                console.log("returning value");
+                return value;
+            });
         }
         register(userData) {
             return __awaiter(this, void 0, void 0, function* () {
@@ -173,7 +168,8 @@ let UserController = (() => {
         // Update a student's details
         updateUserProfile(req, updateData) {
             return __awaiter(this, void 0, void 0, function* () {
-                const userId = req.user.userId; // Extract logged-in user's ID from request
+                const userId = req.cookies['userId']; // Extract logged-in user's ID from request
+                console.log("userId is: ", userId);
                 return yield this.userService.update(userId, updateData);
             });
         }
@@ -184,31 +180,20 @@ let UserController = (() => {
                 return deletedUser;
             });
         }
-        refreshAccessToken(refreshAccessTokenDto) {
-            return __awaiter(this, void 0, void 0, function* () {
-                try {
-                    return yield this.userService.refreshAccessToken(refreshAccessTokenDto);
-                }
-                catch (error) {
-                    throw new common_1.HttpException(error.message, common_1.HttpStatus.BAD_REQUEST);
-                }
-            });
-        }
     };
     __setFunctionName(_classThis, "UserController");
     (() => {
         const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
-        _getAllStudents_decorators = [(0, common_1.Get)('/all'), (0, roles_decorator_1.Roles)(roles_decorator_1.Role.Instructor, roles_decorator_1.Role.Admin), (0, common_1.UseGuards)(jwtAuthGuard_guard_1.JwtAuthGuard)];
-        _getUserById_decorators = [(0, roles_decorator_1.Roles)(roles_decorator_1.Role.Instructor, roles_decorator_1.Role.Admin), (0, common_1.UseGuards)(jwtAuthGuard_guard_1.JwtAuthGuard), (0, common_1.Get)(':id')];
+        _getAllStudents_decorators = [(0, common_1.Get)('/all'), (0, roles_decorator_1.Roles)(roles_decorator_1.Role.Instructor, roles_decorator_1.Role.Admin)];
+        _getUserById_decorators = [(0, roles_decorator_1.Roles)(roles_decorator_1.Role.Instructor, roles_decorator_1.Role.Admin), (0, common_1.Get)(':id')];
         _delete_decorators = [(0, common_1.Delete)('me')];
         _findInstructorByName_decorators = [(0, common_1.Get)('instructor/:username')];
         _getAllInstructors_decorators = [(0, common_1.Get)('instructors')];
-        _getStudents_decorators = [(0, common_1.Get)('students'), (0, roles_decorator_1.Roles)(roles_decorator_1.Role.Instructor), (0, common_1.UseGuards)(jwtAuthGuard_guard_1.JwtAuthGuard)];
+        _getStudents_decorators = [(0, common_1.Get)('students'), (0, roles_decorator_1.Roles)(roles_decorator_1.Role.Instructor)];
         _login_decorators = [(0, public_decorator_1.Public)(), (0, common_1.Post)('/login')];
         _register_decorators = [(0, public_decorator_1.Public)(), (0, common_1.Post)('/register')];
         _updateUserProfile_decorators = [(0, common_1.Put)('me')];
         _deleteUser_decorators = [(0, common_1.Delete)(':id')];
-        _refreshAccessToken_decorators = [(0, common_1.Post)('token/refresh'), (0, common_1.HttpCode)(common_1.HttpStatus.CREATED)];
         __esDecorate(_classThis, null, _getAllStudents_decorators, { kind: "method", name: "getAllStudents", static: false, private: false, access: { has: obj => "getAllStudents" in obj, get: obj => obj.getAllStudents }, metadata: _metadata }, null, _instanceExtraInitializers);
         __esDecorate(_classThis, null, _getUserById_decorators, { kind: "method", name: "getUserById", static: false, private: false, access: { has: obj => "getUserById" in obj, get: obj => obj.getUserById }, metadata: _metadata }, null, _instanceExtraInitializers);
         __esDecorate(_classThis, null, _delete_decorators, { kind: "method", name: "delete", static: false, private: false, access: { has: obj => "delete" in obj, get: obj => obj.delete }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -219,7 +204,6 @@ let UserController = (() => {
         __esDecorate(_classThis, null, _register_decorators, { kind: "method", name: "register", static: false, private: false, access: { has: obj => "register" in obj, get: obj => obj.register }, metadata: _metadata }, null, _instanceExtraInitializers);
         __esDecorate(_classThis, null, _updateUserProfile_decorators, { kind: "method", name: "updateUserProfile", static: false, private: false, access: { has: obj => "updateUserProfile" in obj, get: obj => obj.updateUserProfile }, metadata: _metadata }, null, _instanceExtraInitializers);
         __esDecorate(_classThis, null, _deleteUser_decorators, { kind: "method", name: "deleteUser", static: false, private: false, access: { has: obj => "deleteUser" in obj, get: obj => obj.deleteUser }, metadata: _metadata }, null, _instanceExtraInitializers);
-        __esDecorate(_classThis, null, _refreshAccessToken_decorators, { kind: "method", name: "refreshAccessToken", static: false, private: false, access: { has: obj => "refreshAccessToken" in obj, get: obj => obj.refreshAccessToken }, metadata: _metadata }, null, _instanceExtraInitializers);
         __esDecorate(null, _classDescriptor = { value: _classThis }, _classDecorators, { kind: "class", name: _classThis.name, metadata: _metadata }, null, _classExtraInitializers);
         UserController = _classThis = _classDescriptor.value;
         if (_metadata) Object.defineProperty(_classThis, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });

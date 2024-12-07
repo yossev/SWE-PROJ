@@ -62,7 +62,7 @@ let JwtStrategy = (() => {
         constructor(userService, jwtService) {
             super({
                 jwtFromRequest: passport_jwt_1.ExtractJwt.fromAuthHeaderAsBearerToken(),
-                secretOrKey: process.env.JWT_SECRET, // Ensure this secret is defined in your .env file
+                secretOrKey: "habiba", // Ensure this secret is defined in your .env file
             });
             this.userService = userService;
             this.jwtService = jwtService;
