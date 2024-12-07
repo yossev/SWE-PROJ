@@ -8,7 +8,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import {ConfigModule, ConfigService} from '@nestjs/config'
 import { CourseModule } from './course/course.module';
 import { JwtModule } from '@nestjs/jwt';
-import { AuthGuard } from '@nestjs/passport';
+import { AuthGuard } from './auth/guards/authentication.guards';
 import { User, UserSchema } from 'models/user-schema';
 import { AuthModule } from './auth/auth.module';
 import { JwtStrategy } from './auth/jwt.strategy';
@@ -42,7 +42,6 @@ const url = "mongodb://localhost:27017/";
     ThreadModule, // Handles forum and thread logic
     
   ],
-  imports: [MongooseModule.forRoot("mongodb://localhost:27017/"), CourseModule],
   controllers: [AppController],
   providers: [
     AppService,
