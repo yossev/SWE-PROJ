@@ -9,6 +9,7 @@
     "nestjs": "^0.0.1"
   },
   "devDependencies": {
+    "@types/pdfkit": "^0.13.7",
     "axios": "^1.7.7"
   }
 }

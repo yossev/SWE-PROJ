@@ -2,7 +2,6 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
-import * as cookieParser from 'cookie-parser';
 import { AuthGuard } from './auth/guards/authentication.guards';
 import { JwtService } from '@nestjs/jwt';
 
