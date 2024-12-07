@@ -7,7 +7,8 @@ import {ResponseSchema} from '../../models/responses-schema';
 import { CourseSchema } from '../../models/course-schema';
 import { QuizSchema } from '../../models/quizzes-schema';
 import {ModuleSchema } from '../../models/module-schema';
-import { RatingSchema } from 'models/rating-schema';
+import { RatingSchema } from '../../models/rating-schema';
+import { RatingService } from '../rating/rating.service';
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -20,6 +21,6 @@ import { RatingSchema } from 'models/rating-schema';
     ]),
   ],
   controllers: [ProgressController],
-  providers: [ProgressService],
+  providers: [ProgressService, RatingService]
 })
 export class ProgressModule {}

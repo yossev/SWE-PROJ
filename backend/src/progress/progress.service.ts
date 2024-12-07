@@ -320,8 +320,8 @@ export class ProgressService {
     doc.end();
   }
   //Downloadable Analytics for content effectiveness
-  async exportInstructorAnalyticsContentEffectivenessPDF(courseId: string, res: Response) {
-    const analytics = await this.getInstructorAnalyticsContentEffectiveness(courseId);
+  async exportInstructorAnalyticsContentEffectivenessPDF(courseId: string, userId:string, res: Response) {
+    const analytics = await this.getInstructorAnalyticsContentEffectiveness(courseId, userId);
 
     if (!analytics) {
       return res.status(404).send('Analytics data not found');

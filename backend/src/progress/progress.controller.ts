@@ -61,8 +61,8 @@ export class ProgressController {
   }
   //getInstructorAnalyticsContentEffectiveness
   @Get('content-effectiveness/:courseId')
-  async getInstructorAnalyticsContentEffectiveness(@Param('courseId') courseId: string) {
-    return await this.progressService.getInstructorAnalyticsContentEffectiveness(courseId);
+  async getInstructorAnalyticsContentEffectiveness(@Param('courseId') courseId: string, @Param('userId') userId:string) {
+    return await this.progressService.getInstructorAnalyticsContentEffectiveness(courseId, userId);
   }
 
   // getInstructorAnalyticsStudentEngagement
@@ -82,8 +82,8 @@ export class ProgressController {
   }
 
   @Get('/export-content-effectivenes/pdf/:courseId')
-  async exportContentEffectivenessPDF(@Param('courseId') courseId: string, @Res() res: Response) {
-    await this.progressService.exportInstructorAnalyticsContentEffectivenessPDF(courseId, res);
+  async exportContentEffectivenessPDF(@Param('courseId') courseId: string, userId: string, @Res() res: Response) {
+    await this.progressService.exportInstructorAnalyticsContentEffectivenessPDF(courseId, userId, res);
   }
 
 
