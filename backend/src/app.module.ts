@@ -6,6 +6,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import {ConfigModule} from '@nestjs/config'
+import { AuthGuard } from '../src/auth/guards/authentication.guards';
+import { JwtStrategy } from './auth/jwt.strategy';
 
 @Module({
   imports: [MongooseModule.forRoot(process.env.DATABASE_URL)],

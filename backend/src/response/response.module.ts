@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ResponseSchema } from '../../models/responses-schema';
+import { ResponseSchema } from '../models/responses-schema';
 import { ResponseService } from './response.service';
 import { ResponseController } from './response.controller';
 

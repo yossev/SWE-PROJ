@@ -17,11 +17,12 @@ import { authorizationGuard } from '../auth/guards/authorization.guards';
 import mongoose from 'mongoose';
 import { LoginDto } from './dto/login.dto';
 import { RefreshAccessTokenDto } from './dto/refreshAccessTokenDto.dto';
+import { ProgressService } from 'src/progress/progress.service';
 
 // @UseGuards(AuthGuard) //class level
 @Controller('users') // it means anything starts with /student
 export class UserController {
-    constructor(private userService: UserService) { }
+    constructor(private userService: UserService,private readonly progressService: ProgressService) { }
     @Get('/all') 
     @Roles(Role.Instructor, Role.Admin)
     @UseGuards(AuthGuard)
@@ -31,7 +32,7 @@ export class UserController {
     }
 
     @Roles(Role.Instructor, Role.Admin)
-    @UseGuards(AuthGuard)
+    @UseGuards(authorizationGuard)
     @Get(':id')// /student/:id
     // Get a single student by ID
     async getUserById(@Param('id') id: string):Promise<User> {// Get the student ID from the route parameters
@@ -72,6 +73,10 @@ export class UserController {
         const deletedUser = await this.userService.delete(id);
        return deletedUser;
     }
+    @Get('completed/:userId')
+  async getCompletedCourses(@Param('userId') userId: string) {
+    return await this.progressService.getCompletedCourses(userId);
+  }
     /*
     @Post('token/refresh')
   @HttpCode(HttpStatus.CREATED)

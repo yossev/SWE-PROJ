@@ -12,6 +12,7 @@ import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt/dist/jwt.service';
 import { CourseDocument } from 'models/course-schema';
 import { AuthService } from 'src/auth/auth.service';
+import { RefreshAccessTokenDto } from './dto/refreshAccessTokenDto.dto';
 // import { LoginDto } from './dto/loginDto.dto';
 // import { RefreshAccessTokenDto } from './dto/refreshAccessTokenDto.dto';
 
@@ -138,7 +139,8 @@ export class UserService {
   
       return deletedUser;
      }
-     /*
+    
+     
     async refreshAccessToken(refreshAccessTokenDto: RefreshAccessTokenDto) {
       const userId = await this.authService.findRefreshToken(
         refreshAccessTokenDto.refreshToken,
@@ -201,4 +203,5 @@ export class UserService {
     //       accessToken: await this.authService.createAccessToken(user._id),
     //     };
     //   }
+
 

@@ -16,10 +16,8 @@
     "mongoose": "^8.8.2",
     "nestjs": "^0.0.1",
     "passport-jwt": "^4.0.1",
-    "socket.io": "^4.8.1"
+    "socket.io": "^4.8.1",
     "json2csv": "^6.0.0-alpha.2",
-    "mongoose": "^8.8.2",
-    "nestjs": "^0.0.1",
     "pdfkit": "^0.15.1"
   },
   "devDependencies": {

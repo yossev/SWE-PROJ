@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Put, Delete, Body, Param } from '@nestjs/common';
 import { ResponseService } from './response.service';
-import { Responses, ResponseSchema, ResponsesDocument } from '../../models/responses-schema';
+import { Responses, ResponseSchema, ResponsesDocument } from '../models/responses-schema';
 import { CreateResponseDto } from './dto/createResponse.dto'; 
 import { UpdateResponseDto  } from './dto/updateResponse.dto';  
 

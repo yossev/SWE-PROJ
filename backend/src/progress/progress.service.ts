@@ -1,13 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Progress, ProgressDocument } from '../../models/progress-schema';
-import { Quiz } from '../../models/quizzes-schema';
+import { Progress, ProgressDocument } from '../models/progress-schema';
+import { Quiz } from '../models/quizzes-schema';
 import { CreateProgressDTO } from './dto/createProgress.dto';
 import { UpdateProgressDTO } from './dto/updateProgress.dto';
-import { Responses } from '../../models/responses-schema';
-import { Course } from '../../models/course-schema';
-import { Module } from '../../models/module-schema';
+import { Responses } from '../models/responses-schema';
+import { Course } from '../models/course-schema';
+import { Module } from '../models/module-schema';
 import { RatingService } from '../rating/rating.service';
 import mongoose from 'mongoose';
 import * as PDFDocument from 'pdfkit';
