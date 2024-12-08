@@ -23,9 +23,9 @@ export class AuthService {
   private readonly userService: UserService,
   ) {}
   async createAccessToken(userId: string) {
-    return await this.jwtService.signAsync({ userId });
+    return await this.jwtService.signAsync({ secret:process.env.JWT_SECRET,userId });
   }
-  private async generateRefreshToken(userId: string): Promise<string> {
+  public async generateRefreshToken(userId: string): Promise<string> {
     const refreshToken = this.jwtService.sign(
       { id: userId },
       { expiresIn: '7d' }, // Refresh token valid for 7 days

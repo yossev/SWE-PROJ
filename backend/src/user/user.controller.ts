@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { Body, Controller, Delete, Get, HttpCode, HttpException, HttpStatus, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpException, HttpStatus, Param, Post, Put, Req, Res, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from 'src/models/user-schema';
 import * as bcrypt from 'bcrypt';
@@ -18,6 +18,7 @@ import mongoose from 'mongoose';
 import { LoginDto } from './dto/login.dto';
 import { RefreshAccessTokenDto } from './dto/refreshAccessTokenDto.dto';
 import { ProgressService } from 'src/progress/progress.service';
+import { Response } from 'express';
 
 // @UseGuards(AuthGuard) //class level
 @Controller('users') // it means anything starts with /student
@@ -43,9 +44,9 @@ export class UserController {
     //Create a new student
     @Public()
     @Post('/login')
-    login(@Body() loginDto: LoginDto): Promise<{ token: string }> {
-         return this.userService.login(loginDto);
-     }
+    async login(@Body() loginDto: LoginDto, @Res() res: Response) {
+      return this.userService.login(loginDto, res);
+   }
     @Public()
     @Post('/register')
     async register(@Body()userData: createUserDto) {// Get the new student data from the request body
@@ -76,6 +77,10 @@ export class UserController {
     @Get('completed/:userId')
   async getCompletedCourses(@Param('userId') userId: string) {
     return await this.progressService.getCompletedCourses(userId);
+  }
+  @Post('logout')
+  async logout(@Res() res: Response) {
+    return this.userService.logout(res);
   }
     /*
     @Post('token/refresh')

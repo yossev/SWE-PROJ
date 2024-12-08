@@ -13,6 +13,8 @@ import { JwtService } from '@nestjs/jwt/dist/jwt.service';
 import { CourseDocument } from 'models/course-schema';
 import { AuthService } from 'src/auth/auth.service';
 import { RefreshAccessTokenDto } from './dto/refreshAccessTokenDto.dto';
+import { Response } from 'express';
+import { ProgressService } from 'src/progress/progress.service';
 // import { LoginDto } from './dto/loginDto.dto';
 // import { RefreshAccessTokenDto } from './dto/refreshAccessTokenDto.dto';
 
@@ -23,6 +25,7 @@ export class UserService {
         private readonly jwtService: JwtService, 
         @InjectModel(User.name) private userModel: Model<UserDocument>,
         @InjectModel('Course') private courseModel: Model<CourseDocument>,
+        private readonly progressService: ProgressService,
         @Inject(forwardRef(() => AuthService))
         private readonly authService: AuthService
     ) { }
@@ -34,36 +37,48 @@ export class UserService {
         return await user.save();  // Save it to the database
     }
       // Login existing user
-      async login(loginDto: LoginDto) {
-        const { email, password } = loginDto;
-    
-        // 1. Find the user by email
-        const user = await this.userModel.findOne({ email });
-        if (!user) {
-          throw new UnauthorizedException('user invalid');
-        }
-        const userId = user._id;
-
-    
-        // 3. Check if the password is correct (e.g., using bcrypt to compare the hashed password)
-        const isPasswordValid = await bcrypt.compare(password, user.password_hash);
-        console.log('loginDto.password:', loginDto.password);
-        console.log('user.password (hashed):', user.password_hash);
-  
-        if (!isPasswordValid) {
-          throw new UnauthorizedException('Invalid credentials');
-        }
-    
-           // Generate JWT token
-    const token = this.jwtService.sign(
-      { email: user.email, userId: user._id },
-      { secret: process.env.JWT_SECRET, expiresIn: '1h' },
-    );  // Secret key from environment variable
 
 
-      console.log("Returner control");
-        return { token , userId }; // Return the token to the client
-      }
+  async login(loginDto: LoginDto, res: Response) {
+     const { email, password } = loginDto;
+
+       // 1. Find the user by email
+     const user = await this.userModel.findOne({ email });
+      if (!user) {
+        throw new UnauthorizedException('User not found');
+     }
+
+     // 2. Check if the password is correct
+     const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+     if (!isPasswordValid) {
+       throw new UnauthorizedException('Invalid credentials');
+     }
+
+     // 3. Generate tokens
+      const accessToken = this.jwtService.sign(
+        { email: user.email, userId: user._id },
+        { secret: process.env.JWT_SECRET, expiresIn: '1h' },
+      );
+
+      const refreshToken = await this.authService.generateRefreshToken(user._id.toString());
+
+    // 4. Set tokens as cookies
+    res.cookie('AccessToken', accessToken, {
+       httpOnly: true,
+        secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+        maxAge: 60 * 60 * 1000, // 1 hour
+     });
+
+    res.cookie('RefreshToken', refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
+    // 5. Return response (if needed)
+      return { message: 'Login successful', userId: user._id };
+    }
+
       async findAll(): Promise<User[]> {
         return await this.userModel.find().exec();
       }
@@ -143,7 +158,7 @@ export class UserService {
      
     async refreshAccessToken(refreshAccessTokenDto: RefreshAccessTokenDto) {
       const userId = await this.authService.findRefreshToken(
-        refreshAccessTokenDto.refreshToken,
+        refreshAccessTokenDto.refreshToken
       );
       const user = await this.userModel.findById(userId);
       if (!user) {
@@ -152,6 +167,11 @@ export class UserService {
       return {
         accessToken: await this.authService.createAccessToken(user._id.toString()),
       };
+    }
+    async logout(res: Response) {
+      res.clearCookie('AccessToken');
+      res.clearCookie('RefreshToken');
+      return { message: 'Logout successful' };
     }
 }
 

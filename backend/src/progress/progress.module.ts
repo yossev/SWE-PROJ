@@ -21,6 +21,7 @@ import { RatingService } from '../rating/rating.service';
     ]),
   ],
   controllers: [ProgressController],
-  providers: [ProgressService, RatingService]
+  providers: [ProgressService, RatingService],
+  exports: [ProgressService],
 })
 export class ProgressModule {}

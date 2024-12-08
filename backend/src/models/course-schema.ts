@@ -1,48 +1,38 @@
-/* eslint-disable prettier/prettier */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
-import { title } from 'process';
-  
+
 export type CourseDocument = HydratedDocument<Course>;
 
 @Schema()
 export class Course {
-  // eslint-disable-next-line prettier/prettier
-  @Prop({ type: String, required: true, minLength: 3, maxLength: 100 })
+  @Prop({ type: String, required: true, minlength: 3, maxlength: 100 })
   title: string;
 
-  @Prop({ type: String, required: true, minLength: 10, maxLength: 10000 })
+  @Prop({ type: String, required: true, minlength: 10, maxlength: 10000 })
   description: string;
 
-  @Prop({ type: String, required: true, minLength: 2, maxLength: 50 })
+  @Prop({ type: String, required: true, minlength: 2, maxlength: 50 })
   category: string;
 
-  @Prop({
-    type: String,
-    required: true,
-    enum: ['Beginner', 'Intermediate', 'Advanced'],
-  })
+  @Prop({ type: String, required: true, enum: ['Beginner', 'Intermediate', 'Advanced'] })
   difficulty_level: 'Beginner' | 'Intermediate' | 'Advanced';
 
-  @Prop({ type: String, required: true, minLength: 20, maxLength: 500 })
+  @Prop({ type: String, required: true, minlength: 20, maxlength: 500 })
   created_by: string;
 
-  @Prop({ type: Date, default: new Date(), required: true })
+  @Prop({ type: Date, default: () => new Date(), required: true })
   created_at: Date;
 
-  @Prop({type: [String], default: []}) // Possible Changes here, Default can be 1s
-  versions: string[]; 
-   
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
-    instructor: mongoose.Types.ObjectId;
+  @Prop({ type: [String], default: [] })
+  versions: string[];
 
-    @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'User' })
-    students: mongoose.Types.ObjectId[];
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+  instructor: mongoose.Types.ObjectId;
+
+  @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'User' })
+  students: mongoose.Types.ObjectId[];
 }
 
 export const CourseSchema = SchemaFactory.createForClass(Course);
 
-// 
 CourseSchema.index({ title: 'text', description: 'text' });

@@ -16,12 +16,12 @@ import { Rating } from 'models/rating-schema';
 @Injectable()
 export class ProgressService {
   constructor(
-    @InjectModel('Progress') private progressModel: Model<ProgressDocument>,
-    @InjectModel('Responses') private responseModel: Model<Responses>,
-    @InjectModel('Course') private courseModel: Model<Course>,
-    @InjectModel('Quiz') private quizModel: Model<Quiz>,
-    @InjectModel('Module') private moduleModel: Model<Module>,
-    @InjectModel('Rating') private ratingModel: Model<Rating>,
+    @InjectModel(Progress.name) private progressModel: Model<ProgressDocument>,
+    @InjectModel(Responses.name) private responseModel: Model<Responses>,
+    @InjectModel(Course.name) private courseModel: Model<Course>,
+    @InjectModel(Quiz.name) private quizModel: Model<Quiz>,
+    @InjectModel(Module.name) private moduleModel: Model<Module>,
+    @InjectModel(Rating.name) private ratingModel: Model<Rating>,
     private ratingService: RatingService,
 
   ) { }

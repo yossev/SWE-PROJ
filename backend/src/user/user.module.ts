@@ -9,12 +9,15 @@ import { UserController } from './user.controller';
 import { User, UserSchema } from 'src/models/user-schema';
 import { Course, CourseSchema } from 'models/course-schema';
 import { AuthModule } from 'src/auth/auth.module';
+import { ProgressModule } from 'src/progress/progress.module';
+import { ProgressService } from 'src/progress/progress.service';
 
 @Module({
   imports: [
     forwardRef(() => AuthModule), // Resolve circular dependencies
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     MongooseModule.forFeature([{ name: Course.name, schema: CourseSchema }]),
+    ProgressModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -33,7 +36,7 @@ import { AuthModule } from 'src/auth/auth.module';
     }),
   ],
   controllers: [UserController],
-  providers: [UserService],
+  providers: [UserService,ProgressService],
   exports: [UserService, MongooseModule], // Export UserService for use in AuthModule
 })
 export class UserModule {}

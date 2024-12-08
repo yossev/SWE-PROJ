@@ -2,7 +2,7 @@ import { Controller, Post, Body, Put, Param, Get, NotFoundException, Delete} fro
 import { RatingService } from './rating.service';
 import { CreateRatingDto } from './dto/createRating.dto';
 import { UpdateRatingDto } from './dto/updateRating.dto';
-import { Rating } from '../../models/rating-schema';
+import { Rating } from '../models/rating-schema';
 
 @Controller('ratings')
 export class RatingController {

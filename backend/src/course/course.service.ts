@@ -4,7 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateCourseDto } from './dto/createCourse.dto';
 import { UpdateCourseDto } from './dto/updateCourse.dto';
-import { Course, CourseDocument } from '../models/course-schema'; // Import NotificationService
+import {  Course,CourseDocument } from '../models/course-schema'; // Import NotificationService
 import { NotificationService } from 'src/notification/notification.service';
 
 @Injectable()
