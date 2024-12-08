@@ -92,7 +92,7 @@ export class ProgressService {
 
   async getAttendance(userId: string, courseId: string): Promise<any> {
 
-    const progress = await this.progressModel.findOne({ user_id: userId, course_id: userId }).exec()
+    const progress = await this.progressModel.findOne({ user_id: userId, course_id: courseId}).exec()
 
     if (!progress) {
       throw new NotFoundException(`Progress record for user ${userId} in course ${courseId} not found`);
@@ -119,7 +119,6 @@ export class ProgressService {
     //}
 
     // Calculate student's average score for each course 
-    console.log('Progress Record:', progress);
     
     const modules = await this.moduleModel.find({ course_id: progress.course_id }).exec();
     console.log('course id ',progress.course_id )
@@ -143,11 +142,11 @@ export class ProgressService {
     const courseCompletionRates = [];
 
     for (const progress of progressData) {
-      // const course = await this.courseModel.findById(progress.course_id).exec();
+     //  const course = await this.courseModel.findById(progress.course_id).exec();
       const completionRate = progress.completion_percentage;
 
       courseCompletionRates.push({
-        //courseTitle: course.title,
+     //   courseTitle: course.title,
         completionRate: completionRate,
       });
     }
