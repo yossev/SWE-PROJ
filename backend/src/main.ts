@@ -8,16 +8,10 @@ import { JwtService } from '@nestjs/jwt';
 
 const mongoose=require('mongoose');
 const express=require('express');
-
-const mongoUri = "mongodb://localhost:27017/";
-
-console.log('MongoDB URI:', process.env.MONGO_URI);
-
+const url: string = "mongodb://localhost:27017/";
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  await mongoose.connect(mongoUri , {
-   useNewUrlParser: true,
-   useUnifiedTopology: true,
+  await mongoose.connect(url , {
   }).then( () => {
      console.log('Connected');
   }).catch((err) => {
