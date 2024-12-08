@@ -1,11 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose,{ HydratedDocument } from 'mongoose';
 
-export type ResponseDocument = HydratedDocument<Response>;
+export type ResponsesDocument = HydratedDocument<Responses>;
 
 
 @Schema({ timestamps: true, strict: false })
-export class Response {
+export class Responses {
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
   user_id: mongoose.Schema.Types.ObjectId;
@@ -35,4 +35,4 @@ export class Response {
 }
 
 // Create the schema factory for the Response class
-export const ResponseSchema = SchemaFactory.createForClass(Response);
+export const ResponseSchema = SchemaFactory.createForClass(Responses);

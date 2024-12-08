@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 const mongoose=require('mongoose');
 const express=require('express');
-const url : string='mongodb://localhost:27017/';
+const url: string = "mongodb://localhost:27017/";
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   await mongoose.connect(url , {
