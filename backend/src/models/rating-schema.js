@@ -41,68 +41,58 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ResponseSchema = exports.Responses = void 0;
-/* eslint-disable prettier/prettier */
+exports.RatingSchema = exports.Rating = void 0;
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = __importDefault(require("mongoose"));
-let Responses = (() => {
-    let _classDecorators = [(0, mongoose_1.Schema)({ timestamps: true, strict: false })];
+let Rating = (() => {
+    let _classDecorators = [(0, mongoose_1.Schema)()];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
+    let _rating_decorators;
+    let _rating_initializers = [];
+    let _rating_extraInitializers = [];
+    let _ratedEntity_decorators;
+    let _ratedEntity_initializers = [];
+    let _ratedEntity_extraInitializers = [];
+    let _ratedEntityId_decorators;
+    let _ratedEntityId_initializers = [];
+    let _ratedEntityId_extraInitializers = [];
     let _user_id_decorators;
     let _user_id_initializers = [];
     let _user_id_extraInitializers = [];
-    let _quiz_id_decorators;
-    let _quiz_id_initializers = [];
-    let _quiz_id_extraInitializers = [];
-    let _answers_decorators;
-    let _answers_initializers = [];
-    let _answers_extraInitializers = [];
-    let _score_decorators;
-    let _score_initializers = [];
-    let _score_extraInitializers = [];
-    let _submittedAt_decorators;
-    let _submittedAt_initializers = [];
-    let _submittedAt_extraInitializers = [];
-    var Responses = _classThis = class {
+    let _created_at_decorators;
+    let _created_at_initializers = [];
+    let _created_at_extraInitializers = [];
+    var Rating = _classThis = class {
         constructor() {
-            this.user_id = __runInitializers(this, _user_id_initializers, void 0);
-            this.quiz_id = (__runInitializers(this, _user_id_extraInitializers), __runInitializers(this, _quiz_id_initializers, void 0));
-            this.answers = (__runInitializers(this, _quiz_id_extraInitializers), __runInitializers(this, _answers_initializers, void 0));
-            this.score = (__runInitializers(this, _answers_extraInitializers), __runInitializers(this, _score_initializers, void 0));
-            this.submittedAt = (__runInitializers(this, _score_extraInitializers), __runInitializers(this, _submittedAt_initializers, void 0));
-            __runInitializers(this, _submittedAt_extraInitializers);
+            this.rating = __runInitializers(this, _rating_initializers, void 0);
+            this.ratedEntity = (__runInitializers(this, _rating_extraInitializers), __runInitializers(this, _ratedEntity_initializers, void 0));
+            this.ratedEntityId = (__runInitializers(this, _ratedEntity_extraInitializers), __runInitializers(this, _ratedEntityId_initializers, void 0));
+            this.user_id = (__runInitializers(this, _ratedEntityId_extraInitializers), __runInitializers(this, _user_id_initializers, void 0));
+            this.created_at = (__runInitializers(this, _user_id_extraInitializers), __runInitializers(this, _created_at_initializers, void 0));
+            __runInitializers(this, _created_at_extraInitializers);
         }
     };
-    __setFunctionName(_classThis, "Responses");
+    __setFunctionName(_classThis, "Rating");
     (() => {
         const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
+        _rating_decorators = [(0, mongoose_1.Prop)({ required: true, min: 1, max: 5 })];
+        _ratedEntity_decorators = [(0, mongoose_1.Prop)({ type: String, required: true, enum: ['Module', 'Course', 'Instructor'] })];
+        _ratedEntityId_decorators = [(0, mongoose_1.Prop)({ type: mongoose_2.default.Schema.Types.ObjectId, refPath: 'ratedEntity', required: false })];
         _user_id_decorators = [(0, mongoose_1.Prop)({ type: mongoose_2.default.Schema.Types.ObjectId, ref: 'User', required: true })];
-        _quiz_id_decorators = [(0, mongoose_1.Prop)({ type: mongoose_2.default.Schema.Types.ObjectId, ref: 'Quiz', required: true })];
-        _answers_decorators = [(0, mongoose_1.Prop)({
-                type: [
-                    {
-                        question_id: { type: mongoose_2.default.Schema.Types.ObjectId, ref: 'Quiz.questions', required: true }, // Reference to the question in the Quiz schema
-                        answer: { type: String, required: true }, // User's answer to the question
-                    },
-                ],
-                required: true,
-            })];
-        _score_decorators = [(0, mongoose_1.Prop)({ type: Number, min: 0 })];
-        _submittedAt_decorators = [(0, mongoose_1.Prop)({ type: Date, default: Date.now })];
+        _created_at_decorators = [(0, mongoose_1.Prop)({ default: Date.now })];
+        __esDecorate(null, null, _rating_decorators, { kind: "field", name: "rating", static: false, private: false, access: { has: obj => "rating" in obj, get: obj => obj.rating, set: (obj, value) => { obj.rating = value; } }, metadata: _metadata }, _rating_initializers, _rating_extraInitializers);
+        __esDecorate(null, null, _ratedEntity_decorators, { kind: "field", name: "ratedEntity", static: false, private: false, access: { has: obj => "ratedEntity" in obj, get: obj => obj.ratedEntity, set: (obj, value) => { obj.ratedEntity = value; } }, metadata: _metadata }, _ratedEntity_initializers, _ratedEntity_extraInitializers);
+        __esDecorate(null, null, _ratedEntityId_decorators, { kind: "field", name: "ratedEntityId", static: false, private: false, access: { has: obj => "ratedEntityId" in obj, get: obj => obj.ratedEntityId, set: (obj, value) => { obj.ratedEntityId = value; } }, metadata: _metadata }, _ratedEntityId_initializers, _ratedEntityId_extraInitializers);
         __esDecorate(null, null, _user_id_decorators, { kind: "field", name: "user_id", static: false, private: false, access: { has: obj => "user_id" in obj, get: obj => obj.user_id, set: (obj, value) => { obj.user_id = value; } }, metadata: _metadata }, _user_id_initializers, _user_id_extraInitializers);
-        __esDecorate(null, null, _quiz_id_decorators, { kind: "field", name: "quiz_id", static: false, private: false, access: { has: obj => "quiz_id" in obj, get: obj => obj.quiz_id, set: (obj, value) => { obj.quiz_id = value; } }, metadata: _metadata }, _quiz_id_initializers, _quiz_id_extraInitializers);
-        __esDecorate(null, null, _answers_decorators, { kind: "field", name: "answers", static: false, private: false, access: { has: obj => "answers" in obj, get: obj => obj.answers, set: (obj, value) => { obj.answers = value; } }, metadata: _metadata }, _answers_initializers, _answers_extraInitializers);
-        __esDecorate(null, null, _score_decorators, { kind: "field", name: "score", static: false, private: false, access: { has: obj => "score" in obj, get: obj => obj.score, set: (obj, value) => { obj.score = value; } }, metadata: _metadata }, _score_initializers, _score_extraInitializers);
-        __esDecorate(null, null, _submittedAt_decorators, { kind: "field", name: "submittedAt", static: false, private: false, access: { has: obj => "submittedAt" in obj, get: obj => obj.submittedAt, set: (obj, value) => { obj.submittedAt = value; } }, metadata: _metadata }, _submittedAt_initializers, _submittedAt_extraInitializers);
+        __esDecorate(null, null, _created_at_decorators, { kind: "field", name: "created_at", static: false, private: false, access: { has: obj => "created_at" in obj, get: obj => obj.created_at, set: (obj, value) => { obj.created_at = value; } }, metadata: _metadata }, _created_at_initializers, _created_at_extraInitializers);
         __esDecorate(null, _classDescriptor = { value: _classThis }, _classDecorators, { kind: "class", name: _classThis.name, metadata: _metadata }, null, _classExtraInitializers);
-        Responses = _classThis = _classDescriptor.value;
+        Rating = _classThis = _classDescriptor.value;
         if (_metadata) Object.defineProperty(_classThis, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         __runInitializers(_classThis, _classExtraInitializers);
     })();
-    return Responses = _classThis;
+    return Rating = _classThis;
 })();
-exports.Responses = Responses;
-// Create the schema factory for the Response class
-exports.ResponseSchema = mongoose_1.SchemaFactory.createForClass(Responses);
+exports.Rating = Rating;
+exports.RatingSchema = mongoose_1.SchemaFactory.createForClass(Rating);

@@ -47,72 +47,96 @@ var __setFunctionName = (this && this.__setFunctionName) || function (f, name, p
     return Object.defineProperty(f, "name", { configurable: true, value: prefix ? "".concat(prefix, " ", name) : name });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ResponseController = void 0;
+exports.RatingController = void 0;
 const common_1 = require("@nestjs/common");
-let ResponseController = (() => {
-    let _classDecorators = [(0, common_1.Controller)('response')];
+let RatingController = (() => {
+    let _classDecorators = [(0, common_1.Controller)('ratings')];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
     let _instanceExtraInitializers = [];
-    let _create_decorators;
+    let _createRating_decorators;
+    let _updateRating_decorators;
     let _findAll_decorators;
     let _findOne_decorators;
-    let _update_decorators;
+    let _getCourseRating_decorators;
+    let _getInstructorRating_decorators;
+    let _getModuleRating_decorators;
     let _delete_decorators;
-    var ResponseController = _classThis = class {
-        constructor(responseService) {
-            this.responseService = (__runInitializers(this, _instanceExtraInitializers), responseService);
+    var RatingController = _classThis = class {
+        constructor(ratingService) {
+            this.ratingService = (__runInitializers(this, _instanceExtraInitializers), ratingService);
         }
-        // Create a new response record
-        create(responseData) {
+        createRating(createRatingDto) {
             return __awaiter(this, void 0, void 0, function* () {
-                return this.responseService.create(responseData);
+                return yield this.ratingService.createRating(createRatingDto);
             });
         }
-        // Get all response records
+        updateRating(id, updateRatingDto) {
+            return __awaiter(this, void 0, void 0, function* () {
+                return yield this.ratingService.updateRating(id, updateRatingDto);
+            });
+        }
         findAll() {
             return __awaiter(this, void 0, void 0, function* () {
-                return this.responseService.findAll();
+                return yield this.ratingService.findAll();
             });
         }
-        // Get a specific response record by ID
         findOne(id) {
             return __awaiter(this, void 0, void 0, function* () {
-                return this.responseService.findOne(id);
+                try {
+                    return yield this.ratingService.findOne(id);
+                }
+                catch (error) {
+                    throw new common_1.NotFoundException(error.message);
+                }
             });
         }
-        // Update a specific response record by ID
-        update(id, responseData) {
+        getCourseRating(courseId) {
             return __awaiter(this, void 0, void 0, function* () {
-                return this.responseService.update(id, responseData);
+                return yield this.ratingService.getCourseRating(courseId);
             });
         }
-        // Delete a specific response record by ID
+        getInstructorRating(instructorId) {
+            return __awaiter(this, void 0, void 0, function* () {
+                return yield this.ratingService.getInstructorRating(instructorId);
+            });
+        }
+        getModuleRating(moduleId) {
+            return __awaiter(this, void 0, void 0, function* () {
+                return yield this.ratingService.getModuleRating(moduleId);
+            });
+        }
         delete(id) {
             return __awaiter(this, void 0, void 0, function* () {
-                return this.responseService.delete(id);
+                return this.ratingService.delete(id);
             });
         }
     };
-    __setFunctionName(_classThis, "ResponseController");
+    __setFunctionName(_classThis, "RatingController");
     (() => {
         const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
-        _create_decorators = [(0, common_1.Post)()];
+        _createRating_decorators = [(0, common_1.Post)()];
+        _updateRating_decorators = [(0, common_1.Put)(':id')];
         _findAll_decorators = [(0, common_1.Get)()];
         _findOne_decorators = [(0, common_1.Get)(':id')];
-        _update_decorators = [(0, common_1.Put)(':id')];
+        _getCourseRating_decorators = [(0, common_1.Get)('course-rating/:courseId')];
+        _getInstructorRating_decorators = [(0, common_1.Get)('instructor-rating/:instructorId')];
+        _getModuleRating_decorators = [(0, common_1.Get)('module-rating/:moduleId')];
         _delete_decorators = [(0, common_1.Delete)(':id')];
-        __esDecorate(_classThis, null, _create_decorators, { kind: "method", name: "create", static: false, private: false, access: { has: obj => "create" in obj, get: obj => obj.create }, metadata: _metadata }, null, _instanceExtraInitializers);
+        __esDecorate(_classThis, null, _createRating_decorators, { kind: "method", name: "createRating", static: false, private: false, access: { has: obj => "createRating" in obj, get: obj => obj.createRating }, metadata: _metadata }, null, _instanceExtraInitializers);
+        __esDecorate(_classThis, null, _updateRating_decorators, { kind: "method", name: "updateRating", static: false, private: false, access: { has: obj => "updateRating" in obj, get: obj => obj.updateRating }, metadata: _metadata }, null, _instanceExtraInitializers);
         __esDecorate(_classThis, null, _findAll_decorators, { kind: "method", name: "findAll", static: false, private: false, access: { has: obj => "findAll" in obj, get: obj => obj.findAll }, metadata: _metadata }, null, _instanceExtraInitializers);
         __esDecorate(_classThis, null, _findOne_decorators, { kind: "method", name: "findOne", static: false, private: false, access: { has: obj => "findOne" in obj, get: obj => obj.findOne }, metadata: _metadata }, null, _instanceExtraInitializers);
-        __esDecorate(_classThis, null, _update_decorators, { kind: "method", name: "update", static: false, private: false, access: { has: obj => "update" in obj, get: obj => obj.update }, metadata: _metadata }, null, _instanceExtraInitializers);
+        __esDecorate(_classThis, null, _getCourseRating_decorators, { kind: "method", name: "getCourseRating", static: false, private: false, access: { has: obj => "getCourseRating" in obj, get: obj => obj.getCourseRating }, metadata: _metadata }, null, _instanceExtraInitializers);
+        __esDecorate(_classThis, null, _getInstructorRating_decorators, { kind: "method", name: "getInstructorRating", static: false, private: false, access: { has: obj => "getInstructorRating" in obj, get: obj => obj.getInstructorRating }, metadata: _metadata }, null, _instanceExtraInitializers);
+        __esDecorate(_classThis, null, _getModuleRating_decorators, { kind: "method", name: "getModuleRating", static: false, private: false, access: { has: obj => "getModuleRating" in obj, get: obj => obj.getModuleRating }, metadata: _metadata }, null, _instanceExtraInitializers);
         __esDecorate(_classThis, null, _delete_decorators, { kind: "method", name: "delete", static: false, private: false, access: { has: obj => "delete" in obj, get: obj => obj.delete }, metadata: _metadata }, null, _instanceExtraInitializers);
         __esDecorate(null, _classDescriptor = { value: _classThis }, _classDecorators, { kind: "class", name: _classThis.name, metadata: _metadata }, null, _classExtraInitializers);
-        ResponseController = _classThis = _classDescriptor.value;
+        RatingController = _classThis = _classDescriptor.value;
         if (_metadata) Object.defineProperty(_classThis, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         __runInitializers(_classThis, _classExtraInitializers);
     })();
-    return ResponseController = _classThis;
+    return RatingController = _classThis;
 })();
-exports.ResponseController = ResponseController;
+exports.RatingController = RatingController;

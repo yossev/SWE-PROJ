@@ -1,20 +1,4 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -49,23 +33,6 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -80,65 +47,64 @@ var __setFunctionName = (this && this.__setFunctionName) || function (f, name, p
     return Object.defineProperty(f, "name", { configurable: true, value: prefix ? "".concat(prefix, " ", name) : name });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BackupService = void 0;
-/* eslint-disable prettier/prettier */
+exports.ResponseService = void 0;
 const common_1 = require("@nestjs/common");
-const fs = __importStar(require("fs"));
-const path = __importStar(require("path"));
-const cron = __importStar(require("node-cron"));
-let BackupService = (() => {
+let ResponseService = (() => {
     let _classDecorators = [(0, common_1.Injectable)()];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
-    var BackupService = _classThis = class {
-        constructor(userService) {
-            this.userService = userService;
-            this.logger = new common_1.Logger(BackupService.name);
+    var ResponseService = _classThis = class {
+        constructor(responseModel) {
+            this.responseModel = responseModel;
         }
-        // Schedule backup process
-        scheduleBackup() {
-            cron.schedule('0 0 * * *', () => __awaiter(this, void 0, void 0, function* () {
-                this.logger.log('Starting daily backup process...');
-                yield this.backupData();
-            }));
-            this.logger.log('Backup job scheduled.');
-        }
-        // Backup logic
-        backupData() {
+        create(createResponseDto) {
             return __awaiter(this, void 0, void 0, function* () {
-                try {
-                    // Fetch user data
-                    const users = yield this.userService.findAll();
-                    //const courses = await this.userService.findAllCourses(); el mafrood teb2a course progress taken from performance schema
-                    const backup = {
-                        timestamp: new Date(),
-                        users,
-                        //courses,
-                    };
-                    // Save backup as a JSON file
-                    const backupPath = path.join(__dirname, '..', '..', 'backups');
-                    if (!fs.existsSync(backupPath)) {
-                        fs.mkdirSync(backupPath);
-                    }
-                    const filePath = path.join(backupPath, `backup-${Date.now()}.json`);
-                    fs.writeFileSync(filePath, JSON.stringify(backup, null, 2));
-                    this.logger.log(`Backup saved at ${filePath}`);
+                const newResponse = new this.responseModel(createResponseDto);
+                return newResponse.save();
+            });
+        }
+        findAll() {
+            return __awaiter(this, void 0, void 0, function* () {
+                return this.responseModel.find().exec();
+            });
+        }
+        findOne(id) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const response = yield this.responseModel.findOne({ _id: id }).exec();
+                if (!response) {
+                    throw new common_1.NotFoundException(`Response record with ID ${id} not found`);
                 }
-                catch (error) {
-                    this.logger.error('Error during backup process', error.stack);
+                return response;
+            });
+        }
+        update(id, updateResponseDto) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const updatedResponse = yield this.responseModel
+                    .findByIdAndUpdate(id, updateResponseDto, { new: true }).exec();
+                if (!updatedResponse) {
+                    throw new common_1.NotFoundException(`Response record with ID ${id} not found`);
+                }
+                return updatedResponse;
+            });
+        }
+        delete(id) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const result = yield this.responseModel.deleteOne({ _id: id }).exec();
+                if (result.deletedCount === 0) {
+                    throw new common_1.NotFoundException(`Response record with ID ${id} not found`);
                 }
             });
         }
     };
-    __setFunctionName(_classThis, "BackupService");
+    __setFunctionName(_classThis, "ResponseService");
     (() => {
         const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
         __esDecorate(null, _classDescriptor = { value: _classThis }, _classDecorators, { kind: "class", name: _classThis.name, metadata: _metadata }, null, _classExtraInitializers);
-        BackupService = _classThis = _classDescriptor.value;
+        ResponseService = _classThis = _classDescriptor.value;
         if (_metadata) Object.defineProperty(_classThis, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         __runInitializers(_classThis, _classExtraInitializers);
     })();
-    return BackupService = _classThis;
+    return ResponseService = _classThis;
 })();
-exports.BackupService = BackupService;
+exports.ResponseService = ResponseService;

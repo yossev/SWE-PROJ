@@ -59,13 +59,14 @@ let JwtStrategy = (() => {
     let _classThis;
     let _classSuper = (0, passport_1.PassportStrategy)(passport_jwt_1.Strategy);
     var JwtStrategy = _classThis = class extends _classSuper {
-        constructor(userService, jwtService) {
+        constructor(authService, jwtService, userService) {
             super({
                 jwtFromRequest: passport_jwt_1.ExtractJwt.fromAuthHeaderAsBearerToken(),
-                secretOrKey: "habiba", // Ensure this secret is defined in your .env file
+                secretOrKey: process.env.JWT_SECRET, // Ensure this secret is defined in your .env file
             });
-            this.userService = userService;
+            this.authService = authService;
             this.jwtService = jwtService;
+            this.userService = userService;
         }
         validate(payload) {
             return __awaiter(this, void 0, void 0, function* () {

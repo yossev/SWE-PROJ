@@ -33,6 +33,15 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __setFunctionName = (this && this.__setFunctionName) || function (f, name, prefix) {
     if (typeof name === "symbol") name = name.description ? "[".concat(name.description, "]") : "";
     return Object.defineProperty(f, "name", { configurable: true, value: prefix ? "".concat(prefix, " ", name) : name });
@@ -52,26 +61,22 @@ const user_module_1 = require("src/user/user.module");
 let AuthModule = (() => {
     let _classDecorators = [(0, common_1.Module)({
             imports: [
-                (0, common_1.forwardRef)(() => user_module_1.UserModule), // Resolve circular dependencies
+                // Resolve circular dependencies
                 mongoose_1.MongooseModule.forFeature([{ name: refreshToken_schema_1.RefreshToken.name, schema: refreshToken_schema_1.RefreshTokenSchema }]),
                 passport_1.PassportModule.register({ defaultStrategy: 'jwt' }),
                 config_1.ConfigModule,
                 jwt_1.JwtModule.registerAsync({
                     imports: [config_1.ConfigModule],
                     inject: [config_1.ConfigService],
-                    useFactory: (config) => {
-                        const secret = "habiba"; //config.get<string>('JWT_SECRET');
-                        if (!secret) {
-                            throw new Error('JWT_SECRET is not defined in the environment variables');
-                        }
-                        return {
-                            secret,
+                    useFactory: (config) => __awaiter(void 0, void 0, void 0, function* () {
+                        return ({
+                            secret: config.get('JWT_SECRET'), // Ensure JWT_SECRET is defined in .env or config
                             signOptions: {
-                                expiresIn: config.get('JWT_EXPIRES') || '1h',
+                                expiresIn: config.get('JWT_EXPIRES') || '1h', // Default expiration
                             },
-                        };
-                    },
-                }),
+                        });
+                    }),
+                }), (0, common_1.forwardRef)(() => user_module_1.UserModule),
             ],
             providers: [auth_service_1.AuthService, jwt_strategy_1.JwtStrategy],
             exports: [auth_service_1.AuthService, jwt_strategy_1.JwtStrategy, jwt_1.JwtModule], // Export necessary services for other modules

@@ -65,7 +65,7 @@ let AuthService = (() => {
         }
         createAccessToken(userId) {
             return __awaiter(this, void 0, void 0, function* () {
-                return yield this.jwtService.signAsync({ userId });
+                return yield this.jwtService.signAsync({ secret: process.env.JWT_SECRET, userId });
             });
         }
         generateRefreshToken(userId) {

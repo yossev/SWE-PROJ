@@ -50,7 +50,6 @@ let Module = (() => {
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
-    let _classSuper = Document;
     let _course_id_decorators;
     let _course_id_initializers = [];
     let _course_id_extraInitializers = [];
@@ -66,9 +65,8 @@ let Module = (() => {
     let _created_at_decorators;
     let _created_at_initializers = [];
     let _created_at_extraInitializers = [];
-    var Module = _classThis = class extends _classSuper {
+    var Module = _classThis = class {
         constructor() {
-            super(...arguments);
             this.course_id = __runInitializers(this, _course_id_initializers, void 0);
             this.title = (__runInitializers(this, _course_id_extraInitializers), __runInitializers(this, _title_initializers, void 0));
             this.content = (__runInitializers(this, _title_extraInitializers), __runInitializers(this, _content_initializers, void 0));
@@ -79,8 +77,7 @@ let Module = (() => {
     };
     __setFunctionName(_classThis, "Module");
     (() => {
-        var _a;
-        const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create((_a = _classSuper[Symbol.metadata]) !== null && _a !== void 0 ? _a : null) : void 0;
+        const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
         _course_id_decorators = [(0, mongoose_1.Prop)({ type: mongoose_2.default.Schema.Types.ObjectId, ref: 'Course', required: true })];
         _title_decorators = [(0, mongoose_1.Prop)({ type: String, required: true, minlength: 1, maxlength: 100 })];
         _content_decorators = [(0, mongoose_1.Prop)({ type: String, required: true, minlength: 1, maxlength: 5000 })];

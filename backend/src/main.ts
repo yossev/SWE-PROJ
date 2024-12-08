@@ -5,11 +5,12 @@ import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
 import { AuthGuard } from './auth/guards/authentication.guards';
 import { JwtService } from '@nestjs/jwt';
-
+require('dotenv').config();
 const mongoose=require('mongoose');
 const express=require('express');
 const url: string = "mongodb://localhost:27017/";
 async function bootstrap() {
+   console.log("Database URL:" , process.env.DATABASE);
   const app = await NestFactory.create(AppModule);
   await mongoose.connect(url , {
   }).then( () => {
@@ -19,6 +20,8 @@ async function bootstrap() {
   });
   app.use(express.json());
   const reflector = app.get(Reflector);
+  console.log('Reflector in main.ts:', reflector);
+  app.useGlobalGuards(new AuthGuard(new JwtService(), reflector));
   app.use(cookieParser());
   app.listen(3000);
 }

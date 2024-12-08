@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import {  CourseSchema } from '../../src/models/course-schema'; // Adjust the import based on your model location
+import {  CourseSchema } from '../models/course-schema'; // Adjust the import based on your model location
 import { CourseService } from './course.service';
 import { CourseController } from './course.controller';
 

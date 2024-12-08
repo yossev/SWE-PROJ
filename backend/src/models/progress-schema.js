@@ -62,13 +62,17 @@ let Progress = (() => {
     let _last_accessed_decorators;
     let _last_accessed_initializers = [];
     let _last_accessed_extraInitializers = [];
+    let _attendance_decorators;
+    let _attendance_initializers = [];
+    let _attendance_extraInitializers = [];
     var Progress = _classThis = class {
         constructor() {
             this.user_id = __runInitializers(this, _user_id_initializers, void 0);
             this.course_id = (__runInitializers(this, _user_id_extraInitializers), __runInitializers(this, _course_id_initializers, void 0));
             this.completion_percentage = (__runInitializers(this, _course_id_extraInitializers), __runInitializers(this, _completion_percentage_initializers, void 0));
             this.last_accessed = (__runInitializers(this, _completion_percentage_extraInitializers), __runInitializers(this, _last_accessed_initializers, void 0));
-            __runInitializers(this, _last_accessed_extraInitializers);
+            this.attendance = (__runInitializers(this, _last_accessed_extraInitializers), __runInitializers(this, _attendance_initializers, void 0));
+            __runInitializers(this, _attendance_extraInitializers);
         }
     };
     __setFunctionName(_classThis, "Progress");
@@ -78,10 +82,12 @@ let Progress = (() => {
         _course_id_decorators = [(0, mongoose_1.Prop)({ type: mongoose_2.default.Schema.Types.ObjectId, ref: 'Course', required: true })];
         _completion_percentage_decorators = [(0, mongoose_1.Prop)({ type: Number, required: true, min: 0, max: 100 })];
         _last_accessed_decorators = [(0, mongoose_1.Prop)({ type: Date, default: () => new Date(), required: true })];
+        _attendance_decorators = [(0, mongoose_1.Prop)({ type: [{ date: { type: Date, required: true }, status: { type: String, enum: ['present', 'absent'], required: true } }] })];
         __esDecorate(null, null, _user_id_decorators, { kind: "field", name: "user_id", static: false, private: false, access: { has: obj => "user_id" in obj, get: obj => obj.user_id, set: (obj, value) => { obj.user_id = value; } }, metadata: _metadata }, _user_id_initializers, _user_id_extraInitializers);
         __esDecorate(null, null, _course_id_decorators, { kind: "field", name: "course_id", static: false, private: false, access: { has: obj => "course_id" in obj, get: obj => obj.course_id, set: (obj, value) => { obj.course_id = value; } }, metadata: _metadata }, _course_id_initializers, _course_id_extraInitializers);
         __esDecorate(null, null, _completion_percentage_decorators, { kind: "field", name: "completion_percentage", static: false, private: false, access: { has: obj => "completion_percentage" in obj, get: obj => obj.completion_percentage, set: (obj, value) => { obj.completion_percentage = value; } }, metadata: _metadata }, _completion_percentage_initializers, _completion_percentage_extraInitializers);
         __esDecorate(null, null, _last_accessed_decorators, { kind: "field", name: "last_accessed", static: false, private: false, access: { has: obj => "last_accessed" in obj, get: obj => obj.last_accessed, set: (obj, value) => { obj.last_accessed = value; } }, metadata: _metadata }, _last_accessed_initializers, _last_accessed_extraInitializers);
+        __esDecorate(null, null, _attendance_decorators, { kind: "field", name: "attendance", static: false, private: false, access: { has: obj => "attendance" in obj, get: obj => obj.attendance, set: (obj, value) => { obj.attendance = value; } }, metadata: _metadata }, _attendance_initializers, _attendance_extraInitializers);
         __esDecorate(null, _classDescriptor = { value: _classThis }, _classDecorators, { kind: "class", name: _classThis.name, metadata: _metadata }, null, _classExtraInitializers);
         Progress = _classThis = _classDescriptor.value;
         if (_metadata) Object.defineProperty(_classThis, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });

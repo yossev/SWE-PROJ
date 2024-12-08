@@ -57,18 +57,83 @@ let RoomService = (() => {
     let _classExtraInitializers = [];
     let _classThis;
     var RoomService = _classThis = class {
-        constructor(roomModel, courseModel) {
+        constructor(roomModel, courseModel, userService) {
             this.roomModel = roomModel;
             this.courseModel = courseModel;
+            this.userService = userService;
         }
         // Create a new room for a specific course
-        createRoom(createRoomDto, courseId) {
+        createRoom(createRoomDto, courseName, userId) {
             return __awaiter(this, void 0, void 0, function* () {
-                const course = yield this.courseModel.findById(courseId);
-                if (!course)
-                    throw new Error('Course not found');
-                const room = new this.roomModel(Object.assign(Object.assign({}, createRoomDto), { course: courseId }));
+                // Step 1: Find the course by its title (name)
+                const course = yield this.courseModel.findOne({ title: courseName });
+                if (!course) {
+                    // Instead of a generic error, throw an HTTP exception with 404 status
+                    throw new common_1.HttpException('Course not found', common_1.HttpStatus.NOT_FOUND);
+                }
+                // Step 2: Check if the user is enrolled in the course
+                const userIsEnrolled = course.students.some((student) => student.toString() === userId);
+                if (!userIsEnrolled) {
+                    // Throw an HTTP exception with 403 status if user is not enrolled
+                    throw new common_1.HttpException('User is not enrolled in the course', common_1.HttpStatus.FORBIDDEN);
+                }
+                // Step 3: Create the room with the associated course ObjectId
+                const room = new this.roomModel(Object.assign(Object.assign({}, createRoomDto), { course: course._id }));
+                // Step 4: Save and return the room
                 return room.save();
+            });
+        }
+        createPrivateRoom(loggedInUserId, createRoomDto, courseId) {
+            return __awaiter(this, void 0, void 0, function* () {
+                // Step 1: Fetch the logged-in user
+                const loggedInUser = yield this.userService.findById(loggedInUserId.toString());
+                if (!loggedInUser) {
+                    throw new common_1.HttpException('Logged-in user not found', common_1.HttpStatus.NOT_FOUND);
+                }
+                // Step 2: Ensure that one of the users is an instructor
+                const instructor = createRoomDto.instructor;
+                if (instructor.toString() !== loggedInUserId.toString() && loggedInUser.role !== 'Instructor') {
+                    throw new common_1.HttpException('Only the instructor can create the room', common_1.HttpStatus.FORBIDDEN);
+                }
+                // Step 3: Fetch the course by ID
+                const course = yield this.courseModel.findById(courseId);
+                if (!course) {
+                    throw new common_1.HttpException('Course not found', common_1.HttpStatus.NOT_FOUND);
+                }
+                // Step 4: Ensure that the instructor is the one teaching the course
+                if (course.instructor.toString() !== instructor.toString()) {
+                    throw new common_1.HttpException('Instructor does not teach this course', common_1.HttpStatus.FORBIDDEN);
+                }
+                // Step 5: Ensure both the instructor and the students are enrolled in the course
+                const studentIds = createRoomDto.students;
+                const allUsersEnrolled = [...studentIds, instructor.toString()].every((userId) => course.students.some((student) => student.toString() === userId));
+                if (!allUsersEnrolled) {
+                    throw new common_1.HttpException('All users must be enrolled in the course', common_1.HttpStatus.FORBIDDEN);
+                }
+                // Step 6: Generate a private room ID
+                const roomId = yield this.generatePrivateRoomId(instructor, studentIds[0]); // Assumes one student for private room creation
+                // Step 7: Check if the private room already exists
+                const existingRoom = yield this.roomModel.findOne({ roomId });
+                if (existingRoom) {
+                    throw new common_1.HttpException('Private room already exists.', common_1.HttpStatus.BAD_REQUEST);
+                }
+                // Step 8: Create the private room using DTO
+                const newRoom = new this.roomModel({
+                    roomId,
+                    users: [createRoomDto.instructor, ...createRoomDto.students], // Uses the DTO instructor and students
+                    isPrivate: true,
+                    course: courseId, // Associate the room with the course
+                    name: createRoomDto.name, // Use the name from DTO
+                });
+                return newRoom.save();
+            });
+        }
+        generatePrivateRoomId(userId1, userId2) {
+            return __awaiter(this, void 0, void 0, function* () {
+                // Sort user IDs so that the room ID is always the same regardless of the order
+                const ids = [userId1.toString(), userId2.toString()];
+                ids.sort();
+                return ids.join('-'); // Example: 'user1Id-user2Id'
             });
         }
         // Get rooms by course ID
@@ -77,10 +142,14 @@ let RoomService = (() => {
                 return this.roomModel.find({ course: courseId }).populate('users');
             });
         }
-        // Get room details by ID
-        getRoomById(roomId) {
+        // Get room details by name
+        getRoomByName(roomName) {
             return __awaiter(this, void 0, void 0, function* () {
-                return this.roomModel.findById(roomId).populate('users');
+                const room = yield this.roomModel.findOne({ name: roomName }).populate('users');
+                if (!room) {
+                    throw new Error('Room not found');
+                }
+                return room;
             });
         }
         // Mark room as inactive

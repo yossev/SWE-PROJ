@@ -58,7 +58,7 @@ let CreateRoomDto = (() => {
         },
         (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
-            _instructor_decorators = [(0, class_validator_1.IsString)(), (0, class_validator_1.IsMongoId)()];
+            _instructor_decorators = [(0, class_validator_1.IsMongoId)()];
             _students_decorators = [(0, class_validator_1.IsArray)(), (0, class_validator_1.ArrayNotEmpty)(), (0, class_validator_1.IsMongoId)({ each: true })];
             _name_decorators = [(0, class_validator_1.IsString)()];
             __esDecorate(null, null, _instructor_decorators, { kind: "field", name: "instructor", static: false, private: false, access: { has: obj => "instructor" in obj, get: obj => obj.instructor, set: (obj, value) => { obj.instructor = value; } }, metadata: _metadata }, _instructor_initializers, _instructor_extraInitializers);

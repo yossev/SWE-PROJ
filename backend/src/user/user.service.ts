@@ -40,6 +40,7 @@ export class UserService {
 
 
   async login(loginDto: LoginDto, res: Response) {
+    console.log('Logging in');
      const { email, password } = loginDto;
 
        // 1. Find the user by email
@@ -47,6 +48,7 @@ export class UserService {
       if (!user) {
         throw new UnauthorizedException('User not found');
      }
+     const id=user._id;
 
      // 2. Check if the password is correct
      const isPasswordValid = await bcrypt.compare(password, user.password_hash);
@@ -59,24 +61,24 @@ export class UserService {
         { email: user.email, userId: user._id },
         { secret: process.env.JWT_SECRET, expiresIn: '1h' },
       );
-
+      console.log('entering refresh token');
       const refreshToken = await this.authService.generateRefreshToken(user._id.toString());
-
+      console.log('finshing refresh token');
     // 4. Set tokens as cookies
     res.cookie('AccessToken', accessToken, {
        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+        //secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
         maxAge: 60 * 60 * 1000, // 1 hour
      });
-
+     console.log('finished first');
     res.cookie('RefreshToken', refreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        //secure: process.env.NODE_ENV === 'production',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
-
+console.log('finished cookies');
     // 5. Return response (if needed)
-      return { message: 'Login successful', userId: user._id };
+      return { message: 'Login successful', userId: id };
     }
 
       async findAll(): Promise<User[]> {

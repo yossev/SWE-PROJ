@@ -1,20 +1,4 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -49,23 +33,6 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -80,65 +47,67 @@ var __setFunctionName = (this && this.__setFunctionName) || function (f, name, p
     return Object.defineProperty(f, "name", { configurable: true, value: prefix ? "".concat(prefix, " ", name) : name });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BackupService = void 0;
-/* eslint-disable prettier/prettier */
+exports.MessageService = void 0;
 const common_1 = require("@nestjs/common");
-const fs = __importStar(require("fs"));
-const path = __importStar(require("path"));
-const cron = __importStar(require("node-cron"));
-let BackupService = (() => {
+let MessageService = (() => {
     let _classDecorators = [(0, common_1.Injectable)()];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
-    var BackupService = _classThis = class {
-        constructor(userService) {
+    var MessageService = _classThis = class {
+        constructor(messageModel, roomModel, notificationModel, notificationService, userService, roomService) {
+            this.messageModel = messageModel;
+            this.roomModel = roomModel;
+            this.notificationModel = notificationModel;
+            this.notificationService = notificationService;
             this.userService = userService;
-            this.logger = new common_1.Logger(BackupService.name);
+            this.roomService = roomService;
         }
-        // Schedule backup process
-        scheduleBackup() {
-            cron.schedule('0 0 * * *', () => __awaiter(this, void 0, void 0, function* () {
-                this.logger.log('Starting daily backup process...');
-                yield this.backupData();
-            }));
-            this.logger.log('Backup job scheduled.');
-        }
-        // Backup logic
-        backupData() {
+        // Save a new message to the database
+        saveMessage(userId, content, roomId) {
             return __awaiter(this, void 0, void 0, function* () {
-                try {
-                    // Fetch user data
-                    const users = yield this.userService.findAll();
-                    //const courses = await this.userService.findAllCourses(); el mafrood teb2a course progress taken from performance schema
-                    const backup = {
-                        timestamp: new Date(),
-                        users,
-                        //courses,
-                    };
-                    // Save backup as a JSON file
-                    const backupPath = path.join(__dirname, '..', '..', 'backups');
-                    if (!fs.existsSync(backupPath)) {
-                        fs.mkdirSync(backupPath);
-                    }
-                    const filePath = path.join(backupPath, `backup-${Date.now()}.json`);
-                    fs.writeFileSync(filePath, JSON.stringify(backup, null, 2));
-                    this.logger.log(`Backup saved at ${filePath}`);
+                const newMessage = new this.messageModel({ userId, content, roomId });
+                return yield newMessage.save();
+            });
+        }
+        // Retrieve all messages from a specific room
+        getMessagesByRoom(roomId) {
+            return __awaiter(this, void 0, void 0, function* () {
+                return this.messageModel.find({ roomId }).sort({ createdAt: 1 }); // Sorted by timestamp
+            });
+        }
+        // Send and notify users
+        sendMessage(userId, content, roomId, chatType, recipientId) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const savedMessage = yield this.saveMessage(userId, content, roomId);
+                if (chatType === 'group') {
+                    yield this.notifyUsersInRoom(roomId, userId, savedMessage);
                 }
-                catch (error) {
-                    this.logger.error('Error during backup process', error.stack);
+                if (chatType === 'individual' && recipientId) {
+                    yield this.notificationService.createNotification(recipientId.toString(), `New message from ${userId}`, savedMessage._id.toString());
+                }
+                return savedMessage;
+            });
+        }
+        // Notify all users in the room except the sender
+        notifyUsersInRoom(roomId, userId, message) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const room = yield this.roomModel.findById(roomId).populate('users');
+                const usersInRoom = room.user_id.filter(user => user._id.toString() !== userId.toString());
+                for (const user of usersInRoom) {
+                    yield this.notificationService.createNotification(user._id.toString(), `New message in room ${roomId}: ${message.content}`, message._id.toString());
                 }
             });
         }
     };
-    __setFunctionName(_classThis, "BackupService");
+    __setFunctionName(_classThis, "MessageService");
     (() => {
         const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
         __esDecorate(null, _classDescriptor = { value: _classThis }, _classDecorators, { kind: "class", name: _classThis.name, metadata: _metadata }, null, _classExtraInitializers);
-        BackupService = _classThis = _classDescriptor.value;
+        MessageService = _classThis = _classDescriptor.value;
         if (_metadata) Object.defineProperty(_classThis, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         __runInitializers(_classThis, _classExtraInitializers);
     })();
-    return BackupService = _classThis;
+    return MessageService = _classThis;
 })();
-exports.BackupService = BackupService;
+exports.MessageService = MessageService;

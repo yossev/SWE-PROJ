@@ -1,6 +1,4 @@
 "use strict";
-/* eslint-disable prettier/prettier */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -69,6 +67,9 @@ let Course = (() => {
     let _created_at_decorators;
     let _created_at_initializers = [];
     let _created_at_extraInitializers = [];
+    let _versions_decorators;
+    let _versions_initializers = [];
+    let _versions_extraInitializers = [];
     let _instructor_decorators;
     let _instructor_initializers = [];
     let _instructor_extraInitializers = [];
@@ -77,14 +78,14 @@ let Course = (() => {
     let _students_extraInitializers = [];
     var Course = _classThis = class {
         constructor() {
-            // eslint-disable-next-line prettier/prettier
             this.title = __runInitializers(this, _title_initializers, void 0);
             this.description = (__runInitializers(this, _title_extraInitializers), __runInitializers(this, _description_initializers, void 0));
             this.category = (__runInitializers(this, _description_extraInitializers), __runInitializers(this, _category_initializers, void 0));
             this.difficulty_level = (__runInitializers(this, _category_extraInitializers), __runInitializers(this, _difficulty_level_initializers, void 0));
             this.created_by = (__runInitializers(this, _difficulty_level_extraInitializers), __runInitializers(this, _created_by_initializers, void 0));
             this.created_at = (__runInitializers(this, _created_by_extraInitializers), __runInitializers(this, _created_at_initializers, void 0));
-            this.instructor = (__runInitializers(this, _created_at_extraInitializers), __runInitializers(this, _instructor_initializers, void 0));
+            this.versions = (__runInitializers(this, _created_at_extraInitializers), __runInitializers(this, _versions_initializers, void 0));
+            this.instructor = (__runInitializers(this, _versions_extraInitializers), __runInitializers(this, _instructor_initializers, void 0));
             this.students = (__runInitializers(this, _instructor_extraInitializers), __runInitializers(this, _students_initializers, void 0));
             __runInitializers(this, _students_extraInitializers);
         }
@@ -92,16 +93,13 @@ let Course = (() => {
     __setFunctionName(_classThis, "Course");
     (() => {
         const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
-        _title_decorators = [(0, mongoose_1.Prop)({ type: String, required: true, minLength: 3, maxLength: 100 })];
-        _description_decorators = [(0, mongoose_1.Prop)({ type: String, required: true, minLength: 10, maxLength: 10000 })];
-        _category_decorators = [(0, mongoose_1.Prop)({ type: String, required: true, minLength: 2, maxLength: 50 })];
-        _difficulty_level_decorators = [(0, mongoose_1.Prop)({
-                type: String,
-                required: true,
-                enum: ['Beginner', 'Intermediate', 'Advanced'],
-            })];
-        _created_by_decorators = [(0, mongoose_1.Prop)({ type: String, required: true, minLength: 20, maxLength: 500 })];
-        _created_at_decorators = [(0, mongoose_1.Prop)({ type: Date, default: new Date(), required: true })];
+        _title_decorators = [(0, mongoose_1.Prop)({ type: String, required: true, minlength: 3, maxlength: 100 })];
+        _description_decorators = [(0, mongoose_1.Prop)({ type: String, required: true, minlength: 10, maxlength: 10000 })];
+        _category_decorators = [(0, mongoose_1.Prop)({ type: String, required: true, minlength: 2, maxlength: 50 })];
+        _difficulty_level_decorators = [(0, mongoose_1.Prop)({ type: String, required: true, enum: ['Beginner', 'Intermediate', 'Advanced'] })];
+        _created_by_decorators = [(0, mongoose_1.Prop)({ type: String, required: true, minlength: 20, maxlength: 500 })];
+        _created_at_decorators = [(0, mongoose_1.Prop)({ type: Date, default: () => new Date(), required: true })];
+        _versions_decorators = [(0, mongoose_1.Prop)({ type: [String], default: [] })];
         _instructor_decorators = [(0, mongoose_1.Prop)({ type: mongoose_2.default.Schema.Types.ObjectId, ref: 'User' })];
         _students_decorators = [(0, mongoose_1.Prop)({ type: [mongoose_2.default.Schema.Types.ObjectId], ref: 'User' })];
         __esDecorate(null, null, _title_decorators, { kind: "field", name: "title", static: false, private: false, access: { has: obj => "title" in obj, get: obj => obj.title, set: (obj, value) => { obj.title = value; } }, metadata: _metadata }, _title_initializers, _title_extraInitializers);
@@ -110,6 +108,7 @@ let Course = (() => {
         __esDecorate(null, null, _difficulty_level_decorators, { kind: "field", name: "difficulty_level", static: false, private: false, access: { has: obj => "difficulty_level" in obj, get: obj => obj.difficulty_level, set: (obj, value) => { obj.difficulty_level = value; } }, metadata: _metadata }, _difficulty_level_initializers, _difficulty_level_extraInitializers);
         __esDecorate(null, null, _created_by_decorators, { kind: "field", name: "created_by", static: false, private: false, access: { has: obj => "created_by" in obj, get: obj => obj.created_by, set: (obj, value) => { obj.created_by = value; } }, metadata: _metadata }, _created_by_initializers, _created_by_extraInitializers);
         __esDecorate(null, null, _created_at_decorators, { kind: "field", name: "created_at", static: false, private: false, access: { has: obj => "created_at" in obj, get: obj => obj.created_at, set: (obj, value) => { obj.created_at = value; } }, metadata: _metadata }, _created_at_initializers, _created_at_extraInitializers);
+        __esDecorate(null, null, _versions_decorators, { kind: "field", name: "versions", static: false, private: false, access: { has: obj => "versions" in obj, get: obj => obj.versions, set: (obj, value) => { obj.versions = value; } }, metadata: _metadata }, _versions_initializers, _versions_extraInitializers);
         __esDecorate(null, null, _instructor_decorators, { kind: "field", name: "instructor", static: false, private: false, access: { has: obj => "instructor" in obj, get: obj => obj.instructor, set: (obj, value) => { obj.instructor = value; } }, metadata: _metadata }, _instructor_initializers, _instructor_extraInitializers);
         __esDecorate(null, null, _students_decorators, { kind: "field", name: "students", static: false, private: false, access: { has: obj => "students" in obj, get: obj => obj.students, set: (obj, value) => { obj.students = value; } }, metadata: _metadata }, _students_initializers, _students_extraInitializers);
         __esDecorate(null, _classDescriptor = { value: _classThis }, _classDecorators, { kind: "class", name: _classThis.name, metadata: _metadata }, null, _classExtraInitializers);
@@ -121,3 +120,4 @@ let Course = (() => {
 })();
 exports.Course = Course;
 exports.CourseSchema = mongoose_1.SchemaFactory.createForClass(Course);
+exports.CourseSchema.index({ title: 'text', description: 'text' });

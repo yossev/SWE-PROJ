@@ -1,4 +1,11 @@
 "use strict";
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -26,68 +33,52 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
 };
 var __setFunctionName = (this && this.__setFunctionName) || function (f, name, prefix) {
     if (typeof name === "symbol") name = name.description ? "[".concat(name.description, "]") : "";
     return Object.defineProperty(f, "name", { configurable: true, value: prefix ? "".concat(prefix, " ", name) : name });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AppModule = void 0;
+exports.AuthController = void 0;
 const common_1 = require("@nestjs/common");
-const mongoose_1 = require("@nestjs/mongoose");
-const config_1 = require("@nestjs/config");
-const auth_module_1 = require("./auth/auth.module");
-const user_module_1 = require("./user/user.module"); // UserModule is already imported
-const progress_module_1 = require("./progress/progress.module"); // Import ProgressModule
-const app_controller_1 = require("./app.controller");
-const app_service_1 = require("./app.service");
-const jwt_strategy_1 = require("./auth/jwt.strategy");
-const user_service_1 = require("./user/user.service");
-const authentication_guards_1 = require("../src/auth/guards/authentication.guards");
-const core_1 = require("@nestjs/core");
-let AppModule = (() => {
-    let _classDecorators = [(0, common_1.Module)({
-            imports: [
-                config_1.ConfigModule.forRoot(),
-                mongoose_1.MongooseModule.forRoot(process.env.DATABASE),
-                auth_module_1.AuthModule,
-                user_module_1.UserModule, // Ensure UserModule is imported here
-                progress_module_1.ProgressModule, // Import ProgressModule to make ProgressService available
-            ],
-            controllers: [app_controller_1.AppController],
-            providers: [
-                app_service_1.AppService,
-                {
-                    provide: core_1.APP_GUARD,
-                    useClass: authentication_guards_1.AuthGuard,
-                },
-                jwt_strategy_1.JwtStrategy,
-                user_service_1.UserService,
-            ],
-        })];
+let AuthController = (() => {
+    let _classDecorators = [(0, common_1.Controller)('auth')];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
-    var AppModule = _classThis = class {
-        constructor() {
-            console.log('JWT_SECRET1:', process.env.JWT_SECRET); // Log the secret value
-            console.log('Port:', process.env.DATABASE);
+    let _instanceExtraInitializers = [];
+    let _refreshAccessToken_decorators;
+    var AuthController = _classThis = class {
+        constructor(authService) {
+            this.authService = (__runInitializers(this, _instanceExtraInitializers), authService);
+        }
+        refreshAccessToken(refreshToken) {
+            return __awaiter(this, void 0, void 0, function* () {
+                if (!refreshToken) {
+                    throw new common_1.UnauthorizedException('Refresh token is required');
+                }
+                return yield this.authService.refreshAccessToken(refreshToken);
+            });
         }
     };
-    __setFunctionName(_classThis, "AppModule");
+    __setFunctionName(_classThis, "AuthController");
     (() => {
         const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
+        _refreshAccessToken_decorators = [(0, common_1.Post)('refresh')];
+        __esDecorate(_classThis, null, _refreshAccessToken_decorators, { kind: "method", name: "refreshAccessToken", static: false, private: false, access: { has: obj => "refreshAccessToken" in obj, get: obj => obj.refreshAccessToken }, metadata: _metadata }, null, _instanceExtraInitializers);
         __esDecorate(null, _classDescriptor = { value: _classThis }, _classDecorators, { kind: "class", name: _classThis.name, metadata: _metadata }, null, _classExtraInitializers);
-        AppModule = _classThis = _classDescriptor.value;
+        AuthController = _classThis = _classDescriptor.value;
         if (_metadata) Object.defineProperty(_classThis, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         __runInitializers(_classThis, _classExtraInitializers);
     })();
-    return AppModule = _classThis;
+    return AuthController = _classThis;
 })();
-exports.AppModule = AppModule;
+exports.AuthController = AuthController;

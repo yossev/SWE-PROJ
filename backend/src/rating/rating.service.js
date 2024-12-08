@@ -46,104 +46,111 @@ var __setFunctionName = (this && this.__setFunctionName) || function (f, name, p
     if (typeof name === "symbol") name = name.description ? "[".concat(name.description, "]") : "";
     return Object.defineProperty(f, "name", { configurable: true, value: prefix ? "".concat(prefix, " ", name) : name });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.NotificationService = void 0;
-/* eslint-disable prettier/prettier */
-/* eslint-disable @typescript-eslint/no-unused-vars */
+exports.RatingService = void 0;
 const common_1 = require("@nestjs/common");
-const mongoose_1 = require("mongoose");
-let NotificationService = (() => {
+const mongoose_1 = __importDefault(require("mongoose"));
+let RatingService = (() => {
     let _classDecorators = [(0, common_1.Injectable)()];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
-    var NotificationService = _classThis = class {
-        constructor(notificationModel, messageModel) {
-            this.notificationModel = notificationModel;
-            this.messageModel = messageModel;
+    var RatingService = _classThis = class {
+        constructor(ratingModel) {
+            this.ratingModel = ratingModel;
         }
-        // Notify about a new course creation
-        notifyCourseCreation(userId, courseId, courseName) {
+        createRating(createRatingDto) {
             return __awaiter(this, void 0, void 0, function* () {
-                const message = `A new course "${courseName}" has been created.`;
-                try {
-                    const notification = new this.notificationModel({
-                        userId,
-                        message,
-                        relatedMessageId: courseId, // Link the course ID for tracking
-                    });
-                    return yield notification.save();
+                const newRating = new this.ratingModel(createRatingDto);
+                return yield newRating.save();
+            });
+        }
+        updateRating(id, updateRatingDto) {
+            return __awaiter(this, void 0, void 0, function* () {
+                return yield this.ratingModel.findByIdAndUpdate(id, updateRatingDto, { new: true });
+            });
+        }
+        findAll() {
+            return __awaiter(this, void 0, void 0, function* () {
+                return this.ratingModel.find().exec();
+            });
+        }
+        findOne(id) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const rating = yield this.ratingModel.findOne({ _id: id }).exec();
+                if (!rating) {
+                    throw new common_1.NotFoundException(`Rating record with ID ${id} not found`);
                 }
-                catch (error) {
-                    console.error('Error creating course notification:', error);
-                    throw new Error('Failed to create course notification');
+                return rating;
+            });
+        }
+        getCourseRating(courseId) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const ratings = yield this.ratingModel
+                    .aggregate([
+                    // Check that the ratedEntityId (id of course) matches the courseId.
+                    { $match: { ratedEntity: 'Course', ratedEntityId: new mongoose_1.default.Types.ObjectId(courseId) } },
+                    // group documents that match together to calculate average rating for all
+                    { $group: { _id: '$ratedEntityId', averageRating: { $avg: '$rating' } } },
+                ]);
+                // Check if ratings are larger than 0 meaning there are ratings for this course, if so it will take the 
+                //first element (the one that contains the average) will be returned
+                return ratings.length > 0 ? ratings[0].averageRating : 0;
+            });
+        }
+        getInstructorRating(instructorId) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const ratings = yield this.ratingModel
+                    .aggregate([
+                    { $match: { ratedEntity: 'Instructor', ratedEntityId: new mongoose_1.default.Types.ObjectId(instructorId) } },
+                    { $group: { _id: '$ratedEntityId', averageRating: { $avg: '$rating' } } },
+                ]);
+                return ratings.length > 0 ? ratings[0].averageRating : 0;
+            });
+        }
+        getModuleRating(moduleId) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const ratings = yield this.ratingModel
+                    .aggregate([
+                    { $match: { ratedEntity: 'Module', ratedEntityId: new mongoose_1.default.Types.ObjectId(moduleId) } },
+                    { $group: { _id: '$ratedEntityId', averageRating: { $avg: '$rating' } } },
+                ]);
+                return ratings.length > 0 ? ratings[0].averageRating : 0;
+            });
+        }
+        // might use this in progress -- not sure yet
+        getAllRatings(courseId, moduleId, instructorId) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const courseRating = yield this.getCourseRating(courseId);
+                const moduleRating = yield this.getModuleRating(moduleId);
+                const instructorRating = yield this.getInstructorRating(instructorId);
+                return {
+                    courseRating,
+                    moduleRating,
+                    instructorRating,
+                };
+            });
+        }
+        delete(id) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const result = yield this.ratingModel.deleteOne({ _id: id });
+                if (result.deletedCount === 0) {
+                    throw new common_1.NotFoundException(`Rating record with ID ${id} not found`);
                 }
-            });
-        }
-        // Create a generic notification
-        createNotification(userId, message, relatedMessageId) {
-            return __awaiter(this, void 0, void 0, function* () {
-                try {
-                    // If a relatedMessageId is provided, append its content to the notification
-                    if (relatedMessageId) {
-                        const relatedMessage = yield this.messageModel.findById(relatedMessageId).lean();
-                        if (relatedMessage && relatedMessage.content) {
-                            message += `: "${relatedMessage.content}"`;
-                        }
-                    }
-                    const notification = new this.notificationModel({
-                        userId,
-                        message,
-                        relatedMessageId,
-                    });
-                    return yield notification.save();
-                }
-                catch (error) {
-                    console.error('Error creating notification:', error);
-                    throw new Error('Failed to create notification');
-                }
-            });
-        }
-        // Get all notifications for a user
-        getUserNotifications(userId) {
-            return __awaiter(this, void 0, void 0, function* () {
-                return this.notificationModel.find({ userId }).sort({ createdAt: -1 }).exec();
-            });
-        }
-        // Mark a notification as read
-        markAsRead(notificationId) {
-            return __awaiter(this, void 0, void 0, function* () {
-                return this.notificationModel.findByIdAndUpdate(notificationId, { read: true }, { new: true });
-            });
-        }
-        // Get notifications with additional message content
-        getUserNotificationsWithMessages(userId) {
-            return __awaiter(this, void 0, void 0, function* () {
-                return this.notificationModel
-                    .find({ userId })
-                    .sort({ createdAt: -1 })
-                    .populate('relatedMessageId', 'content createdAt userId') // Populate message fields
-                    .exec();
-            });
-        }
-        // Get unread notifications for a user
-        getUnreadNotifications(userId) {
-            return __awaiter(this, void 0, void 0, function* () {
-                return this.notificationModel
-                    .find({ userId: new mongoose_1.Types.ObjectId(userId), read: false })
-                    .select('message createdAt read')
-                    .exec();
             });
         }
     };
-    __setFunctionName(_classThis, "NotificationService");
+    __setFunctionName(_classThis, "RatingService");
     (() => {
         const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
         __esDecorate(null, _classDescriptor = { value: _classThis }, _classDecorators, { kind: "class", name: _classThis.name, metadata: _metadata }, null, _classExtraInitializers);
-        NotificationService = _classThis = _classDescriptor.value;
+        RatingService = _classThis = _classDescriptor.value;
         if (_metadata) Object.defineProperty(_classThis, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         __runInitializers(_classThis, _classExtraInitializers);
     })();
-    return NotificationService = _classThis;
+    return RatingService = _classThis;
 })();
-exports.NotificationService = NotificationService;
+exports.RatingService = RatingService;

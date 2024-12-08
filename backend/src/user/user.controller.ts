@@ -45,7 +45,7 @@ export class UserController {
     @Public()
     @Post('/login')
     async login(@Body() loginDto: LoginDto, @Res() res: Response) {
-      return this.userService.login(loginDto, res);
+      return await this.userService.login(loginDto, res);
    }
     @Public()
     @Post('/register')

@@ -49,13 +49,23 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -73,6 +83,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserService = void 0;
 /* eslint-disable prettier/prettier */
 const common_1 = require("@nestjs/common");
+// import { Course } from 'src/models/course-schema';
+const mongoose_1 = require("mongoose");
 const bcrypt = __importStar(require("bcrypt"));
 // import { LoginDto } from './dto/loginDto.dto';
 // import { RefreshAccessTokenDto } from './dto/refreshAccessTokenDto.dto';
@@ -82,10 +94,12 @@ let UserService = (() => {
     let _classExtraInitializers = [];
     let _classThis;
     var UserService = _classThis = class {
-        constructor(jwtService, userModel, courseModel) {
+        constructor(jwtService, userModel, courseModel, progressService, authService) {
             this.jwtService = jwtService;
             this.userModel = userModel;
             this.courseModel = courseModel;
+            this.progressService = progressService;
+            this.authService = authService;
         }
         register(createUserDto) {
             return __awaiter(this, void 0, void 0, function* () {
@@ -96,32 +110,46 @@ let UserService = (() => {
             });
         }
         // Login existing user
-        login(loginDto) {
+        login(loginDto, res) {
             return __awaiter(this, void 0, void 0, function* () {
+                console.log('Logging in');
                 const { email, password } = loginDto;
                 // 1. Find the user by email
                 const user = yield this.userModel.findOne({ email });
-                const userId = user._id;
-                // 2. Check if the user exists
                 if (!user) {
-                    throw new common_1.UnauthorizedException('user invalid');
+                    throw new common_1.UnauthorizedException('User not found');
                 }
-                // 3. Check if the password is correct (e.g., using bcrypt to compare the hashed password)
+                // 2. Check if the password is correct
                 const isPasswordValid = yield bcrypt.compare(password, user.password_hash);
-                console.log('loginDto.password:', loginDto.password);
-                console.log('user.password (hashed):', user.password_hash);
                 if (!isPasswordValid) {
                     throw new common_1.UnauthorizedException('Invalid credentials');
                 }
-                // Generate JWT token
-                const token = this.jwtService.sign({ email: user.email, userId: user._id }, { secret: process.env.JWT_SECRET, expiresIn: '1h' }); // Secret key from environment variable
-                console.log("Returner control");
-                return { token, userId }; // Return the token to the client
+                // 3. Generate tokens
+                const accessToken = this.jwtService.sign({ email: user.email, userId: user._id }, { secret: process.env.JWT_SECRET, expiresIn: '1h' });
+                const refreshToken = yield this.authService.generateRefreshToken(user._id.toString());
+                // 4. Set tokens as cookies
+                res.cookie('AccessToken', accessToken, {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+                    maxAge: 60 * 60 * 1000, // 1 hour
+                });
+                res.cookie('RefreshToken', refreshToken, {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+                });
+                // 5. Return response (if needed)
+                return { message: 'Login successful', userId: user._id };
             });
         }
-        findByName(username) {
+        findAll() {
             return __awaiter(this, void 0, void 0, function* () {
-                return yield this.userModel.findOne({ username, role: 'instructor' }); // Filter by role
+                return yield this.userModel.find().exec();
+            });
+        }
+        findByName(name) {
+            return __awaiter(this, void 0, void 0, function* () {
+                return yield this.userModel.findOne({ name, role: 'instructor' }); // Filter by role
             });
         }
         findByEmail(email) {
@@ -130,29 +158,31 @@ let UserService = (() => {
                 return user; // Fetch a student by username
             });
         }
-        // instructor or admin Get all students
-        findAll(role, instructorId) {
+        findAllInstructors() {
             return __awaiter(this, void 0, void 0, function* () {
-                let filter = {};
-                if (role === 'student') {
-                    // Students should see all instructors
-                    filter = { role: 'instructor' };
+                return yield this.userModel.find({ role: 'instructor' }).exec();
+            });
+        }
+        findAllByRole(role) {
+            return __awaiter(this, void 0, void 0, function* () {
+                return yield this.userModel.find({ role }).exec();
+            });
+        }
+        // instructor or admin Get all students
+        findStudentsByInstructor(instructorId) {
+            return __awaiter(this, void 0, void 0, function* () {
+                if (!mongoose_1.Types.ObjectId.isValid(instructorId)) {
+                    throw new common_1.BadRequestException('Invalid instructor ID');
                 }
-                else if (role === 'instructor' && instructorId) {
-                    if (role === 'instructor' && instructorId) {
-                        const courses = yield this.courseModel.find({ instructor: instructorId });
-                        const courseIds = courses.map(course => course._id);
-                        filter = { role: 'student', course: { $in: courseIds } };
-                    }
-                    // Instructors should see students in their courses
-                    // Assuming "courseInstructor" is a field in the "students" user model
-                    filter = { role: 'student', courseInstructor: instructorId };
+                const validInstructorId = new mongoose_1.Types.ObjectId(instructorId);
+                // Find courses taught by this instructor
+                const courses = yield this.courseModel.find({ instructor: validInstructorId }).exec();
+                if (courses.length === 0) {
+                    return []; // Return an empty list if the instructor has no courses
                 }
-                else {
-                    // Optional: Handle other cases if needed or throw an error
-                    throw new Error('Invalid role or missing instructor ID');
-                }
-                return yield this.userModel.find(filter).exec(); // Execute the query
+                const courseIds = courses.map((course) => course._id); // Extract course IDs
+                // Find students enrolled in these courses
+                return yield this.userModel.find({ role: 'student', course: { $in: courseIds } }).exec();
             });
         }
         // will register
@@ -189,6 +219,25 @@ let UserService = (() => {
                 return deletedUser;
             });
         }
+        refreshAccessToken(refreshAccessTokenDto) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const userId = yield this.authService.findRefreshToken(refreshAccessTokenDto.refreshToken);
+                const user = yield this.userModel.findById(userId);
+                if (!user) {
+                    throw new common_1.BadRequestException('Bad request');
+                }
+                return {
+                    accessToken: yield this.authService.createAccessToken(user._id.toString()),
+                };
+            });
+        }
+        logout(res) {
+            return __awaiter(this, void 0, void 0, function* () {
+                res.clearCookie('AccessToken');
+                res.clearCookie('RefreshToken');
+                return { message: 'Logout successful' };
+            });
+        }
     };
     __setFunctionName(_classThis, "UserService");
     (() => {
@@ -201,3 +250,38 @@ let UserService = (() => {
     return UserService = _classThis;
 })();
 exports.UserService = UserService;
+// ngebha men courses
+// async findAllCourses(): Promise<Course[]> {
+//     return await this.courseModel.find(); // Fetch all courses
+// }
+// async findEnrolledCourses(): Promise<Course[]> {
+//     return await this.courseModel.find(); // Fetch all courses
+// }
+// async login(req: Request, loginDto: LoginDto): Promise<{ user: User, jwtToken: string, refreshToken: string }> {
+//     const user = await this.findByEmail(loginDto.email);
+//     await this.checkPassword(loginDto.password, user.password_hash);
+//     const result = {
+//       user,
+//       jwtToken: await this.authService.createAccessToken(user._id.toString()),
+//       refreshToken: await this.authService.createRefreshToken(req, user._id),
+//     };
+//     return result;
+//   }
+//   async checkPassword(password: string, hashPassword: string) {
+//     const match = await bcrypt.compare(password, hashPassword);
+//     if (!match) {
+//       throw new UnauthorizedException('Wrong email or password.');
+//     }
+//   }
+//   async refreshAccessToken(refreshAccessTokenDto: RefreshAccessTokenDto) {
+//     const userId = await this.authService.findRefreshToken(
+//       refreshAccessTokenDto.refreshToken,
+//     );
+//     const user = await this.userModel.findById(userId);
+//     if (!user) {
+//       throw new BadRequestException('Bad request');
+//     }
+//     return {
+//       accessToken: await this.authService.createAccessToken(user._id),
+//     };
+//   }

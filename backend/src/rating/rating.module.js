@@ -38,56 +38,33 @@ var __setFunctionName = (this && this.__setFunctionName) || function (f, name, p
     return Object.defineProperty(f, "name", { configurable: true, value: prefix ? "".concat(prefix, " ", name) : name });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AppModule = void 0;
+exports.RatingModule = void 0;
 const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
-const config_1 = require("@nestjs/config");
-const auth_module_1 = require("./auth/auth.module");
-const user_module_1 = require("./user/user.module"); // UserModule is already imported
-const progress_module_1 = require("./progress/progress.module"); // Import ProgressModule
-const app_controller_1 = require("./app.controller");
-const app_service_1 = require("./app.service");
-const jwt_strategy_1 = require("./auth/jwt.strategy");
-const user_service_1 = require("./user/user.service");
-const authentication_guards_1 = require("../src/auth/guards/authentication.guards");
-const core_1 = require("@nestjs/core");
-let AppModule = (() => {
+const rating_controller_1 = require("./rating.controller");
+const rating_service_1 = require("./rating.service");
+const rating_schema_1 = require("../models/rating-schema");
+let RatingModule = (() => {
     let _classDecorators = [(0, common_1.Module)({
             imports: [
-                config_1.ConfigModule.forRoot(),
-                mongoose_1.MongooseModule.forRoot(process.env.DATABASE),
-                auth_module_1.AuthModule,
-                user_module_1.UserModule, // Ensure UserModule is imported here
-                progress_module_1.ProgressModule, // Import ProgressModule to make ProgressService available
+                mongoose_1.MongooseModule.forFeature([{ name: 'Rating', schema: rating_schema_1.RatingSchema }]),
             ],
-            controllers: [app_controller_1.AppController],
-            providers: [
-                app_service_1.AppService,
-                {
-                    provide: core_1.APP_GUARD,
-                    useClass: authentication_guards_1.AuthGuard,
-                },
-                jwt_strategy_1.JwtStrategy,
-                user_service_1.UserService,
-            ],
+            controllers: [rating_controller_1.RatingController],
+            providers: [rating_service_1.RatingService],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
-    var AppModule = _classThis = class {
-        constructor() {
-            console.log('JWT_SECRET1:', process.env.JWT_SECRET); // Log the secret value
-            console.log('Port:', process.env.DATABASE);
-        }
+    var RatingModule = _classThis = class {
     };
-    __setFunctionName(_classThis, "AppModule");
+    __setFunctionName(_classThis, "RatingModule");
     (() => {
         const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
         __esDecorate(null, _classDescriptor = { value: _classThis }, _classDecorators, { kind: "class", name: _classThis.name, metadata: _metadata }, null, _classExtraInitializers);
-        AppModule = _classThis = _classDescriptor.value;
+        RatingModule = _classThis = _classDescriptor.value;
         if (_metadata) Object.defineProperty(_classThis, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         __runInitializers(_classThis, _classExtraInitializers);
     })();
-    return AppModule = _classThis;
+    return RatingModule = _classThis;
 })();
-exports.AppModule = AppModule;
+exports.RatingModule = RatingModule;

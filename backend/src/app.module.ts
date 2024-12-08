@@ -9,15 +9,16 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { JwtStrategy } from './auth/jwt.strategy';
 import { UserService } from './user/user.service';
-import { AuthGuard } from '../src/auth/guards/authentication.guards';
-import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from './auth/guards/authentication.guards';
+import { APP_GUARD, Reflector } from '@nestjs/core';
 
 @Module({
   imports: [
-    MongooseModule.forRoot(process.env.DATABASE_URL),
+    ConfigModule.forRoot(),
+    MongooseModule.forRoot(process.env.DATABASE),
     AuthModule,
     UserModule,  // Ensure UserModule is imported here
-    ProgressModule,  // Import ProgressModule to make ProgressService available
+    ProgressModule  // Import ProgressModule to make ProgressService available
   ],
   controllers: [AppController],
   providers: [
@@ -33,5 +34,6 @@ import { APP_GUARD } from '@nestjs/core';
 export class AppModule {
   constructor() {
     console.log('JWT_SECRET1:', process.env.JWT_SECRET); // Log the secret value
+    console.log('Port:',process.env.DATABASE)
   }
 }
