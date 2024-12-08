@@ -49,7 +49,7 @@ const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
 const jwt_strategy_1 = require("./auth/jwt.strategy");
 const user_service_1 = require("./user/user.service");
-const authentication_guards_1 = require("../src/auth/guards/authentication.guards");
+const authentication_guards_1 = require("./auth/guards/authentication.guards");
 const core_1 = require("@nestjs/core");
 let AppModule = (() => {
     let _classDecorators = [(0, common_1.Module)({
@@ -58,7 +58,7 @@ let AppModule = (() => {
                 mongoose_1.MongooseModule.forRoot(process.env.DATABASE),
                 auth_module_1.AuthModule,
                 user_module_1.UserModule, // Ensure UserModule is imported here
-                progress_module_1.ProgressModule, // Import ProgressModule to make ProgressService available
+                progress_module_1.ProgressModule // Import ProgressModule to make ProgressService available
             ],
             controllers: [app_controller_1.AppController],
             providers: [

@@ -44,8 +44,11 @@ export class UserController {
     //Create a new student
     @Public()
     @Post('/login')
-    async login(@Body() loginDto: LoginDto, @Res() res: Response) {
-      return await this.userService.login(loginDto, res);
+    async login(@Body() loginDto: LoginDto, @Res({passthrough : true}) res: Response) {
+      const jsonRes = await this.userService.login(loginDto, res);
+      console.log(jsonRes);
+
+      return jsonRes
    }
     @Public()
     @Post('/register')

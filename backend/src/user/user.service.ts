@@ -2,7 +2,7 @@
 import { BadRequestException, forwardRef, Inject, Injectable, UnauthorizedException} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 
-import { User, UserDocument  } from 'src/models/user-schema';
+import { User ,UserDocument } from 'models/user-schema';
 import updateUserDto from './dto/updateUser.dto';
 // import { Course } from 'src/models/course-schema';
 import { Model, Types } from 'mongoose';
@@ -34,7 +34,8 @@ export class UserService {
     console.log('Registering user:', createUserDto);
         const user = new this.userModel(createUserDto);  // Create a new student document
         await this.isEmailUnique(createUserDto.email);
-        return await user.save();  // Save it to the database
+        console.log("Going to save aho");
+        return user.save();  // Save it to the database
     }
       // Login existing user
 

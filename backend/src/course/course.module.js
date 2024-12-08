@@ -41,7 +41,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CourseModule = void 0;
 const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
-const course_schema_1 = require("../../src/models/course-schema"); // Adjust the import based on your model location
+const course_schema_1 = require("../models/course-schema"); // Adjust the import based on your model location
 const course_service_1 = require("./course.service");
 const course_controller_1 = require("./course.controller");
 let CourseModule = (() => {

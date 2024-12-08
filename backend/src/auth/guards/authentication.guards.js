@@ -62,6 +62,7 @@ let AuthGuard = (() => {
             super();
             this.jwtService = jwtService;
             this.reflector = reflector;
+            console.log('Reflector in constructor:', this.reflector);
         }
         canActivate(context) {
             return __awaiter(this, void 0, void 0, function* () {
