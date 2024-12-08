@@ -8,7 +8,7 @@ import { Rating } from '../../models/rating-schema';
 export class RatingController {
   constructor(private readonly ratingService: RatingService) {}
 
-  @Post()
+  @Post('createrating')
   async createRating(@Body() createRatingDto: CreateRatingDto): Promise<Rating> {
     return await this.ratingService.createRating(createRatingDto);
   }

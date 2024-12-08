@@ -10,10 +10,11 @@ export class ProgressController {
   constructor(private readonly progressService: ProgressService) { }
 
   // Create a new progress record
-  @Post()
+  @Post('createprogress')
   async create(@Body() progressData: CreateProgressDTO): Promise<Progress> {
     return this.progressService.create(progressData);
   }
+
 
   // Get all progress records
   @Get()
@@ -60,7 +61,7 @@ export class ProgressController {
     return await this.progressService.getInstructorAnalyticsAssessmentResults(courseId);
   }
   //getInstructorAnalyticsContentEffectiveness
-  @Get('content-effectiveness/:courseId')
+  @Get('content-effectiveness/:courseId/:userId')
   async getInstructorAnalyticsContentEffectiveness(@Param('courseId') courseId: string, @Param('userId') userId:string) {
     return await this.progressService.getInstructorAnalyticsContentEffectiveness(courseId, userId);
   }
@@ -84,6 +85,15 @@ export class ProgressController {
   @Get('/export-content-effectivenes/pdf/:courseId')
   async exportContentEffectivenessPDF(@Param('courseId') courseId: string, userId: string, @Res() res: Response) {
     await this.progressService.exportInstructorAnalyticsContentEffectivenessPDF(courseId, userId, res);
+  }
+
+  @Get(':userId/performance')
+  async getUserPerformance(@Param('userId') userId: string) {
+    const classification = await this.progressService.classifyUserPerformance(userId);
+    return {
+      userId,
+      classification,
+    };
   }
 
 
