@@ -24,7 +24,6 @@ async function bootstrap() {
   app.use(express.json());
   const reflector = app.get(Reflector);
   console.log('Reflector in main.ts:', reflector);
-  app.useGlobalGuards(new AuthGuard(new JwtService(), reflector));
   app.use(cookieParser());
   app.listen(3000);
 }

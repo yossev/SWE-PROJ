@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { Body, Controller, Delete, Get, HttpCode, HttpException, HttpStatus, Param, Post, Put, Req, Res, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, HttpCode, HttpException, HttpStatus, NotFoundException, Param, Post, Put, Query, Req, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from 'src/models/user-schema';
 import * as bcrypt from 'bcrypt';
@@ -19,11 +19,12 @@ import { LoginDto } from './dto/login.dto';
 import { RefreshAccessTokenDto } from './dto/refreshAccessTokenDto.dto';
 import { ProgressService } from 'src/progress/progress.service';
 import { Response } from 'express';
+import { JwtService } from '@nestjs/jwt';
 
 // @UseGuards(AuthGuard) //class level
 @Controller('users') // it means anything starts with /student
 export class UserController {
-    constructor(private userService: UserService,private readonly progressService: ProgressService) { }
+    constructor(private userService: UserService,private readonly progressService: ProgressService,private jwtService:JwtService) { }
     @Get('/all') 
     @Roles(Role.Instructor, Role.Admin)
     @UseGuards(AuthGuard)
@@ -31,7 +32,16 @@ export class UserController {
     async getAllStudents(): Promise<User[]> {
         return await this.userService.findAll();
     }
-
+    @Roles(Role.Instructor, Role.Admin)
+    @UseGuards(authorizationGuard)
+    @Get('by-email')
+    async getUserByEmail(@Query('email') email: string): Promise<User> {
+      if (!email) {
+        throw new BadRequestException('Email is required');
+      }
+      return this.userService.findByEmail(email);
+    }
+  
     @Roles(Role.Instructor, Role.Admin)
     @UseGuards(authorizationGuard)
     @Get(':id')// /student/:id
@@ -47,8 +57,7 @@ export class UserController {
     async login(@Body() loginDto: LoginDto, @Res({passthrough : true}) res: Response) {
       const jsonRes = await this.userService.login(loginDto, res);
       console.log(jsonRes);
-
-      return jsonRes
+      return jsonRes;
    }
     @Public()
     @Post('/register')
@@ -64,12 +73,37 @@ export class UserController {
     // Update a student's details
    
     @Put('me')
+    @UseGuards(AuthGuard)
     async updateUserProfile(@Req() req, @Body() updateData: updateUserDto) {
-        console.log("entered function");
-        const userId = req.cookies['userId']; // Extract logged-in user's ID from request
-        console.log("userId is: " , userId);
-        return await this.userService.update(userId, updateData);
+      console.log('Entered function');
+      console.log('Cookies in request:', req.cookies);
+    
+      const token = req.cookies['AccessToken'];
+      if (!token) {
+        throw new UnauthorizedException('No token provided');
+      }
+    
+      try {
+        const payload = await this.jwtService.verifyAsync(token, {
+          secret: process.env.JWT_SECRET,
+        });
+        console.log('Decoded JWT payload:', payload);
+    
+        const userId = payload.userId;
+        console.log('User ID is:', userId);
+    
+        const updatedUser = await this.userService.update(userId, updateData);
+        console.log('Updated user data:', updatedUser);
+    
+        return updatedUser;
+      } catch (error) {
+        console.error('Token verification failed:', error);
+        throw new UnauthorizedException('Invalid token');
+      }
     }
+   
+  
+
     
     // Delete a student by ID
     @Delete(':id')

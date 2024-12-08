@@ -15,9 +15,11 @@ export class authorizationGuard implements CanActivate {
       return true;
     }
       const { user } = context.switchToHttp().getRequest();
+      console.log('user',user);
       if(!user)
         throw new UnauthorizedException('no user attached');
       const userRole = user.role
+      console.log('role',userRole);
       if (!requiredRoles.includes(userRole)) 
         throw new UnauthorizedException('unauthorized access');
        
