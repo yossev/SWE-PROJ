@@ -38,6 +38,12 @@ export class ModuleController {
         //placeholder value , CHANGE ASAP!!
     }
 
+    @Get('coursemodules/:id')
+    async getAllCourseModules(@Param('id') course_id : string)
+    {
+      return this.moduleService.getAllCourseModules(course_id);
+    }
+
     
     @Post('upload/:id')
     @UseInterceptors(

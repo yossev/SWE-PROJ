@@ -110,6 +110,13 @@ export class ModuleService {
     });
   }
 
+  async getAllCourseModules(course_id : string)
+  {
+    const modules = await this.moduleModel.find({course_id : course_id});
+
+    return modules;
+  }
+
 
 
   
