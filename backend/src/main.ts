@@ -20,7 +20,6 @@ async function bootstrap() {
   }).catch((err) => {
      console.error('MongoDB connection error: ', err);
   });
-  await app.listen(3000);
   app.use(express.json());
   await app.listen(3000);
 }

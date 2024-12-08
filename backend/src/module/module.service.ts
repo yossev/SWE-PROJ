@@ -10,8 +10,9 @@ import { UpdateModuleDto } from './DTO/updateModule.dto';
 import { CreateQuizDto } from './DTO/module.create.dto';
 import { UpdateQuizDto } from './DTO/module.update.dto';
 import { UploadedFile } from '@nestjs/common';
-
+import { Types } from 'mongoose';
 import { PipeTransform, ArgumentMetadata } from '@nestjs/common';
+import { Course } from 'models/course-schema';
 
 @Injectable()
 export class FileSizeValidationPipe implements PipeTransform {
@@ -27,6 +28,7 @@ export class FileSizeValidationPipe implements PipeTransform {
 export class ModuleService {
   constructor(
     @InjectModel('Module') private readonly moduleModel: Model<Module>, 
+    @InjectModel('Course') private readonly courseModel: Model<Course>,
   ) {}
 
   async createModule(createModuleDto : CreateModuleDto)
@@ -89,19 +91,22 @@ export class ModuleService {
     return false;
   }
 
-  uploadFile(@UploadedFile() file: Express.Multer.File) {
-    console.log('file is: ' + file);
+  async uploadFile(module_id : string , fileName : string , @UploadedFile() file: Express.Multer.File) {
+    const module = await this.moduleModel.findById(new Types.ObjectId(module_id)).exec();
+    await module.resources.push(fileName);
+    await module.save();
     return 'File upload API';
   }
 
-  getFile(): StreamableFile {
-    const fileurl =  'uploads/Course-Module-Quiz Elaboration.pdf';
-    const filearray = fileurl.split("/", 2); 
-    const filedest = filearray[1];
-    const file = createReadStream(join(process.cwd(), fileurl));
+  getFile(module_id : string , fileName : string): StreamableFile {
+    const fileUrl = "uploads/" + fileName;
+    const filearray = fileUrl.split("/", 2);
+    const fileNameNew = filearray[1].split("." , 3)[0] + "." + filearray[1].split("." , 3)[2];
+    console.log(fileNameNew);
+    const file = createReadStream(join(process.cwd(), fileUrl));
     return new StreamableFile(file , {
       type: 'application/octet-stream',
-      disposition: 'attachment; filename="' + filedest + '"',
+      disposition: 'attachment; filename="' + fileNameNew + '"',
     });
   }
 

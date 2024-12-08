@@ -13,7 +13,9 @@ import { Express } from 'express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 
-@Controller('interactive')
+var fileNameParameter = ""
+
+@Controller('modules')
 export class ModuleController {
     constructor(private readonly moduleService: ModuleService) {} 
 
@@ -37,7 +39,7 @@ export class ModuleController {
     }
 
     
-    @Post('upload')
+    @Post('upload/:id')
     @UseInterceptors(
         FileInterceptor('file', {
           storage: diskStorage({
@@ -46,21 +48,23 @@ export class ModuleController {
               const uniqueSuffix =
                 Date.now() + '-' + Math.round(Math.random() * 1e9);
               const ext = extname(file.originalname);
-              const filename = `${uniqueSuffix}${ext}`;
+              const fileNameNoExtension = file.originalname.split("." , 2)[0];
+              const filename =  `${fileNameNoExtension}.${uniqueSuffix}${ext}`;
+              fileNameParameter = filename
               callback(null, filename);
             },
           }),
         }),
       )
-    async uploadFile(@UploadedFile() file: Express.Multer.File)
+    async uploadFile(@Param('id') module_id : string, @UploadedFile() file: Express.Multer.File)
     {
-        return this.moduleService.uploadFile(file);
+        return this.moduleService.uploadFile(module_id , fileNameParameter , file);
     }
 
-    @Get('download')
-    getFile(): StreamableFile {
+    @Get('download/:id/:file')
+    getFile(@Param('id') module_id : string , @Param('file') file : string): StreamableFile {
       
-      return this.moduleService.getFile();
+      return this.moduleService.getFile(module_id , file);
     }
 
 
