@@ -16,7 +16,7 @@ import { Rating } from 'models/rating-schema';
 @Injectable()
 export class ProgressService {
   constructor(
-    @InjectModel(Progress.name) private progressModel: Model<ProgressDocument>,
+    @InjectModel(Progress.name) private readonly progressModel: Model<ProgressDocument>,
     @InjectModel(Responses.name) private responseModel: Model<Responses>,
     @InjectModel(Course.name) private courseModel: Model<Course>,
     @InjectModel(Quiz.name) private quizModel: Model<Quiz>,

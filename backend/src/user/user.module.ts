@@ -36,7 +36,7 @@ import { ProgressService } from 'src/progress/progress.service';
     }),
   ],
   controllers: [UserController],
-  providers: [UserService,ProgressService],
+  providers: [UserService],
   exports: [UserService, MongooseModule], // Export UserService for use in AuthModule
 })
 export class UserModule {}

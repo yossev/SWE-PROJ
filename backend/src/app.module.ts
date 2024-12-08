@@ -3,7 +3,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { CourseModule } from './course/course.module';
-import { UserModule } from './user/user.module';  // Ensure UserModule is imported
+import { UserModule } from './user/user.module';  // UserModule is already imported
+import { ProgressModule } from './progress/progress.module';  // Import ProgressModule
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { JwtStrategy } from './auth/jwt.strategy';
@@ -15,7 +16,8 @@ import { APP_GUARD } from '@nestjs/core';
   imports: [
     MongooseModule.forRoot(process.env.DATABASE_URL),
     AuthModule,
-    UserModule,  // Import UserModule here
+    UserModule,  // Ensure UserModule is imported here
+    ProgressModule,  // Import ProgressModule to make ProgressService available
   ],
   controllers: [AppController],
   providers: [

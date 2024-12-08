@@ -17,7 +17,6 @@ async function bootstrap() {
   }).catch((err) => {
      console.error('MongoDB connection error:', err);
   });
-  await app.listen(3000);
   app.use(express.json());
   const reflector = app.get(Reflector);
   app.use(cookieParser());
