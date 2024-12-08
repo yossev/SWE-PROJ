@@ -6,11 +6,11 @@ export type ProgressDocument = HydratedDocument<Progress>;
 
 export class Progress {
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
-  user_id: mongoose.Schema.Types.ObjectId;
+  @Prop({ type: mongoose.Schema.Types.String, ref: 'User', required: true })
+  user_id: mongoose.Schema.Types.String;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true })
-  course_id: mongoose.Schema.Types.ObjectId;
+  @Prop({ type: mongoose.Schema.Types.String, ref: 'Course', required: true })
+  course_id: mongoose.Schema.Types.String;
 
   @Prop({ type: Number, required: true, min: 0, max: 100 })
   completion_percentage: number;

@@ -5,6 +5,7 @@ import { CreateQuizDto } from './DTO/quiz.create.dto';
 import { UpdateQuizDto } from './DTO/quiz.update.dto';
 import { QuestionBank } from '../../models/questionbank-schema';
 import { UserModule} from '../user/user/user.module';
+import {ProgressDocument} from '../../models/progress-schema';
 import mongoose from 'mongoose';
 import { Types } from 'mongoose';
 import { Query } from '@nestjs/common';
@@ -38,10 +39,9 @@ async updateQuiz(@Query('id') id: string, @Body() quizData: UpdateQuizDto): Prom
     @Post('generateQuiz')
   async generateQuiz(
     @Body() createQuizDto: CreateQuizDto,
-    @Query('performance_metric') performanceMetric: string,
     @Query('userId') userId: string
   ) {
-    const quiz = await this.quizService.generateQuiz(createQuizDto, performanceMetric, userId);
+    const quiz = await this.quizService.generateQuiz(createQuizDto, userId);
 
     return {
       success: true,

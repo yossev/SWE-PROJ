@@ -4,11 +4,15 @@ import { Model } from 'mongoose';
 import { Quiz, QuizDocument } from '../../models/quizzes-schema';
 import { Module } from '../../models/module-schema';
 import { QuestionBank } from '../../models/questionbank-schema';
+import {ProgressDocument} from '../../models/progress-schema';
 import { CreateQuizDto } from './DTO/quiz.create.dto';
 import { UpdateQuizDto } from './DTO/quiz.update.dto';
 import { User ,UserSchema } from '../../models/user-schema';
 import { QuestionType, DifficultyLevel } from './DTO/quiz.question.dto'; 
 import { UserModule} from '../user/user/user.module';
+
+import {ProgressService} from '../progress/progress.service'
+
 import mongoose from 'mongoose';
 
 @Injectable()
@@ -17,7 +21,11 @@ export class QuizService {
     @InjectModel('Quiz') private readonly quizModel: Model<QuizDocument>,
     @InjectModel('Module') private readonly moduleModel: Model<Module>,
     @InjectModel('QuestionBank') private readonly questionBankModel: Model<QuestionBank>,
-    @InjectModel('User') private readonly userModel: Model<User>, 
+    @InjectModel('User') private readonly userModel: Model<User>,
+    @InjectModel('Progress') private readonly progressModel: Model<ProgressDocument>,
+
+    private readonly progressService: ProgressService
+
   ) {}
 
   async findAll(): Promise<Quiz[]> {
@@ -45,11 +53,13 @@ async delete(id: string): Promise<Quiz> {
 }
 
 // DONT TOUCH THIS VODOO ( IT WORKS AND IDK HOW )
-async generateQuiz(createQuizDto: CreateQuizDto, performanceMetric: string, userId: string): Promise<any> {
+async generateQuiz(createQuizDto: CreateQuizDto, userId: string): Promise<any> {
   const { moduleId, numberOfQuestions, questionType } = createQuizDto;
   const allQuestions = await this.questionBankModel.find();
   //console.log('All Questions from Question Bank:', allQuestions);
-  performanceMetric = "Average";
+
+  
+  const performanceMetric = await this.progressService.classifyUserPerformance(userId)
 
 
   let difficultyLevels: string[];
@@ -57,9 +67,11 @@ async generateQuiz(createQuizDto: CreateQuizDto, performanceMetric: string, user
     difficultyLevels = [DifficultyLevel.Medium, DifficultyLevel.Hard];
   } else if (performanceMetric === 'Average') {
     difficultyLevels = [DifficultyLevel.Easy, DifficultyLevel.Medium];
-  } else {
+  } else if(performanceMetric === 'Below Average'){
     difficultyLevels = [DifficultyLevel.Easy];
-  }
+  } else {
+    difficultyLevels = [DifficultyLevel.Hard]
+   }
 
   console.log('Input Filter Conditions:', {
     moduleId,

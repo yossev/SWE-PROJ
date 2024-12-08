@@ -189,13 +189,13 @@ export class ProgressService {
     const averageScore = responses.length ? totalScore / responses.length : 0;
 
     if (averageScore < 50) {
-      return 'belowAverage';
+      return 'Below Average';
     } else if (averageScore >= 50 && averageScore < 70) {
-      return 'average';
+      return 'Average';
     } else if (averageScore >= 70 && averageScore < 90) {
-      return 'aboveAverage';
+      return 'Above Average';
     } else {
-      return 'excellent';
+      return 'Excellent';
     }
   }
 
@@ -226,13 +226,13 @@ export class ProgressService {
     for (const studentId of enrolledStudents) {
       const classification = await this.classifyUserPerformance(studentId.toString());
 
-      if (classification === 'belowAverage') {
+      if (classification === 'Below Average') {
         performanceMetrics.belowAverage += 1;
-      } else if (classification === 'average') {
+      } else if (classification === 'Average') {
         performanceMetrics.average += 1;
-      } else if (classification === 'aboveAverage') {
+      } else if (classification === 'Above Average') {
         performanceMetrics.aboveAverage += 1;
-      } else if (classification === 'excellent') {
+      } else if (classification === 'Excellent') {
         performanceMetrics.excellent += 1;
       }
     }
