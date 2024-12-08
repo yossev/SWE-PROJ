@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
+import { title } from 'process';
   
 export type CourseDocument = HydratedDocument<Course>;
 
@@ -28,3 +29,6 @@ export class Course {
 }
 
 export const CourseSchema = SchemaFactory.createForClass(Course);
+
+// 
+CourseSchema.index({ title: 'text', description: 'text' });
