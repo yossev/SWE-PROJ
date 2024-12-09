@@ -180,8 +180,9 @@ export class ProgressService {
       engagementTrends,
       progress,
     };
-  }
-
+  }   
+  
+  
   async classifyUserPerformance(userId: string) { //****FULLY FUNCTIONAL****
 
     const responses = await this.responseModel.find({ user_id: userId }).exec();
@@ -312,7 +313,8 @@ export class ProgressService {
       });
     }
 
-    return { courseId, courseName: course.title, results };
+    return { courseId, results };
+    //courseName: course.title,
   }
 
   // ***FULLY FUNCTIONING WITH FULL PDF****
@@ -352,7 +354,7 @@ export class ProgressService {
     doc.fontSize(16).text('Instructor Analytics Report - Content Effectiveness', { align: 'center' }).moveDown();
     //doc.text(`Course Title: ${analytics.courseTitle}`).moveDown();
     doc.text(`Course Rating: ${analytics.courseRating}`).moveDown();
-    doc.text('Module Ratings:');
+    doc.text('Module Ratings:').moveDown();
     for (const [moduleId, rating] of Object.entries(analytics.moduleRatings)) {
       doc.text(`Module ID: ${moduleId}, Rating: ${rating}`).moveDown();
     }
@@ -374,7 +376,7 @@ export class ProgressService {
     res.attachment('instructor_analytics_assessment_results.pdf');
     doc.pipe(res);
     doc.fontSize(16).text('Instructor Analytics - Assessment Results', { align: 'center' }).moveDown();
-    doc.text(`Course: ${analytics.courseName}`);
+    //doc.text(`Course: ${analytics.courseName}`).moveDown();
     doc.text(`Course ID: ${analytics.courseId}`).moveDown();
     doc.text('Assessment Results:', { underline: true }).moveDown();
     analytics.results.forEach(result => {

@@ -56,8 +56,8 @@ export class ProgressController {
   }
 
   //getInstructorAnalyticsAssessmentResults
-  @Get('assessment-results/:userId')
-  async getInstructorAnalyticsAssessmentResults(@Param('userId') courseId: string) {
+  @Get('assessment-results/:courseId')
+  async getInstructorAnalyticsAssessmentResults(@Param('courseId') courseId: string) {
     return await this.progressService.getInstructorAnalyticsAssessmentResults(courseId);
   }
   //getInstructorAnalyticsContentEffectiveness
