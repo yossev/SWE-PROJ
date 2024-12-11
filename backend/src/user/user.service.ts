@@ -30,17 +30,15 @@ export class UserService {
         private readonly authService: AuthService
     ) { }
    
-   async register(createUserDto:createUserDto): Promise<User> {
-    console.log('Registering user:', createUserDto);
-        const user = new this.userModel(createUserDto);  // Create a new student document
-        await this.isEmailUnique(createUserDto.email);
-        console.log("Going to save aho");
-        return user.save();  // Save it to the database
-    }
+    async create(userData: User): Promise<UserDocument> {
+      const newUser = new this.userModel(userData);  // Create a new student document
+      const user=  await newUser.save()
+      return user;  // Save it to the database
+  }
       // Login existing user
 
 
-  async login(loginDto: LoginDto, res: Response) {
+  /*async login(loginDto: LoginDto, res: Response) {
     console.log('Logging in');
      const { email, password } = loginDto;
 
@@ -80,7 +78,7 @@ export class UserService {
 console.log('finished cookies');
     // 5. Return response (if needed)
       return { message: 'Login successful', userId: id };
-    }
+    }*/
 
       async findAll(): Promise<User[]> {
         return await this.userModel.find().exec();
@@ -90,10 +88,9 @@ console.log('finished cookies');
         return await this.userModel.findOne({ name, role: 'instructor' }); // Filter by role
       }
       
-     async findByEmail(email: string):Promise<User> { // instructor malhas
-        const user=await this.userModel.findOne({email})
-        return user;  // Fetch a student by username
-     }
+      async findByEmail(email: string): Promise<UserDocument | null> {
+        return this.userModel.findOne({ email }).exec(); // Ensure `_id` is included (default behavior)
+      }
      async findAllInstructors(): Promise<User[]> {
       return await this.userModel.find({ role: 'instructor' }).exec();
     }
@@ -159,7 +156,7 @@ console.log('finished cookies');
      }
     
      
-    async refreshAccessToken(refreshAccessTokenDto: RefreshAccessTokenDto) {
+   /* async refreshAccessToken(refreshAccessTokenDto: RefreshAccessTokenDto) {
       const userId = await this.authService.findRefreshToken(
         refreshAccessTokenDto.refreshToken
       );
@@ -170,7 +167,7 @@ console.log('finished cookies');
       return {
         accessToken: await this.authService.createAccessToken(user._id.toString()),
       };
-    }
+    }*/
     async logout(res: Response) {
       res.clearCookie('AccessToken');
       res.clearCookie('RefreshToken');

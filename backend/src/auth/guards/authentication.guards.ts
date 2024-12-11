@@ -7,43 +7,40 @@ import { AuthGuard as Auth } from '@nestjs/passport';
 import { UserService } from 'src/user/user.service';
 
 @Injectable()
-export class AuthGuard extends Auth('jwt') implements CanActivate {
-  constructor(private jwtService: JwtService, @Inject(Reflector) private reflector: Reflector, private userService:UserService) {
-    super();
-    console.log('Reflector in constructor:', this.reflector);
-  }
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    console.log('AuthGuard is triggered');
-    const request = context.switchToHttp().getRequest<Request>();
-    const token = this.extractTokenFromHeader(request);
-    console.log('Extracted token:', token);
-  
-    if (!token) {
-      console.log('No token found');
-      throw new UnauthorizedException('No token, please login');
-    }
-  
-    try {
-      const payload = await this.jwtService.verifyAsync(token, {
-        secret: process.env.JWT_SECRET,
-      });
-      console.log('Decoded token payload:', payload);
-      request['user'] = payload;
-      const user = await this.userService.findById(payload.userId);
-    if (!user) {
-      throw new UnauthorizedException('User not found');
-    } console.log('Full user object:', user);
+export class AuthGuard implements CanActivate {
+    constructor(private jwtService: JwtService,private reflector: Reflector) { }
 
-      request.user = user; // Attach the full user object to the request
-      return true;
-    }catch (error) {
-      console.error('Token verification failed:', error.message);
-      throw new UnauthorizedException('Invalid token');
+    async canActivate(context: ExecutionContext): Promise<boolean> {
+        const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+            context.getHandler(),
+            context.getClass(),
+          ]);
+          if (isPublic) {
+            return true;
+          }
+        const request = context.switchToHttp().getRequest();
+        const token = this.extractTokenFromHeader(request);
+        console.log("Request",request);
+        console.log("token",token);
+        if (!token) {
+            throw new UnauthorizedException('No token, please login');
+        }
+            const payload = await this.jwtService.verifyAsync(
+                token,
+                {
+                    secret: process.env.JWT_SECRET
+                }
+            );
+            console.log("payload",payload);
+            // 💡 We're assigning the payload to the request object here
+            // so that we can access it in our route handlers
+            request['user'] = payload;
+            console.log(payload);
+        return true;
     }
-  }
-  
-
-  private extractTokenFromHeader(request: Request): string | undefined {
-    return request.cookies?.AccessToken || request.headers['authorization']?.split(' ')[1];
-  }
+    private extractTokenFromHeader(request: Request): string | undefined {
+        const token = request.cookies?.jwt || request.headers['authorization']?.split(' ')[1];
+        console.log('Extracted Token:', token);
+        return token;
+    }
 }

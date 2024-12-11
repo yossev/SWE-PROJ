@@ -11,9 +11,8 @@ import updateUserDto from './dto/updateUser.dto';
 
 import { AuthGuard } from '../auth/guards/authentication.guards';
 import { Public } from '../auth/decorators/public.decorator';
-
+import { authorizationGuard } from 'src/auth/guards/authorization.guards';
 import { Role, Roles } from '../auth/decorators/roles.decorator';
-import { authorizationGuard } from '../auth/guards/authorization.guards';
 import mongoose from 'mongoose';
 import { LoginDto } from './dto/login.dto';
 import { RefreshAccessTokenDto } from './dto/refreshAccessTokenDto.dto';
@@ -52,14 +51,14 @@ export class UserController {
     }
 
     //Create a new student
-    @Public()
+    /*@Public()
     @Post('/login')
     async login(@Body() loginDto: LoginDto, @Res({passthrough : true}) res: Response) {
       const jsonRes = await this.userService.login(loginDto, res);
       console.log(jsonRes);
       return jsonRes;
-   }
-    @Public()
+   }*/
+    /*@Public()
     @Post('/register')
     async register(@Body()userData: createUserDto) {// Get the new student data from the request body
 
@@ -69,7 +68,7 @@ export class UserController {
         
        const newUser = await this.userService.register(userData);
        return newUser;
-    }
+    }*/
     // Update a student's details
    
     @Put('me')

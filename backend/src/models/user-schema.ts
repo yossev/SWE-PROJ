@@ -12,7 +12,6 @@ export type UserDocument = HydratedDocument<User>;
 export class User
  {
    
-
     @Prop({type:String,required:true,minLength:3,maxLength:50})
     name: string;
 

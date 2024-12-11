@@ -15,12 +15,9 @@ export function AuthenticationMiddleware(req: Request, res: Response, next: Next
 
   try {
     const decoded: any = verify(token, String(process.env.JWT_SECRET));
-    res.locals.user = decoded.user; // Attach user payload to res.locals for secure handling
+    req['user'] = decoded.user; // Attach user payload to the request object
     next(); 
   } catch (err) {
-    if (err instanceof TokenExpiredError) {
-      throw new UnauthorizedException('Token expired, please login again');
-    }
-    throw new UnauthorizedException('Invalid token');
+    throw new UnauthorizedException('Invalid or expired token');
   }
 }
