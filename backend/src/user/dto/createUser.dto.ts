@@ -1,11 +1,15 @@
-import { IsNotEmpty, IsEmail, IsString, MinLength, IsOptional, IsEnum, IsArray } from 'class-validator';
-import { Types } from 'mongoose';
+/* eslint-disable prettier/prettier */
+import { IsNotEmpty, IsEmail, IsString, MinLength, IsOptional, IsEnum } from 'class-validator';
+
+export enum UserRole {
+  STUDENT = 'student',
+  INSTRUCTOR = 'instructor',
+  ADMIN = 'admin',
+}
 
 export class createUserDto {
-
-
   @IsNotEmpty()
-  @IsEmail({}, { message: 'Please enter a valid email address' })
+  @IsEmail()
   email: string;
 
   @IsNotEmpty()
@@ -14,15 +18,14 @@ export class createUserDto {
 
   @IsNotEmpty()
   @IsString()
-  @MinLength(6, { message: 'Password must be at least 6 characters long' })
-  password_hash: string; // This will be hashed in the service layer.
+  @MinLength(6)
+  password_hash: string;
 
   @IsNotEmpty()
-  @IsEnum(['student', 'instructor', 'admin'] )
-  role: 'student' | 'instructor' | 'admin';
+  @IsEnum(UserRole)
+  role: UserRole;
 
   @IsOptional()
   @IsString()
   profile_picture_url?: string;
-
 }

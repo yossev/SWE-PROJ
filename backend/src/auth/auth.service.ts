@@ -1,88 +1,120 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { forwardRef, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ForbiddenException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { User, UserDocument } from 'src/models/user-schema';
+import { createUserDto } from '../user/dto/createUser.dto';
+
 import * as bcrypt from 'bcrypt';
-import { JwtService } from '@nestjs/jwt';
-import { RefreshToken, RefreshTokenDocument} from'../models/refreshToken-schema';
-import { LoginDto } from '../user/dto/login.dto';
-import { UserService } from 'src/user/user.service';
+import { User, UserDocument } from 'models/user-schema';
+import updateUserDto from 'src/user/dto/updateUser.dto';
 
 @Injectable()
 export class AuthService {
-
   constructor(
-   
-    @InjectModel(User.name) private  userModel: Model<UserDocument>, // <-- This is likely causing the error
-  @InjectModel(RefreshToken.name) private  refreshTokenModel: Model<RefreshTokenDocument>,
-  private readonly jwtService: JwtService,
-  @Inject(forwardRef(() => UserService))
-  private readonly userService: UserService,
+    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+    private readonly jwtService: JwtService,
   ) {}
-  async createAccessToken(userId: string) {
-    return await this.jwtService.signAsync({ secret:process.env.JWT_SECRET,userId });
-  }
-  public async generateRefreshToken(userId: string): Promise<string> {
-    const refreshToken = this.jwtService.sign(
-      { id: userId },
-      { expiresIn: '7d' }, // Refresh token valid for 7 days
-    );
 
-    const refreshTokenDocument = new this.refreshTokenModel({
-      userId,
-      refreshToken,
-      browser: 'default-browser', // Example: Replace with actual browser info
+  async validateUser(email: string, password: string): Promise<any> {
+    const user = await this.userModel.findOne({ email }).exec();
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    const { password_hash, refresh_token, ...result } = user.toObject();
+    return result;
+  }
+
+  async login(user: any) {
+    const payload = { email: user.email, sub: user._id, role: user.role };
+    return {
+      access_token: this.jwtService.sign(payload),
+    };
+  }
+
+  async register(userDetails: createUserDto) {
+    const hashedPassword = await bcrypt.hash(userDetails.password_hash, 10);
+    const user = new this.userModel({
+      ...userDetails,
+      password_hash: hashedPassword,
     });
-
-    await refreshTokenDocument.save();
-    return refreshToken;
+    return user.save();
   }
-  async refreshAccessToken(refreshToken: string): Promise<{ accessToken: string }> {
-    // Verify refresh token
-    const decoded = this.jwtService.verify(refreshToken);
-    const { id } = decoded;
 
-    // Check if refresh token exists in DB
-    const existingToken = await this.refreshTokenModel.findOne({ refreshToken }).exec();
-    if (!existingToken) {
-      throw new UnauthorizedException('Invalid refresh token.');
+  async clearRefreshToken(userId: string) {
+    await this.userModel.findByIdAndUpdate(userId, { refresh_token: null });
+    return { message: 'Logged out successfully' };
+  }
+
+  async validateRefreshToken(refreshToken: string): Promise<User> {
+    try {
+      const payload = this.jwtService.verify(refreshToken, { ignoreExpiration: false });
+      const user = await this.userModel.findById(payload.sub);
+      if (!user || user.refresh_token !== refreshToken) {
+        throw new UnauthorizedException('Invalid refresh token');
+      }
+      return user; // Return the validated user
+    } catch (error) {
+      throw new UnauthorizedException('Invalid or expired refresh token');
+    }
+  }
+
+  async getUserProfile(userId: string) {
+    const user = await this.userModel.findById(userId).select('-password_hash -refresh_token').exec();
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+    return user;
+  }
+
+  async updateUserProfile(userId: string, updateData: updateUserDto) {
+    // If the update includes password, hash it
+    if (updateData.password) {
+      updateData.password = await bcrypt.hash(updateData.password, 10);
     }
 
-    // Generate new access token
-    const accessToken = this.jwtService.sign({ id });
-    return { accessToken };
-  }
-  async logout(refreshToken: string): Promise<void> {
-    await this.refreshTokenModel.findOneAndDelete({ refreshToken }).exec();
-  }
-  private static jwtExtractor(request) {
-    let token = null;
-    if (request.headers['x-token']) {
-      token = request.headers['x-token'];
-    } else if (request.headers.authorization) {
-      const authHeader = request.headers.authorization;
-      token = authHeader.split(' ')[1];
-    } else if (request.body.token) {
-      token = request.body.token;
-    } else if (request.query.token) {
-      token = request.query.token;
+    const updatedUser = await this.userModel.findByIdAndUpdate(userId, updateData, { new: true }).exec();
+    if (!updatedUser) {
+      throw new UnauthorizedException('User not found');
     }
-    return token;
+
+    return updatedUser;
   }
 
-  returnJwtExtractor() {
-    return AuthService.jwtExtractor;
-  }
-  async findRefreshToken(token: string) {
-    const refreshToken = await this.refreshTokenModel.findOne({
-      refreshToken: token,
-    });
-    if (!refreshToken) {
-      throw new UnauthorizedException('User has been logged out.');
+  async changePassword(userId: string, oldPassword: string, newPassword: string) {
+    const user = await this.userModel.findById(userId).exec();
+    if (!user) {
+      throw new UnauthorizedException('User not found');
     }
-    return refreshToken.userId;
+
+    const isOldPasswordValid = await bcrypt.compare(oldPassword, user.password_hash);
+    if (!isOldPasswordValid) {
+      throw new UnauthorizedException('Invalid old password');
+    }
+
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+    user.password_hash = hashedNewPassword;
+    await user.save();
+    return { message: 'Password changed successfully' };
   }
+
+  async getRoleBasedData(role: string) {
+    if (role === 'student') {
+      return { message: 'Student data' };
+    } else if (role === 'instructor') {
+      return { message: 'Instructor data' };
+    } else if (role === 'admin') {
+      return { message: 'Admin data' };
+    } else {
+      throw new ForbiddenException('Invalid role');
+    }
   }
+}

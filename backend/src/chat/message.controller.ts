@@ -1,4 +1,5 @@
-import { WebSocketGateway, WebSocketServer, SubscribeMessage, MessageBody, WsResponse } from '@nestjs/websockets';
+/* eslint-disable prettier/prettier */
+/*import { WebSocketGateway, WebSocketServer, SubscribeMessage, MessageBody, WsResponse } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { MessageService } from './message.service';
 import { RoomService } from 'src/room/room.service';
@@ -82,3 +83,4 @@ export class MessageController {
     client.emit('chat_history', messages);
   }
 }
+*/

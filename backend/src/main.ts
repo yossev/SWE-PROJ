@@ -1,10 +1,13 @@
-
+/* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-require-imports */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import 'reflect-metadata';
 require('dotenv').config();
 
 import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
-import { AuthGuard } from './auth/guards/authentication.guards';
+
 import { JwtService } from '@nestjs/jwt';
 const mongoose=require('mongoose');
 const express=require('express');

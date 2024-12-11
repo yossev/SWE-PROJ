@@ -4,8 +4,9 @@ import { Controller, Post, Body, Get, Delete, Query } from "@nestjs/common";
 import { CreateReplyDto } from "src/reply/dto/createReply.dto";
 //import { CreateThreadDto } from "src/thread/dto/createThread.dto";
 import { ForumService } from "./forum.service";
-import { Roles, Role } from "src/auth/decorators/roles.decorator";
+
 import { CreateForumDto } from "./dto/createForum.dto";
+import { Roles,Role } from "src/auth/decorators/roles.decorator";
 
 
 @Controller('forums')

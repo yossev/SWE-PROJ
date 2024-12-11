@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Module } from '@nestjs/common';
+/*import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { NotificationService } from './notification.service';
 import { Notification, NotificationSchema } from '../models/notification-schema';
@@ -14,3 +14,4 @@ import { Notification, NotificationSchema } from '../models/notification-schema'
   exports: [NotificationService], // Export the service so it can be used in other modules
 })
 export class NotificationModule {}
+*/
