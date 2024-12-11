@@ -15,9 +15,15 @@ import { extname } from 'path';
 
 var currentFileName : string;
 
-@Controller('interactive')
+@Controller('modules')
 export class ModuleController {
     constructor(private readonly moduleService: ModuleService) {} 
+
+    @Get('get/:id')
+    async getModule(@Param('id') id : string)
+    {
+      return this.moduleService.getModule(id);
+    }
 
     @Post('create')
     async createModule(@Body() createModuleDto: CreateModuleDto)
@@ -38,13 +44,13 @@ export class ModuleController {
         //placeholder value , CHANGE ASAP!!
     }
 
-    @Post('findcoursemodules')
+    @Get('findcoursemodules')
     async findAllCourseModules(@Query('id') id : string)
     {
       return this.moduleService.findAllCourseModules(id);
     }
     
-    @Post('upload')
+    @Post('upload/:id')
     @UseInterceptors(
         FileInterceptor('file', {
           storage: diskStorage({
@@ -52,15 +58,17 @@ export class ModuleController {
             filename: (req, file, callback) => {
               const uniqueSuffix =
               Date.now() + '-' + Math.round(Math.random() * 1e9);
+              const name = file.originalname;
+              const fileNameNoExtension = name.split(".")[0];
               const ext = extname(file.originalname);
-              const filename = `${uniqueSuffix}${ext}`;
+              const filename = `${fileNameNoExtension}.${uniqueSuffix}${ext}`;
               currentFileName = filename;
               callback(null, filename);
             },
           }),
         }),
       )
-    async uploadFile(@UploadedFile() file: Express.Multer.File , @Query('id') moduleId: string)
+    async uploadFile(@UploadedFile() file: Express.Multer.File , @Param('id') moduleId: string)
     {
       const fileName = currentFileName;
       console.log("Test -- filename is: " + fileName);

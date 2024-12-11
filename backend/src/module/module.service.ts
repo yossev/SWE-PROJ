@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, mongo } from 'mongoose';
 import { Module } from '../../models/module-schema'; 
 import { StreamableFile } from '@nestjs/common';
 import { createReadStream } from 'fs';
@@ -30,6 +30,11 @@ export class ModuleService {
     @InjectModel('Module') private readonly moduleModel: Model<Module>, 
   ) {}
 
+  async getModule(id : string)
+  {
+    const module  = await this.moduleModel.findById(new mongoose.Types.ObjectId(id)).exec();
+    return module;
+  }
   async createModule(createModuleDto : CreateModuleDto)
   {
     const createdModule = new this.moduleModel(createModuleDto);

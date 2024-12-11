@@ -93,7 +93,7 @@ let Module = (() => {
         _title_decorators = [(0, mongoose_1.Prop)({ type: String, required: true, minlength: 1, maxlength: 100 })];
         _difficulty_decorators = [(0, mongoose_1.Prop)({ type: String, required: true, enum: ['Easy', 'Medium', 'Hard'] })];
         _content_decorators = [(0, mongoose_1.Prop)({ type: String, required: true, minlength: 1, maxlength: 5000 })];
-        _valid_content_decorators = [(0, mongoose_1.Prop)({ type: Boolean, required: true })];
+        _valid_content_decorators = [(0, mongoose_1.Prop)({ type: Boolean, required: true, default: true })];
         _resources_decorators = [(0, mongoose_1.Prop)({ type: [String], required: false })];
         _created_at_decorators = [(0, mongoose_1.Prop)({ type: Date, default: Date.now })];
         __esDecorate(null, null, _course_id_decorators, { kind: "field", name: "course_id", static: false, private: false, access: { has: obj => "course_id" in obj, get: obj => obj.course_id, set: (obj, value) => { obj.course_id = value; } }, metadata: _metadata }, _course_id_initializers, _course_id_extraInitializers);
