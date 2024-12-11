@@ -43,7 +43,7 @@ export class UserController {
   
     @Roles(Role.Instructor, Role.Admin)
     @UseGuards(authorizationGuard)
-    @Get(':id')// /student/:id
+    @Get('fetch/:id')// /student/:id
     // Get a single student by ID
     async getUserById(@Param('id') id: string):Promise<User> {// Get the student ID from the route parameters
         const user = await this.userService.findById(id);

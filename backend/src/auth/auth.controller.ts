@@ -2,10 +2,13 @@ import { Controller, Post, Body, UnauthorizedException, HttpException, HttpStatu
 import { AuthService } from './auth.service';
 import { RegisterRequestDto } from './dto/RegisterRequest.dto.';
 import { SignInDto } from './dto/SignIn.dto';
+import { Public } from './decorators/public.decorator';
 
 @Controller('auth')
 export class AuthController {
     constructor(private authService: AuthService) {}
+
+  @Public()
   @Post('login')
   async signIn(@Body() signInDto: SignInDto, @Res({ passthrough: true }) res) {
     try {
@@ -40,7 +43,7 @@ export class AuthController {
       );
     }
   }
-
+  @Public()
   @Post('register')
   async signup(@Body() registerRequestDto: RegisterRequestDto) {
     try {

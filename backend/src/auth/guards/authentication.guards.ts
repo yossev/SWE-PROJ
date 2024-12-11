@@ -20,7 +20,6 @@ export class AuthGuard implements CanActivate {
           }
         const request = context.switchToHttp().getRequest();
         const token = this.extractTokenFromHeader(request);
-        console.log("Request",request);
         console.log("token",token);
         if (!token) {
             throw new UnauthorizedException('No token, please login');
@@ -39,7 +38,7 @@ export class AuthGuard implements CanActivate {
         return true;
     }
     private extractTokenFromHeader(request: Request): string | undefined {
-        const token = request.cookies?.jwt || request.headers['authorization']?.split(' ')[1];
+        const token = request.cookies?.token || request.headers['authorization']?.split(' ')[1];
         console.log('Extracted Token:', token);
         return token;
     }
