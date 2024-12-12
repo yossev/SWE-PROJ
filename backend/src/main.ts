@@ -11,6 +11,9 @@ console.log('MongoDB URI:', process.env.MONGO_URI);
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.enableCors();
+
   await mongoose.connect(mongoUri , {
    useNewUrlParser: true,
    useUnifiedTopology: true,
