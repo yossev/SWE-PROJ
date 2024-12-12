@@ -89,7 +89,7 @@ console.log('finished cookies');
       }
       
       async findByEmail(email: string): Promise<UserDocument | null> {
-        return this.userModel.findOne({ email }).exec(); // Ensure `_id` is included (default behavior)
+        return this.userModel.findOne({ email }); // Ensure `_id` is included (default behavior)
       }
      async findAllInstructors(): Promise<User[]> {
       return await this.userModel.find({ role: 'instructor' }).exec();
@@ -100,24 +100,22 @@ console.log('finished cookies');
     
     
     // instructor or admin Get all students
-    async findStudentsByInstructor(instructorId: string): Promise<User[]> {
-      if (!Types.ObjectId.isValid(instructorId)) {
-        throw new BadRequestException('Invalid instructor ID');
-      }
+    async findStudentsByInstructor(instructorId: string): Promise<User[]> { 
+      try {
+        const instructor=this.userModel.findById(instructorId);
+        const courses = await this.courseModel.find({ instructor: instructorId }).exec();
+        if (courses.length === 0) {
+          return []; // Return an empty list if the instructor has no courses
+        }
     
-      const validInstructorId = new Types.ObjectId(instructorId);
-    
-      // Find courses taught by this instructor
-      const courses = await this.courseModel.find({ instructor: validInstructorId }).exec();
-      if (courses.length === 0) {
-        return []; // Return an empty list if the instructor has no courses
-      }
-    
-      const courseIds = courses.map((course) => course._id); // Extract course IDs
-    
-      // Find students enrolled in these courses
-      return await this.userModel.find({ role: 'student', course: { $in: courseIds } }).exec();
-    }
+        const courseIds = courses.map((course) => course._id); // Extract course IDs
+      
+        // Find students enrolled in these courses
+        return await this.userModel.find({ role: 'student', course: { $in: courseIds } }).exec();
+        } catch (error) {
+          console.error('Token verification failed:', error);
+          throw new UnauthorizedException('Instructor invalid ');
+    }}
     
     
     
@@ -168,10 +166,11 @@ console.log('finished cookies');
         accessToken: await this.authService.createAccessToken(user._id.toString()),
       };
     }*/
-    async logout(res: Response) {
-      res.clearCookie('AccessToken');
+    async logout(res: Response):Promise<any> {
+      res.clearCookie('token');
       res.clearCookie('RefreshToken');
-      return { message: 'Logout successful' };
+      res.clearCookie('jwt');
+      return await { message: 'Logout successful' };
     }
 }
 

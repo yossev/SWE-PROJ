@@ -26,7 +26,7 @@ export class UserController {
     constructor(private userService: UserService,private readonly progressService: ProgressService,private jwtService:JwtService) { }
     @Get('/all') 
     @Roles(Role.Instructor, Role.Admin)
-    @UseGuards(AuthGuard)
+    @UseGuards(authorizationGuard)
     // Get all students
     async getAllStudents(): Promise<User[]> {
         return await this.userService.findAll();
@@ -50,6 +50,18 @@ export class UserController {
         return user;
     }
 
+    @Roles(Role.Admin)
+    @UseGuards(authorizationGuard)
+    @Get('instructors')
+    async getInstructors(): Promise<User[]> {
+      return this.userService.findAllInstructors();
+    }
+    @Roles(Role.Admin,Role.Instructor)
+    @UseGuards(authorizationGuard)
+    @Get('instructorstudents')
+    async getStudentsByInstructors(@Param('id')instructorId:string): Promise<User[]> {
+      return this.userService.findStudentsByInstructor(instructorId);
+    }
     //Create a new student
     /*@Public()
     @Post('/login')
@@ -77,7 +89,7 @@ export class UserController {
       console.log('Entered function');
       console.log('Cookies in request:', req.cookies);
     
-      const token = req.cookies['AccessToken'];
+      const token = req.cookies.token;
       if (!token) {
         throw new UnauthorizedException('No token provided');
       }
@@ -88,7 +100,7 @@ export class UserController {
         });
         console.log('Decoded JWT payload:', payload);
     
-        const userId = payload.userId;
+        const userId = payload.userid;
         console.log('User ID is:', userId);
     
         const updatedUser = await this.userService.update(userId, updateData);
@@ -101,23 +113,48 @@ export class UserController {
       }
     }
    
-  
 
-    
     // Delete a student by ID
-    @Delete(':id')
+    @Delete('delete/:id')
+    @Roles(Role.Admin)
+    @UseGuards(authorizationGuard)
     async deleteUser(@Param('id')id:string) {
         const deletedUser = await this.userService.delete(id);
        return deletedUser;
     }
+
     @Get('completed/:userId')
-  async getCompletedCourses(@Param('userId') userId: string) {
-    return await this.progressService.getCompletedCourses(userId);
-  }
-  @Post('logout')
-  async logout(@Res() res: Response) {
-    return this.userService.logout(res);
-  }
+    @Roles(Role.Student)
+    @UseGuards(authorizationGuard)
+    async getCompletedCourses(@Param('userId') userId: string) {
+      return await this.progressService.getCompletedCourses(userId);
+    }
+    @Get('courses')
+    @UseGuards(AuthGuard)
+    async getCourses(@Req() req) {
+      const token = req.cookies.token;
+      if (!token) {
+        throw new UnauthorizedException('No token provided');
+      }
+    
+      try {
+        const payload = await this.jwtService.verifyAsync(token, {
+          secret: process.env.JWT_SECRET,
+        });
+        console.log('Decoded JWT payload:', payload);
+    
+        const userId = payload.userid;
+        const user= this.userService.findById(userId);
+        return (await user).courses;
+      } catch (error) {
+        console.error('Token verification failed:', error);
+        throw new UnauthorizedException('Invalid token');
+      }
+    }
+    @Post('logout')
+    async logout(@Res({passthrough:true}) res: Response) {
+      return await this.userService.logout(res);
+    }
     /*
     @Post('token/refresh')
   @HttpCode(HttpStatus.CREATED)
