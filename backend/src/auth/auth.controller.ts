@@ -12,7 +12,7 @@ export class AuthController {
     @Post('login')
     async signIn(@Body() signInDto: SignInDto, @Res({ passthrough: true }) res) {
       try {
-        console.log('helllo')
+        console.log('hello')
         const result = await this.authService.signIn(signInDto.email, signInDto.password);
   
         res.cookie('token', result.access_token, {
