@@ -26,7 +26,7 @@ export class CourseService {
   
       const courseName = createCourseDto.title; // Use the `title` property as the course name
       const userId = (req as any).cookies['userId']?.toString();
-
+const x=0;
       await this.notificationService.notifyCourseCreation(
         userId, // Creator of the course
         savedCourse._id.toString(), // Saved course ID
