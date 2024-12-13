@@ -6,6 +6,7 @@ import { Room } from '../models/room-schema';
 import { NotificationService } from '../notification/notification.service';
 import { UserService } from 'src/user/user.service';  // Import UserSer
 import { RoomService } from 'src/room/room.service';
+import { UserNotification } from 'models/notification-schema';
 @Injectable()
 export class MessageService {
  
@@ -13,7 +14,7 @@ export class MessageService {
   constructor(
     @InjectModel('Message') private readonly messageModel: Model<Message>,
     @InjectModel('Room') private readonly roomModel: Model<Room>,
-    @InjectModel('Notification') private readonly notificationModel: Model<Notification>,
+    @InjectModel('UserNotification') private readonly notificationModel: Model<UserNotification>,
     private readonly notificationService: NotificationService,
     private readonly userService: UserService,
     private readonly roomService: RoomService,

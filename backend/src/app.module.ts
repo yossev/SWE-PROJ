@@ -18,7 +18,8 @@ import { APP_GUARD, Reflector } from '@nestjs/core';
     MongooseModule.forRoot(process.env.DATABASE),
     AuthModule,
     UserModule,  // Ensure UserModule is imported here
-    ProgressModule  // Import ProgressModule to make ProgressService available
+    ProgressModule,  // Import ProgressModule to make ProgressService available,
+    CourseModule
   ],
   controllers: [AppController],
   providers: [

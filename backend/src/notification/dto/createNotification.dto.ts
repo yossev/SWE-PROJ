@@ -1,10 +1,11 @@
 /* eslint-disable prettier/prettier */
 import { IsString, IsNotEmpty, IsOptional, IsMongoId } from 'class-validator';
+import { Types } from 'mongoose';
 
 export class CreateNotificationDto {
   @IsMongoId()
   @IsNotEmpty()
-  userId: string; // ID of the user receiving the notification
+  userId: Types.ObjectId[]; // ID of the user receiving the notification
 
   @IsString()
   @IsNotEmpty()

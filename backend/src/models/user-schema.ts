@@ -4,6 +4,7 @@
 
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument, Types , Document } from 'mongoose';
+import { UserNotification, NotificationSchema } from './notification-schema';
 
 export type UserDocument = HydratedDocument<User>;
 
@@ -42,8 +43,9 @@ export class User
     @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'Course' })
     courses?: mongoose.Types.ObjectId[];
 
-     @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'Notification' })
-  notification_id?: Types.ObjectId[]; 
+    @Prop({ type: [NotificationSchema], default: [] }) // Embed notifications instead of referencing by ID
+    notifications?: UserNotification[];
+ 
   
   // Array of notifications for the user
   @Prop({ type: String, required: false })

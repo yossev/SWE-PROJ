@@ -1,33 +1,41 @@
 /* eslint-disable prettier/prettier */
-import { Injectable } from '@nestjs/common';
+import { Injectable, Req, Request } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { CreateCourseDto } from './dto/createCourse.dto';
 import { UpdateCourseDto } from './dto/updateCourse.dto';
 import {  Course,CourseDocument } from '../models/course-schema'; // Import NotificationService
 import { NotificationService } from 'src/notification/notification.service';
+import { AuthGuard as Auth } from '@nestjs/passport';
+import { MessageService } from 'src/chat/message.service';
+import { User, UserDocument } from 'models/user-schema';
 
 @Injectable()
 export class CourseService {
   constructor(
     @InjectModel(Course.name) private courseModel: Model<CourseDocument>,
-    private readonly notificationService: NotificationService // Inject NotificationService
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    private readonly notificationService: NotificationService, // Inject NotificationService
+    private readonly MessageService: MessageService
+    
   ) {}
 
   // Create a new course and notify the user
-  async create(createCourseDto: CreateCourseDto): Promise<CourseDocument> {
+  async create(createCourseDto: CreateCourseDto, @Req() req): Promise<CourseDocument> {
     try {
       const createdCourse = new this.courseModel(createCourseDto);
+      const userId = req.cookies.userId;
+      console.log('Extracted User ID:', userId);
+      createdCourse.created_by=userId;
       const savedCourse = await createdCourse.save();
   
       const courseName = createCourseDto.title; // Use the `title` property as the course name
-  
+      
       await this.notificationService.notifyCourseCreation(
-        userId, // Creator of the course
-        savedCourse._id.toString(), // Saved course ID
-        courseName // Course title
+        courseName, // Course title
+        savedCourse._id.toString() // Saved course ID
+        
       );
-  
       return savedCourse;
     } catch (error) {
       console.error('Error creating course:', error);
@@ -49,16 +57,34 @@ export class CourseService {
   // Update an existing course
   async update(
     id: string,
-    updateCourseDto: UpdateCourseDto
+    updateCourseDto: UpdateCourseDto,
   ): Promise<CourseDocument | null> {
-    const course = await this.courseModel.findById(id).exec();
-    if (course) {
+    try {
+      const course = await this.courseModel.findById(id).exec();
+  
+      if (!course) {
+        throw new Error(`Course with ID ${id} not found.`);
+      }
+  
       course.versions.push(JSON.stringify(course)); // Track changes
       Object.assign(course, updateCourseDto); // Apply updates
-      return course.save();
+  
+      const updatedCourse = await course.save();
+  
+      // Notify students about the update
+      await this.notificationService.notifyCourseUpdate(
+        id,
+        updatedCourse.title // Pass the updated course name
+      );
+  
+      return updatedCourse;
+    } catch (error) {
+      console.error('Error updating course:', error);
+      throw new Error('Failed to update course');
     }
-    return null;
   }
+  
+  
 
   // Search for courses based on a search term
   async search(searchTerm: string): Promise<CourseDocument[]> {
@@ -73,5 +99,35 @@ export class CourseService {
   async delete(id: string): Promise<CourseDocument | null> {
     return this.courseModel.findByIdAndDelete(id).exec();
   }
+
+  async enroll(id: string, @Req() req) {
+    try {
+      const course = await this.courseModel.findById(id); // Fetch the course document
+      const user = req.cookies.userId; // Get the user ID from cookies
+      const student = await this.userModel.findById(user); // Fetch the user document
+  
+      if (!course) {
+        throw new Error(`Course with ID ${id} not found.`);
+      }
+  
+      if (!student) {
+        throw new Error(`Student with ID ${user} not found.`);
+      }
+  
+      const courseId = new Types.ObjectId(id);
+      student.courses.push(courseId);
+
+      course.students.push(user);
+  
+      await student.save();
+      await course.save();
+  
+      return { message: 'Enrollment successful' };
+    } catch (error) {
+      console.error('Error during enrollment:', error);
+      throw new Error('Failed to enroll the student in the course');
+    }
+  }
+  
 }
 

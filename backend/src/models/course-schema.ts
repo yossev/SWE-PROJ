@@ -17,8 +17,9 @@ export class Course {
   @Prop({ type: String, required: true, enum: ['Beginner', 'Intermediate', 'Advanced'] })
   difficulty_level: 'Beginner' | 'Intermediate' | 'Advanced';
 
-  @Prop({ type: String, required: true, minlength: 20, maxlength: 500 })
-  created_by: string;
+  
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+  created_by: mongoose.Types.ObjectId;
 
   @Prop({ type: Date, default: () => new Date(), required: true })
   created_at: Date;
