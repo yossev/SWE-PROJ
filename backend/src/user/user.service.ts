@@ -119,16 +119,6 @@ console.log('finished cookies');
     
     
     
-  
-    // will register
-    private async isEmailUnique(email: string) {
-        const user = await this.userModel.findOne({ email });
-        if (user) {
-          throw new BadRequestException('Email must be unique.');
-        }
-      }
-    
-    
     // Get a student by ID malhash lazma
     async findById(id: string): Promise<User> {
         console.log(id)

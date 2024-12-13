@@ -20,8 +20,6 @@ export class CourseService {
       const createdCourse = new this.courseModel(createCourseDto);
       const savedCourse = await createdCourse.save();
   
-      // Notify the course creator
-      const userId = createCourseDto.created_by; // Use the `created_by` property as userId
       const courseName = createCourseDto.title; // Use the `title` property as the course name
   
       await this.notificationService.notifyCourseCreation(

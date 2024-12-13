@@ -62,25 +62,6 @@ export class UserController {
     async getStudentsByInstructors(@Param('id')instructorId:string): Promise<User[]> {
       return this.userService.findStudentsByInstructor(instructorId);
     }
-    //Create a new student
-    /*@Public()
-    @Post('/login')
-    async login(@Body() loginDto: LoginDto, @Res({passthrough : true}) res: Response) {
-      const jsonRes = await this.userService.login(loginDto, res);
-      console.log(jsonRes);
-      return jsonRes;
-   }*/
-    /*@Public()
-    @Post('/register')
-    async register(@Body()userData: createUserDto) {// Get the new student data from the request body
-
-        // Hash the password before saving
-        const passwordHash = await bcrypt.hash(userData.password_hash, 10);
-        userData.password_hash=passwordHash;
-        
-       const newUser = await this.userService.register(userData);
-       return newUser;
-    }*/
     // Update a student's details
    
     @Put('me')
@@ -88,30 +69,16 @@ export class UserController {
     async updateUserProfile(@Req() req, @Body() updateData: updateUserDto) {
       console.log('Entered function');
       console.log('Cookies in request:', req.cookies);
-    
-      const token = req.cookies.token;
-      if (!token) {
-        throw new UnauthorizedException('No token provided');
-      }
-    
-      try {
-        const payload = await this.jwtService.verifyAsync(token, {
-          secret: process.env.JWT_SECRET,
-        });
-        console.log('Decoded JWT payload:', payload);
-    
-        const userId = payload.userid;
-        console.log('User ID is:', userId);
-    
-        const updatedUser = await this.userService.update(userId, updateData);
-        console.log('Updated user data:', updatedUser);
+      const userId = req.cookies.userId;
+      const updatedUser = await this.userService.update(userId, updateData);
+      console.log('Updated user data:', updatedUser);
     
         return updatedUser;
       } catch (error) {
         console.error('Token verification failed:', error);
         throw new UnauthorizedException('Invalid token');
       }
-    }
+    
    
 
     // Delete a student by ID
@@ -126,25 +93,19 @@ export class UserController {
     @Get('completed/:userId')
     @Roles(Role.Student)
     @UseGuards(authorizationGuard)
-    async getCompletedCourses(@Param('userId') userId: string) {
-      return await this.progressService.getCompletedCourses(userId);
+    async getCompletedCourses(@Req() req) {
+      return await this.progressService.getCompletedCourses(req.cookies.userId);
     }
     @Get('courses')
     @UseGuards(AuthGuard)
     async getCourses(@Req() req) {
-      const token = req.cookies.token;
-      if (!token) {
+      const userid = req.cookies.userId;
+      if (!userid) {
         throw new UnauthorizedException('No token provided');
       }
     
       try {
-        const payload = await this.jwtService.verifyAsync(token, {
-          secret: process.env.JWT_SECRET,
-        });
-        console.log('Decoded JWT payload:', payload);
-    
-        const userId = payload.userid;
-        const user= this.userService.findById(userId);
+        const user= this.userService.findById(userid);
         return (await user).courses;
       } catch (error) {
         console.error('Token verification failed:', error);
@@ -155,21 +116,5 @@ export class UserController {
     async logout(@Res({passthrough:true}) res: Response) {
       return await this.userService.logout(res);
     }
-    /*
-    @Post('token/refresh')
-  @HttpCode(HttpStatus.CREATED)
-  async refreshAccessToken(
-    @Body() refreshAccessTokenDto: RefreshAccessTokenDto,
-  ) {
-    try {
-      return await this.userService.refreshAccessToken(refreshAccessTokenDto);
-    } catch (error) {
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
-    }
-  }
-    */
-    // @Get('courses')
-    // async getAllCourses() {
-    //     return await this.userService.findAllCourses();
-    // }
+  
 }
