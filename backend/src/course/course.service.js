@@ -50,6 +50,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CourseService = void 0;
 /* eslint-disable prettier/prettier */
 const common_1 = require("@nestjs/common");
+const common_1 = require("@nestjs/common");
+const updateCourse_dto_1 = require("./dto/updateCourse.dto");
 let CourseService = (() => {
     let _classDecorators = [(0, common_1.Injectable)()];
     let _classDescriptor;
@@ -83,6 +85,15 @@ let CourseService = (() => {
             });
         }
         // Find all courses
+        constructor(courseModel) {
+            this.courseModel = courseModel;
+        }
+        create(createCourseDto) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const createdCourse = new this.courseModel(createCourseDto);
+                return createdCourse.save();
+            });
+        }
         findAll() {
             return __awaiter(this, void 0, void 0, function* () {
                 return this.courseModel.find().exec();
@@ -101,6 +112,7 @@ let CourseService = (() => {
                 if (course) {
                     course.versions.push(JSON.stringify(course)); // Track changes
                     Object.assign(course, updateCourseDto); // Apply updates
+                    Object.assign(course, updateCourse_dto_1.UpdateCourseDto); // Update Course
                     return course.save();
                 }
                 return null;

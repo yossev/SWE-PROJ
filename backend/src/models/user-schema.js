@@ -46,11 +46,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserSchema = exports.User = void 0;
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = __importDefault(require("mongoose"));
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.UserSchema = exports.User = void 0;
+const mongoose_1 = require("@nestjs/mongoose");
 let User = (() => {
     let _classDecorators = [(0, mongoose_1.Schema)()];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
+    let _user_id_decorators;
+    let _user_id_initializers = [];
+    let _user_id_extraInitializers = [];
     let _name_decorators;
     let _name_initializers = [];
     let _name_extraInitializers = [];
@@ -81,6 +87,10 @@ let User = (() => {
     var User = _classThis = class {
         constructor() {
             this.name = __runInitializers(this, _name_initializers, void 0);
+    var User = _classThis = class {
+        constructor() {
+            this.user_id = __runInitializers(this, _user_id_initializers, void 0);
+            this.name = (__runInitializers(this, _user_id_extraInitializers), __runInitializers(this, _name_initializers, void 0));
             this.email = (__runInitializers(this, _name_extraInitializers), __runInitializers(this, _email_initializers, void 0));
             this.password_hash = (__runInitializers(this, _email_extraInitializers), __runInitializers(this, _password_hash_initializers, void 0));
             this.role = (__runInitializers(this, _password_hash_extraInitializers), __runInitializers(this, _role_initializers, void 0));
@@ -91,11 +101,13 @@ let User = (() => {
             // Array of notifications for the user
             this.refresh_token = (__runInitializers(this, _notification_id_extraInitializers), __runInitializers(this, _refresh_token_initializers, void 0)); // Refresh token for the user
             __runInitializers(this, _refresh_token_extraInitializers);
+            __runInitializers(this, _created_at_extraInitializers);
         }
     };
     __setFunctionName(_classThis, "User");
     (() => {
         const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
+        _user_id_decorators = [(0, mongoose_1.Prop)({ type: String, required: true, unique: true, minLength: 1 })];
         _name_decorators = [(0, mongoose_1.Prop)({ type: String, required: true, minLength: 3, maxLength: 50 })];
         _email_decorators = [(0, mongoose_1.Prop)({ type: String,
                 minLength: 10,
@@ -103,6 +115,8 @@ let User = (() => {
                 required: true })];
         _password_hash_decorators = [(0, mongoose_1.Prop)({ type: String,
                 minLength: 5 })];
+                minLength: 5,
+                required: true })];
         _role_decorators = [(0, mongoose_1.Prop)({ type: String,
                 enum: ['student', 'instructor', 'admin'],
                 required: true })];
@@ -114,6 +128,11 @@ let User = (() => {
         _course_id_decorators = [(0, mongoose_1.Prop)({ type: [mongoose_2.default.Schema.Types.ObjectId], ref: 'Course' })];
         _notification_id_decorators = [(0, mongoose_1.Prop)({ type: [mongoose_2.default.Schema.Types.ObjectId], ref: 'Notification' })];
         _refresh_token_decorators = [(0, mongoose_1.Prop)({ type: String, required: false })];
+                minLength: 10 })];
+        _created_at_decorators = [(0, mongoose_1.Prop)({ type: Date,
+                default: Date.now,
+                required: true })];
+        __esDecorate(null, null, _user_id_decorators, { kind: "field", name: "user_id", static: false, private: false, access: { has: obj => "user_id" in obj, get: obj => obj.user_id, set: (obj, value) => { obj.user_id = value; } }, metadata: _metadata }, _user_id_initializers, _user_id_extraInitializers);
         __esDecorate(null, null, _name_decorators, { kind: "field", name: "name", static: false, private: false, access: { has: obj => "name" in obj, get: obj => obj.name, set: (obj, value) => { obj.name = value; } }, metadata: _metadata }, _name_initializers, _name_extraInitializers);
         __esDecorate(null, null, _email_decorators, { kind: "field", name: "email", static: false, private: false, access: { has: obj => "email" in obj, get: obj => obj.email, set: (obj, value) => { obj.email = value; } }, metadata: _metadata }, _email_initializers, _email_extraInitializers);
         __esDecorate(null, null, _password_hash_decorators, { kind: "field", name: "password_hash", static: false, private: false, access: { has: obj => "password_hash" in obj, get: obj => obj.password_hash, set: (obj, value) => { obj.password_hash = value; } }, metadata: _metadata }, _password_hash_initializers, _password_hash_extraInitializers);

@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
@@ -10,8 +11,9 @@ import { AppService } from './app.service';
 import { JwtStrategy } from './auth/jwt.strategy';
 import { UserService } from './user/user.service';
 import { AuthGuard } from './auth/guards/authentication.guards';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { APP_GUARD, Reflector } from '@nestjs/core';
-
+import { InteractiveModule } from './module/module.module';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -19,7 +21,8 @@ import { APP_GUARD, Reflector } from '@nestjs/core';
     AuthModule,
     UserModule,  // Ensure UserModule is imported here
     ProgressModule,  // Import ProgressModule to make ProgressService available,
-    CourseModule
+    CourseModule,
+    InteractiveModule
   ],
   controllers: [AppController],
   providers: [

@@ -42,7 +42,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProgressSchema = exports.Progress = void 0;
-/* eslint-disable prettier/prettier */
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = __importDefault(require("mongoose"));
 let Progress = (() => {
@@ -73,6 +72,7 @@ let Progress = (() => {
             this.last_accessed = (__runInitializers(this, _completion_percentage_extraInitializers), __runInitializers(this, _last_accessed_initializers, void 0));
             this.attendance = (__runInitializers(this, _last_accessed_extraInitializers), __runInitializers(this, _attendance_initializers, void 0));
             __runInitializers(this, _attendance_extraInitializers);
+            __runInitializers(this, _last_accessed_extraInitializers);
         }
     };
     __setFunctionName(_classThis, "Progress");
