@@ -33,20 +33,20 @@ export class AuthService {
         return 'registered successfully';
       }
 
-      async signIn(email: string, password: string): Promise< {access_token:string , userId : string}> {
-        const user: UserDocument = await this.usersService.findByEmail(email); // Use UserDocument type
-        if (!user) {
-          throw new NotFoundException('User not found');
-        }
+    async signIn(email: string, password: string): Promise< {access_token:string , userId : string}> {
+      const user: UserDocument = await this.usersService.findByEmail(email); // Use UserDocument type
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+    
+      console.log('password: ', user.password_hash);
+      const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+      if (!isPasswordValid) {
+        throw new UnauthorizedException('Invalid credentials');
+      }
+    
+      const payload = { userid: user._id, role: user.role }; // _id is accessible from UserDocument
+      const token = this.jwtService.sign(payload, { secret: process.env.JWT_SECRET });
+      return { access_token: token , userId : user._id.toString() };
       
-        console.log('password: ', user.password_hash);
-        const isPasswordValid = await bcrypt.compare(password, user.password_hash);
-        if (!isPasswordValid) {
-          throw new UnauthorizedException('Invalid credentials');
-        }
-      
-        const payload = { userid: user._id, role: user.role }; // _id is accessible from UserDocument
-        const token = this.jwtService.sign(payload, { secret: process.env.JWT_SECRET });
-        return { access_token: token , userId : user._id.toString() };
-        
-  }}
+}}
