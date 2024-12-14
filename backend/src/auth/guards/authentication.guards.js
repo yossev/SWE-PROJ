@@ -50,23 +50,18 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthGuard = void 0;
 const common_1 = require("@nestjs/common");
 const public_decorator_1 = require("../decorators/public.decorator");
-const passport_1 = require("@nestjs/passport");
 let AuthGuard = (() => {
     let _classDecorators = [(0, common_1.Injectable)()];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
-    let _classSuper = (0, passport_1.AuthGuard)('jwt');
-    var AuthGuard = _classThis = class extends _classSuper {
+    var AuthGuard = _classThis = class {
         constructor(jwtService, reflector) {
-            super();
             this.jwtService = jwtService;
             this.reflector = reflector;
-            console.log('Reflector in constructor:', this.reflector);
         }
         canActivate(context) {
             return __awaiter(this, void 0, void 0, function* () {
-                console.log("Public key", this.reflector);
                 const isPublic = this.reflector.getAllAndOverride(public_decorator_1.IS_PUBLIC_KEY, [
                     context.getHandler(),
                     context.getClass(),
@@ -76,30 +71,31 @@ let AuthGuard = (() => {
                 }
                 const request = context.switchToHttp().getRequest();
                 const token = this.extractTokenFromHeader(request);
+                console.log("token", token);
                 if (!token) {
                     throw new common_1.UnauthorizedException('No token, please login');
                 }
-                try {
-                    const payload = yield this.jwtService.verifyAsync(token, {
-                        secret: process.env.JWT_SECRET,
-                    });
-                    request['user'] = payload;
-                }
-                catch (_a) {
-                    throw new common_1.UnauthorizedException('Invalid token');
-                }
+                const payload = yield this.jwtService.verifyAsync(token, {
+                    secret: process.env.JWT_SECRET
+                });
+                console.log("payload", payload);
+                // 💡 We're assigning the payload to the request object here
+                // so that we can access it in our route handlers
+                request['user'] = payload;
+                console.log(payload);
                 return true;
             });
         }
         extractTokenFromHeader(request) {
             var _a, _b;
-            return ((_a = request.cookies) === null || _a === void 0 ? void 0 : _a.Token) || ((_b = request.headers['authorization']) === null || _b === void 0 ? void 0 : _b.split(' ')[1]);
+            const token = ((_a = request.cookies) === null || _a === void 0 ? void 0 : _a.token) || ((_b = request.headers['authorization']) === null || _b === void 0 ? void 0 : _b.split(' ')[1]);
+            console.log('Extracted Token:', token);
+            return token;
         }
     };
     __setFunctionName(_classThis, "AuthGuard");
     (() => {
-        var _a;
-        const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create((_a = _classSuper[Symbol.metadata]) !== null && _a !== void 0 ? _a : null) : void 0;
+        const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
         __esDecorate(null, _classDescriptor = { value: _classThis }, _classDecorators, { kind: "class", name: _classThis.name, metadata: _metadata }, null, _classExtraInitializers);
         AuthGuard = _classThis = _classDescriptor.value;
         if (_metadata) Object.defineProperty(_classThis, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });

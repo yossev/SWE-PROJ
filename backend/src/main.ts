@@ -15,6 +15,7 @@ async function bootstrap() {
 
    console.log("Database URL:" , process.env.DATABASE);
   const app = await NestFactory.create(AppModule);
+  app.enableCors();
   await mongoose.connect(process.env.DATABASE , {
   }).then( () => {
      console.log('Connected');
@@ -25,7 +26,7 @@ async function bootstrap() {
   const reflector = app.get(Reflector);
   console.log('Reflector in main.ts:', reflector);
   app.use(cookieParser());
-  app.listen(3000);
+  app.listen(3001);
 }
 bootstrap();
 

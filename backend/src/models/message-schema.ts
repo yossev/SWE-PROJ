@@ -15,7 +15,7 @@ export class Message extends Document {
   @Prop({ type: String, required: true })
   content: string; // Content of the message
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'room' })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'room'})
   room_id: mongoose.Types.ObjectId;// Chat room ID (optional, if needed for group chats)
 
   @Prop({ type: Date, default: Date.now })

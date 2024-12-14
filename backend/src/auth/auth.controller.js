@@ -49,31 +49,86 @@ var __setFunctionName = (this && this.__setFunctionName) || function (f, name, p
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthController = void 0;
 const common_1 = require("@nestjs/common");
+const public_decorator_1 = require("./decorators/public.decorator");
 let AuthController = (() => {
     let _classDecorators = [(0, common_1.Controller)('auth')];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
     let _instanceExtraInitializers = [];
-    let _refreshAccessToken_decorators;
+    let _signIn_decorators;
+    let _signup_decorators;
     var AuthController = _classThis = class {
         constructor(authService) {
             this.authService = (__runInitializers(this, _instanceExtraInitializers), authService);
         }
-        refreshAccessToken(refreshToken) {
+        signIn(signInDto, res) {
             return __awaiter(this, void 0, void 0, function* () {
-                if (!refreshToken) {
-                    throw new common_1.UnauthorizedException('Refresh token is required');
+                try {
+                    console.log('helllo');
+                    const result = yield this.authService.signIn(signInDto.email, signInDto.password);
+                    res.cookie('token', result.access_token, {
+                        httpOnly: true, // Prevents client-side JavaScript access
+                        secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+                        maxAge: 3600 * 1000, // Cookie expiration time in milliseconds
+                    });
+                    // Return success response
+                    return {
+                        statusCode: common_1.HttpStatus.OK,
+                        message: 'Login successful',
+                        //user: result.payload,
+                    };
                 }
-                return yield this.authService.refreshAccessToken(refreshToken);
+                catch (error) {
+                    console.log(error);
+                    // Handle specific errors
+                    if (error instanceof common_1.HttpException) {
+                        throw error; // Pass through known exceptions
+                    }
+                    // Handle other unexpected errors
+                    throw new common_1.HttpException({
+                        statusCode: common_1.HttpStatus.INTERNAL_SERVER_ERROR,
+                        message: 'An error occurred during login',
+                    }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
+                }
+            });
+        }
+        signup(registerRequestDto) {
+            return __awaiter(this, void 0, void 0, function* () {
+                try {
+                    // Call the AuthService to handle registration
+                    const result = yield this.authService.register(registerRequestDto);
+                    // Return a success response with HTTP 201 Created status
+                    return {
+                        statusCode: common_1.HttpStatus.CREATED,
+                        message: 'User registered successfully',
+                        data: result,
+                    };
+                }
+                catch (error) {
+                    // Handle specific errors, such as email already exists or validation errors
+                    if (error.status === 409) {
+                        throw new common_1.HttpException({
+                            statusCode: common_1.HttpStatus.CONFLICT,
+                            message: 'User already exists',
+                        }, common_1.HttpStatus.CONFLICT);
+                    }
+                    // Catch any other errors and throw a generic internal server error
+                    throw new common_1.HttpException({
+                        statusCode: common_1.HttpStatus.INTERNAL_SERVER_ERROR,
+                        message: 'An error occurred during registration',
+                    }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
+                }
             });
         }
     };
     __setFunctionName(_classThis, "AuthController");
     (() => {
         const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
-        _refreshAccessToken_decorators = [(0, common_1.Post)('refresh')];
-        __esDecorate(_classThis, null, _refreshAccessToken_decorators, { kind: "method", name: "refreshAccessToken", static: false, private: false, access: { has: obj => "refreshAccessToken" in obj, get: obj => obj.refreshAccessToken }, metadata: _metadata }, null, _instanceExtraInitializers);
+        _signIn_decorators = [(0, public_decorator_1.Public)(), (0, common_1.Post)('login')];
+        _signup_decorators = [(0, public_decorator_1.Public)(), (0, common_1.Post)('register')];
+        __esDecorate(_classThis, null, _signIn_decorators, { kind: "method", name: "signIn", static: false, private: false, access: { has: obj => "signIn" in obj, get: obj => obj.signIn }, metadata: _metadata }, null, _instanceExtraInitializers);
+        __esDecorate(_classThis, null, _signup_decorators, { kind: "method", name: "signup", static: false, private: false, access: { has: obj => "signup" in obj, get: obj => obj.signup }, metadata: _metadata }, null, _instanceExtraInitializers);
         __esDecorate(null, _classDescriptor = { value: _classThis }, _classDecorators, { kind: "class", name: _classThis.name, metadata: _metadata }, null, _classExtraInitializers);
         AuthController = _classThis = _classDescriptor.value;
         if (_metadata) Object.defineProperty(_classThis, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });

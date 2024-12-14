@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Param, Body } from '@nestjs/common';
+import { Controller, Post, Get, Param, Body , Res , Req } from '@nestjs/common';
 import { RoomService } from './room.service';
 import { CreateRoomDto } from './dto/createRoom.dto';
 import { Room, RoomDocument } from 'src/models/room-schema';
@@ -6,8 +6,10 @@ import mongoose, { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Message, MessageDocument } from 'models/message-schema';
 import { CourseDocument } from 'models/course-schema';
+import { PassThrough } from 'stream';
+import { Public } from 'src/auth/decorators/public.decorator';
 
-@Controller('courses/:courseId/rooms')
+@Controller('courses/rooms')
 export class RoomController {
   constructor(
   @InjectModel('Message') private readonly messageModel: Model<MessageDocument>,
@@ -18,7 +20,7 @@ export class RoomController {
   private readonly roomService: RoomService) {}
 
   // Create a group chat room for a course
-  @Post()
+  @Post(':courseId')
 async createRoom(
   @Body() createRoomDto: CreateRoomDto, // Room data from the request body
   @Param('courseId') courseId: Types.ObjectId, // Course ID from the route params
@@ -30,6 +32,7 @@ async createRoom(
     throw new Error('Course not found');
   }
 
+  /*
   // Step 2: Check if the user is enrolled in the course
   const userIsEnrolled = course.students.some(
     (student: mongoose.Types.ObjectId) => student.toString() === userId.toString()
@@ -37,16 +40,40 @@ async createRoom(
   if (!userIsEnrolled) {
     throw new Error('User is not enrolled in the course');
   }
+    */
 
   // Step 3: Create the room
   const room = new this.roomModel({
     ...createRoomDto,
-    course: courseId, // Pass the course ObjectId to the room
+    course_id: courseId, // Pass the course ObjectId to the room
   });
 
   // Step 4: Save and return the room
   return room.save();
 }
+
+  @Post('join_room/:name')
+  async joinRoom(@Param('name') roomName : string , @Req() req)
+  {
+    const id = req.cookies["userId"];
+    return await this.roomService.joinRoom(roomName , id);
+  }
+
+  @Post('leave_room/:name')
+  async leaveRoom(@Param('name') roomName : string , @Req() req)
+  {
+    const id = req.cookies["userId"];
+    return await this.roomService.leaveRoom(roomName , id);
+  }
+
+  @Public()
+  @Get('getMessages/:id')
+  async getAllMessages(@Param('id') roomId : string)
+  {
+    const messages = await this.messageModel.find({room_id : new Types.ObjectId(roomId)});
+    return messages;
+  }
+
 
   
   // Get a specific room by its ID

@@ -25,14 +25,14 @@ export class RoomService {
       throw new HttpException('Course not found', HttpStatus.NOT_FOUND);
     }
   
-    // Step 2: Check if the user is enrolled in the course
+    /*// Step 2: Check if the user is enrolled in the course
     const userIsEnrolled = course.students.some(
       (student: mongoose.Types.ObjectId) => student.toString() === userId
     );
     if (!userIsEnrolled) {
       // Throw an HTTP exception with 403 status if user is not enrolled
       throw new HttpException('User is not enrolled in the course', HttpStatus.FORBIDDEN);
-    }
+    }*/
   
     // Step 3: Create the room with the associated course ObjectId
     const room = new this.roomModel({
@@ -117,9 +117,41 @@ export class RoomService {
     return room;
   }
 
+  async checkRoomExists(roomName : string)
+  {
+    const room = this.roomModel.findOne({name : roomName});
+    if(room)
+    {
+      return true;
+    }
+
+    return false;
+  }
+
+  /*async joinRoom(userId : string  , roomName : string)
+  {
+    const room = await this.roomModel.findOne({name : roomName});
+    room.user_id.push(new Types.ObjectId(userId));
+    return {"Success" : true};
+  }*/
+
   // Mark room as inactive
   async setRoomInactive(roomId: string): Promise<Room> {
     return this.roomModel.findByIdAndUpdate(roomId, { active: false }, { new: true });
+  }
+
+  async joinRoom(roomName : string , id: string)
+  {
+    const room = await this.roomModel.findOne({name : roomName});
+    room.user_id.push(new Types.ObjectId(id));
+    return await room.save();
+  }
+
+  async leaveRoom(roomName : string , id: string)
+  {
+    let room = await this.roomModel.findOne({name : roomName});
+    room.user_id = room.user_id.filter(x => x.toString() !== id);
+    return await room.save();
   }
   
 
