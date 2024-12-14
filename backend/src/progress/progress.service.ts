@@ -92,7 +92,7 @@ export class ProgressService {
 
   async getAttendance(userId: string, courseId: string): Promise<any> {
 
-    const progress = await this.progressModel.findOne({ user_id: userId, course_id: courseId}).exec()
+    const progress = await this.progressModel.findOne({ user_id: userId, course_id: courseId }).exec()
 
     if (!progress) {
       throw new NotFoundException(`Progress record for user ${userId} in course ${courseId} not found`);
@@ -102,14 +102,32 @@ export class ProgressService {
 
   }
 
-  async calculateAttendanceRate(userId: string, courseId: string): Promise<any> {
-    const attendanceRecords = await this.getAttendance(userId, courseId)
-    const totalClasses = attendanceRecords.length;
-    const presentCount = attendanceRecords.filter(record => record.status === 'Present')
+  // async calculateAttendanceRate(userId: string, courseId: string): Promise<any> {
+  //   const attendanceRecords = await this.getAttendance(userId, courseId)
+  //   const totalClasses = attendanceRecords.length;
+  //   const presentCount = attendanceRecords.filter(record => record.status === 'present')
 
-    return totalClasses ? (presentCount / totalClasses) * 100 : 0;
+  //   return totalClasses ? (presentCount / totalClasses) * 100 : 0;
 
+  // }
+
+  async calculateAttendanceRate(userId: string, courseId: string): Promise<number> {
+    const progress = await this.progressModel.findOne({
+      user_id: userId,
+      course_id: courseId,
+    }).exec();
+
+    if (!progress || !progress.attendance || progress.attendance.length === 0) {
+      return 0;
+    }
+
+    const totalDays = progress.attendance.length;
+    const presentDays = progress.attendance.filter((record) => record.status === "present").length;
+
+    const attendanceRate = (presentDays / totalDays) * 100;
+    return attendanceRate;
   }
+
 
   async getDashboard(userId: string): Promise<any> {
 
@@ -119,9 +137,9 @@ export class ProgressService {
     //}
 
     // Calculate student's average score for each course 
-    
+
     const modules = await this.moduleModel.find({ course_id: progress.course_id }).exec();
-    console.log('course id ',progress.course_id )
+    console.log('course id ', progress.course_id)
     const quizIds = [];
     for (const module of modules) { //FOR EACH MODULE OF THIS COURSE - COURSE MAY HAVE MORE THAN 1 MODULE
       const quizzes = await this.quizModel.find({ module_id: module._id }).exec();
@@ -135,20 +153,30 @@ export class ProgressService {
 
     const totalScore = responses.reduce((sum, response) => sum + (response.score || 0), 0);
     const averageScore = responses.length ? totalScore / responses.length : 0;
+    const classification = await this.classifyUserPerformance(userId.toString());
 
 
     // Calculate course completion rate 
     const progressData = await this.progressModel.find({ user_id: userId }).exec();
     const courseCompletionRates = [];
+    const completedCourses = [];
 
     for (const progress of progressData) {
-     //  const course = await this.courseModel.findById(progress.course_id).exec();
+      //  const course = await this.courseModel.findById(progress.course_id).exec();
       const completionRate = progress.completion_percentage;
 
       courseCompletionRates.push({
-     //   courseTitle: course.title,
+        //   courseTitle: course.title,
         completionRate: completionRate,
       });
+
+      if (completionRate === 100) {
+        const course = await this.courseModel.findById(progress.course_id).exec();
+        completedCourses.push({
+          courseId: progress.course_id,
+          // courseTitle: course?.title || 'Unknown Course', 
+        });
+      }
     }
 
     // Engagement trends [attendance, how many students completed the course] 
@@ -176,13 +204,15 @@ export class ProgressService {
 
     return {
       averageScore,
+      classification,
+      completedCourses,
       courseCompletionRates,
       engagementTrends,
       progress,
     };
-  }   
-  
-  
+  }
+
+
   async classifyUserPerformance(userId: string) { //****FULLY FUNCTIONAL****
 
     const responses = await this.responseModel.find({ user_id: userId }).exec();
@@ -237,7 +267,6 @@ export class ProgressService {
         performanceMetrics.excellent += 1;
       }
     }
-
 
     return {
       enrolledStudentsCount: enrolledStudents.length,
@@ -361,7 +390,6 @@ export class ProgressService {
     doc.text(`Instructor Rating: ${analytics.instructorRating}`).moveDown();
     doc.end();
   }
-
 
   //Downlodable Analytics for Assessment Results 
   async exportInstructorAnalyticsAssessmentResultsPDF(courseId: string, res: Response) {
