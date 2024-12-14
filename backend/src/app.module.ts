@@ -11,8 +11,6 @@ import { JwtStrategy } from './auth/jwt.strategy';
 import { UserService } from './user/user.service';
 import { AuthGuard } from './auth/guards/authentication.guards';
 import { APP_GUARD, Reflector } from '@nestjs/core';
-import { RoomModule } from './room/room.module';
-import { ChatModule } from './chat/message.module';
 
 @Module({
   imports: [
@@ -20,9 +18,7 @@ import { ChatModule } from './chat/message.module';
     MongooseModule.forRoot(process.env.DATABASE),
     AuthModule,
     UserModule,  // Ensure UserModule is imported here
-    ProgressModule,  // Import ProgressModule to make ProgressService available
-    RoomModule,
-    ChatModule
+    ProgressModule  // Import ProgressModule to make ProgressService available
   ],
   controllers: [AppController],
   providers: [

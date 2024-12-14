@@ -38,10 +38,13 @@ function AuthenticationMiddleware(req, res, next) {
     }
     try {
         const decoded = (0, jsonwebtoken_1.verify)(token, String(process.env.JWT_SECRET));
-        req['user'] = decoded.user; // Attach user payload to the request object
+        res.locals.user = decoded.user; // Attach user payload to res.locals for secure handling
         next();
     }
     catch (err) {
-        throw new unauthorized_exception_1.UnauthorizedException('Invalid or expired token');
+        if (err instanceof jsonwebtoken_1.TokenExpiredError) {
+            throw new unauthorized_exception_1.UnauthorizedException('Token expired, please login again');
+        }
+        throw new unauthorized_exception_1.UnauthorizedException('Invalid token');
     }
 }

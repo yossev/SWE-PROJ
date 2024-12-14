@@ -1,4 +1,20 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -33,6 +49,13 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -52,6 +75,7 @@ exports.UserService = void 0;
 const common_1 = require("@nestjs/common");
 // import { Course } from 'src/models/course-schema';
 const mongoose_1 = require("mongoose");
+const bcrypt = __importStar(require("bcrypt"));
 // import { LoginDto } from './dto/loginDto.dto';
 // import { RefreshAccessTokenDto } from './dto/refreshAccessTokenDto.dto';
 let UserService = (() => {
@@ -67,55 +91,52 @@ let UserService = (() => {
             this.progressService = progressService;
             this.authService = authService;
         }
-        create(userData) {
+        register(createUserDto) {
             return __awaiter(this, void 0, void 0, function* () {
-                const newUser = new this.userModel(userData); // Create a new student document
-                const user = yield newUser.save();
-                return user; // Save it to the database
+                console.log('Registering user:', createUserDto);
+                const user = new this.userModel(createUserDto); // Create a new student document
+                yield this.isEmailUnique(createUserDto.email);
+                return yield user.save(); // Save it to the database
             });
         }
         // Login existing user
-        /*async login(loginDto: LoginDto, res: Response) {
-          console.log('Logging in');
-           const { email, password } = loginDto;
-      
-             // 1. Find the user by email
-           const user = await this.userModel.findOne({ email });
-            if (!user) {
-              throw new UnauthorizedException('User not found');
-           }
-           const id=user._id;
-      
-           // 2. Check if the password is correct
-           const isPasswordValid = await bcrypt.compare(password, user.password_hash);
-           if (!isPasswordValid) {
-             throw new UnauthorizedException('Invalid credentials');
-           }
-      
-           // 3. Generate tokens
-            const accessToken = this.jwtService.sign(
-              { email: user.email, userId: user._id },
-              { secret: process.env.JWT_SECRET, expiresIn: '1h' },
-            );
-            console.log('entering refresh token');
-            const refreshToken = await this.authService.generateRefreshToken(user._id.toString());
-            console.log('finshing refresh token');
-          // 4. Set tokens as cookies
-          res.cookie('AccessToken', accessToken, {
-             httpOnly: true,
-              //secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
-              maxAge: 60 * 60 * 1000, // 1 hour
-           });
-           console.log('finished first');
-          res.cookie('RefreshToken', refreshToken, {
-              httpOnly: true,
-              //secure: process.env.NODE_ENV === 'production',
-              maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-          });
-      console.log('finished cookies');
-          // 5. Return response (if needed)
-            return { message: 'Login successful', userId: id };
-          }*/
+        login(loginDto, res) {
+            return __awaiter(this, void 0, void 0, function* () {
+                console.log('Logging in');
+                const { email, password } = loginDto;
+                // 1. Find the user by email
+                const user = yield this.userModel.findOne({ email });
+                if (!user) {
+                    throw new common_1.UnauthorizedException('User not found');
+                }
+                const id = user._id;
+                // 2. Check if the password is correct
+                const isPasswordValid = yield bcrypt.compare(password, user.password_hash);
+                if (!isPasswordValid) {
+                    throw new common_1.UnauthorizedException('Invalid credentials');
+                }
+                // 3. Generate tokens
+                const accessToken = this.jwtService.sign({ email: user.email, userId: user._id }, { secret: process.env.JWT_SECRET, expiresIn: '1h' });
+                console.log('entering refresh token');
+                const refreshToken = yield this.authService.generateRefreshToken(user._id.toString());
+                console.log('finshing refresh token');
+                // 4. Set tokens as cookies
+                res.cookie('AccessToken', accessToken, {
+                    httpOnly: true,
+                    //secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+                    maxAge: 60 * 60 * 1000, // 1 hour
+                });
+                console.log('finished first');
+                res.cookie('RefreshToken', refreshToken, {
+                    httpOnly: true,
+                    //secure: process.env.NODE_ENV === 'production',
+                    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+                });
+                console.log('finished cookies');
+                // 5. Return response (if needed)
+                return { message: 'Login successful', userId: id };
+            });
+        }
         findAll() {
             return __awaiter(this, void 0, void 0, function* () {
                 return yield this.userModel.find().exec();
@@ -128,7 +149,8 @@ let UserService = (() => {
         }
         findByEmail(email) {
             return __awaiter(this, void 0, void 0, function* () {
-                return this.userModel.findOne({ email }).exec(); // Ensure `_id` is included (default behavior)
+                const user = yield this.userModel.findOne({ email });
+                return user; // Fetch a student by username
             });
         }
         findAllInstructors() {
@@ -192,18 +214,18 @@ let UserService = (() => {
                 return deletedUser;
             });
         }
-        /* async refreshAccessToken(refreshAccessTokenDto: RefreshAccessTokenDto) {
-           const userId = await this.authService.findRefreshToken(
-             refreshAccessTokenDto.refreshToken
-           );
-           const user = await this.userModel.findById(userId);
-           if (!user) {
-             throw new BadRequestException('Bad request');
-           }
-           return {
-             accessToken: await this.authService.createAccessToken(user._id.toString()),
-           };
-         }*/
+        refreshAccessToken(refreshAccessTokenDto) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const userId = yield this.authService.findRefreshToken(refreshAccessTokenDto.refreshToken);
+                const user = yield this.userModel.findById(userId);
+                if (!user) {
+                    throw new common_1.BadRequestException('Bad request');
+                }
+                return {
+                    accessToken: yield this.authService.createAccessToken(user._id.toString()),
+                };
+            });
+        }
         logout(res) {
             return __awaiter(this, void 0, void 0, function* () {
                 res.clearCookie('AccessToken');

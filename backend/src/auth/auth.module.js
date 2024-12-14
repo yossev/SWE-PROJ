@@ -53,14 +53,16 @@ const common_1 = require("@nestjs/common");
 const jwt_1 = require("@nestjs/jwt");
 const passport_1 = require("@nestjs/passport");
 const config_1 = require("@nestjs/config");
+const mongoose_1 = require("@nestjs/mongoose");
 const auth_service_1 = require("./auth.service");
 const jwt_strategy_1 = require("./jwt.strategy");
+const refreshToken_schema_1 = require("src/models/refreshToken-schema"); // Use correct path
 const user_module_1 = require("src/user/user.module");
-const auth_controller_1 = require("./auth.controller");
 let AuthModule = (() => {
     let _classDecorators = [(0, common_1.Module)({
             imports: [
                 // Resolve circular dependencies
+                mongoose_1.MongooseModule.forFeature([{ name: refreshToken_schema_1.RefreshToken.name, schema: refreshToken_schema_1.RefreshTokenSchema }]),
                 passport_1.PassportModule.register({ defaultStrategy: 'jwt' }),
                 config_1.ConfigModule,
                 jwt_1.JwtModule.registerAsync({
@@ -76,9 +78,8 @@ let AuthModule = (() => {
                     }),
                 }), (0, common_1.forwardRef)(() => user_module_1.UserModule),
             ],
-            controllers: [auth_controller_1.AuthController],
             providers: [auth_service_1.AuthService, jwt_strategy_1.JwtStrategy],
-            exports: [auth_service_1.AuthService, jwt_1.JwtModule], // Export necessary services for other modules
+            exports: [auth_service_1.AuthService, jwt_strategy_1.JwtStrategy, jwt_1.JwtModule], // Export necessary services for other modules
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];

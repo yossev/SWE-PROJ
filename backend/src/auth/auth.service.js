@@ -1,22 +1,6 @@
 "use strict";
 /* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -51,13 +35,6 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -74,43 +51,84 @@ var __setFunctionName = (this && this.__setFunctionName) || function (f, name, p
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
 const common_1 = require("@nestjs/common");
-const bcrypt = __importStar(require("bcrypt"));
 let AuthService = (() => {
     let _classDecorators = [(0, common_1.Injectable)()];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
     var AuthService = _classThis = class {
-        constructor(usersService, jwtService) {
-            this.usersService = usersService;
+        constructor(userModel, refreshTokenModel, jwtService, userService) {
+            this.userModel = userModel;
+            this.refreshTokenModel = refreshTokenModel;
             this.jwtService = jwtService;
+            this.userService = userService;
         }
-        register(user) {
+        createAccessToken(userId) {
             return __awaiter(this, void 0, void 0, function* () {
-                const existingUser = yield this.usersService.findByEmail(user.email);
-                if (existingUser) {
-                    throw new common_1.ConflictException('email already exists');
-                }
-                const hashedPassword = yield bcrypt.hash(user.password_hash, 10);
-                const newUser = Object.assign(Object.assign({}, user), { password_hash: hashedPassword, created_at: new Date() });
-                yield this.usersService.create(newUser);
-                return 'registered successfully';
+                return yield this.jwtService.signAsync({ secret: process.env.JWT_SECRET, userId });
             });
         }
-        signIn(email, password) {
+        generateRefreshToken(userId) {
             return __awaiter(this, void 0, void 0, function* () {
-                const user = yield this.usersService.findByEmail(email); // Use UserDocument type
-                if (!user) {
-                    throw new common_1.NotFoundException('User not found');
+                const refreshToken = this.jwtService.sign({ id: userId }, { expiresIn: '7d' });
+                const refreshTokenDocument = new this.refreshTokenModel({
+                    userId,
+                    refreshToken,
+                    browser: 'default-browser', // Example: Replace with actual browser info
+                });
+                yield refreshTokenDocument.save();
+                return refreshToken;
+            });
+        }
+        refreshAccessToken(refreshToken) {
+            return __awaiter(this, void 0, void 0, function* () {
+                // Verify refresh token
+                const decoded = this.jwtService.verify(refreshToken);
+                const { id } = decoded;
+                // Check if refresh token exists in DB
+                const existingToken = yield this.refreshTokenModel.findOne({ refreshToken }).exec();
+                if (!existingToken) {
+                    throw new common_1.UnauthorizedException('Invalid refresh token.');
                 }
-                console.log('password: ', user.password_hash);
-                const isPasswordValid = yield bcrypt.compare(password, user.password_hash);
-                if (!isPasswordValid) {
-                    throw new common_1.UnauthorizedException('Invalid credentials');
+                // Generate new access token
+                const accessToken = this.jwtService.sign({ id });
+                return { accessToken };
+            });
+        }
+        logout(refreshToken) {
+            return __awaiter(this, void 0, void 0, function* () {
+                yield this.refreshTokenModel.findOneAndDelete({ refreshToken }).exec();
+            });
+        }
+        static jwtExtractor(request) {
+            let token = null;
+            if (request.headers['x-token']) {
+                token = request.headers['x-token'];
+            }
+            else if (request.headers.authorization) {
+                const authHeader = request.headers.authorization;
+                token = authHeader.split(' ')[1];
+            }
+            else if (request.body.token) {
+                token = request.body.token;
+            }
+            else if (request.query.token) {
+                token = request.query.token;
+            }
+            return token;
+        }
+        returnJwtExtractor() {
+            return AuthService.jwtExtractor;
+        }
+        findRefreshToken(token) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const refreshToken = yield this.refreshTokenModel.findOne({
+                    refreshToken: token,
+                });
+                if (!refreshToken) {
+                    throw new common_1.UnauthorizedException('User has been logged out.');
                 }
-                const payload = { userid: user._id, role: user.role }; // _id is accessible from UserDocument
-                const token = this.jwtService.sign(payload, { secret: process.env.JWT_SECRET });
-                return { access_token: token };
+                return refreshToken.userId;
             });
         }
     };

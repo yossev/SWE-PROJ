@@ -7,15 +7,11 @@ export type RoomDocument = HydratedDocument<Room>;
 
 @Schema()
 export class Room {
-
-  @Prop({ type : String})
-  name : string
-
   @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'User', required: true })
   user_id: Types.ObjectId[]; // List of users in the room
 
   // Unique identifier for the room
-  @Prop({ type: Boolean, required: true , default:true })
+  @Prop({ type: Boolean, required: true })
   room_status: boolean;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true })

@@ -39,6 +39,7 @@ var __setFunctionName = (this && this.__setFunctionName) || function (f, name, p
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ChatModule = void 0;
+/* eslint-disable prettier/prettier */
 const common_1 = require("@nestjs/common");
 const message_service_1 = require("./message.service");
 const message_controller_1 = require("./message.controller");
@@ -48,31 +49,12 @@ const room_schema_1 = require("../models/room-schema");
 const notification_service_1 = require("src/notification/notification.service");
 const user_service_1 = require("src/user/user.service");
 const room_service_1 = require("src/room/room.service");
-const notification_schema_1 = require("models/notification-schema");
-const jwt_1 = require("@nestjs/jwt");
-const course_schema_1 = require("models/course-schema");
-const user_schema_1 = require("models/user-schema");
-const progress_service_1 = require("src/progress/progress.service");
-const auth_service_1 = require("src/auth/auth.service");
-const progress_schema_1 = require("models/progress-schema");
-const responses_schema_1 = require("models/responses-schema");
-const quizzes_schema_1 = require("models/quizzes-schema");
-const module_schema_1 = require("models/module-schema");
-const rating_schema_1 = require("models/rating-schema");
-const rating_service_1 = require("src/rating/rating.service");
-const refreshToken_schema_1 = require("models/refreshToken-schema");
 let ChatModule = (() => {
     let _classDecorators = [(0, common_1.Module)({
-            imports: [mongoose_1.MongooseModule.forFeature([{ name: message_schema_1.Message.name, schema: message_schema_1.MessageSchema }, { name: 'Room', schema: room_schema_1.RoomSchema },
-                    { name: notification_schema_1.Notification.name, schema: notification_schema_1.NotificationSchema }, { name: course_schema_1.Course.name, schema: course_schema_1.CourseSchema },
-                    { name: user_schema_1.User.name, schema: user_schema_1.UserSchema }, { name: progress_schema_1.Progress.name, schema: progress_schema_1.ProgressSchema }, { name: responses_schema_1.Responses.name, schema: responses_schema_1.ResponseSchema },
-                    { name: quizzes_schema_1.Quiz.name, schema: quizzes_schema_1.QuizSchema }, { name: module_schema_1.Module.name, schema: module_schema_1.ModuleSchema }, { name: rating_schema_1.Rating.name, schema: rating_schema_1.RatingSchema },
-                    { name: refreshToken_schema_1.RefreshToken.name, schema: refreshToken_schema_1.RefreshTokenSchema }
-                ])],
-            providers: [message_service_1.MessageService, message_controller_1.MessageGateway, room_service_1.RoomService,
+            imports: [mongoose_1.MongooseModule.forFeature([{ name: message_schema_1.Message.name, schema: message_schema_1.MessageSchema }, { name: 'Room', schema: room_schema_1.RoomSchema },])],
+            providers: [message_service_1.MessageService, message_controller_1.MessageController, room_service_1.RoomService,
                 user_service_1.UserService,
-                notification_service_1.NotificationService,
-                jwt_1.JwtService, progress_service_1.ProgressService, auth_service_1.AuthService, rating_service_1.RatingService],
+                notification_service_1.NotificationService,],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];

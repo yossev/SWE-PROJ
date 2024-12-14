@@ -36,6 +36,8 @@ require('dotenv').config();
 const core_1 = require("@nestjs/core");
 const app_module_1 = require("./app.module");
 const cookieParser = __importStar(require("cookie-parser"));
+const authentication_guards_1 = require("./auth/guards/authentication.guards");
+const jwt_1 = require("@nestjs/jwt");
 const mongoose = require('mongoose');
 const express = require('express');
 const url = "mongodb://localhost:27017/";
@@ -47,10 +49,12 @@ function bootstrap() {
             console.log('Connected');
         }).catch((err) => {
             console.error('MongoDB connection error:', err);
+            return;
         });
         app.use(express.json());
         const reflector = app.get(core_1.Reflector);
         console.log('Reflector in main.ts:', reflector);
+        app.useGlobalGuards(new authentication_guards_1.AuthGuard(new jwt_1.JwtService(), reflector));
         app.use(cookieParser());
         app.listen(3000);
     });

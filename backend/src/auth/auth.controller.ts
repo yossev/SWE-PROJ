@@ -20,11 +20,6 @@ export class AuthController {
         secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
         maxAge: 3600 * 1000, // Cookie expiration time in milliseconds
       });
-      res.cookie('userId' , result.userId , {
-        httpOnly: true, // Prevents client-side JavaScript access
-        secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
-        maxAge: 3600 * 1000, // Cookie expiration time in milliseconds
-      });
       // Return success response
       return {
         statusCode: HttpStatus.OK,
