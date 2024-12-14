@@ -40,7 +40,7 @@ export class User
     created_at:Date;
     
     @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'Course' })
-    course_id?: mongoose.Types.ObjectId[];
+    courses?: mongoose.Types.ObjectId[];
 
      @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'Notification' })
   notification_id?: Types.ObjectId[]; 
