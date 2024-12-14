@@ -12,6 +12,7 @@ console.log('MongoDB URI:', process.env.MONGO_URI);
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  console.log("test");
   await mongoose.connect(mongoUri , {
   }).then( () => {
      console.log('Connected');
