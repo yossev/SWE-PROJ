@@ -1,4 +1,6 @@
 /* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
 import { NotificationService } from './notification.service';
 import { UserNotification } from '../models/notification-schema';  // Ensure this points to the correct file

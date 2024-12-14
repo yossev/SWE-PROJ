@@ -1,10 +1,11 @@
+/* eslint-disable prettier/prettier */
 import { Controller, Post, Get, Param, Body } from '@nestjs/common';
 import { RoomService } from './room.service';
 import { CreateRoomDto } from './dto/createRoom.dto';
 import { Room, RoomDocument } from 'src/models/room-schema';
 import mongoose, { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { Message, MessageDocument } from 'models/message-schema';
+import {  MessageDocument } from 'models/message-schema';
 import { CourseDocument } from 'models/course-schema';
 
 @Controller('courses/:courseId/rooms')

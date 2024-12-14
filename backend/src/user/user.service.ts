@@ -1,4 +1,6 @@
 /* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { BadRequestException, forwardRef, Inject, Injectable, UnauthorizedException} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 
@@ -35,50 +37,7 @@ export class UserService {
       const user=  await newUser.save()
       return user;  // Save it to the database
   }
-      // Login existing user
-
-
-  /*async login(loginDto: LoginDto, res: Response) {
-    console.log('Logging in');
-     const { email, password } = loginDto;
-
-       // 1. Find the user by email
-     const user = await this.userModel.findOne({ email });
-      if (!user) {
-        throw new UnauthorizedException('User not found');
-     }
-     const id=user._id;
-
-     // 2. Check if the password is correct
-     const isPasswordValid = await bcrypt.compare(password, user.password_hash);
-     if (!isPasswordValid) {
-       throw new UnauthorizedException('Invalid credentials');
-     }
-
-     // 3. Generate tokens
-      const accessToken = this.jwtService.sign(
-        { email: user.email, userId: user._id },
-        { secret: process.env.JWT_SECRET, expiresIn: '1h' },
-      );
-      console.log('entering refresh token');
-      const refreshToken = await this.authService.generateRefreshToken(user._id.toString());
-      console.log('finshing refresh token');
-    // 4. Set tokens as cookies
-    res.cookie('AccessToken', accessToken, {
-       httpOnly: true,
-        //secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
-        maxAge: 60 * 60 * 1000, // 1 hour
-     });
-     console.log('finished first');
-    res.cookie('RefreshToken', refreshToken, {
-        httpOnly: true,
-        //secure: process.env.NODE_ENV === 'production',
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
-console.log('finished cookies');
-    // 5. Return response (if needed)
-      return { message: 'Login successful', userId: id };
-    }*/
+    
 
       async findAll(): Promise<User[]> {
         return await this.userModel.find().exec();
@@ -143,19 +102,7 @@ console.log('finished cookies');
       return deletedUser;
      }
     
-     
-   /* async refreshAccessToken(refreshAccessTokenDto: RefreshAccessTokenDto) {
-      const userId = await this.authService.findRefreshToken(
-        refreshAccessTokenDto.refreshToken
-      );
-      const user = await this.userModel.findById(userId);
-      if (!user) {
-        throw new BadRequestException('Bad request');
-      }
-      return {
-        accessToken: await this.authService.createAccessToken(user._id.toString()),
-      };
-    }*/
+
     async logout(res: Response):Promise<any> {
       res.clearCookie('token');
       res.clearCookie('RefreshToken');
@@ -165,52 +112,5 @@ console.log('finished cookies');
 }
 
   
-    
-// ngebha men courses
-    // async findAllCourses(): Promise<Course[]> {
-    //     return await this.courseModel.find(); // Fetch all courses
-    // }
-    // async findEnrolledCourses(): Promise<Course[]> {
-    //     return await this.courseModel.find(); // Fetch all courses
-    // }
-
-
-
-
-
-
-
-
-
-    // async login(req: Request, loginDto: LoginDto): Promise<{ user: User, jwtToken: string, refreshToken: string }> {
-    //     const user = await this.findByEmail(loginDto.email);
-    //     await this.checkPassword(loginDto.password, user.password_hash);
-    
-    //     const result = {
-    //       user,
-    //       jwtToken: await this.authService.createAccessToken(user._id.toString()),
-    //       refreshToken: await this.authService.createRefreshToken(req, user._id),
-    //     };
-    
-    //     return result;
-    //   }
-    //   async checkPassword(password: string, hashPassword: string) {
-    //     const match = await bcrypt.compare(password, hashPassword);
-    //     if (!match) {
-    //       throw new UnauthorizedException('Wrong email or password.');
-    //     }
-    //   }
-    //   async refreshAccessToken(refreshAccessTokenDto: RefreshAccessTokenDto) {
-    //     const userId = await this.authService.findRefreshToken(
-    //       refreshAccessTokenDto.refreshToken,
-    //     );
-    //     const user = await this.userModel.findById(userId);
-    //     if (!user) {
-    //       throw new BadRequestException('Bad request');
-    //     }
-    //     return {
-    //       accessToken: await this.authService.createAccessToken(user._id),
-    //     };
-    //   }
 
 

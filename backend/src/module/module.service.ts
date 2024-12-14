@@ -1,9 +1,11 @@
 /* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
  
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Module } from '../../models/module-schema'; 
+
 import { StreamableFile } from '@nestjs/common';
 import { createReadStream } from 'fs';
 import { join } from 'path';
@@ -15,6 +17,7 @@ import { UploadedFile } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { PipeTransform, ArgumentMetadata } from '@nestjs/common';
 import { Course } from 'models/course-schema';
+import { Module } from 'models/module-schema';
 
 @Injectable()
 export class FileSizeValidationPipe implements PipeTransform {
@@ -52,16 +55,16 @@ export class ModuleService {
 
   async checkModuleCompatibility(moduleId: string , performanceMetric : string)
   {
-    var performanceLevel : String;
+    let performanceLevel : string;
     if (performanceMetric === 'Above Average') {
       performanceLevel = 'Hard';
     } else if (performanceMetric === 'Average') {
       performanceLevel = 'Medium';
     } else {
-      performanceLevel = 'East';
+      performanceLevel = 'Easy';
     }
 
-    var moduleDifficulty : String = (await this.moduleModel.findById(moduleId).exec()).difficulty;
+    const moduleDifficulty : string = (await this.moduleModel.findById(moduleId).exec()).difficulty;
     switch(performanceLevel)
     {
       case 'Hard':

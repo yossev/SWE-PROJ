@@ -1,4 +1,4 @@
-
+/* eslint-disable prettier/prettier */
 // SWE-PROJ/backend/src/course/course.controller.ts
 import { Controller, Get, Post, Body, Put, Param, Query, Delete, UseGuards, Req } from '@nestjs/common';
 import { CourseService } from './course.service';

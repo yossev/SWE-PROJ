@@ -5,7 +5,6 @@
  
 import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import { ModuleService } from './module.service'; 
-import {Quiz } from '../../models/quizzes-schema';   
 import { CreateModuleDto } from './DTO/createModule.dto';
 import { UpdateModuleDto } from './DTO/updateModule.dto';
 import { UseInterceptors } from '@nestjs/common';

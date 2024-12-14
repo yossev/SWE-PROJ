@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable prettier/prettier */
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, HydratedDocument } from 'mongoose';
+import {  HydratedDocument } from 'mongoose';
 import { Types } from 'mongoose';
 
 import {  Schema as MongooseSchema } from 'mongoose';

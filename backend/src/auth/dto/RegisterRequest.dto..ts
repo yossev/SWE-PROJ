@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { IsNotEmpty, IsEmail, IsString, MinLength, IsEnum, IsOptional, IsDate } from "class-validator";
 
 export class RegisterRequestDto {

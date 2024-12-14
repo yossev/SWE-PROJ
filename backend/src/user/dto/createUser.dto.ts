@@ -1,3 +1,5 @@
+/* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { IsNotEmpty, IsEmail, IsString, MinLength, IsOptional, IsEnum, IsArray } from 'class-validator';
 import { Types } from 'mongoose';
 

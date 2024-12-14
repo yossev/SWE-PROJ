@@ -2,7 +2,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { NotificationService } from './notification.service';
-import { UserNotification, NotificationSchema } from '../models/notification-schema';
+import {  NotificationSchema } from '../models/notification-schema';
 
 @Module({
   imports: [
