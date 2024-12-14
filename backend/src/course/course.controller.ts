@@ -1,24 +1,28 @@
 // SWE-PROJ/backend/src/course/course.controller.ts
-import { Controller, Get, Post, Body, Put, Param, Query, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param, Query, Delete, UseGuards, Req } from '@nestjs/common';
 import { CourseService } from './course.service';
 import { CreateCourseDto } from './dto/createCourse.dto'; 
 import { UpdateCourseDto } from './dto/updateCourse.dto'; 
+import { Roles, Role } from 'src/auth/decorators/roles.decorator';
+import { authorizationGuard } from 'src/auth/guards/authorization.guards';
 
 @Controller('courses')
 export class CourseController {
     constructor(private readonly courseService: CourseService) {}
-
-    @Post()
-    create(@Body() createCourseDto: CreateCourseDto) {
+    @Roles(Role.Admin,Role.Instructor)
+    @UseGuards(authorizationGuard)
+    @Post('/create')
+    create(@Req() req,@Body() createCourseDto: CreateCourseDto) {
         console.log('Creating course:', createCourseDto);
-        return this.courseService.create(createCourseDto);
+        return this.courseService.create(createCourseDto, req);
     }
 
     @Get()
     findAll() {
         return this.courseService.findAll();
     }
-
+    @Roles(Role.Admin,Role.Instructor)
+    @UseGuards(authorizationGuard)
     @Delete(':id')
     async delete(@Param('id') id: string){
         return this.courseService.delete(id);
@@ -34,7 +38,8 @@ export class CourseController {
     findOne(@Param('id') id: string) {
         return this.courseService.findOne(id);
     }
-
+    @Roles(Role.Admin,Role.Instructor)
+    @UseGuards(authorizationGuard)
     @Put(':id')
     update(@Param('id') id: string, @Body() updateCourseDto: UpdateCourseDto) {
         return this.courseService.update(id, updateCourseDto);

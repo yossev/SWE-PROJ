@@ -8,46 +8,46 @@ import { Public } from './decorators/public.decorator';
 export class AuthController {
     constructor(private authService: AuthService) {}
 
-  @Public()
-  @Post('login')
-  async signIn(@Body() signInDto: SignInDto, @Res({ passthrough: true }) res) {
-    try {
-      console.log('helllo')
-      const result = await this.authService.signIn(signInDto.email, signInDto.password);
-
-      res.cookie('token', result.access_token, {
-        httpOnly: true, // Prevents client-side JavaScript access
-        secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
-        maxAge: 3600 * 1000, // Cookie expiration time in milliseconds
-      });
-      res.cookie('userId' , result.userId , {
-        httpOnly: true, // Prevents client-side JavaScript access
-        secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
-        maxAge: 3600 * 1000, // Cookie expiration time in milliseconds
-      });
-      // Return success response
-      return {
-        statusCode: HttpStatus.OK,
-        message: 'Login successful',
-        //user: result.payload,
-      };
-    } catch (error) {
-        console.log(error)
-      // Handle specific errors
-      if (error instanceof HttpException) {
-        throw error; // Pass through known exceptions
+    @Public()
+    @Post('login')
+    async signIn(@Body() signInDto: SignInDto, @Res({ passthrough: true }) res) {
+      try {
+        console.log('hello')
+        const result = await this.authService.signIn(signInDto.email, signInDto.password);
+  
+        res.cookie('token', result.access_token, {
+          httpOnly: true, // Prevents client-side JavaScript access
+          secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+          maxAge: 3600 * 1000, // Cookie expiration time in milliseconds
+        });
+        res.cookie('userId' , result.userId , {
+          httpOnly: true, // Prevents client-side JavaScript access
+          secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+          maxAge: 3600 * 1000, // Cookie expiration time in milliseconds
+        });
+        // Return success
+        return {
+          statusCode: HttpStatus.OK,
+          message: 'Login successful',
+          //user: result.payload,
+        };
+      } catch (error) {
+          console.log(error)
+        // Handle specific errors
+        if (error instanceof HttpException) {
+          throw error; // Pass through known exceptions
+        }
+  
+        // Handle other unexpected errors
+        throw new HttpException(
+          {
+            statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+            message: 'An error occurred during login',
+          },
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
       }
-
-      // Handle other unexpected errors
-      throw new HttpException(
-        {
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: 'An error occurred during login',
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
     }
-  }
   @Public()
   @Post('register')
   async signup(@Body() registerRequestDto: RegisterRequestDto) {

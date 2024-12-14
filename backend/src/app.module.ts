@@ -33,6 +33,7 @@ import { ChatModule } from './chat/message.module';
     },
     JwtStrategy,
     UserService,
+
   ],
 })
 export class AppModule {
