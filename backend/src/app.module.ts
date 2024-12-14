@@ -14,6 +14,9 @@ import { AuthGuard } from './auth/guards/authentication.guards';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { APP_GUARD, Reflector } from '@nestjs/core';
 import { InteractiveModule } from './module/module.module';
+import {BackupModule} from './backup/backup.module'
+
+
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -22,7 +25,9 @@ import { InteractiveModule } from './module/module.module';
     UserModule,  // Ensure UserModule is imported here
     ProgressModule,  // Import ProgressModule to make ProgressService available,
     CourseModule,
-    InteractiveModule
+    InteractiveModule,
+    BackupModule
+    
   ],
   controllers: [AppController],
   providers: [

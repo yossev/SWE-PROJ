@@ -4,11 +4,14 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as cron from 'node-cron';
 import { UserService } from '../user/user.service'; // Import your user service
+import { CourseService } from 'src/course/course.service';
 @Injectable()
 export class BackupService {
     private readonly logger = new Logger(BackupService.name);
 
-    constructor(private readonly userService: UserService) {}
+    constructor(
+        private readonly userService: UserService,
+    ) {}
 
     // Schedule backup process
     scheduleBackup() {
@@ -24,7 +27,9 @@ export class BackupService {
         try {
             // Fetch user data
             const users = await this.userService.findAll();
-            //const courses = await this.userService.findAllCourses(); el mafrood teb2a course progress taken from performance schema
+            // const courses = await this.courseService.findAll(); Will be changed when merging with any Enroll Functionality ( Get courses that this user has )
+            
+            console.log()
 
             const backup = {
                 timestamp: new Date(),
