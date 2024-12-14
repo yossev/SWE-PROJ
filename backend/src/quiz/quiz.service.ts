@@ -147,6 +147,11 @@ async generateQuiz(createQuizDto: CreateQuizDto, userId: string): Promise<any> {
 
   const savedQuiz = await new this.quizModel(quiz).save();
   console.log('Saved Quiz:', savedQuiz);
+  await this.userModel.findByIdAndUpdate(
+    userId,
+    { $push: { quizzes: savedQuiz._id } },
+    { new: true }
+  );
 
   const responseQuestions = selectedQuestions.map((q) => ({
     question: q.question,

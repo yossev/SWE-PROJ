@@ -3,7 +3,6 @@ import mongoose, { HydratedDocument } from 'mongoose';
 
 export type QuizDocument = HydratedDocument<Quiz>;
 
-
 @Schema()
 export class Quiz {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Module', required: true })
@@ -28,6 +27,10 @@ export class Quiz {
 
   @Prop({ type: Date, default: new Date(), required: true })
   created_at: Date;
+
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
+  userId: mongoose.Schema.Types.ObjectId;
 }
 
 export const QuizSchema = SchemaFactory.createForClass(Quiz);

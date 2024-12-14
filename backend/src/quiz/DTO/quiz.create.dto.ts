@@ -19,4 +19,8 @@ export class CreateQuizDto {
   @IsNumber()
   numberOfQuestions: number; 
 
+  @IsString()
+  @IsNotEmpty()
+  userId: string; 
+
 }
