@@ -1,12 +1,18 @@
 "use client";
-import { useRouter } from "next/navigation"; // For navigation
-import { useParams } from "next/navigation"; // Get dynamic params
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function StartQuizPage() {
   const router = useRouter();
-  const { quizid } = useParams(); 
+  const searchParams = useSearchParams();
+  const userId = searchParams.get("userId"); // Extract userId from query params
+
   const handleStartQuiz = () => {
-    router.push(`/quiz/${quizid}/content`); 
+    if (userId) {
+      router.push(`/quiz/content?userId=${userId}`); // Pass userId in the URL
+    } else {
+      alert("User ID is missing!");
+      console.error("User ID is missing");
+    }
   };
 
   return (

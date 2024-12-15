@@ -9,7 +9,8 @@ interface Quiz {
 
 export default function QuizContentPage() {
   const searchParams = useSearchParams();
-  const userId = searchParams.get("userId"); // Extract userId from query params
+  const userId = searchParams.get("userId"); 
+  console.log("User ID:", userId);
 
   const [quizData, setQuizData] = useState<Quiz | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -19,9 +20,9 @@ export default function QuizContentPage() {
     const fetchQuiz = async () => {
       try {
         const response = await axios.get("http://localhost:3001/quiz/generateQuiz", {
-          params: { userId }, // Pass userId as a query parameter
+          params: { userId }, 
         });
-        setQuizData(response.data.data); // Adjust based on backend response structure
+        setQuizData(response.data.data); 
         setUserAnswers(new Array(response.data.data.questions.length).fill(""));
       } catch (err) {
         console.error("Failed to fetch quiz:", err);
@@ -30,7 +31,7 @@ export default function QuizContentPage() {
     };
 
     if (userId) {
-      fetchQuiz(); // Fetch only when userId exists
+      fetchQuiz(); 
     }
   }, [userId]);
 
