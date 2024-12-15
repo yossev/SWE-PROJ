@@ -75,7 +75,7 @@ export class ProgressService {
   // RECORD ATTENDANCE
   async recordAttendance(userId: string, courseId: string, status: 'present' | 'absent'): Promise<void> {
 
-    const progress = await this.progressModel.findOne({ user_id: userId, course_id: userId }).exec()
+    const progress = await this.progressModel.findOne({ user_id: userId, course_id: courseId }).exec()
 
     if (!progress) {
       throw new NotFoundException(`Progress record for user ${userId} in course ${courseId} not found`);
@@ -118,10 +118,12 @@ export class ProgressService {
 
   async getDashboard(userId: string): Promise<any> {
 
-    const progress = await this.progressModel.findOne({ user_id: userId }).exec();
-    //if (!progress) {
-    //throw new NotFoundException(`Dashboard for user ${userId} not found`);
-    //}
+    console.log('Querying progress for userId:', userId);
+    const progress = await this.progressModel.findOne({ user_id: userId}).exec();
+    console.log('Progress found:', progress);
+    if (!progress) {
+      throw new NotFoundException(`Dashboard for user ${userId} not found`);
+    }
 
     // Calculate student's average score for each course 
 
