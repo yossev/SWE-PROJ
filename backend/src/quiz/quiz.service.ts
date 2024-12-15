@@ -37,6 +37,16 @@ export class QuizService {
     const objectId = new mongoose.Types.ObjectId(inpStr);  
     return await this.quizModel.findById(objectId).exec();
 }
+async findByUserId(userId: string): Promise<Quiz> {
+  console.log('Querying quiz for userId:', userId);
+
+  const objectId = new mongoose.Types.ObjectId(userId);
+
+
+  const quiz = await this.quizModel.findOne({ userId: objectId }).exec();
+
+  return quiz;
+}
 
 
 async update(id: string, updateData: UpdateQuizDto): Promise<Quiz> {
@@ -55,6 +65,7 @@ async delete(id: string): Promise<Quiz> {
 // DONT TOUCH THIS VODOO ( IT WORKS AND IDK HOW )
 async generateQuiz(createQuizDto: CreateQuizDto, userId: string): Promise<any> {
   const { moduleId, numberOfQuestions, questionType } = createQuizDto;
+  createQuizDto['user_id'] = userId;
   const allQuestions = await this.questionBankModel.find();
   //console.log('All Questions from Question Bank:', allQuestions);
 
@@ -147,6 +158,11 @@ async generateQuiz(createQuizDto: CreateQuizDto, userId: string): Promise<any> {
 
   const savedQuiz = await new this.quizModel(quiz).save();
   console.log('Saved Quiz:', savedQuiz);
+  await this.userModel.findByIdAndUpdate(
+    userId,
+    { $push: { quizzes: savedQuiz._id } },
+    { new: true }
+  );
 
   const responseQuestions = selectedQuestions.map((q) => ({
     question: q.question,

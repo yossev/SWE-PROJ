@@ -23,6 +23,18 @@ async getQuizById(@Query('id') id: string): Promise<Quiz> {
     const quiz = await this.quizService.findById(id);  
     return quiz;
 }
+@Get('assigned')
+async getQuizByUserId(@Query('userId') userId: string): Promise<Quiz> {
+  console.log('Fetching quiz for User ID:', userId);
+
+  const quiz = await this.quizService.findByUserId(userId);
+
+  if (!quiz) {
+    throw new BadRequestException('No quiz found for the provided user ID.');
+  }
+
+  return quiz;
+}
 
 @Put('updatequiz')
 async updateQuiz(@Query('id') id: string, @Body() quizData: UpdateQuizDto): Promise<Quiz> {
@@ -41,6 +53,7 @@ async updateQuiz(@Query('id') id: string, @Body() quizData: UpdateQuizDto): Prom
     @Body() createQuizDto: CreateQuizDto,
     @Query('userId') userId: string
   ) {
+    
     const quiz = await this.quizService.generateQuiz(createQuizDto, userId);
 
     return {
