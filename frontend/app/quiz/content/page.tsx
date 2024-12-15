@@ -19,7 +19,7 @@ export default function QuizContentPage() {
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
-        const response = await axios.get("http://localhost:3001/quiz/generateQuiz", {
+        const response = await axios.get("http://localhost:3001/quiz/findall", {
           params: { userId }, 
         });
         setQuizData(response.data.data); 
