@@ -18,6 +18,7 @@ import {BackupModule} from './backup/backup.module'
 import { ChatModule } from './chat/message.module';
 import { ForumModule } from './forum/forum.module';
 import { ThreadModule } from './thread/thread.module';
+import { ReplyModule } from './reply/reply.module';
 
 
 @Module({
@@ -32,7 +33,8 @@ import { ThreadModule } from './thread/thread.module';
     BackupModule,
     ChatModule,
     ForumModule,
-    ThreadModule
+    ThreadModule,
+    ReplyModule
     
   ],
   controllers: [AppController],

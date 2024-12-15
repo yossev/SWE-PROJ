@@ -6,7 +6,7 @@ import { Model, Types } from 'mongoose';
 import {  UserNotification } from '../models/notification-schema';
 import { Message } from '../models/message-schema';
 import { Course } from 'models/course-schema';
-import { User } from 'models/user-schema';
+import { User, UserDocument } from 'models/user-schema';
 import { UserService } from 'src/user/user.service';
 
 @Injectable()
@@ -15,7 +15,7 @@ export class NotificationService {
     @InjectModel(UserNotification.name) private notificationModel: Model<UserNotification>, 
     @InjectModel(Message.name) private messageModel: Model<Message>,
     @InjectModel(Course.name) private courseModel: Model<Course>,
-    @InjectModel(User.name) private userModel: Model<User>,
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
     private readonly userService:UserService
   ) {}
 
@@ -25,12 +25,21 @@ export class NotificationService {
     courseName: string
   ): Promise<UserNotification> {
     const message = `A new course "${courseName}" has been created.`;
-    const users=this.userService.findAll();
+    const users=await this.userService.findAll();
+    const userIds : string[] = [];
+    const userIdsObj : Types.ObjectId[] = [];
+    users.forEach(function(value) {
+      userIds.push(value._id.toString());
+    })
+
+    userIds.forEach(function(value) {
+      userIdsObj.push(Types.ObjectId.createFromHexString(value));
+    })
     try {
       const notification = new this.notificationModel({
-        user_id: users,
+        user_id: userIdsObj,
         message,
-        relatedMessageId: courseId, // Link the course ID for tracking
+        relatedMessageId: new Types.ObjectId(courseId), // Link the course ID for tracking
       });
       return await notification.save();
     } catch (error) {

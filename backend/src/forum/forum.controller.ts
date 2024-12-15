@@ -21,52 +21,23 @@ createForum(@Req() req,@Body() createForumDto : CreateForumDto) {
 }
 // Endpoint to get all forums
 @Roles(Role.Instructor, Role.Student)  // Allow both Instructor and Student to view forums
+@UseGuards(authorizationGuard)
 @Get()
 async getForums() {
   return this.forumService.getForums();
 }
-
+@Roles(Role.Instructor)
+@UseGuards(authorizationGuard)
 @Delete('delete')
 async deleteForum(@Query('id') id: string , @Query('creatorId') creatorId : string)
 {
   return this.forumService.deleteForum(id , creatorId);
 }
-
-  /*
-  // Endpoint to create a folder (Restricted to Instructor role)
-  @Roles(Role.Instructor)
-  @Post('folder')
-  async createFolder(@Body() createFolderDto: CreateFolderDto) {
-    return this.forumService.createFolder(createFolderDto);
-  }
-    */
-
-  /*
-  // Endpoint to create a thread (Restricted to Instructor and Student roles)
-  @Roles(Role.Instructor, Role.Student)
-  @Post('thread')
-  async createThread(@Body() createThreadDto: CreateThreadDto) {
-    return this.forumService.createThread(createThreadDto);
-  }
-    */
-
-  // Endpoint to create a reply (Restricted to Instructor and Student roles)
-  @Roles(Role.Instructor, Role.Student)
-  @Post('reply')
-  async createReply(@Body() createReplyDto: CreateReplyDto) {
-    return this.forumService.createReply(createReplyDto);
-  }
-
+@Get('getThreads')
+async getThreads(@Query('id') id: string )
+{
+  return this.forumService.getForumThreads(id);
+}
   
 
-  // Endpoint to update a thread (Restricted to Instructor role)
-
-  // Endpoint to search threads by folder name (Accessible to all roles)
-  /*
-  @Roles(Role.Instructor, Role.Student)
-  @Get('threads/search')
-  async searchThreadByFolderName(@Body('folderName') folderName: string) {
-    return this.forumService.searchThreadByFolderName(folderName);
-  }
-  */
 }

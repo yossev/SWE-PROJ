@@ -39,7 +39,7 @@ export class UserService {
   }
     
 
-      async findAll(): Promise<User[]> {
+      async findAll(): Promise<UserDocument[]> {
         return await this.userModel.find().exec();
       }
       

@@ -6,7 +6,7 @@ export type NotificationDocument = HydratedDocument<Notification>;
 
 @Schema()
 export class UserNotification extends Document {
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
+  @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'User', required: true })
   user_id: Types.ObjectId[]; // Reference to the user receiving the notification
 
   @Prop({ type: String, required: true })

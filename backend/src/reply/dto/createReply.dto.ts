@@ -5,7 +5,7 @@ import { Types } from 'mongoose';
 export class CreateReplyDto {
   @IsMongoId()
   @IsNotEmpty()
-  threadId?: Types.ObjectId;; // The ID of the thread to which the reply belongs
+  thread_id: Types.ObjectId; // The ID of the thread to which the reply belongs
 
   @IsString()
   @IsNotEmpty()
@@ -13,5 +13,5 @@ export class CreateReplyDto {
 
   @IsMongoId()
   @IsNotEmpty()
-  createdBy: string; // The user who created the reply
+  createdBy: Types.ObjectId; // The user who created the reply
 }

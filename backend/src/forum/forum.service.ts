@@ -50,35 +50,10 @@ export class ForumService {
 
   }
 
-  /*
-  // Create a new folder in the forum
-  async createFolder(createFolderDto: CreateFolderDto) {
-    const forum = await this.forumModel.findById(createFolderDto.forumId);
-    if (!forum) {
-      throw new NotFoundException('Forum not found');
-    }
-
-    const folder = new this.folderModel(createFolderDto);
-    return folder.save();
-  }
-  */
-
-  /*
-  // Create a new thread in a folder
-  async createThread(createThreadDto: CreateThreadDto) {
-    const forum = await this.forumModel.findById(createThreadDto.forumId);
-    if (!forum) {
-      throw new NotFoundException('Forum not found');
-    }
-
-    const thread = new this.threadModel(createThreadDto);
-    return thread.save();
-  }
-    */
-
+  
   // Create a reply in a thread
   async createReply(createReplyDto: CreateReplyDto) {
-    const thread = await this.threadModel.findById(createReplyDto.threadId);
+    const thread = await this.threadModel.findById(createReplyDto.thread_id);
     if (!thread) {
       throw new NotFoundException('Thread not found');
     }
@@ -86,4 +61,15 @@ export class ForumService {
     const reply = new this.replyModel(createReplyDto);
     return reply.save();
   }
+  async getForumThreads(forumId: string) {
+    // Validate and cast the forumId to ObjectId
+    if (!Types.ObjectId.isValid(forumId)) {
+      throw new Error('Invalid forum ID');
+    }
+  
+    const forumObjectId = new Types.ObjectId(forumId);
+
+    return await this.threadModel.find({ forum_id: forumObjectId }).exec();
+  }
+  
 }

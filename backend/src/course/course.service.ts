@@ -11,14 +11,19 @@ import { NotificationService } from 'src/notification/notification.service';
 import { AuthGuard as Auth } from '@nestjs/passport';
 import { MessageService } from 'src/chat/message.service';
 import { User, UserDocument } from 'models/user-schema';
+import { ForumService } from 'src/forum/forum.service';
+import { CreateForumDto } from 'src/forum/dto/createForum.dto';
+import { Forum, ForumDocument } from 'models/forum-schema';
 
 @Injectable()
 export class CourseService {
   constructor(
     @InjectModel(Course.name) private courseModel: Model<CourseDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
+    @InjectModel(Forum.name)private forumModel:Model<ForumDocument>,
     private readonly notificationService: NotificationService, // Inject NotificationService
-    private readonly MessageService: MessageService
+    private readonly MessageService: MessageService,
+    private readonly forumService:ForumService
     
   ) {}
 
@@ -32,12 +37,22 @@ export class CourseService {
       const savedCourse = await createdCourse.save();
   
       const courseName = createCourseDto.title; // Use the `title` property as the course name
-      
+      console.log(savedCourse._id.toString())
       await this.notificationService.notifyCourseCreation(
-        courseName, // Course title
-        savedCourse._id.toString() // Saved course ID
+        savedCourse._id.toString(),
+        courseName// Course title
+         // Saved course ID
         
       );
+      const createForumDto: CreateForumDto = {
+        forumTitle: createCourseDto.title, // Use course title as forum title
+        active: true,
+        createdBy: userId,
+        course_id: savedCourse._id, // Set the course ID
+      };
+  
+      // Call forumService.create
+      await this.forumService.create(req, createForumDto);
       return savedCourse;
     } catch (error) {
       console.error('Error creating course:', error);

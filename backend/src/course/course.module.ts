@@ -24,6 +24,12 @@ import { QuizSchema } from 'models/quizzes-schema';
 import { ModuleSchema } from 'models/module-schema';
 import { RatingSchema } from 'models/rating-schema';
 import { RatingService } from 'src/rating/rating.service';
+import { ForumSchema } from 'models/forum-schema';
+import { ForumService } from 'src/forum/forum.service';
+import { ThreadSchema } from 'models/thread-schema';
+import { ThreadService } from 'src/thread/thread.service';
+import { ReplySchema } from 'models/reply-schema';
+import { ReplyService } from 'src/reply/reply.service';
 
 
 @Module({
@@ -35,12 +41,15 @@ import { RatingService } from 'src/rating/rating.service';
      { name: "Responses", schema: ResponseSchema},
      { name: "Quiz", schema: QuizSchema },
      { name: "Module", schema: ModuleSchema},
-     { name: "Rating", schema: RatingSchema}
+     { name: "Rating", schema: RatingSchema},
+     {name:"Forum",schema:ForumSchema},
+     {name:"Thread",schema:ThreadSchema},
+     {name:"Reply",schema:ReplySchema}
   ]),
   UserModule],
   controllers: [CourseController],
   providers: [CourseService, NotificationService, MessageService, UserService, RoomService, JwtService,
-     ProgressService, AuthService, RatingService
+     ProgressService, AuthService, RatingService,ForumService,ThreadService,ReplyService
 
   ],
 })

@@ -28,4 +28,9 @@ export class ThreadController {
     async deleteThread(@Query('id') id: string) {
         return this.threadService.deleteThread(id);
     }
+    @Get('getReplies')
+    async getReplies(@Query('id') id: string )
+    {
+    return this.threadService.getThreadReplies(id);
+    }
 }

@@ -2,7 +2,7 @@
 
 export class UpdateThreadDto {
 
-  threadId : string;
+  thread_id : string;
   threadTitle?: string; // The title of the thread
 
 
