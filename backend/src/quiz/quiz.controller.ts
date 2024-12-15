@@ -68,9 +68,8 @@ async updateQuiz(@Query('id') id: string, @Body() quizData: UpdateQuizDto): Prom
     @Body('userAnswers') userAnswers: string[],
     @Body('selectedQuestions') selectedQuestions: any[],
     @Query('userId') userId: string,
-    @Query('moduleId') moduleId: string
   ) {
-    const evaluation = await this.quizService.evaluateQuiz(userAnswers, selectedQuestions, userId, moduleId);
+    const evaluation = await this.quizService.evaluateQuiz(userAnswers, selectedQuestions, userId);
     return {
       success: true,
       message: 'Quiz evaluated successfully.',

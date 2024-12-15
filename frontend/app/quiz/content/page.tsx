@@ -1,38 +1,37 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation"; // To get query parameters
+import { useSearchParams } from "next/navigation"; 
 import axios from "axios";
-
+import { useRouter } from "next/navigation"; 
 interface Quiz {
   questions: Array<{ question: string; options: string[] }>;
 }
 
 export default function QuizContentPage() {
   const searchParams = useSearchParams();
-  const userId = searchParams.get("userId"); // Extract userId from query params
+  const userId = searchParams.get("userId"); 
   console.log("User ID:", userId);
 
   const [quizData, setQuizData] = useState<Quiz | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [userAnswers, setUserAnswers] = useState<string[]>([]);
+  const [quizResults, setQuizResults] = useState<{ score: number; feedback: string } | null>(null); 
 
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
-        // Updated API endpoint to fetch quiz by userId
         const response = await axios.get("http://localhost:3001/quiz/assigned", {
-          params: { userId }, // Pass userId as a query parameter
+          params: { userId },
         });
 
-        console.log("API Response:", response.data); // Log the API response for debugging
-        
-        const quiz = response.data; // Assign the correct structure of API response
+        console.log("API Response:", response.data);
+
+        const quiz = response.data; 
         console.log("Extracted Quiz Data:", quiz);
 
-        // Ensure quiz data is valid and has questions
         if (quiz && quiz.questions) {
           setQuizData(quiz);
-          setUserAnswers(new Array(quiz.questions.length).fill(""));
+          setUserAnswers(new Array(quiz.questions.length).fill("")); 
         } else {
           setError("No quiz found for this user.");
         }
@@ -43,7 +42,7 @@ export default function QuizContentPage() {
     };
 
     if (userId) {
-      fetchQuiz(); // Fetch the quiz when userId is available
+      fetchQuiz();
     }
   }, [userId]);
 
@@ -53,10 +52,40 @@ export default function QuizContentPage() {
     setUserAnswers(updatedAnswers);
   };
 
-  const handleSubmit = () => {
-    console.log("User Answers:", userAnswers);
-    alert("Quiz Submitted Successfully!");
-  };
+const router = useRouter();
+
+const handleSubmit = async () => {
+  if (!quizData || !userId) {
+    console.error("Missing required data: quizData or userId");
+    setError("Cannot submit quiz due to missing data.");
+    return;
+  }
+
+  try {
+    
+    const response = await axios.post(
+      "http://localhost:3001/quiz/evaluate",
+      {
+        userAnswers, 
+        selectedQuestions: quizData.questions,
+      },
+      { params: { userId } } 
+    );
+
+    console.log("Evaluation Response:", response.data);
+
+    
+    const { score, feedback } = response.data.data;
+
+   
+    router.push(`/quiz/results?score=${score}&feedback=${encodeURIComponent(feedback)}`);
+  } catch (err) {
+    console.error("Failed to evaluate quiz:", err);
+    setError("Error submitting the quiz. Please try again.");
+  }
+};
+
+
 
   return (
     <div className="p-4">
@@ -93,7 +122,20 @@ export default function QuizContentPage() {
           </button>
         </form>
       ) : (
-        <p>Loading quiz...</p>
+        error && <p>{error}</p>
+      )}
+
+      {}
+      {quizResults && (
+        <div className="mt-4">
+          <h2 className="text-2xl font-bold">Your Results</h2>
+          <p className="text-lg">
+            <strong>Score:</strong> {quizResults.score}%
+          </p>
+          <p className="text-lg">
+            <strong>Feedback:</strong> {quizResults.feedback}
+          </p>
+        </div>
       )}
     </div>
   );

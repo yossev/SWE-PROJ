@@ -23,4 +23,9 @@ export class CreateQuizDto {
   @IsNotEmpty()
   userId: string; 
 
+  @IsArray()
+  @IsOptional()
+  @IsString({ each: true }) // Ensure every element in the array is a string
+  questionIds?: string[]; 
+
 }

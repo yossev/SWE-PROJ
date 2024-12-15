@@ -1,6 +1,6 @@
 import { Injectable ,UnauthorizedException,BadRequestException} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Quiz, QuizDocument } from '../../models/quizzes-schema';
 import { Module } from '../../models/module-schema';
 import { QuestionBank } from '../../models/questionbank-schema';
@@ -64,7 +64,7 @@ async delete(id: string): Promise<Quiz> {
 
 // DONT TOUCH THIS VODOO ( IT WORKS AND IDK HOW )
 async generateQuiz(createQuizDto: CreateQuizDto, userId: string): Promise<any> {
-  const { moduleId, numberOfQuestions, questionType } = createQuizDto;
+  const { moduleId, numberOfQuestions, questionType ,questionIds} = createQuizDto;
   createQuizDto['user_id'] = userId;
   const allQuestions = await this.questionBankModel.find();
   //console.log('All Questions from Question Bank:', allQuestions);
@@ -143,18 +143,28 @@ async generateQuiz(createQuizDto: CreateQuizDto, userId: string): Promise<any> {
   console.log('Selected Questions:', selectedQuestions);
 
   const transformedQuestions = selectedQuestions.map((q) => ({
+    questionId: q._id,
     question: q.question,
     options: q.options,
     correct_answer: q.correct_answer,
     difficultyLevel: q.difficulty_level,
   }));
-
+  console.log("trans questions",transformedQuestions)
+  const extractedQuestionIds : Types.ObjectId[]  = [];
+  transformedQuestions.forEach(function(value) {
+    extractedQuestionIds.push(new Types.ObjectId(value.questionId))
+  })
+  console.log("Extracted: " + extractedQuestionIds);
   const quiz = {
     module_id: moduleId,
+    questionIds: extractedQuestionIds , 
     questions: transformedQuestions,
     created_at: new Date(),
     userId: new mongoose.Types.ObjectId(userId), 
   };
+  
+
+  
 
   const savedQuiz = await new this.quizModel(quiz).save();
   console.log('Saved Quiz:', savedQuiz);
@@ -167,7 +177,7 @@ async generateQuiz(createQuizDto: CreateQuizDto, userId: string): Promise<any> {
   const responseQuestions = selectedQuestions.map((q) => ({
     question: q.question,
     options: q.options,
-    id: q._id,
+    questionId: q._id,
   }));
 
   return {
@@ -203,7 +213,6 @@ private shuffleArray(array: any[]): any[] {
     userAnswers: string[],
     selectedQuestions: any[],
     userId: string,
-    moduleId: string
   ): Promise<any> {
     let correctAnswersCount = 0;
     let incorrectAnswers = [];
@@ -227,7 +236,7 @@ private shuffleArray(array: any[]): any[] {
       feedbackMessage = 'Great job! You have passed the quiz. Keep up the good work!';
     }
     await this.quizModel.updateOne(
-      { module_id: moduleId, userId: new mongoose.Types.ObjectId(userId) },
+      {  userId: new mongoose.Types.ObjectId(userId) },
       {
         $set: {
           user_answers: userAnswers,
