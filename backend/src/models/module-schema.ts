@@ -2,6 +2,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 
+import { Document } from 'mongoose';
 
 export type ModuleDocument = HydratedDocument<Module>;
 
@@ -26,7 +27,7 @@ export class Module {
   @Prop({ type: [String], required: false })
   resources: string[];
 
-  @Prop({ type: Date, default: Date.now })
+  @Prop({ type: Date,  default: () => new Date() })
   created_at: Date;
 }
 

@@ -10,7 +10,7 @@ export class ResponseController {
     constructor(private readonly responseService: ResponseService) { }
 
     // Create a new response record
-    @Post()
+    @Post('createresponse')
     async create(@Body() responseData: CreateResponseDto): Promise<Responses> {
         return this.responseService.create(responseData);
     }

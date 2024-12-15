@@ -7,22 +7,25 @@ export type QuestionBankDocument = Document & QuestionBank;
 @Schema()
 export class QuestionBank {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Module', required: true })
-  module_id: mongoose.Schema.Types.ObjectId; // Associate the question bank with a specific module
+  module_id: mongoose.Schema.Types.ObjectId; 
 
   @Prop({ required: true })
-  question: string; // The question text
+  question: string; 
 
   @Prop({ type: [String], required: true })
-  options: string[]; // The answer options for the question
+  options: string[];
 
   @Prop({ required: true })
-  correct_answer: string; // The correct answer for the question
+  correct_answer: string;
 
   @Prop({ enum: ['Easy', 'Medium', 'Hard'], required: true })
-  difficulty_level: string; // The difficulty level of the question
-
+  difficulty_level: string; 
+  
   @Prop({ required: false })
-  explanation?: string; // Explanation for the question (optional)
+  explanation?: string; 
+
+  @Prop({ enum: ['MCQ', 'True/False', 'Both'], required: false })
+  question_type?: string;
 }
 
 export const QuestionBankSchema = SchemaFactory.createForClass(QuestionBank);
