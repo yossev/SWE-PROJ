@@ -15,6 +15,7 @@ import { AuthGuard } from './auth/guards/authentication.guards';
 import { APP_GUARD, Reflector } from '@nestjs/core';
 import { InteractiveModule } from './module/module.module';
 import {BackupModule} from './backup/backup.module'
+import { ChatModule } from './chat/message.module';
 
 
 @Module({
@@ -26,7 +27,8 @@ import {BackupModule} from './backup/backup.module'
     ProgressModule,  // Import ProgressModule to make ProgressService available,
     CourseModule,
     InteractiveModule,
-    BackupModule
+    BackupModule,
+    ChatModule
     
   ],
   controllers: [AppController],

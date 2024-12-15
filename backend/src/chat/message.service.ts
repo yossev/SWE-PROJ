@@ -14,7 +14,7 @@ export class MessageService {
   constructor(
     @InjectModel('Message') private readonly messageModel: Model<Message>,
     @InjectModel('Room') private readonly roomModel: Model<Room>,
-    @InjectModel('UserNotification') private readonly notificationModel: Model<UserNotification>,
+    @InjectModel(UserNotification.name) private readonly notificationModel: Model<UserNotification>,
     private readonly notificationService: NotificationService,
     private readonly userService: UserService,
     private readonly roomService: RoomService,
@@ -22,7 +22,7 @@ export class MessageService {
 
   // Save a new message to the database
   async saveMessage(userId: Types.ObjectId, content: string, roomId: Types.ObjectId): Promise<Message> {
-    const newMessage = new this.messageModel({ userId, content, roomId });
+    const newMessage = new this.messageModel({ user_id: userId,content : content, room_id : roomId });
     return await newMessage.save();
   }
 
@@ -32,11 +32,12 @@ export class MessageService {
   }
 
   // Send and notify users
-  async sendMessage(userId: Types.ObjectId, content: string, roomId: Types.ObjectId, chatType: string, recipientId?: Types.ObjectId): Promise<Message> {
-    const savedMessage = await this.saveMessage(userId, content, roomId);
+  async sendMessage(userId: Types.ObjectId, content: string, roomId: string, chatType: string, recipientId?: Types.ObjectId): Promise<Message> {
+    const room = await this.roomModel.findOne({name : roomId});
+    const savedMessage = await this.saveMessage(userId, content, room._id);
 
     if (chatType === 'group') {
-      await this.notifyUsersInRoom(roomId, userId, savedMessage);
+      await this.notifyUsersInRoom(room._id, userId, savedMessage);
     }
 
     if (chatType === 'individual' && recipientId) {
@@ -52,8 +53,8 @@ export class MessageService {
 
   // Notify all users in the room except the sender
   private async notifyUsersInRoom(roomId: Types.ObjectId, userId: Types.ObjectId, message: Message) {
-    const room = await this.roomModel.findById(roomId).populate('users');
-    const usersInRoom = room.user_id.filter(user => user._id.toString() !== userId.toString());
+    const roomUsers = (await this.roomModel.findById(roomId)).user_id;
+    const usersInRoom = roomUsers.filter(user => user._id.toString() !== userId.toString());
 
     for (const user of usersInRoom) {
       await this.notificationService.createNotification(
