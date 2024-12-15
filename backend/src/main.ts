@@ -9,6 +9,7 @@ import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
 import { AuthGuard } from './auth/guards/authentication.guards';
 import { JwtService } from '@nestjs/jwt';
+import { CorsOptions } from 'cors';
 const mongoose=require('mongoose');
 const express=require('express');
 const url: string = "mongodb://localhost:27017/";
@@ -17,7 +18,8 @@ const url: string = "mongodb://localhost:27017/";
 async function bootstrap() {
 
    console.log("Database URL:" , process.env.DATABASE);
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule , {cors : true});
+  app.enableCors({origin : true , credentials : true});
   await mongoose.connect(process.env.DATABASE , {
   }).then( () => {
      console.log('Connected');

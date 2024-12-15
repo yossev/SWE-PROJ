@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useActionState } from "react";
-import register from "../[register]/register.server";
+import register from "./register.server";
 
 export default function RegisterPage() {
   const [name, setName] = useState<string>("");

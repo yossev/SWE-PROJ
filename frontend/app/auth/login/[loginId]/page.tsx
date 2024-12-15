@@ -3,7 +3,9 @@
 import { useActionState, useState } from "react";
 import { useRouter } from "next/navigation";
 import axiosInstance from "@/app/utils/axiosInstance";
+import axios from "axios";
 import login from "./login.server";
+import { log } from "console";
 
 const backend_url = "http://localhost:3001";
 
@@ -16,10 +18,13 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axiosInstance.post(`${backend_url}/auth/login`, {
+      console.log("Entered function");
+      const response = await axios.post(`${backend_url}/auth/login`, {
         email,
-        password,
+        password
       });
+      console.log("Finished fetch data");
+      console.log(response);
       const { status, data } = response;
 
       if (status === 201) {
