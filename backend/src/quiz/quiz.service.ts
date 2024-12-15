@@ -37,6 +37,16 @@ export class QuizService {
     const objectId = new mongoose.Types.ObjectId(inpStr);  
     return await this.quizModel.findById(objectId).exec();
 }
+async findByUserId(userId: string): Promise<Quiz> {
+  console.log('Querying quiz for userId:', userId);
+
+  const objectId = new mongoose.Types.ObjectId(userId);
+
+
+  const quiz = await this.quizModel.findOne({ userId: objectId }).exec();
+
+  return quiz;
+}
 
 
 async update(id: string, updateData: UpdateQuizDto): Promise<Quiz> {

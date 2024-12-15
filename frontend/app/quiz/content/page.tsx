@@ -9,7 +9,7 @@ interface Quiz {
 
 export default function QuizContentPage() {
   const searchParams = useSearchParams();
-  const userId = searchParams.get("userId"); 
+  const userId = searchParams.get("userId"); // Extract userId from query params
   console.log("User ID:", userId);
 
   const [quizData, setQuizData] = useState<Quiz | null>(null);
@@ -19,19 +19,31 @@ export default function QuizContentPage() {
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
-        const response = await axios.get("http://localhost:3001/quiz/findall", {
-          params: { userId }, 
+        // Updated API endpoint to fetch quiz by userId
+        const response = await axios.get("http://localhost:3001/quiz/assigned", {
+          params: { userId }, // Pass userId as a query parameter
         });
-        setQuizData(response.data.data); 
-        setUserAnswers(new Array(response.data.data.questions.length).fill(""));
+
+        console.log("API Response:", response.data); // Log the API response for debugging
+        
+        const quiz = response.data; // Assign the correct structure of API response
+        console.log("Extracted Quiz Data:", quiz);
+
+        // Ensure quiz data is valid and has questions
+        if (quiz && quiz.questions) {
+          setQuizData(quiz);
+          setUserAnswers(new Array(quiz.questions.length).fill(""));
+        } else {
+          setError("No quiz found for this user.");
+        }
       } catch (err) {
         console.error("Failed to fetch quiz:", err);
-        setError("Error fetching quiz.");
+        setError("Error fetching quiz. Please check the user ID or try again.");
       }
     };
 
     if (userId) {
-      fetchQuiz(); 
+      fetchQuiz(); // Fetch the quiz when userId is available
     }
   }, [userId]);
 
