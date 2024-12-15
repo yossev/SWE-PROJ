@@ -11,7 +11,7 @@ export class CreateResponseDto {
     answer: string;
   }>;
 
-  score?: number;
+  score: number;
 
-  submittedAt?: Date;
+  submittedAt: Date;
 }

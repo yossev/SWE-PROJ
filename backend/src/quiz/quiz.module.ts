@@ -1,2 +1,26 @@
-/* eslint-disable prettier/prettier */
- 
+import { Module, forwardRef } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose';
+import { quizController } from './quiz.controller';
+import { QuizService } from './quiz.service';
+import { QuizSchema } from '../../models/quizzes-schema';
+
+import { ProgressModule } from 'src/progress/progress.module';
+import { ProgressSchema } from 'models/progress-schema';
+import { ModuleSchema } from 'models/module-schema';
+import { QuestionBankSchema } from 'models/questionbank-schema';
+import { UserSchema } from 'models/user-schema';
+@Module({
+  imports: [
+    MongooseModule.forFeature([
+      { name: 'Quiz', schema: QuizSchema },
+      { name: 'Module', schema: ModuleSchema },
+      { name: 'QuestionBank', schema: QuestionBankSchema },
+      { name: 'User', schema: UserSchema },
+      { name: 'Progress', schema: ProgressSchema} 
+    ]),
+    forwardRef(() => ProgressModule) 
+  ],
+  controllers: [quizController],
+  providers: [QuizService],
+})
+export class QuizModule {}

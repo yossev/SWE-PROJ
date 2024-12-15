@@ -13,7 +13,7 @@ import { UserService } from './user/user.service';
 import { AuthGuard } from './auth/guards/authentication.guards';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { APP_GUARD, Reflector } from '@nestjs/core';
-import { InteractiveModule } from './module/module.module';
+
 import {BackupModule} from './backup/backup.module'
 import { ChatModule } from './chat/message.module';
 import { ForumModule } from './forum/forum.module';
@@ -29,7 +29,7 @@ import { ReplyModule } from './reply/reply.module';
     UserModule,  // Ensure UserModule is imported here
     ProgressModule,  // Import ProgressModule to make ProgressService available,
     CourseModule,
-    InteractiveModule,
+    
     BackupModule,
     ChatModule,
     ForumModule,

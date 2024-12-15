@@ -7,4 +7,10 @@ export class CreateProgressDTO {
   completion_percentage: number; 
 
   last_accessed?: string; // Optional field
+
+  attendance?: { 
+    date: Date;
+    status: 'present' | 'absent';
+  }[];
+
 }

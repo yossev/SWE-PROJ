@@ -5,5 +5,5 @@ export class CreateRatingDto {
 
     ratedEntityId: string;
 
-    userId: string;
+    user_id: string;
 }
