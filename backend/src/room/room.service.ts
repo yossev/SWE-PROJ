@@ -121,6 +121,20 @@ export class RoomService {
   async setRoomInactive(roomId: string): Promise<Room> {
     return this.roomModel.findByIdAndUpdate(roomId, { active: false }, { new: true });
   }
+
+  async joinRoom(roomName : string , id: string)
+  {
+    const room = await this.roomModel.findOne({name : roomName});
+    room.user_id.push(new Types.ObjectId(id));
+    return await room.save();
+  }
+
+  async leaveRoom(roomName : string , id: string)
+  {
+    let room = await this.roomModel.findOne({name : roomName});
+    room.user_id = room.user_id.filter(x => x.toString() !== id);
+    return await room.save();
+  }
   
 
 }

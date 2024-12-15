@@ -8,12 +8,33 @@ import { UserModule } from './user/user.module';  // UserModule is already impor
 import { ProgressModule } from './progress/progress.module';  // Import ProgressModule
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { MongooseModule } from '@nestjs/mongoose';
-import {ConfigModule} from '@nestjs/config'
-import { ProgressModule } from './progress/progress.module';
+import { JwtStrategy } from './auth/jwt.strategy';
+import { UserService } from './user/user.service';
+import { AuthGuard } from './auth/guards/authentication.guards';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { APP_GUARD, Reflector } from '@nestjs/core';
+
+import {BackupModule} from './backup/backup.module'
+import { ChatModule } from './chat/message.module';
+import { ForumModule } from './forum/forum.module';
+import { ThreadModule } from './thread/thread.module';
+
 
 @Module({
-  imports: [MongooseModule.forRoot("mongodb://localhost:27017/"), ProgressModule],
+  imports: [
+    ConfigModule.forRoot(),
+    MongooseModule.forRoot(process.env.DATABASE),
+    AuthModule,
+    UserModule,  // Ensure UserModule is imported here
+    ProgressModule,  // Import ProgressModule to make ProgressService available,
+    CourseModule,
+    
+    BackupModule,
+    ChatModule,
+    ForumModule,
+    ThreadModule
+    
+  ],
   controllers: [AppController],
   providers: [
     AppService,

@@ -8,9 +8,7 @@ export class UpdateThreadDto {
 
   content?: string; // The content of the thread
 
-  forum?: string;
+  forum_id?: string;
 
   createdBy?: string; // The user who created the thread
-
-  topics?: string[];
 }

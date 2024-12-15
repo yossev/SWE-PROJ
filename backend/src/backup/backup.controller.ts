@@ -1,8 +1,11 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Get, Logger } from '@nestjs/common';
+import { Controller, Get, Logger, UseGuards } from '@nestjs/common';
 import { BackupService } from './backup.service';
 import * as fs from 'fs';
 import * as path from 'path';
+import { Roles, Role } from 'src/auth/decorators/roles.decorator';
+import { authorizationGuard } from 'src/auth/guards/authorization.guards';
+import { AuthGuard } from 'src/auth/guards/authentication.guards';
 
 @Controller('backup')
 export class BackupController {
@@ -11,6 +14,8 @@ export class BackupController {
   constructor(private readonly backupService: BackupService) {}
 
   // Endpoint to trigger the backup manually
+  @Roles(Role.Admin,Role.Instructor)
+  @UseGuards(authorizationGuard)
   @Get('trigger')
   async triggerBackup() {
     this.logger.log('Manual backup triggered.');
@@ -19,6 +24,8 @@ export class BackupController {
   }
 
   // Endpoint to list all existing backup files
+  @Roles(Role.Admin,Role.Instructor)
+  @UseGuards(authorizationGuard)
   @Get('list')
   listBackups() {
     const backupPath = path.join(__dirname, '..', '..', 'backups');

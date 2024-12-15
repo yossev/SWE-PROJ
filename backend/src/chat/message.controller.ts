@@ -1,5 +1,9 @@
-import { WebSocketGateway, WebSocketServer, SubscribeMessage, MessageBody, WsResponse } from '@nestjs/websockets';
-import { Server, Socket } from 'socket.io';
+import {     MessageBody, OnGatewayConnection,
+  OnGatewayDisconnect, SubscribeMessage,
+  WebSocketGateway, WebSocketServer} from '@nestjs/websockets';
+import { Namespace , Server, Socket } from 'socket.io';
+import { ConnectedSocket } from '@nestjs/websockets';
+import { Logger , Req , Res , Get , Param } from '@nestjs/common';
 import { MessageService } from './message.service';
 import { RoomService } from 'src/room/room.service';
 import { UserService } from 'src/user/user.service';
@@ -7,10 +11,11 @@ import { NotificationService } from 'src/notification/notification.service';
 import { JwtService } from '@nestjs/jwt';
 import { Types } from 'mongoose';
 import { CreateMessageDto } from './dto/createMessage.dto';
+import { Type } from 'class-transformer';
 
-@WebSocketGateway()
-export class MessageController {
-  @WebSocketServer() server: Server;
+
+@WebSocketGateway({ cors: true })
+export class MessageGateway implements OnGatewayConnection , OnGatewayDisconnect {
 
   constructor(
     private readonly messageService: MessageService,
@@ -18,67 +23,77 @@ export class MessageController {
     private readonly userService: UserService,
     private readonly notificationService: NotificationService,
     private readonly jwtService: JwtService,
-  ) {}
-
-  // Handle sending messages (both group and private)
- // message.controller.ts
- @SubscribeMessage('send_message')
- async handleMessage(
-   @MessageBody() createMessageDto: CreateMessageDto,
-   client: Socket,
- ): Promise<WsResponse<any>> {
-   const { userId, content, roomId, chatType, recipientId } = createMessageDto;
- 
-   const sender = await this.userService.findById(userId);
-   if (!sender) {
-     throw new Error('Sender not found.');
-   }
- 
-   // Ensure roomId and recipientId are valid ObjectIds
-   const savedMessage = await this.messageService.sendMessage(
-     new Types.ObjectId(userId), // Ensure userId is an ObjectId
-     content,
-     new Types.ObjectId(roomId), // Ensure roomId is an ObjectId
-     chatType,
-     recipientId ? new Types.ObjectId(recipientId) : undefined, // Optional recipientId
-   );
- 
-   // Broadcast the message
-   if (chatType === 'group') {
-     client.to(roomId).emit('receive_message', savedMessage);
-   } else if (chatType === 'individual') {
-     const privateRoomId = await this.roomService.generatePrivateRoomId(
-       new Types.ObjectId(userId),
-       new Types.ObjectId(recipientId),
-     );
-     client.to(privateRoomId).emit('receive_message', savedMessage);
- 
-     await this.notificationService.createNotification(
-       recipientId,
-       `New message from ${sender.name}`,
-       savedMessage._id.toString(),
-     );
-   }
- 
-   return { event: 'receive_message', data: savedMessage };
- }
- 
-  // Join a room (group chat)
-  @SubscribeMessage('join_room')
-  handleJoinRoom(@MessageBody() roomId: string, client: Socket): void {
-    client.join(roomId); // Join the room
+  ) {
   }
 
-  // Leave a room
+  @WebSocketServer() server: Server;
+  private readonly logger = new Logger(MessageGateway.name);
+  clientIdArray = [];
+  allCurrentRooms = [];
+  
+
+  handleConnection(client: Socket): void {
+    this.server.emit('room', client.id + ' joined!')
+    this.logger.log(`Client with ID: ${client.id} is connected!`);
+  }
+
+  async handleDisconnect(client: Socket) {
+      this.server.emit('room', client.id + ' left!')
+      this.logger.log(`Client with ID: ${client.id} is disconnected!`);
+      let clientId = this.clientIdArray.find(i => i.client === client.id);
+      if(clientId)
+      {
+        let self = this;
+        this.allCurrentRooms.forEach(function(value) {
+          const room = value.name;
+          console.log("Room is: " + room);
+          self.roomService.leaveRoom(room , clientId.userId);
+        })
+      }
+  }
+
+  @SubscribeMessage('join_room')
+  async handleJoinRoom(@ConnectedSocket() client: Socket ,@MessageBody() body : {roomId : string , user : string , userId : string}): Promise<void> {
+    console.log("ID is: " + body.userId);
+    console.log(`User ${body.user} joined room ${body.roomId}`)
+    const roomFound = this.allCurrentRooms.find(i => i.name === body.roomId);
+    if(!roomFound)
+    {
+      this.allCurrentRooms.push({name : body.roomId});
+    }
+    this.clientIdArray.push({client : client.id , id : body.userId});
+    client.join(body.roomId); // Join the room
+    this.roomService.joinRoom(body.roomId , body.userId);
+    this.server.to(body.roomId).emit('join_room' , `client ${body.user} has joined room : ${body.roomId}`);
+  }
+
+    // Leave a room
   @SubscribeMessage('leave_room')
-  handleLeaveRoom(@MessageBody() roomId: string, client: Socket): void {
-    client.leave(roomId); // Leave the room
+  async handleLeaveRoom(@ConnectedSocket() client: Socket , @MessageBody() body : {roomId : string , user : string , userId : string}): Promise<void> {
+    client.leave(body.roomId); // Leave the room
+    this.roomService.leaveRoom(body.roomId , body.userId);
+    this.server.to(body.roomId).emit('leave_room' , `${body.user} has left room: ${body.roomId}`)
+  }
+
+  @SubscribeMessage('sendMessage')
+  async handleMessage(@ConnectedSocket() client: Socket ,@MessageBody() body : {roomId : string , userId: string , user : string , message: string} ) {
+    this.server.to(body.roomId).emit('sendMessage' , `${body.user} says: ${body.message}`);
+    await this.messageService.sendMessage(new Types.ObjectId(body.userId) , body.message ,body.roomId , "group");
   }
 
   // Get chat history for a room
   @SubscribeMessage('get_chat_history')
-  async handleGetHistory(@MessageBody() roomId: string, client: Socket): Promise<void> {
-    const messages = await this.messageService.getMessagesByRoom(new Types.ObjectId(roomId));
+  async handleGetHistory(@MessageBody() body: {roomId : string}, client: Socket): Promise<void> {
+    const messages = await this.messageService.getMessagesByRoom(new Types.ObjectId(body.roomId));
     client.emit('chat_history', messages);
   }
+
+    /*@SubscribeMessage('customName')
+    handleMessage(client: Socket, message: any): void {
+        this.client.emit('room', `[${client.id}] -> ${message}`);
+    }*/
+
+
+
+
 }
