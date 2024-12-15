@@ -34,11 +34,10 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     return useValue ? value : void 0;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createUserDto = void 0;
+exports.RegisterRequestDto = void 0;
 /* eslint-disable prettier/prettier */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 const class_validator_1 = require("class-validator");
-let createUserDto = (() => {
+let RegisterRequestDto = (() => {
     var _a;
     let _email_decorators;
     let _email_initializers = [];
@@ -55,14 +54,18 @@ let createUserDto = (() => {
     let _profile_picture_url_decorators;
     let _profile_picture_url_initializers = [];
     let _profile_picture_url_extraInitializers = [];
-    return _a = class createUserDto {
+    let _created_at_decorators;
+    let _created_at_initializers = [];
+    let _created_at_extraInitializers = [];
+    return _a = class RegisterRequestDto {
             constructor() {
                 this.email = __runInitializers(this, _email_initializers, void 0);
                 this.name = (__runInitializers(this, _email_extraInitializers), __runInitializers(this, _name_initializers, void 0));
                 this.password_hash = (__runInitializers(this, _name_extraInitializers), __runInitializers(this, _password_hash_initializers, void 0)); // This will be hashed in the service layer.
                 this.role = (__runInitializers(this, _password_hash_extraInitializers), __runInitializers(this, _role_initializers, void 0));
                 this.profile_picture_url = (__runInitializers(this, _role_extraInitializers), __runInitializers(this, _profile_picture_url_initializers, void 0));
-                __runInitializers(this, _profile_picture_url_extraInitializers);
+                this.created_at = (__runInitializers(this, _profile_picture_url_extraInitializers), __runInitializers(this, _created_at_initializers, void 0));
+                __runInitializers(this, _created_at_extraInitializers);
             }
         },
         (() => {
@@ -72,13 +75,15 @@ let createUserDto = (() => {
             _password_hash_decorators = [(0, class_validator_1.IsNotEmpty)(), (0, class_validator_1.IsString)(), (0, class_validator_1.MinLength)(6, { message: 'Password must be at least 6 characters long' })];
             _role_decorators = [(0, class_validator_1.IsNotEmpty)(), (0, class_validator_1.IsEnum)(['student', 'instructor', 'admin'])];
             _profile_picture_url_decorators = [(0, class_validator_1.IsOptional)(), (0, class_validator_1.IsString)()];
+            _created_at_decorators = [(0, class_validator_1.IsOptional)(), (0, class_validator_1.IsDate)()];
             __esDecorate(null, null, _email_decorators, { kind: "field", name: "email", static: false, private: false, access: { has: obj => "email" in obj, get: obj => obj.email, set: (obj, value) => { obj.email = value; } }, metadata: _metadata }, _email_initializers, _email_extraInitializers);
             __esDecorate(null, null, _name_decorators, { kind: "field", name: "name", static: false, private: false, access: { has: obj => "name" in obj, get: obj => obj.name, set: (obj, value) => { obj.name = value; } }, metadata: _metadata }, _name_initializers, _name_extraInitializers);
             __esDecorate(null, null, _password_hash_decorators, { kind: "field", name: "password_hash", static: false, private: false, access: { has: obj => "password_hash" in obj, get: obj => obj.password_hash, set: (obj, value) => { obj.password_hash = value; } }, metadata: _metadata }, _password_hash_initializers, _password_hash_extraInitializers);
             __esDecorate(null, null, _role_decorators, { kind: "field", name: "role", static: false, private: false, access: { has: obj => "role" in obj, get: obj => obj.role, set: (obj, value) => { obj.role = value; } }, metadata: _metadata }, _role_initializers, _role_extraInitializers);
             __esDecorate(null, null, _profile_picture_url_decorators, { kind: "field", name: "profile_picture_url", static: false, private: false, access: { has: obj => "profile_picture_url" in obj, get: obj => obj.profile_picture_url, set: (obj, value) => { obj.profile_picture_url = value; } }, metadata: _metadata }, _profile_picture_url_initializers, _profile_picture_url_extraInitializers);
+            __esDecorate(null, null, _created_at_decorators, { kind: "field", name: "created_at", static: false, private: false, access: { has: obj => "created_at" in obj, get: obj => obj.created_at, set: (obj, value) => { obj.created_at = value; } }, metadata: _metadata }, _created_at_initializers, _created_at_extraInitializers);
             if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         })(),
         _a;
 })();
-exports.createUserDto = createUserDto;
+exports.RegisterRequestDto = RegisterRequestDto;

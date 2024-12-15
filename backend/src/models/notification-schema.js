@@ -61,11 +61,11 @@ var __setFunctionName = (this && this.__setFunctionName) || function (f, name, p
     return Object.defineProperty(f, "name", { configurable: true, value: prefix ? "".concat(prefix, " ", name) : name });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.NotificationSchema = exports.Notification = void 0;
+exports.NotificationSchema = exports.UserNotification = void 0;
 /* eslint-disable prettier/prettier */
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = __importStar(require("mongoose"));
-let Notification = (() => {
+let UserNotification = (() => {
     let _classDecorators = [(0, mongoose_1.Schema)()];
     let _classDescriptor;
     let _classExtraInitializers = [];
@@ -86,7 +86,7 @@ let Notification = (() => {
     let _createdAt_decorators;
     let _createdAt_initializers = [];
     let _createdAt_extraInitializers = [];
-    var Notification = _classThis = class extends _classSuper {
+    var UserNotification = _classThis = class extends _classSuper {
         constructor() {
             super(...arguments);
             this.user_id = __runInitializers(this, _user_id_initializers, void 0); // Reference to the user receiving the notification
@@ -97,7 +97,7 @@ let Notification = (() => {
             __runInitializers(this, _createdAt_extraInitializers);
         }
     };
-    __setFunctionName(_classThis, "Notification");
+    __setFunctionName(_classThis, "UserNotification");
     (() => {
         var _a;
         const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create((_a = _classSuper[Symbol.metadata]) !== null && _a !== void 0 ? _a : null) : void 0;
@@ -112,11 +112,11 @@ let Notification = (() => {
         __esDecorate(null, null, _relatedMessageId_decorators, { kind: "field", name: "relatedMessageId", static: false, private: false, access: { has: obj => "relatedMessageId" in obj, get: obj => obj.relatedMessageId, set: (obj, value) => { obj.relatedMessageId = value; } }, metadata: _metadata }, _relatedMessageId_initializers, _relatedMessageId_extraInitializers);
         __esDecorate(null, null, _createdAt_decorators, { kind: "field", name: "createdAt", static: false, private: false, access: { has: obj => "createdAt" in obj, get: obj => obj.createdAt, set: (obj, value) => { obj.createdAt = value; } }, metadata: _metadata }, _createdAt_initializers, _createdAt_extraInitializers);
         __esDecorate(null, _classDescriptor = { value: _classThis }, _classDecorators, { kind: "class", name: _classThis.name, metadata: _metadata }, null, _classExtraInitializers);
-        Notification = _classThis = _classDescriptor.value;
+        UserNotification = _classThis = _classDescriptor.value;
         if (_metadata) Object.defineProperty(_classThis, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         __runInitializers(_classThis, _classExtraInitializers);
     })();
-    return Notification = _classThis;
+    return UserNotification = _classThis;
 })();
-exports.Notification = Notification;
-exports.NotificationSchema = mongoose_1.SchemaFactory.createForClass(Notification);
+exports.UserNotification = UserNotification;
+exports.NotificationSchema = mongoose_1.SchemaFactory.createForClass(UserNotification);
