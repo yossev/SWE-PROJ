@@ -55,6 +55,7 @@ async delete(id: string): Promise<Quiz> {
 // DONT TOUCH THIS VODOO ( IT WORKS AND IDK HOW )
 async generateQuiz(createQuizDto: CreateQuizDto, userId: string): Promise<any> {
   const { moduleId, numberOfQuestions, questionType } = createQuizDto;
+  createQuizDto['user_id'] = userId;
   const allQuestions = await this.questionBankModel.find();
   //console.log('All Questions from Question Bank:', allQuestions);
 

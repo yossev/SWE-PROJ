@@ -41,6 +41,7 @@ async updateQuiz(@Query('id') id: string, @Body() quizData: UpdateQuizDto): Prom
     @Body() createQuizDto: CreateQuizDto,
     @Query('userId') userId: string
   ) {
+    
     const quiz = await this.quizService.generateQuiz(createQuizDto, userId);
 
     return {
