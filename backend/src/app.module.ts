@@ -16,6 +16,8 @@ import { APP_GUARD, Reflector } from '@nestjs/core';
 import { InteractiveModule } from './module/module.module';
 import {BackupModule} from './backup/backup.module'
 import { ChatModule } from './chat/message.module';
+import { ForumModule } from './forum/forum.module';
+import { ThreadModule } from './thread/thread.module';
 
 
 @Module({
@@ -28,7 +30,9 @@ import { ChatModule } from './chat/message.module';
     CourseModule,
     InteractiveModule,
     BackupModule,
-    ChatModule
+    ChatModule,
+    ForumModule,
+    ThreadModule
     
   ],
   controllers: [AppController],

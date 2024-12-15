@@ -21,10 +21,10 @@ export class Thread {
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', required: true })
   createdBy: MongooseSchema.Types.ObjectId; // Reference to the user who created the thread
-  
-  @Prop({ type: [{ type: MongooseSchema.Types.ObjectId, ref: 'Topic' }] })
-  topic_id: Types.ObjectId[]; // References to replies within the thread
+
 
 }
 
 export const ThreadSchema = SchemaFactory.createForClass(Thread);
+
+ThreadSchema.index({ content: 'text' });

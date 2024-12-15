@@ -1,7 +1,6 @@
 /* eslint-disable prettier/prettier */
-import { Injectable } from "@nestjs/common";
+import { Injectable, Req } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { Topic, TopicDocument } from "src/models/topic-schema";
 import { Thread, ThreadDocument } from "src/models/thread-schema";
 import { Model, Types } from "mongoose";
 import { CreateThreadDto } from "./dto/createThread.dto";
@@ -12,12 +11,12 @@ import { UpdateThreadDto } from "./dto/updateThread.dto";
 @Injectable()
 export class ThreadService {
   constructor(
-    @InjectModel(Thread.name) private threadModel: Model<ThreadDocument>,
-    @InjectModel(Topic.name) private topicModel: Model<TopicDocument>,
+    @InjectModel(Thread.name) private threadModel: Model<ThreadDocument>
   ) {}
 
   // Create a new thread in a folder
-  async createThread(createThreadDto: CreateThreadDto) {
+  async createThread(@Req() req,createThreadDto: CreateThreadDto) {
+    createThreadDto.createdBy=req.cookies.userId;
     return await this.threadModel.create(createThreadDto);
   }
 
@@ -31,11 +30,17 @@ export class ThreadService {
   {
     const objectId = new Types.ObjectId(updateThreadDto.threadId);
     const thread = this.threadModel.findByIdAndUpdate(objectId , updateThreadDto);
-
-    return (await thread).save();
+    (await thread).save();
+    return thread;
   }
 
-
+  async searchThreadsByKeyword(keyword: string): Promise<Thread[]> {
+    return this.threadModel
+      .find({
+        $text: { $search: keyword }, // MongoDB text search
+      })
+      .exec();
+  }
 
   async deleteThread(threadId:string)
   {

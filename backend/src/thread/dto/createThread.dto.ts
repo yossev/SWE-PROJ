@@ -5,10 +5,6 @@ import { Types } from 'mongoose';
 
 export class CreateThreadDto {
 
-  @IsMongoId()
-  @IsNotEmpty()
-  threadId: Types.ObjectId; // The title of the thread
-
   @IsString()
   @IsNotEmpty()
   threadTitle: string; // The title of the thread
@@ -19,13 +15,9 @@ export class CreateThreadDto {
 
   @IsMongoId()
   @IsNotEmpty()
-  forum: string;
+  forum_id: Types.ObjectId;
 
   @IsMongoId()
   @IsNotEmpty()
   createdBy: string; // The user who created the thread
-
-  @IsMongoId()
-  @IsNotEmpty()
-  topics: string[];
 }
