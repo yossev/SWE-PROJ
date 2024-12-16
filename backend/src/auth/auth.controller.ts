@@ -3,10 +3,11 @@ import { AuthService } from './auth.service';
 import { RegisterRequestDto } from './dto/RegisterRequest.dto.';
 import { SignInDto } from './dto/SignIn.dto';
 import { Public } from './decorators/public.decorator';
+import { UserService } from 'src/user/user.service';
 
 @Controller('auth')
 export class AuthController {
-    constructor(private authService: AuthService) {}
+    constructor(private authService: AuthService,private userService:UserService) {}
 
     @Public()
     @Post('login')
@@ -14,17 +15,27 @@ export class AuthController {
       try {
         console.log('helllo')
         const result = await this.authService.signIn(signInDto.email, signInDto.password);
-  
+        console.log("result",result);
+        const user=this.userService.findById(result.userId);
+        const role=(await user).role;
         res.cookie('token', result.access_token, {
           httpOnly: true, // Prevents client-side JavaScript access
           secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
           maxAge: 3600 * 1000, // Cookie expiration time in milliseconds
         });
+        
+
         res.cookie('userId' , result.userId , {
           httpOnly: true, // Prevents client-side JavaScript access
           secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
           maxAge: 3600 * 1000, // Cookie expiration time in milliseconds
         });
+        res.cookie('role', role, {
+          httpOnly: true, // Prevents client-side JavaScript access
+          secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+          maxAge: 3600 * 1000, // Cookie expiration time in milliseconds
+        });
+        console.log("cookie",res.cookie);
         // Return success
         return {
           statusCode: HttpStatus.OK,
