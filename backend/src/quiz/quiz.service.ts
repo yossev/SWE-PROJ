@@ -11,7 +11,6 @@ import { User ,UserSchema } from '../../models/user-schema';
 import { QuestionType, DifficultyLevel } from './DTO/quiz.question.dto'; 
 import { UserModule} from '../user/user/user.module';
 import { Responses, ResponsesDocument } from '../../models/responses-schema'; 
-
 import {ProgressService} from '../progress/progress.service'
 
 import mongoose from 'mongoose';
@@ -52,10 +51,45 @@ async findByUserId(userId: string): Promise<Quiz> {
 
 
 async update(id: string, updateData: UpdateQuizDto): Promise<Quiz> {
-  const inpStr: string= id;
-  const objectId = new mongoose.Types.ObjectId(inpStr);  
-  return await this.quizModel.findByIdAndUpdate(objectId, updateData, { new: true }).exec();
+  const quiz = await this.quizModel.findById(id);
+
+  if (!quiz) {
+    throw new Error('Quiz not found');
+  }
+
+  // Convert ObjectId to string
+  const moduleIdAsString = quiz.module_id.toString();
+
+  // Ensure questionType is a valid enum value
+  const validQuestionType = Object.values(QuestionType).includes(updateData.questionType as QuestionType)
+    ? updateData.questionType
+    : quiz.questionType;
+
+  // Prepare a DTO for quiz generation
+  const generateQuizDto: CreateQuizDto = {
+    moduleId: moduleIdAsString, // Convert moduleId to string
+    questionType: validQuestionType as QuestionType, // Ensure type safety
+    numberOfQuestions: updateData.numberOfQuestions || quiz.numberOfQuestions,
+    questionIds: quiz.question_ids.map((id) => id.toString()),
+    userId: quiz.userId.toString(), // Include userId explicitly
+  };
+
+  // Call generateQuiz to regenerate the quiz
+  const updatedQuizData = await this.generateQuiz(generateQuizDto, quiz.userId.toString());
+
+  // Replace the quiz data with newly generated data
+  quiz.question_ids = updatedQuizData.questions.map((q) => new Types.ObjectId(q.questionId)); // Convert back to ObjectId
+  quiz.questions = updatedQuizData.questions;
+
+  // Ensure required fields are updated
+  quiz.numberOfQuestions = generateQuizDto.numberOfQuestions; // Explicitly update numberOfQuestions
+  quiz.questionType = validQuestionType; // Explicitly update questionType
+
+  await quiz.save(); // Save the updated quiz
+
+  return quiz;
 }
+
 
 
 async delete(id: string): Promise<Quiz> {
