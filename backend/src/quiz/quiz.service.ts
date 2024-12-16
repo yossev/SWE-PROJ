@@ -157,7 +157,7 @@ async generateQuiz(createQuizDto: CreateQuizDto, userId: string): Promise<any> {
   console.log("Extracted: " + extractedQuestionIds);
   const quiz = {
     module_id: moduleId,
-    questionIds: extractedQuestionIds , 
+    question_ids: extractedQuestionIds , 
     questions: transformedQuestions,
     created_at: new Date(),
     userId: new mongoose.Types.ObjectId(userId), 
@@ -216,18 +216,34 @@ private shuffleArray(array: any[]): any[] {
   ): Promise<any> {
     let correctAnswersCount = 0;
     let incorrectAnswers = [];
+  
+    // Fetch the correct answers from QuestionBank using question IDs
+    const question_ids = selectedQuestions.map((q) => q.questionId); // Collect question IDs
+    const fetchedQuestions = await this.questionBankModel.find({ _id: { $in: question_ids } });
+  
+    // Create a map of questionId to correctAnswer
+    const questionMap = fetchedQuestions.reduce((map, question) => {
+      map[question._id.toString()] = question.correct_answer; // Ensure keys are strings
+      return map;
+    }, {});
+  
+    // Compare userAnswers with correct answers from QuestionBank
     selectedQuestions.forEach((question, index) => {
       const userAnswer = userAnswers[index];
-      if (userAnswer === question.correctAnswer) {
+      const correctAnswer = questionMap[question.questionId]; // Fetch correct answer using questionId
+  
+      if (userAnswer === correctAnswer) {
         correctAnswersCount++;
       } else {
         incorrectAnswers.push({
-          question: question.question,
-          correctAnswer: question.correctAnswer,
-          userAnswer: userAnswer,
+          question: question.question, // User-visible question text
+          correctAnswer: correctAnswer || "N/A", // Handle missing correctAnswer gracefully
+          userAnswer: userAnswer || "N/A", // Handle missing userAnswer gracefully
         });
       }
     });
+  
+    // Calculate the score
     const score = (correctAnswersCount / selectedQuestions.length) * 100;
     let feedbackMessage = '';
     if (score < 60) {
@@ -235,8 +251,10 @@ private shuffleArray(array: any[]): any[] {
     } else {
       feedbackMessage = 'Great job! You have passed the quiz. Keep up the good work!';
     }
+  
+    // Update the quiz record in the database
     await this.quizModel.updateOne(
-      {  userId: new mongoose.Types.ObjectId(userId) },
+      { userId: new mongoose.Types.ObjectId(userId) },
       {
         $set: {
           user_answers: userAnswers,
@@ -244,7 +262,7 @@ private shuffleArray(array: any[]): any[] {
           feedback: feedbackMessage,
           evaluated_at: new Date(),
         },
-      }
+      },
     );
   
     return {
@@ -253,4 +271,5 @@ private shuffleArray(array: any[]): any[] {
       incorrectAnswers,
     };
   }
+  
 }

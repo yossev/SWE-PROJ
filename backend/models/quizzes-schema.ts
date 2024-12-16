@@ -28,6 +28,10 @@ export class Quiz {
   @Prop({ type: Date, default: new Date(), required: true })
   created_at: Date;
 
+  
+  @Prop({ type: Number, min: 0 })
+  score: number;
+
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
   userId: mongoose.Schema.Types.ObjectId;
