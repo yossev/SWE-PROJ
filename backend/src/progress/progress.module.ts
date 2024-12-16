@@ -9,6 +9,8 @@ import { QuizSchema } from '../../models/quizzes-schema';
 import {ModuleSchema } from '../../models/module-schema';
 import { RatingSchema } from '../../models/rating-schema';
 import { RatingService } from '../rating/rating.service';
+import { RatingController } from 'src/rating/rating.controller';
+import { ResponseController } from 'src/response/response.controller';
 @Module({
   imports: [
     MongooseModule.forFeature([
