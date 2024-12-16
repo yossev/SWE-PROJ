@@ -30,5 +30,10 @@ export class QuestionDto {
   @IsOptional() 
   @IsEnum(DifficultyLevel)
   difficultyLevel?: DifficultyLevel;
+
+  @IsArray()
+  @IsOptional()
+  @IsString({ each: true }) // Ensure every element in the array is a string
+  questionIds?: string[]; 
   
 }

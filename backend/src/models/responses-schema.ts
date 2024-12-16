@@ -23,11 +23,13 @@ export class Responses {
     ],
     required: true,
   })
-  answers: Array<{
-    question_id: mongoose.Schema.Types.ObjectId; // Reference to a question in the Quiz schema
-    answer: string; // User's answer to the question
-  }>;
-
+  answers: [
+    {
+      questionId: { type: mongoose.Schema.Types.ObjectId, ref: 'QuestionBank', required: true },
+      answer: { type: String, required: true },
+    }
+  ]
+  
   @Prop({ type: Number, min: 0 })
   score: number;
 

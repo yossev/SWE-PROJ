@@ -1,10 +1,11 @@
 import { Injectable ,UnauthorizedException,BadRequestException} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Quiz, QuizDocument } from '../../models/quizzes-schema';
 
 import { QuestionType, DifficultyLevel } from './DTO/quiz.question.dto'; 
-import { UserModule } from 'src/user/user.module';
+
+import { Responses, ResponsesDocument } from '../../models/responses-schema'; 
 
 import {ProgressService} from '../progress/progress.service'
 
@@ -24,6 +25,7 @@ export class QuizService {
     @InjectModel('QuestionBank') private readonly questionBankModel: Model<QuestionBank>,
     @InjectModel('User') private readonly userModel: Model<User>,
     @InjectModel('Progress') private readonly progressModel: Model<ProgressDocument>,
+    @InjectModel('Responses') private readonly responsesModel: Model<ResponsesDocument>,
 
     private readonly progressService: ProgressService
 
@@ -37,6 +39,16 @@ export class QuizService {
     const inpStr: string= id;
     const objectId = new mongoose.Types.ObjectId(inpStr);  
     return await this.quizModel.findById(objectId).exec();
+}
+async findByUserId(userId: string): Promise<Quiz> {
+  console.log('Querying quiz for userId:', userId);
+
+  const objectId = new mongoose.Types.ObjectId(userId);
+
+
+  const quiz = await this.quizModel.findOne({ userId: objectId }).exec();
+
+  return quiz;
 }
 
 
@@ -55,7 +67,8 @@ async delete(id: string): Promise<Quiz> {
 
 // DONT TOUCH THIS VODOO ( IT WORKS AND IDK HOW )
 async generateQuiz(createQuizDto: CreateQuizDto, userId: string): Promise<any> {
-  const { moduleId, numberOfQuestions, questionType } = createQuizDto;
+  const { moduleId, numberOfQuestions, questionType ,questionIds} = createQuizDto;
+  createQuizDto['user_id'] = userId;
   const allQuestions = await this.questionBankModel.find();
   //console.log('All Questions from Question Bank:', allQuestions);
 
@@ -133,26 +146,41 @@ async generateQuiz(createQuizDto: CreateQuizDto, userId: string): Promise<any> {
   console.log('Selected Questions:', selectedQuestions);
 
   const transformedQuestions = selectedQuestions.map((q) => ({
+    questionId: q._id,
     question: q.question,
     options: q.options,
     correct_answer: q.correct_answer,
     difficultyLevel: q.difficulty_level,
   }));
-
+  console.log("trans questions",transformedQuestions)
+  const extractedQuestionIds : Types.ObjectId[]  = [];
+  transformedQuestions.forEach(function(value) {
+    extractedQuestionIds.push(new Types.ObjectId(value.questionId))
+  })
+  console.log("Extracted: " + extractedQuestionIds);
   const quiz = {
     module_id: moduleId,
+    question_ids: extractedQuestionIds , 
     questions: transformedQuestions,
     created_at: new Date(),
     userId: new mongoose.Types.ObjectId(userId), 
   };
+  
+
+  
 
   const savedQuiz = await new this.quizModel(quiz).save();
   console.log('Saved Quiz:', savedQuiz);
+  await this.userModel.findByIdAndUpdate(
+    userId,
+    { $push: { quizzes: savedQuiz._id } },
+    { new: true }
+  );
 
   const responseQuestions = selectedQuestions.map((q) => ({
     question: q.question,
     options: q.options,
-    id: q._id,
+    questionId: q._id,
   }));
 
   return {
@@ -188,22 +216,41 @@ private shuffleArray(array: any[]): any[] {
     userAnswers: string[],
     selectedQuestions: any[],
     userId: string,
-    moduleId: string
+    quizId: string, // Add quizId parameter
   ): Promise<any> {
     let correctAnswersCount = 0;
     let incorrectAnswers = [];
+  
+    // Fetch correct answers using question IDs
+    const question_ids = selectedQuestions.map((q) => q.questionId);
+    const fetchedQuestions = await this.questionBankModel.find({ _id: { $in: question_ids } });
+  
+    const questionMap = fetchedQuestions.reduce((map, question) => {
+      map[question._id.toString()] = question.correct_answer;
+      return map;
+    }, {});
+  
+    const answersToSave = [];
     selectedQuestions.forEach((question, index) => {
       const userAnswer = userAnswers[index];
-      if (userAnswer === question.correctAnswer) {
+      const correctAnswer = questionMap[question.questionId];
+  
+      answersToSave.push({
+        questionId: question.questionId,
+        answer: userAnswer,
+      });
+  
+      if (userAnswer === correctAnswer) {
         correctAnswersCount++;
       } else {
         incorrectAnswers.push({
           question: question.question,
-          correctAnswer: question.correctAnswer,
-          userAnswer: userAnswer,
+          correctAnswer: correctAnswer || "N/A",
+          userAnswer: userAnswer || "N/A",
         });
       }
     });
+  
     const score = (correctAnswersCount / selectedQuestions.length) * 100;
     let feedbackMessage = '';
     if (score < 60) {
@@ -211,17 +258,17 @@ private shuffleArray(array: any[]): any[] {
     } else {
       feedbackMessage = 'Great job! You have passed the quiz. Keep up the good work!';
     }
-    await this.quizModel.updateOne(
-      { module_id: moduleId, userId: new mongoose.Types.ObjectId(userId) },
-      {
-        $set: {
-          user_answers: userAnswers,
-          score,
-          feedback: feedbackMessage,
-          evaluated_at: new Date(),
-        },
-      }
-    );
+  
+    // Save the results in the Responses schema
+    const responseDocument = new this.responsesModel({
+      user_id: new mongoose.Types.ObjectId(userId),
+      quiz_id: quizId, // Use quizId passed from Postman
+      answers: answersToSave,
+      score,
+      submittedAt: new Date(),
+    });
+  
+    await responseDocument.save();
   
     return {
       score,
@@ -230,3 +277,7 @@ private shuffleArray(array: any[]): any[] {
     };
   }
 }
+  
+  
+  
+

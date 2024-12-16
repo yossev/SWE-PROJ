@@ -1,9 +1,10 @@
-import { Body, Controller, Delete, Get, Post, Put } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Post, Put } from '@nestjs/common';
 import { QuizService } from './quiz.service'; 
 import {Quiz } from '../../models/quizzes-schema';   
 import { CreateQuizDto } from './DTO/quiz.create.dto';
 import { UpdateQuizDto } from './DTO/quiz.update.dto';
 import { Query } from '@nestjs/common';
+import { Responses, ResponsesDocument } from '../../models/responses-schema'; 
 @Controller('quiz')
 export class quizController {
     constructor(private readonly quizService: QuizService) {} 
@@ -17,6 +18,18 @@ async getQuizById(@Query('id') id: string): Promise<Quiz> {
     console.log('Received ID: ' + id);
     const quiz = await this.quizService.findById(id);  
     return quiz;
+}
+@Get('assigned')
+async getQuizByUserId(@Query('userId') userId: string): Promise<Quiz> {
+  console.log('Fetching quiz for User ID:', userId);
+
+  const quiz = await this.quizService.findByUserId(userId);
+
+  if (!quiz) {
+    throw new BadRequestException('No quiz found for the provided user ID.');
+  }
+
+  return quiz;
 }
 
 @Put('updatequiz')
@@ -36,6 +49,7 @@ async updateQuiz(@Query('id') id: string, @Body() quizData: UpdateQuizDto): Prom
     @Body() createQuizDto: CreateQuizDto,
     @Query('userId') userId: string
   ) {
+    
     const quiz = await this.quizService.generateQuiz(createQuizDto, userId);
 
     return {
@@ -46,17 +60,18 @@ async updateQuiz(@Query('id') id: string, @Body() quizData: UpdateQuizDto): Prom
     
   }
   @Post('evaluate')
-  async evaluateQuiz(
-    @Body('userAnswers') userAnswers: string[],
-    @Body('selectedQuestions') selectedQuestions: any[],
-    @Query('userId') userId: string,
-    @Query('moduleId') moduleId: string
-  ) {
-    const evaluation = await this.quizService.evaluateQuiz(userAnswers, selectedQuestions, userId, moduleId);
-    return {
-      success: true,
-      message: 'Quiz evaluated successfully.',
-      data: evaluation,
-    };
-  } 
+async evaluateQuiz(
+  @Body('quizId') quizId: string, // Add quizId here
+  @Body('userAnswers') userAnswers: string[],
+  @Body('selectedQuestions') selectedQuestions: any[],
+  @Query('userId') userId: string,
+) {
+  const evaluation = await this.quizService.evaluateQuiz(userAnswers, selectedQuestions, userId, quizId); // Pass quizId to service
+  return {
+    success: true,
+    message: 'Quiz evaluated successfully.',
+    data: evaluation,
+  };
+}
+
 }

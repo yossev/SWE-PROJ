@@ -76,7 +76,7 @@ export class ProgressService {
   // RECORD ATTENDANCE
   async recordAttendance(userId: string, courseId: string, status: 'present' | 'absent'): Promise<void> {
 
-    const progress = await this.progressModel.findOne({ user_id: userId, course_id: userId }).exec()
+    const progress = await this.progressModel.findOne({ user_id: userId, course_id: courseId }).exec()
 
     if (!progress) {
       throw new NotFoundException(`Progress record for user ${userId} in course ${courseId} not found`);
@@ -93,7 +93,7 @@ export class ProgressService {
 
   async getAttendance(userId: string, courseId: string): Promise<any> {
 
-    const progress = await this.progressModel.findOne({ user_id: userId, course_id: courseId}).exec()
+    const progress = await this.progressModel.findOne({ user_id: userId, course_id: courseId }).exec()
 
     if (!progress) {
       throw new NotFoundException(`Progress record for user ${userId} in course ${courseId} not found`);
@@ -103,26 +103,33 @@ export class ProgressService {
 
   }
 
-  async calculateAttendanceRate(userId: string, courseId: string): Promise<any> {
-    const attendanceRecords = await this.getAttendance(userId, courseId)
-    const totalClasses = attendanceRecords.length;
-    const presentCount = attendanceRecords.filter(record => record.status === 'Present')
-
-    return totalClasses ? (presentCount / totalClasses) * 100 : 0;
-
+   async calculateAttendanceRate(userId: string, courseId: string): Promise<number> {
+    const progress = await this.progressModel.findOne({
+      user_id: userId,
+      course_id: courseId,
+    }).exec();
+    if (!progress || !progress.attendance || progress.attendance.length === 0) {
+      return 0;
+    }
+    const totalDays = progress.attendance.length;
+    const presentDays = progress.attendance.filter((record) => record.status === "present").length;
+    const attendanceRate = (presentDays / totalDays) * 100;
+    return attendanceRate;
   }
 
   async getDashboard(userId: string): Promise<any> {
 
-    const progress = await this.progressModel.findOne({ user_id: userId }).exec();
-    //if (!progress) {
-    //throw new NotFoundException(`Dashboard for user ${userId} not found`);
-    //}
+    console.log('Querying progress for userId:', userId);
+    const progress = await this.progressModel.findOne({ user_id: userId}).exec();
+    console.log('Progress found:', progress);
+    if (!progress) {
+      throw new NotFoundException(`Dashboard for user ${userId} not found`);
+    }
 
     // Calculate student's average score for each course 
-    
+
     const modules = await this.moduleModel.find({ course_id: progress.course_id }).exec();
-    console.log('course id ',progress.course_id )
+    console.log('course id ', progress.course_id)
     const quizIds = [];
     for (const module of modules) { //FOR EACH MODULE OF THIS COURSE - COURSE MAY HAVE MORE THAN 1 MODULE
       const quizzes = await this.quizModel.find({ module_id: module._id }).exec();
@@ -136,20 +143,30 @@ export class ProgressService {
 
     const totalScore = responses.reduce((sum, response) => sum + (response.score || 0), 0);
     const averageScore = responses.length ? totalScore / responses.length : 0;
+    const classification = await this.classifyUserPerformance(userId.toString());
 
 
     // Calculate course completion rate 
     const progressData = await this.progressModel.find({ user_id: userId }).exec();
     const courseCompletionRates = [];
+    const completedCourses = [];
 
     for (const progress of progressData) {
-     //  const course = await this.courseModel.findById(progress.course_id).exec();
+      const course = await this.courseModel.findById(progress.course_id).exec();
       const completionRate = progress.completion_percentage;
 
       courseCompletionRates.push({
-     //   courseTitle: course.title,
+        //   courseTitle: course.title,
         completionRate: completionRate,
       });
+
+      if (completionRate === 100) {
+        const course = await this.courseModel.findById(progress.course_id).exec();
+        completedCourses.push({
+          courseId: progress.course_id,
+          // courseTitle: course?.title || 'Unknown Course', 
+        });
+      }
     }
 
     // Engagement trends [attendance, how many students completed the course] 
@@ -177,13 +194,15 @@ export class ProgressService {
 
     return {
       averageScore,
+      classification,
+      completedCourses,
       courseCompletionRates,
       engagementTrends,
       progress,
     };
   }
 
-  async classifyUserPerformance(userId: string) { //****FULLY FUNCTIONAL****
+  async classifyUserPerformance(userId: string) { 
 
     const responses = await this.responseModel.find({ user_id: userId }).exec();
     const totalScore = responses.reduce((sum, response) => sum + (response.score || 0), 0);
@@ -200,7 +219,7 @@ export class ProgressService {
     }
   }
 
-  // Instructor Analytics -- student engagement ****FULLY FUNCTIONAL****
+  // Instructor Analytics -- student engagement 
   async getInstructorAnalyticsStudentEngagement(courseId: string) {
 
     const course = await this.courseModel.findById(courseId).exec();
@@ -246,7 +265,6 @@ export class ProgressService {
     };
   }
 
-  // *****FULLY FUNCTIONING*****
   // Instructor Analytics -- Reports on content effectiveness 
 
   async getInstructorAnalyticsContentEffectiveness(courseId: string, userId: string) {
@@ -316,7 +334,7 @@ export class ProgressService {
     return { courseId, courseName: course.title, results };
   }
 
-  // ***FULLY FUNCTIONING WITH FULL PDF****
+
   // Downloadable Analytics for student engagement --allow instructors to download detailed reports about student progress and performance.
   async exportInstructorAnalyticsStudentEngagementPDF(courseId: string, res: Response) {
     const analytics = await this.getInstructorAnalyticsStudentEngagement(courseId);
