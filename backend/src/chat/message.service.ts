@@ -42,7 +42,7 @@ export class MessageService {
 
     if (chatType === 'individual' && recipientId) {
       await this.notificationService.createNotification(
-        recipientId.toString(),
+        recipientId,
         `New message from ${userId}`,
         savedMessage._id.toString(),
       );
@@ -58,7 +58,7 @@ export class MessageService {
 
     for (const user of usersInRoom) {
       await this.notificationService.createNotification(
-        user._id.toString(),
+        user._id,
         `New message in room ${roomId}: ${message.content}`,
         message._id.toString(),
       );

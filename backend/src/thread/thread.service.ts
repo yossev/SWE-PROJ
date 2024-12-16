@@ -30,7 +30,7 @@ export class ThreadService {
     const course=this.courseService.findOne((await forum).course_id.toString());
     const users=(await course).students;
     const message = `A new thread "${createThreadDto.threadTitle} has been added to the forum "${forumTitle}" with the content "${createThreadDto.content}`;
-    this.notificationService.createNotification(users.toString(),message);
+    this.notificationService.createNotification(users,message);
     return await this.threadModel.create(createThreadDto);
   }
 

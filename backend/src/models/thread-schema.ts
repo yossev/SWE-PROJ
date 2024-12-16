@@ -20,7 +20,7 @@ export class Thread {
   forum_id:  Types.ObjectId;
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', required: true })
-  createdBy: MongooseSchema.Types.ObjectId; // Reference to the user who created the thread
+  createdBy: Types.ObjectId; // Reference to the user who created the thread
 
 
 }

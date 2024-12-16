@@ -94,10 +94,10 @@ export class NotificationService {
 
   // Create a generic notification
   async createNotification(
-    userId: string,
+    userIds: Types.ObjectId[] | Types.ObjectId,
     message: string,
     relatedMessageId?: string
-  ): Promise<UserNotification> {
+  ): Promise<UserNotification[]> {
     try {
       // If a relatedMessageId is provided, append its content to the notification
       if (relatedMessageId) {
@@ -106,18 +106,50 @@ export class NotificationService {
           message += `: "${relatedMessage.content}"`;
         }
       }
-
-      const notification = new this.notificationModel({
-        userId,
-        message,
-        relatedMessageId,
-      });
-      return await notification.save();
+  
+      const userIdArray = Array.isArray(userIds) ? userIds : [userIds];
+  
+      // Collect created notifications
+      const notifications: UserNotification[] = [];
+  
+      // Loop through each userId and create a notification
+      for (const userId of userIdArray) {
+        try {
+          const student = await this.userModel.findById(userId).exec();
+          if (!student) {
+            throw new Error(`Student with ID ${userId} not found.`);
+          }
+  
+          // Create the notification
+          const notification = new this.notificationModel({
+            user_id: userId,
+            message,
+            relatedMessageId,
+          });
+  
+          // Save the notification to the student's notifications array
+          student.notifications.push(notification); // Assuming `notifications` stores ObjectIds
+          await student.save(); // Save updated student
+  
+          // Save the notification itself
+          const savedNotification = await notification.save();
+  
+          // Add the saved notification to the array
+          notifications.push(savedNotification.toObject());
+        } catch (error) {
+          console.error(`Error notifying student ${userId}:`, error);
+        }
+      }
+  
+      // Return the array of created notifications
+      return notifications;
     } catch (error) {
-      console.error('Error creating notification:', error);
-      throw new Error('Failed to create notification');
+      console.error('Error creating notifications:', error);
+      throw new Error('Failed to create notifications');
     }
   }
+  
+  
 
   // Get all notifications for a user
   async getUserNotifications(userId: string): Promise<UserNotification[]> {

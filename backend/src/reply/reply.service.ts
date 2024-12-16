@@ -28,7 +28,7 @@ export class ReplyService {
     }
     createReplyDto.createdBy=req.cookies.userId;
     const message = `You have received a reply to your thread: "${createReplyDto.content}`;
-    this.notificationService.createNotification(thread.createdBy.toString(),message);
+    this.notificationService.createNotification(thread.createdBy,message);
     return await this.replyModel.create(createReplyDto);
   }
   async deleteReply(replyId:string)

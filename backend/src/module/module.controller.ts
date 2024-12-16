@@ -2,7 +2,7 @@
 /* eslint-disable no-var */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-/* 
+
 import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import { ModuleService } from './module.service'; 
 import { CreateModuleDto } from './DTO/createModule.dto';
@@ -45,7 +45,7 @@ export class ModuleController {
     @Get('coursemodules/:id')
     async getAllCourseModules(@Param('id') course_id : string)
     {
-      return this.moduleService.getAllCourseModules(course_id);
+      return this.moduleService.findAllCourseModules(course_id);
     }
 
     
@@ -68,16 +68,16 @@ export class ModuleController {
       )
     async uploadFile(@Param('id') module_id : string, @UploadedFile() file: Express.Multer.File)
     {
-        return this.moduleService.uploadFile(module_id , fileNameParameter , file);
+        return this.moduleService.uploadFile(file , module_id , fileNameParameter);
     }
 
     @Get('download/:id/:file')
     getFile(@Param('id') module_id : string , @Param('file') file : string): StreamableFile {
       
-      return this.moduleService.getFile(module_id , file);
+      return this.moduleService.getFile(file);
     }
 
 
-}*/
+}
 
 
