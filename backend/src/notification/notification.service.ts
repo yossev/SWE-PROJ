@@ -24,7 +24,7 @@ export class NotificationService {
     courseId: string,
     courseName: string
   ): Promise<UserNotification> {
-    const message = `A new course "${courseName}" has been created.`;
+    const message = `A new course "${courseName}" has been created. A new forum has also been created for this course.`;
     const users=await this.userService.findAll();
     const userIds : string[] = [];
     const userIdsObj : Types.ObjectId[] = [];
