@@ -10,6 +10,7 @@ import { UpdateQuizDto } from './DTO/quiz.update.dto';
 import { User ,UserSchema } from '../../models/user-schema';
 import { QuestionType, DifficultyLevel } from './DTO/quiz.question.dto'; 
 import { UserModule} from '../user/user/user.module';
+import { Responses, ResponsesDocument } from '../../models/responses-schema'; 
 
 import {ProgressService} from '../progress/progress.service'
 
@@ -23,6 +24,7 @@ export class QuizService {
     @InjectModel('QuestionBank') private readonly questionBankModel: Model<QuestionBank>,
     @InjectModel('User') private readonly userModel: Model<User>,
     @InjectModel('Progress') private readonly progressModel: Model<ProgressDocument>,
+    @InjectModel('Responses') private readonly responsesModel: Model<ResponsesDocument>,
 
     private readonly progressService: ProgressService
 
@@ -213,37 +215,41 @@ private shuffleArray(array: any[]): any[] {
     userAnswers: string[],
     selectedQuestions: any[],
     userId: string,
+    quizId: string, // Add quizId parameter
   ): Promise<any> {
     let correctAnswersCount = 0;
     let incorrectAnswers = [];
   
-    // Fetch the correct answers from QuestionBank using question IDs
-    const question_ids = selectedQuestions.map((q) => q.questionId); // Collect question IDs
+    // Fetch correct answers using question IDs
+    const question_ids = selectedQuestions.map((q) => q.questionId);
     const fetchedQuestions = await this.questionBankModel.find({ _id: { $in: question_ids } });
   
-    // Create a map of questionId to correctAnswer
     const questionMap = fetchedQuestions.reduce((map, question) => {
-      map[question._id.toString()] = question.correct_answer; // Ensure keys are strings
+      map[question._id.toString()] = question.correct_answer;
       return map;
     }, {});
   
-    // Compare userAnswers with correct answers from QuestionBank
+    const answersToSave = [];
     selectedQuestions.forEach((question, index) => {
       const userAnswer = userAnswers[index];
-      const correctAnswer = questionMap[question.questionId]; // Fetch correct answer using questionId
+      const correctAnswer = questionMap[question.questionId];
+  
+      answersToSave.push({
+        questionId: question.questionId,
+        answer: userAnswer,
+      });
   
       if (userAnswer === correctAnswer) {
         correctAnswersCount++;
       } else {
         incorrectAnswers.push({
-          question: question.question, // User-visible question text
-          correctAnswer: correctAnswer || "N/A", // Handle missing correctAnswer gracefully
-          userAnswer: userAnswer || "N/A", // Handle missing userAnswer gracefully
+          question: question.question,
+          correctAnswer: correctAnswer || "N/A",
+          userAnswer: userAnswer || "N/A",
         });
       }
     });
   
-    // Calculate the score
     const score = (correctAnswersCount / selectedQuestions.length) * 100;
     let feedbackMessage = '';
     if (score < 60) {
@@ -252,18 +258,16 @@ private shuffleArray(array: any[]): any[] {
       feedbackMessage = 'Great job! You have passed the quiz. Keep up the good work!';
     }
   
-    // Update the quiz record in the database
-    await this.quizModel.updateOne(
-      { userId: new mongoose.Types.ObjectId(userId) },
-      {
-        $set: {
-          user_answers: userAnswers,
-          score,
-          feedback: feedbackMessage,
-          evaluated_at: new Date(),
-        },
-      },
-    );
+    // Save the results in the Responses schema
+    const responseDocument = new this.responsesModel({
+      user_id: new mongoose.Types.ObjectId(userId),
+      quiz_id: quizId, // Use quizId passed from Postman
+      answers: answersToSave,
+      score,
+      submittedAt: new Date(),
+    });
+  
+    await responseDocument.save();
   
     return {
       score,
@@ -271,5 +275,7 @@ private shuffleArray(array: any[]): any[] {
       incorrectAnswers,
     };
   }
+  
+  
   
 }

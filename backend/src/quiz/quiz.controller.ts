@@ -9,6 +9,7 @@ import {ProgressDocument} from '../../models/progress-schema';
 import mongoose from 'mongoose';
 import { Types } from 'mongoose';
 import { Query } from '@nestjs/common';
+import { Responses, ResponsesDocument } from '../../models/responses-schema'; 
 @Controller('quiz')
 export class quizController {
     constructor(private readonly quizService: QuizService) {} 
@@ -64,16 +65,18 @@ async updateQuiz(@Query('id') id: string, @Body() quizData: UpdateQuizDto): Prom
     
   }
   @Post('evaluate')
-  async evaluateQuiz(
-    @Body('userAnswers') userAnswers: string[],
-    @Body('selectedQuestions') selectedQuestions: any[],
-    @Query('userId') userId: string,
-  ) {
-    const evaluation = await this.quizService.evaluateQuiz(userAnswers, selectedQuestions, userId);
-    return {
-      success: true,
-      message: 'Quiz evaluated successfully.',
-      data: evaluation,
-    };
-  } 
+async evaluateQuiz(
+  @Body('quizId') quizId: string, // Add quizId here
+  @Body('userAnswers') userAnswers: string[],
+  @Body('selectedQuestions') selectedQuestions: any[],
+  @Query('userId') userId: string,
+) {
+  const evaluation = await this.quizService.evaluateQuiz(userAnswers, selectedQuestions, userId, quizId); // Pass quizId to service
+  return {
+    success: true,
+    message: 'Quiz evaluated successfully.',
+    data: evaluation,
+  };
+}
+
 }

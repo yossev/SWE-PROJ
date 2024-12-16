@@ -9,6 +9,7 @@ import { UserModule} from '../user/user/user.module';
 import { UserSchema } from '../../models/user-schema';
 import { ProgressModule } from 'src/progress/progress.module';
 import { ProgressSchema } from 'models/progress-schema';
+import { ResponseSchema } from '../../models/responses-schema'; 
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -16,7 +17,8 @@ import { ProgressSchema } from 'models/progress-schema';
       { name: 'Module', schema: ModuleSchema },
       { name: 'QuestionBank', schema: QuestionBankSchema },
       { name: 'User', schema: UserSchema },
-      { name: 'Progress', schema: ProgressSchema} 
+      { name: 'Progress', schema: ProgressSchema} ,
+      { name: 'Responses', schema: ResponseSchema },
     ]),
     forwardRef(() => ProgressModule) 
   ],
