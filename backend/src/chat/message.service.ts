@@ -31,6 +31,13 @@ export class MessageService {
     return this.messageModel.find({ roomId }).sort({ createdAt: 1 }); // Sorted by timestamp
   }
 
+  async getMessagesByRoomUsingName(roomName : string) : Promise<Message[]>
+  {
+    console.log("Called sub sub func");
+    const room = await this.roomModel.findOne({name : roomName});
+    return this.messageModel.find({ room_id : room._id }).sort({ createdAt: 1 }); // Sorted by timestamp
+  }
+
   // Send and notify users
   async sendMessage(userId: Types.ObjectId, content: string, roomId: string, chatType: string, recipientId?: Types.ObjectId): Promise<Message> {
     const room = await this.roomModel.findOne({name : roomId});

@@ -3,9 +3,9 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { QuestionBankController } from './questionbank.controller';
 import { QuestionBankService } from './questionbank.service';
 import { QuizSchema } from '../../models/quizzes-schema';
-import { ModuleSchema } from '../../models/module-schema';
+import { ModuleSchema } from 'models/module-schema';
 import { User, UserSchema } from 'models/user-schema';
-import { QuestionBankSchema } from '../../models/questionbank-schema';
+import { QuestionBankSchema } from 'models/questionbank-schema';
 
 @Module({
   imports: [

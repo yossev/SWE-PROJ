@@ -4,7 +4,7 @@ import { Model } from 'mongoose';
 import { Quiz, QuizDocument } from '../../models/quizzes-schema';
 
 import { QuestionType, DifficultyLevel } from './DTO/quiz.question.dto'; 
-import { UserModule} from '../user/user/user.module';
+import { UserModule } from 'src/user/user.module';
 
 import {ProgressService} from '../progress/progress.service'
 

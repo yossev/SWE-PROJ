@@ -1,42 +1,126 @@
-/* eslint-disable prettier/prettier */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
- 
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Quiz } from '../../models/quizzes-schema';
-import { Module } from '../../models/module-schema'; 
-import { QuestionBank } from '../../models/questionbank-schema';
-import { UpdateModuleDto } from './DTO/module.update.dto';
-import { CreateModuleDto } from './DTO/module.create.dto';
+import { Model, mongo } from 'mongoose';
+import { Module } from 'models/module-schema';
+import { StreamableFile } from '@nestjs/common';
+import { createReadStream } from 'fs';
+import { join } from 'path';
+import mongoose from 'mongoose';
+import { CreateModuleDto } from './DTO/createModule.dto';
+import { UpdateModuleDto } from './DTO/updateModule.dto';
+import { CreateQuizDto } from 'src/quiz/DTO/quiz.create.dto';
+import { UpdateQuizDto } from 'src/quiz/DTO/quiz.update.dto';
+import { UploadedFile } from '@nestjs/common';
+
+import { PipeTransform, ArgumentMetadata } from '@nestjs/common';
+
+@Injectable()
+export class FileSizeValidationPipe implements PipeTransform {
+  transform(value: any, metadata: ArgumentMetadata) {
+    // "value" is an object containing the file's attributes and metadata
+    const oneKb = 1000;
+    return value.size < oneKb;
+  }
+}
+
 
 @Injectable()
 export class ModuleService {
   constructor(
     @InjectModel('Module') private readonly moduleModel: Model<Module>, 
-    @InjectModel('Course') private readonly courseModel: Model<Course>,
   ) {}
 
-  async findAll(): Promise<Module[]> {
-    return await this.moduleModel.find();
+  async getModule(id : string)
+  {
+    const module  = await this.moduleModel.findById(new mongoose.Types.ObjectId(id)).exec();
+    return module;
+  }
+  async createModule(createModuleDto : CreateModuleDto)
+  {
+    const createdModule = new this.moduleModel(createModuleDto);
+    createdModule.save();
+    return "Module created and added";
   }
 
-  async findById(id: string): Promise<Module> {
-    return await this.moduleModel.findById(id);
+  async updateModule(id : string , updateModuleDto : UpdateModuleDto)
+  {
+    const module = await this.moduleModel.findById(new mongoose.Types.ObjectId(id)).exec();
+    if(module)
+    {
+      Object.assign(module, updateModuleDto) // Update Course
+        return module.save()
+    }
+    return null;
   }
 
-  async create(createModuleDto: CreateModuleDto): Promise<Module> {
-    const newModule = new this.moduleModel(createModuleDto);
-    return await newModule.save();
+  async findAllCourseModules(id: string)
+  {
+    const result = await this.moduleModel.find({"course_id" : id});
+    return result;
   }
 
-  async update(id: string, updateData: UpdateModuleDto): Promise<Module> {
-    return await this.moduleModel.findByIdAndUpdate(id, updateData, { new: true });
+  async checkModuleCompatibility(moduleId: string , performanceMetric : string)
+  {
+    var performanceLevel : String;
+    if (performanceMetric === 'Above Average') {
+      performanceLevel = 'Hard';
+    } else if (performanceMetric === 'Average') {
+      performanceLevel = 'Medium';
+    } else {
+      performanceLevel = 'East';
+    }
+
+    var moduleDifficulty : String = (await this.moduleModel.findById(moduleId).exec()).difficulty;
+    switch(performanceLevel)
+    {
+      case 'Hard':
+        return true;
+      break;
+
+      case 'Medium':
+        if(moduleDifficulty === 'Hard')
+        {
+          return false;
+        }
+        else
+        {
+          return true;
+        }
+      break;
+
+      case 'Easy':
+        if(moduleDifficulty === 'Easy')
+        {
+          return true;
+        }
+        else
+        {
+          return false;
+        }
+    }
+
+    return false;
   }
 
-  async delete(id: string): Promise<Module> {
-    return await this.moduleModel.findByIdAndDelete(id);
+  async uploadFile(@UploadedFile() file: Express.Multer.File , moduleId : string , fileName: string) {
+    var currentModule = await this.moduleModel.findById(new mongoose.Types.ObjectId(moduleId)).exec();
+    console.log('Current Module title is: ' + currentModule.title)
+    currentModule.resources.push(fileName);
+    currentModule.save();
+    console.log('file is: ' + file);
+    return 'File upload API';
   }
 
+  getFile(fileUrl : string): StreamableFile {
+    const fileRelativeUrl =  'uploads/' + fileUrl;
+    const file = createReadStream(join(process.cwd(), fileRelativeUrl));
+    return new StreamableFile(file , {
+      type: 'application/octet-stream',
+      disposition: 'attachment; filename="' + fileUrl + '"',
+    });
+  }
+
+
+
+  
 }

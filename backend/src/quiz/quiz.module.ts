@@ -2,7 +2,7 @@ import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { quizController } from './quiz.controller';
 import { QuizService } from './quiz.service';
-import { QuizSchema } from '../../models/quizzes-schema';
+import { QuizSchema } from 'models/quizzes-schema';
 
 import { ProgressModule } from 'src/progress/progress.module';
 import { ProgressSchema } from 'models/progress-schema';
