@@ -2,7 +2,7 @@
 /* eslint-disable no-var */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
- 
+/* 
 import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import { ModuleService } from './module.service'; 
 import { CreateModuleDto } from './DTO/createModule.dto';
@@ -78,6 +78,6 @@ export class ModuleController {
     }
 
 
-}
+}*/
 
 

@@ -50,7 +50,7 @@ export class CourseService {
         createdBy: userId,
         course_id: savedCourse._id, // Set the course ID
       };
-  
+      
       // Call forumService.create
       await this.forumService.create(req, createForumDto);
       return savedCourse;
