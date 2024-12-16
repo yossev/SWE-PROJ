@@ -43,12 +43,18 @@ export class MessageGateway implements OnGatewayConnection , OnGatewayDisconnect
       let clientId = this.clientIdArray.find(i => i.client === client.id);
       if(clientId)
       {
+        console.log("Removing Client...");
         let self = this;
         this.allCurrentRooms.forEach(function(value) {
           const room = value.name;
-          console.log("Room is: " + room);
-          self.roomService.leaveRoom(room , clientId.userId);
+          if(self.roomService.checkUserInRoom(room , clientId.id))
+          {
+            self.roomService.leaveRoom(room , clientId.id);
+            self.server.to(room).emit('join_room' , `${clientId.name} has left ${room}!`);
+          }
+          
         })
+        this.clientIdArray.filter(i => i.client !== clientId.client);
       }
   }
 
@@ -61,10 +67,10 @@ export class MessageGateway implements OnGatewayConnection , OnGatewayDisconnect
     {
       this.allCurrentRooms.push({name : body.roomId});
     }
-    this.clientIdArray.push({client : client.id , id : body.userId});
+    this.clientIdArray.push({client : client.id , id : body.userId , name : body.user});
     client.join(body.roomId); // Join the room
     this.roomService.joinRoom(body.roomId , body.userId);
-    this.server.to(body.roomId).emit('join_room' , `client ${body.user} has joined room : ${body.roomId}`);
+    this.server.to(body.roomId).emit('join_room' , `${body.user} has joined ${body.roomId}!`);
   }
 
     // Leave a room
@@ -77,15 +83,22 @@ export class MessageGateway implements OnGatewayConnection , OnGatewayDisconnect
 
   @SubscribeMessage('sendMessage')
   async handleMessage(@ConnectedSocket() client: Socket ,@MessageBody() body : {roomId : string , userId: string , user : string , message: string} ) {
-    this.server.to(body.roomId).emit('sendMessage' , `${body.user} says: ${body.message}`);
+    this.server.to(body.roomId).emit('sendMessage' , body);
     await this.messageService.sendMessage(new Types.ObjectId(body.userId) , body.message ,body.roomId , "group");
   }
 
   // Get chat history for a room
   @SubscribeMessage('get_chat_history')
-  async handleGetHistory(@MessageBody() body: {roomId : string}, client: Socket): Promise<void> {
-    const messages = await this.messageService.getMessagesByRoom(new Types.ObjectId(body.roomId));
-    client.emit('chat_history', messages);
+  async handleGetHistory(@ConnectedSocket() client: Socket ,@MessageBody() body : {roomName : string}): Promise<void> {
+    console.log("Called sub func");
+    const messages = await this.messageService.getMessagesByRoomUsingName(body.roomName);
+    const users = await this.userService.findAll();
+    const messageArray : {sender : string , message : string}[] = [];
+    messages.forEach(function(value : any) {
+      const userName = users.find(i => i._id.toString() === value.user_id.toString()).name.split(' ')[0]; 
+      messageArray.push({sender : userName , message: value.content});
+    })
+    client.emit('get_chat_history', messageArray);
   }
 
     /*@SubscribeMessage('customName')

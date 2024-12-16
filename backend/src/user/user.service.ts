@@ -80,8 +80,7 @@ export class UserService {
     
     // Get a student by ID malhash lazma
     async findById(id: string): Promise<User> {
-        console.log(id)
-        const student=  await this.userModel.findById(id);  // Fetch a student by ID
+        const student=  await this.userModel.findById(new Types.ObjectId(id));  // Fetch a student by ID
         return student
     }
 

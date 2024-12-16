@@ -135,6 +135,16 @@ export class RoomService {
     room.user_id = room.user_id.filter(x => x.toString() !== id);
     return await room.save();
   }
+
+  async checkUserInRoom(roomName : string , id : string)
+  {
+    let room = await this.roomModel.findOne({name : roomName});
+    let user = room.user_id.find(x => x.toString() === id);
+    if(user)
+      return true;
+
+    return false;
+  }
   
 
 }
