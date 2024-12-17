@@ -123,12 +123,16 @@ let UserService = (() => {
                 // 4. Set tokens as cookies
                 res.cookie('AccessToken', accessToken, {
                     httpOnly: true,
+                    sameSite: 'None',
+                    secure: true,
                     //secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
                     maxAge: 60 * 60 * 1000, // 1 hour
                 });
                 console.log('finished first');
                 res.cookie('RefreshToken', refreshToken, {
                     httpOnly: true,
+                    sameSite: 'None',
+                    secure: true,
                     //secure: process.env.NODE_ENV === 'production',
                     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
                 });

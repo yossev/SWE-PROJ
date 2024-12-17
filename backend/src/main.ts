@@ -9,9 +9,11 @@ import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
 import { AuthGuard } from './auth/guards/authentication.guards';
 import { JwtService } from '@nestjs/jwt';
+const cors = require('cors');
 const mongoose=require('mongoose');
 const express=require('express');
 const url: string = "mongodb://localhost:27017/";
+
 
 
 async function bootstrap() {
@@ -27,6 +29,10 @@ async function bootstrap() {
   app.use(express.json());
   const reflector = app.get(Reflector);
   console.log('Reflector in main.ts:', reflector);
+  app.use(cors({
+   origin: 'http://localhost:3000',
+   credentials: true,
+}));
   app.use(cookieParser());
   app.listen(3001);
 }
