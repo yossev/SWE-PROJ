@@ -111,7 +111,7 @@ export class NotificationService {
   
       // Collect created notifications
       const notifications: UserNotification[] = [];
-  
+      console.log('userIdArray', userIdArray);
       // Loop through each userId and create a notification
       for (const userId of userIdArray) {
         try {

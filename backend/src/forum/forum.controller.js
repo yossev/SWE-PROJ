@@ -51,19 +51,24 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ForumController = void 0;
 const common_1 = require("@nestjs/common");
 const roles_decorator_1 = require("src/auth/decorators/roles.decorator");
+const authorization_guards_1 = require("src/auth/guards/authorization.guards");
 let ForumController = (() => {
     let _classDecorators = [(0, common_1.Controller)('forums')];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
     let _instanceExtraInitializers = [];
+    let _createForum_decorators;
     let _getForums_decorators;
     let _deleteForum_decorators;
-    let _createReply_decorators;
-    let _createForum_decorators;
+    let _getThreads_decorators;
     var ForumController = _classThis = class {
         constructor(forumService) {
             this.forumService = (__runInitializers(this, _instanceExtraInitializers), forumService);
+        }
+        // Endpoint to create a forum (Restricted to Instructor role)
+        createForum(req, createForumDto) {
+            return this.forumService.create(req, createForumDto);
         }
         // Endpoint to get all forums
         getForums() {
@@ -76,46 +81,23 @@ let ForumController = (() => {
                 return this.forumService.deleteForum(id, creatorId);
             });
         }
-        /*
-        // Endpoint to create a folder (Restricted to Instructor role)
-        @Roles(Role.Instructor)
-        @Post('folder')
-        async createFolder(@Body() createFolderDto: CreateFolderDto) {
-          return this.forumService.createFolder(createFolderDto);
-        }
-          */
-        /*
-        // Endpoint to create a thread (Restricted to Instructor and Student roles)
-        @Roles(Role.Instructor, Role.Student)
-        @Post('thread')
-        async createThread(@Body() createThreadDto: CreateThreadDto) {
-          return this.forumService.createThread(createThreadDto);
-        }
-          */
-        // Endpoint to create a reply (Restricted to Instructor and Student roles)
-        createReply(createReplyDto) {
+        getThreads(id) {
             return __awaiter(this, void 0, void 0, function* () {
-                return this.forumService.createReply(createReplyDto);
-            });
-        }
-        // Endpoint to create a forum (Restricted to Instructor role)
-        createForum(createForumDto) {
-            return __awaiter(this, void 0, void 0, function* () {
-                return this.forumService.createForum(createForumDto);
+                return this.forumService.getForumThreads(id);
             });
         }
     };
     __setFunctionName(_classThis, "ForumController");
     (() => {
         const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
-        _getForums_decorators = [(0, roles_decorator_1.Roles)(roles_decorator_1.Role.Instructor, roles_decorator_1.Role.Student), (0, common_1.Get)()];
-        _deleteForum_decorators = [(0, common_1.Delete)('delete')];
-        _createReply_decorators = [(0, roles_decorator_1.Roles)(roles_decorator_1.Role.Instructor, roles_decorator_1.Role.Student), (0, common_1.Post)('reply')];
-        _createForum_decorators = [(0, roles_decorator_1.Roles)(roles_decorator_1.Role.Instructor), (0, common_1.Post)('create')];
+        _createForum_decorators = [(0, roles_decorator_1.Roles)(roles_decorator_1.Role.Instructor), (0, common_1.UseGuards)(authorization_guards_1.authorizationGuard), (0, common_1.Post)('create')];
+        _getForums_decorators = [(0, roles_decorator_1.Roles)(roles_decorator_1.Role.Instructor, roles_decorator_1.Role.Student), (0, common_1.UseGuards)(authorization_guards_1.authorizationGuard), (0, common_1.Get)()];
+        _deleteForum_decorators = [(0, roles_decorator_1.Roles)(roles_decorator_1.Role.Instructor), (0, common_1.UseGuards)(authorization_guards_1.authorizationGuard), (0, common_1.Delete)('delete')];
+        _getThreads_decorators = [(0, common_1.Get)('getThreads')];
+        __esDecorate(_classThis, null, _createForum_decorators, { kind: "method", name: "createForum", static: false, private: false, access: { has: obj => "createForum" in obj, get: obj => obj.createForum }, metadata: _metadata }, null, _instanceExtraInitializers);
         __esDecorate(_classThis, null, _getForums_decorators, { kind: "method", name: "getForums", static: false, private: false, access: { has: obj => "getForums" in obj, get: obj => obj.getForums }, metadata: _metadata }, null, _instanceExtraInitializers);
         __esDecorate(_classThis, null, _deleteForum_decorators, { kind: "method", name: "deleteForum", static: false, private: false, access: { has: obj => "deleteForum" in obj, get: obj => obj.deleteForum }, metadata: _metadata }, null, _instanceExtraInitializers);
-        __esDecorate(_classThis, null, _createReply_decorators, { kind: "method", name: "createReply", static: false, private: false, access: { has: obj => "createReply" in obj, get: obj => obj.createReply }, metadata: _metadata }, null, _instanceExtraInitializers);
-        __esDecorate(_classThis, null, _createForum_decorators, { kind: "method", name: "createForum", static: false, private: false, access: { has: obj => "createForum" in obj, get: obj => obj.createForum }, metadata: _metadata }, null, _instanceExtraInitializers);
+        __esDecorate(_classThis, null, _getThreads_decorators, { kind: "method", name: "getThreads", static: false, private: false, access: { has: obj => "getThreads" in obj, get: obj => obj.getThreads }, metadata: _metadata }, null, _instanceExtraInitializers);
         __esDecorate(null, _classDescriptor = { value: _classThis }, _classDecorators, { kind: "class", name: _classThis.name, metadata: _metadata }, null, _classExtraInitializers);
         ForumController = _classThis = _classDescriptor.value;
         if (_metadata) Object.defineProperty(_classThis, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });

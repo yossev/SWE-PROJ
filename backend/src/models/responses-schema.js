@@ -46,10 +46,6 @@ exports.ResponseSchema = exports.Responses = void 0;
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = __importDefault(require("mongoose"));
 let Responses = (() => {
-exports.ResponseSchema = exports.Response = void 0;
-const mongoose_1 = require("@nestjs/mongoose");
-const mongoose_2 = __importDefault(require("mongoose"));
-let Response = (() => {
     let _classDecorators = [(0, mongoose_1.Schema)({ timestamps: true, strict: false })];
     let _classDescriptor;
     let _classExtraInitializers = [];
@@ -70,7 +66,6 @@ let Response = (() => {
     let _submittedAt_initializers = [];
     let _submittedAt_extraInitializers = [];
     var Responses = _classThis = class {
-    var Response = _classThis = class {
         constructor() {
             this.user_id = __runInitializers(this, _user_id_initializers, void 0);
             this.quiz_id = (__runInitializers(this, _user_id_extraInitializers), __runInitializers(this, _quiz_id_initializers, void 0));
@@ -81,7 +76,6 @@ let Response = (() => {
         }
     };
     __setFunctionName(_classThis, "Responses");
-    __setFunctionName(_classThis, "Response");
     (() => {
         const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
         _user_id_decorators = [(0, mongoose_1.Prop)({ type: mongoose_2.default.Schema.Types.ObjectId, ref: 'User', required: true })];
@@ -90,7 +84,6 @@ let Response = (() => {
                 type: [
                     {
                         question_id: { type: mongoose_2.default.Schema.Types.ObjectId, ref: 'Quiz.questions', required: true }, // Reference to the question in the Quiz schema
-                        questionId: { type: mongoose_2.default.Schema.Types.ObjectId, ref: 'Quiz.questions', required: true }, // Reference to the question in the Quiz schema
                         answer: { type: String, required: true }, // User's answer to the question
                     },
                 ],
@@ -113,12 +106,3 @@ let Response = (() => {
 exports.Responses = Responses;
 // Create the schema factory for the Response class
 exports.ResponseSchema = mongoose_1.SchemaFactory.createForClass(Responses);
-        Response = _classThis = _classDescriptor.value;
-        if (_metadata) Object.defineProperty(_classThis, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-        __runInitializers(_classThis, _classExtraInitializers);
-    })();
-    return Response = _classThis;
-})();
-exports.Response = Response;
-// Create the schema factory for the Response class
-exports.ResponseSchema = mongoose_1.SchemaFactory.createForClass(Response);

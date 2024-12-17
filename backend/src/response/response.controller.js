@@ -48,6 +48,7 @@ var __setFunctionName = (this && this.__setFunctionName) || function (f, name, p
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ResponseController = void 0;
+/* eslint-disable prettier/prettier */
 const common_1 = require("@nestjs/common");
 let ResponseController = (() => {
     let _classDecorators = [(0, common_1.Controller)('response')];
@@ -98,7 +99,7 @@ let ResponseController = (() => {
     __setFunctionName(_classThis, "ResponseController");
     (() => {
         const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
-        _create_decorators = [(0, common_1.Post)()];
+        _create_decorators = [(0, common_1.Post)('createresponse')];
         _findAll_decorators = [(0, common_1.Get)()];
         _findOne_decorators = [(0, common_1.Get)(':id')];
         _update_decorators = [(0, common_1.Put)(':id')];

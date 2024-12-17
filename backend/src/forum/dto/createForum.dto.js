@@ -39,9 +39,9 @@ exports.CreateForumDto = void 0;
 const class_validator_1 = require("class-validator");
 let CreateForumDto = (() => {
     var _a;
-    let _courseId_decorators;
-    let _courseId_initializers = [];
-    let _courseId_extraInitializers = [];
+    let _course_id_decorators;
+    let _course_id_initializers = [];
+    let _course_id_extraInitializers = [];
     let _forumTitle_decorators;
     let _forumTitle_initializers = [];
     let _forumTitle_extraInitializers = [];
@@ -55,10 +55,9 @@ let CreateForumDto = (() => {
     let _active_initializers = [];
     let _active_extraInitializers = [];
     return _a = class CreateForumDto {
-            ; // Reference to the associated course (use ObjectId)
             constructor() {
-                this.courseId = __runInitializers(this, _courseId_initializers, void 0);
-                this.forumTitle = (__runInitializers(this, _courseId_extraInitializers), __runInitializers(this, _forumTitle_initializers, void 0)); // Title of the forum
+                this.course_id = __runInitializers(this, _course_id_initializers, void 0); // Reference to the associated course (use ObjectId)
+                this.forumTitle = (__runInitializers(this, _course_id_extraInitializers), __runInitializers(this, _forumTitle_initializers, void 0)); // Title of the forum
                 this.createdBy = (__runInitializers(this, _forumTitle_extraInitializers), __runInitializers(this, _createdBy_initializers, void 0)); // Reference to the user who created the forum (use ObjectId)
                 this.threads = (__runInitializers(this, _createdBy_extraInitializers), __runInitializers(this, _threads_initializers, void 0)); // Array of thread references (use ObjectIds for the threads in the forum)
                 this.active = (__runInitializers(this, _threads_extraInitializers), __runInitializers(this, _active_initializers, void 0));
@@ -67,12 +66,12 @@ let CreateForumDto = (() => {
         },
         (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
-            _courseId_decorators = [(0, class_validator_1.IsMongoId)(), (0, class_validator_1.IsNotEmpty)()];
+            _course_id_decorators = [(0, class_validator_1.IsMongoId)(), (0, class_validator_1.IsNotEmpty)()];
             _forumTitle_decorators = [(0, class_validator_1.IsString)(), (0, class_validator_1.IsNotEmpty)()];
             _createdBy_decorators = [(0, class_validator_1.IsMongoId)(), (0, class_validator_1.IsNotEmpty)()];
             _threads_decorators = [(0, class_validator_1.IsArray)()];
             _active_decorators = [(0, class_validator_1.IsBoolean)()];
-            __esDecorate(null, null, _courseId_decorators, { kind: "field", name: "courseId", static: false, private: false, access: { has: obj => "courseId" in obj, get: obj => obj.courseId, set: (obj, value) => { obj.courseId = value; } }, metadata: _metadata }, _courseId_initializers, _courseId_extraInitializers);
+            __esDecorate(null, null, _course_id_decorators, { kind: "field", name: "course_id", static: false, private: false, access: { has: obj => "course_id" in obj, get: obj => obj.course_id, set: (obj, value) => { obj.course_id = value; } }, metadata: _metadata }, _course_id_initializers, _course_id_extraInitializers);
             __esDecorate(null, null, _forumTitle_decorators, { kind: "field", name: "forumTitle", static: false, private: false, access: { has: obj => "forumTitle" in obj, get: obj => obj.forumTitle, set: (obj, value) => { obj.forumTitle = value; } }, metadata: _metadata }, _forumTitle_initializers, _forumTitle_extraInitializers);
             __esDecorate(null, null, _createdBy_decorators, { kind: "field", name: "createdBy", static: false, private: false, access: { has: obj => "createdBy" in obj, get: obj => obj.createdBy, set: (obj, value) => { obj.createdBy = value; } }, metadata: _metadata }, _createdBy_initializers, _createdBy_extraInitializers);
             __esDecorate(null, null, _threads_decorators, { kind: "field", name: "threads", static: false, private: false, access: { has: obj => "threads" in obj, get: obj => obj.threads, set: (obj, value) => { obj.threads = value; } }, metadata: _metadata }, _threads_initializers, _threads_extraInitializers);

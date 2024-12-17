@@ -39,10 +39,12 @@ var __setFunctionName = (this && this.__setFunctionName) || function (f, name, p
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
+/* eslint-disable prettier/prettier */
 const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
 const config_1 = require("@nestjs/config");
 const auth_module_1 = require("./auth/auth.module");
+const course_module_1 = require("./course/course.module");
 const user_module_1 = require("./user/user.module"); // UserModule is already imported
 const progress_module_1 = require("./progress/progress.module"); // Import ProgressModule
 const app_controller_1 = require("./app.controller");
@@ -50,7 +52,13 @@ const app_service_1 = require("./app.service");
 const jwt_strategy_1 = require("./auth/jwt.strategy");
 const user_service_1 = require("./user/user.service");
 const authentication_guards_1 = require("./auth/guards/authentication.guards");
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const core_1 = require("@nestjs/core");
+const backup_module_1 = require("./backup/backup.module");
+const message_module_1 = require("./chat/message.module");
+const forum_module_1 = require("./forum/forum.module");
+const thread_module_1 = require("./thread/thread.module");
+const reply_module_1 = require("./reply/reply.module");
 let AppModule = (() => {
     let _classDecorators = [(0, common_1.Module)({
             imports: [
@@ -58,7 +66,13 @@ let AppModule = (() => {
                 mongoose_1.MongooseModule.forRoot(process.env.DATABASE),
                 auth_module_1.AuthModule,
                 user_module_1.UserModule, // Ensure UserModule is imported here
-                progress_module_1.ProgressModule // Import ProgressModule to make ProgressService available
+                progress_module_1.ProgressModule, // Import ProgressModule to make ProgressService available,
+                course_module_1.CourseModule,
+                backup_module_1.BackupModule,
+                message_module_1.ChatModule,
+                forum_module_1.ForumModule,
+                thread_module_1.ThreadModule,
+                reply_module_1.ReplyModule
             ],
             controllers: [app_controller_1.AppController],
             providers: [

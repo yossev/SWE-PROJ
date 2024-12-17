@@ -66,7 +66,7 @@ let MessageService = (() => {
         // Save a new message to the database
         saveMessage(userId, content, roomId) {
             return __awaiter(this, void 0, void 0, function* () {
-                const newMessage = new this.messageModel({ userId, content, roomId });
+                const newMessage = new this.messageModel({ user_id: userId, content: content, room_id: roomId });
                 return yield newMessage.save();
             });
         }
@@ -76,15 +76,23 @@ let MessageService = (() => {
                 return this.messageModel.find({ roomId }).sort({ createdAt: 1 }); // Sorted by timestamp
             });
         }
+        getMessagesByRoomUsingName(roomName) {
+            return __awaiter(this, void 0, void 0, function* () {
+                console.log("Called sub sub func");
+                const room = yield this.roomModel.findOne({ name: roomName });
+                return this.messageModel.find({ room_id: room._id }).sort({ createdAt: 1 }); // Sorted by timestamp
+            });
+        }
         // Send and notify users
         sendMessage(userId, content, roomId, chatType, recipientId) {
             return __awaiter(this, void 0, void 0, function* () {
-                const savedMessage = yield this.saveMessage(userId, content, roomId);
+                const room = yield this.roomModel.findOne({ name: roomId });
+                const savedMessage = yield this.saveMessage(userId, content, room._id);
                 if (chatType === 'group') {
-                    yield this.notifyUsersInRoom(roomId, userId, savedMessage);
+                    yield this.notifyUsersInRoom(room._id, userId, savedMessage);
                 }
                 if (chatType === 'individual' && recipientId) {
-                    yield this.notificationService.createNotification(recipientId.toString(), `New message from ${userId}`, savedMessage._id.toString());
+                    yield this.notificationService.createNotification(recipientId, `New message from ${userId}`, savedMessage._id.toString());
                 }
                 return savedMessage;
             });
@@ -92,10 +100,10 @@ let MessageService = (() => {
         // Notify all users in the room except the sender
         notifyUsersInRoom(roomId, userId, message) {
             return __awaiter(this, void 0, void 0, function* () {
-                const room = yield this.roomModel.findById(roomId).populate('users');
-                const usersInRoom = room.user_id.filter(user => user._id.toString() !== userId.toString());
+                const roomUsers = (yield this.roomModel.findById(roomId)).user_id;
+                const usersInRoom = roomUsers.filter(user => user._id.toString() !== userId.toString());
                 for (const user of usersInRoom) {
-                    yield this.notificationService.createNotification(user._id.toString(), `New message in room ${roomId}: ${message.content}`, message._id.toString());
+                    yield this.notificationService.createNotification(user._id, `New message in room ${roomId}: ${message.content}`, message._id.toString());
                 }
             });
         }

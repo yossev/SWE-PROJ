@@ -1,4 +1,6 @@
 "use strict";
+/* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
     var useValue = arguments.length > 2;
     for (var i = 0; i < initializers.length; i++) {
@@ -48,9 +50,8 @@ var __setFunctionName = (this && this.__setFunctionName) || function (f, name, p
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.NotificationsController = void 0;
-/* eslint-disable prettier/prettier */
 const common_1 = require("@nestjs/common");
-const authorization_guards_1 = require("src/auth/guards/authorization.guards");
+const authentication_guards_1 = require("src/auth/guards/authentication.guards");
 let NotificationsController = (() => {
     let _classDecorators = [(0, common_1.Controller)('notifications')];
     let _classDescriptor;
@@ -64,7 +65,6 @@ let NotificationsController = (() => {
         constructor(notificationService) {
             this.notificationService = (__runInitializers(this, _instanceExtraInitializers), notificationService);
         }
-        //@Roles(Role.User)
         getUserNotifications(userId) {
             return __awaiter(this, void 0, void 0, function* () {
                 return this.notificationService.getUserNotifications(userId);
@@ -75,7 +75,6 @@ let NotificationsController = (() => {
                 return this.notificationService.markAsRead(notificationId);
             });
         }
-        //@Roles(Role.User)
         getUnreadNotifications(userId) {
             return __awaiter(this, void 0, void 0, function* () {
                 return this.notificationService.getUnreadNotifications(userId);
@@ -85,9 +84,9 @@ let NotificationsController = (() => {
     __setFunctionName(_classThis, "NotificationsController");
     (() => {
         const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
-        _getUserNotifications_decorators = [(0, common_1.UseGuards)(authorization_guards_1.authorizationGuard), (0, common_1.Get)(':userId')];
-        _markAsRead_decorators = [(0, common_1.Patch)(':notificationId')];
-        _getUnreadNotifications_decorators = [(0, common_1.UseGuards)(authorization_guards_1.authorizationGuard), (0, common_1.Get)(':userId/unread')];
+        _getUserNotifications_decorators = [(0, common_1.UseGuards)(authentication_guards_1.AuthGuard), (0, common_1.Get)(':userId')];
+        _markAsRead_decorators = [(0, common_1.UseGuards)(authentication_guards_1.AuthGuard), (0, common_1.Patch)(':notificationId')];
+        _getUnreadNotifications_decorators = [(0, common_1.UseGuards)(authentication_guards_1.AuthGuard), (0, common_1.Get)(':userId/unread')];
         __esDecorate(_classThis, null, _getUserNotifications_decorators, { kind: "method", name: "getUserNotifications", static: false, private: false, access: { has: obj => "getUserNotifications" in obj, get: obj => obj.getUserNotifications }, metadata: _metadata }, null, _instanceExtraInitializers);
         __esDecorate(_classThis, null, _markAsRead_decorators, { kind: "method", name: "markAsRead", static: false, private: false, access: { has: obj => "markAsRead" in obj, get: obj => obj.markAsRead }, metadata: _metadata }, null, _instanceExtraInitializers);
         __esDecorate(_classThis, null, _getUnreadNotifications_decorators, { kind: "method", name: "getUnreadNotifications", static: false, private: false, access: { has: obj => "getUnreadNotifications" in obj, get: obj => obj.getUnreadNotifications }, metadata: _metadata }, null, _instanceExtraInitializers);

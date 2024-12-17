@@ -34,40 +34,43 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     return useValue ? value : void 0;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UpdateQuizDto = void 0;
+exports.UpdateModuleDto = void 0;
 const class_validator_1 = require("class-validator");
-const class_transformer_1 = require("class-transformer");
-const module_question_dto_1 = require("../DTO/module.question.dto");
-const module_question_dto_2 = require("../DTO/module.question.dto");
-let UpdateQuizDto = (() => {
+let UpdateModuleDto = (() => {
     var _a;
-    let _questionType_decorators;
-    let _questionType_initializers = [];
-    let _questionType_extraInitializers = [];
-    let _numberOfQuestions_decorators;
-    let _numberOfQuestions_initializers = [];
-    let _numberOfQuestions_extraInitializers = [];
-    let _questions_decorators;
-    let _questions_initializers = [];
-    let _questions_extraInitializers = [];
-    return _a = class UpdateQuizDto {
+    let _title_decorators;
+    let _title_initializers = [];
+    let _title_extraInitializers = [];
+    let _content_decorators;
+    let _content_initializers = [];
+    let _content_extraInitializers = [];
+    let _resources_decorators;
+    let _resources_initializers = [];
+    let _resources_extraInitializers = [];
+    let _created_at_decorators;
+    let _created_at_initializers = [];
+    let _created_at_extraInitializers = [];
+    return _a = class UpdateModuleDto {
             constructor() {
-                this.questionType = __runInitializers(this, _questionType_initializers, void 0);
-                this.numberOfQuestions = (__runInitializers(this, _questionType_extraInitializers), __runInitializers(this, _numberOfQuestions_initializers, void 0));
-                this.questions = (__runInitializers(this, _numberOfQuestions_extraInitializers), __runInitializers(this, _questions_initializers, void 0));
-                __runInitializers(this, _questions_extraInitializers);
+                this.title = __runInitializers(this, _title_initializers, void 0);
+                this.content = (__runInitializers(this, _title_extraInitializers), __runInitializers(this, _content_initializers, void 0));
+                this.resources = (__runInitializers(this, _content_extraInitializers), __runInitializers(this, _resources_initializers, void 0));
+                this.created_at = (__runInitializers(this, _resources_extraInitializers), __runInitializers(this, _created_at_initializers, void 0));
+                __runInitializers(this, _created_at_extraInitializers);
             }
         },
         (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
-            _questionType_decorators = [(0, class_validator_1.IsOptional)(), (0, class_validator_1.IsEnum)(module_question_dto_1.QuestionType)];
-            _numberOfQuestions_decorators = [(0, class_validator_1.IsOptional)(), (0, class_validator_1.IsNumber)(), (0, class_validator_1.Min)(1)];
-            _questions_decorators = [(0, class_validator_1.IsOptional)(), (0, class_validator_1.IsArray)(), (0, class_validator_1.ValidateNested)({ each: true }), (0, class_transformer_1.Type)(() => module_question_dto_2.QuestionDto)];
-            __esDecorate(null, null, _questionType_decorators, { kind: "field", name: "questionType", static: false, private: false, access: { has: obj => "questionType" in obj, get: obj => obj.questionType, set: (obj, value) => { obj.questionType = value; } }, metadata: _metadata }, _questionType_initializers, _questionType_extraInitializers);
-            __esDecorate(null, null, _numberOfQuestions_decorators, { kind: "field", name: "numberOfQuestions", static: false, private: false, access: { has: obj => "numberOfQuestions" in obj, get: obj => obj.numberOfQuestions, set: (obj, value) => { obj.numberOfQuestions = value; } }, metadata: _metadata }, _numberOfQuestions_initializers, _numberOfQuestions_extraInitializers);
-            __esDecorate(null, null, _questions_decorators, { kind: "field", name: "questions", static: false, private: false, access: { has: obj => "questions" in obj, get: obj => obj.questions, set: (obj, value) => { obj.questions = value; } }, metadata: _metadata }, _questions_initializers, _questions_extraInitializers);
+            _title_decorators = [(0, class_validator_1.IsOptional)(), (0, class_validator_1.IsString)(), (0, class_validator_1.Length)(1, 100)];
+            _content_decorators = [(0, class_validator_1.IsOptional)(), (0, class_validator_1.IsString)(), (0, class_validator_1.Length)(1, 5000)];
+            _resources_decorators = [(0, class_validator_1.IsOptional)(), (0, class_validator_1.IsArray)(), (0, class_validator_1.IsString)({ each: true })];
+            _created_at_decorators = [(0, class_validator_1.IsOptional)(), (0, class_validator_1.IsDate)()];
+            __esDecorate(null, null, _title_decorators, { kind: "field", name: "title", static: false, private: false, access: { has: obj => "title" in obj, get: obj => obj.title, set: (obj, value) => { obj.title = value; } }, metadata: _metadata }, _title_initializers, _title_extraInitializers);
+            __esDecorate(null, null, _content_decorators, { kind: "field", name: "content", static: false, private: false, access: { has: obj => "content" in obj, get: obj => obj.content, set: (obj, value) => { obj.content = value; } }, metadata: _metadata }, _content_initializers, _content_extraInitializers);
+            __esDecorate(null, null, _resources_decorators, { kind: "field", name: "resources", static: false, private: false, access: { has: obj => "resources" in obj, get: obj => obj.resources, set: (obj, value) => { obj.resources = value; } }, metadata: _metadata }, _resources_initializers, _resources_extraInitializers);
+            __esDecorate(null, null, _created_at_decorators, { kind: "field", name: "created_at", static: false, private: false, access: { has: obj => "created_at" in obj, get: obj => obj.created_at, set: (obj, value) => { obj.created_at = value; } }, metadata: _metadata }, _created_at_initializers, _created_at_extraInitializers);
             if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         })(),
         _a;
 })();
-exports.UpdateQuizDto = UpdateQuizDto;
+exports.UpdateModuleDto = UpdateModuleDto;

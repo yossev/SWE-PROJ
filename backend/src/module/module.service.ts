@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Req, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, mongo } from 'mongoose';
+import { Model, mongo, Types } from 'mongoose';
 import { Module } from 'models/module-schema';
 import { StreamableFile } from '@nestjs/common';
 import { createReadStream } from 'fs';
@@ -13,6 +13,8 @@ import { UpdateQuizDto } from 'src/quiz/DTO/quiz.update.dto';
 import { UploadedFile } from '@nestjs/common';
 
 import { PipeTransform, ArgumentMetadata } from '@nestjs/common';
+import { Course } from 'models/course-schema';
+import { NotificationService } from 'src/notification/notification.service';
 
 @Injectable()
 export class FileSizeValidationPipe implements PipeTransform {
@@ -28,6 +30,8 @@ export class FileSizeValidationPipe implements PipeTransform {
 export class ModuleService {
   constructor(
     @InjectModel('Module') private readonly moduleModel: Model<Module>, 
+    @InjectModel('Course') private readonly courseModel: Model<Course>,
+    private readonly notificationService: NotificationService
   ) {}
 
   async getModule(id : string)
@@ -35,21 +39,44 @@ export class ModuleService {
     const module  = await this.moduleModel.findById(new mongoose.Types.ObjectId(id)).exec();
     return module;
   }
-  async createModule(createModuleDto : CreateModuleDto)
+  async createModule(@Req() req,createModuleDto : CreateModuleDto)
   {
+    const userid=req.cookies.userid;
+    const course=this.courseModel.findById(createModuleDto.course_id);
+    if (userid!=(await course).created_by){
+      throw new UnauthorizedException("You are not authorized to create a module");
+    }
     const createdModule = new this.moduleModel(createModuleDto);
     createdModule.save();
+    const message = `New module for course ${(await course).title} has been added`;
+    await this.notificationService.createNotification(
+      (await course).students,
+      message
+    );
     return "Module created and added";
   }
 
-  async updateModule(id : string , updateModuleDto : UpdateModuleDto)
+  async updateModule(id : string ,@Req() req, updateModuleDto : UpdateModuleDto)
   {
+    const userid=req.cookies.userid;
+    const usedModule=this.moduleModel.findById(new Types.ObjectId(id));
+    const courseid=(await usedModule).course_id;
+    const course=this.courseModel.findById(courseid);
+    if (userid!=(await course).created_by){
+      throw new UnauthorizedException("You are not authorized to update this module");
+    }
     const module = await this.moduleModel.findById(new mongoose.Types.ObjectId(id)).exec();
     if(module)
     {
       Object.assign(module, updateModuleDto) // Update Course
+      const message = `Module ${(await usedModule).title} for course ${(await course).title} has been updated`;
+      await this.notificationService.createNotification(
+        (await course).students,
+        message
+    );
         return module.save()
     }
+    
     return null;
   }
 
@@ -102,7 +129,14 @@ export class ModuleService {
     return false;
   }
 
-  async uploadFile(@UploadedFile() file: Express.Multer.File , moduleId : string , fileName: string) {
+  async uploadFile(@Req() req,@UploadedFile() file: Express.Multer.File , moduleId : string , fileName: string) {
+    const userid=req.cookies.userid;
+    const usedModule=this.moduleModel.findById(new Types.ObjectId(moduleId));
+    const courseid=(await usedModule).course_id;
+    const course=this.courseModel.findById(courseid);
+    if (userid!=(await course).created_by){
+      throw new UnauthorizedException("You are not authorized to update this module");
+    }
     var currentModule = await this.moduleModel.findById(new mongoose.Types.ObjectId(moduleId)).exec();
     console.log('Current Module title is: ' + currentModule.title)
     currentModule.resources.push(fileName);

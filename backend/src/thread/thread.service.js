@@ -57,13 +57,23 @@ let ThreadService = (() => {
     let _classExtraInitializers = [];
     let _classThis;
     var ThreadService = _classThis = class {
-        constructor(threadModel, topicModel) {
+        constructor(threadModel, replyModel, forumService, courseService, notificationService) {
             this.threadModel = threadModel;
-            this.topicModel = topicModel;
+            this.replyModel = replyModel;
+            this.forumService = forumService;
+            this.courseService = courseService;
+            this.notificationService = notificationService;
         }
         // Create a new thread in a folder
-        createThread(createThreadDto) {
+        createThread(req, createThreadDto) {
             return __awaiter(this, void 0, void 0, function* () {
+                createThreadDto.createdBy = req.cookies.userId;
+                const forum = this.forumService.getForumById(createThreadDto.forum_id);
+                const forumTitle = (yield forum).forumTitle;
+                const course = this.courseService.findOne((yield forum).course_id.toString());
+                const users = (yield course).students;
+                const message = `A new thread "${createThreadDto.threadTitle} has been added to the forum "${forumTitle}" with the content "${createThreadDto.content}`;
+                this.notificationService.createNotification(users, message);
                 return yield this.threadModel.create(createThreadDto);
             });
         }
@@ -75,14 +85,34 @@ let ThreadService = (() => {
         }
         updateThread(updateThreadDto) {
             return __awaiter(this, void 0, void 0, function* () {
-                const objectId = new mongoose_1.Types.ObjectId(updateThreadDto.threadId);
+                const objectId = new mongoose_1.Types.ObjectId(updateThreadDto.thread_id);
                 const thread = this.threadModel.findByIdAndUpdate(objectId, updateThreadDto);
-                return (yield thread).save();
+                (yield thread).save();
+                return thread;
+            });
+        }
+        searchThreadsByKeyword(keyword) {
+            return __awaiter(this, void 0, void 0, function* () {
+                return this.threadModel
+                    .find({
+                    $text: { $search: keyword }, // MongoDB text search
+                })
+                    .exec();
             });
         }
         deleteThread(threadId) {
             return __awaiter(this, void 0, void 0, function* () {
                 return yield this.threadModel.findByIdAndDelete(new mongoose_1.Types.ObjectId(threadId));
+            });
+        }
+        getThreadReplies(threadId) {
+            return __awaiter(this, void 0, void 0, function* () {
+                // Validate and cast the forumId to ObjectId
+                if (!mongoose_1.Types.ObjectId.isValid(threadId)) {
+                    throw new Error('Invalid forum ID');
+                }
+                const threadObjectId = new mongoose_1.Types.ObjectId(threadId);
+                return yield this.replyModel.find({ thread_id: threadObjectId }).exec();
             });
         }
     };

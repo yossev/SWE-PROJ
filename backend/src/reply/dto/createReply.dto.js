@@ -39,9 +39,9 @@ exports.CreateReplyDto = void 0;
 const class_validator_1 = require("class-validator");
 let CreateReplyDto = (() => {
     var _a;
-    let _threadId_decorators;
-    let _threadId_initializers = [];
-    let _threadId_extraInitializers = [];
+    let _thread_id_decorators;
+    let _thread_id_initializers = [];
+    let _thread_id_extraInitializers = [];
     let _content_decorators;
     let _content_initializers = [];
     let _content_extraInitializers = [];
@@ -49,20 +49,19 @@ let CreateReplyDto = (() => {
     let _createdBy_initializers = [];
     let _createdBy_extraInitializers = [];
     return _a = class CreateReplyDto {
-            ; // The ID of the thread to which the reply belongs
             constructor() {
-                this.threadId = __runInitializers(this, _threadId_initializers, void 0);
-                this.content = (__runInitializers(this, _threadId_extraInitializers), __runInitializers(this, _content_initializers, void 0)); // The content of the reply
+                this.thread_id = __runInitializers(this, _thread_id_initializers, void 0); // The ID of the thread to which the reply belongs
+                this.content = (__runInitializers(this, _thread_id_extraInitializers), __runInitializers(this, _content_initializers, void 0)); // The content of the reply
                 this.createdBy = (__runInitializers(this, _content_extraInitializers), __runInitializers(this, _createdBy_initializers, void 0)); // The user who created the reply
                 __runInitializers(this, _createdBy_extraInitializers);
             }
         },
         (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
-            _threadId_decorators = [(0, class_validator_1.IsMongoId)(), (0, class_validator_1.IsNotEmpty)()];
+            _thread_id_decorators = [(0, class_validator_1.IsMongoId)(), (0, class_validator_1.IsNotEmpty)()];
             _content_decorators = [(0, class_validator_1.IsString)(), (0, class_validator_1.IsNotEmpty)()];
             _createdBy_decorators = [(0, class_validator_1.IsMongoId)(), (0, class_validator_1.IsNotEmpty)()];
-            __esDecorate(null, null, _threadId_decorators, { kind: "field", name: "threadId", static: false, private: false, access: { has: obj => "threadId" in obj, get: obj => obj.threadId, set: (obj, value) => { obj.threadId = value; } }, metadata: _metadata }, _threadId_initializers, _threadId_extraInitializers);
+            __esDecorate(null, null, _thread_id_decorators, { kind: "field", name: "thread_id", static: false, private: false, access: { has: obj => "thread_id" in obj, get: obj => obj.thread_id, set: (obj, value) => { obj.thread_id = value; } }, metadata: _metadata }, _thread_id_initializers, _thread_id_extraInitializers);
             __esDecorate(null, null, _content_decorators, { kind: "field", name: "content", static: false, private: false, access: { has: obj => "content" in obj, get: obj => obj.content, set: (obj, value) => { obj.content = value; } }, metadata: _metadata }, _content_initializers, _content_extraInitializers);
             __esDecorate(null, null, _createdBy_decorators, { kind: "field", name: "createdBy", static: false, private: false, access: { has: obj => "createdBy" in obj, get: obj => obj.createdBy, set: (obj, value) => { obj.createdBy = value; } }, metadata: _metadata }, _createdBy_initializers, _createdBy_extraInitializers);
             if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });

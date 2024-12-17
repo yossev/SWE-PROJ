@@ -57,14 +57,25 @@ let ReplyController = (() => {
     let _classThis;
     let _instanceExtraInitializers = [];
     let _createReply_decorators;
+    let _updateReply_decorators;
+    let _deleteReply_decorators;
     var ReplyController = _classThis = class {
         constructor(replyService) {
             this.replyService = (__runInitializers(this, _instanceExtraInitializers), replyService);
         }
-        // @Roles(Role.User)
-        createReply(createReplyDto) {
+        createReply(req, createReplyDto) {
             return __awaiter(this, void 0, void 0, function* () {
-                return this.replyService.createReply(createReplyDto);
+                return this.replyService.createReply(req, createReplyDto);
+            });
+        }
+        updateReply(UpdateReplyDto) {
+            return __awaiter(this, void 0, void 0, function* () {
+                return this.replyService.updateReply(UpdateReplyDto);
+            });
+        }
+        deleteReply(id) {
+            return __awaiter(this, void 0, void 0, function* () {
+                return this.replyService.deleteReply(id);
             });
         }
     };
@@ -72,7 +83,11 @@ let ReplyController = (() => {
     (() => {
         const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
         _createReply_decorators = [(0, common_1.Post)('create')];
+        _updateReply_decorators = [(0, common_1.Put)('update')];
+        _deleteReply_decorators = [(0, common_1.Delete)('delete')];
         __esDecorate(_classThis, null, _createReply_decorators, { kind: "method", name: "createReply", static: false, private: false, access: { has: obj => "createReply" in obj, get: obj => obj.createReply }, metadata: _metadata }, null, _instanceExtraInitializers);
+        __esDecorate(_classThis, null, _updateReply_decorators, { kind: "method", name: "updateReply", static: false, private: false, access: { has: obj => "updateReply" in obj, get: obj => obj.updateReply }, metadata: _metadata }, null, _instanceExtraInitializers);
+        __esDecorate(_classThis, null, _deleteReply_decorators, { kind: "method", name: "deleteReply", static: false, private: false, access: { has: obj => "deleteReply" in obj, get: obj => obj.deleteReply }, metadata: _metadata }, null, _instanceExtraInitializers);
         __esDecorate(null, _classDescriptor = { value: _classThis }, _classDecorators, { kind: "class", name: _classThis.name, metadata: _metadata }, null, _classExtraInitializers);
         ReplyController = _classThis = _classDescriptor.value;
         if (_metadata) Object.defineProperty(_classThis, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });

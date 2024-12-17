@@ -47,13 +47,11 @@ const forum_controller_1 = require("./forum.controller");
 const forum_schema_1 = require("src/models/forum-schema");
 const thread_schema_1 = require("src/models/thread-schema");
 const reply_schema_1 = require("src/models/reply-schema");
-const topic_schema_1 = require("src/models/topic-schema");
 let ForumModule = (() => {
     let _classDecorators = [(0, common_1.Module)({
             imports: [
                 mongoose_1.MongooseModule.forFeature([
                     { name: forum_schema_1.Forum.name, schema: forum_schema_1.ForumSchema },
-                    { name: topic_schema_1.Topic.name, schema: topic_schema_1.TopicSchema },
                     { name: thread_schema_1.Thread.name, schema: thread_schema_1.ThreadSchema },
                     { name: reply_schema_1.Reply.name, schema: reply_schema_1.ReplySchema },
                 ]),

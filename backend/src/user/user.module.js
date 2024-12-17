@@ -46,8 +46,8 @@ const jwt_1 = require("@nestjs/jwt");
 const config_1 = require("@nestjs/config");
 const user_service_1 = require("./user.service");
 const user_controller_1 = require("./user.controller");
-const user_schema_1 = require("src/models/user-schema");
-const course_schema_1 = require("models/course-schema");
+const user_schema_1 = require("../../src/models/user-schema");
+const course_schema_1 = require("../../src/models/course-schema");
 const auth_module_1 = require("src/auth/auth.module");
 const progress_module_1 = require("src/progress/progress.module");
 let UserModule = (() => {

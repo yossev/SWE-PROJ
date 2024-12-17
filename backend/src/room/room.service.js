@@ -51,6 +51,7 @@ exports.RoomService = void 0;
 /* eslint-disable prettier/prettier */
 // room.service.ts
 const common_1 = require("@nestjs/common");
+const mongoose_1 = require("mongoose");
 let RoomService = (() => {
     let _classDecorators = [(0, common_1.Injectable)()];
     let _classDescriptor;
@@ -156,6 +157,29 @@ let RoomService = (() => {
         setRoomInactive(roomId) {
             return __awaiter(this, void 0, void 0, function* () {
                 return this.roomModel.findByIdAndUpdate(roomId, { active: false }, { new: true });
+            });
+        }
+        joinRoom(roomName, id) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const room = yield this.roomModel.findOne({ name: roomName });
+                room.user_id.push(new mongoose_1.Types.ObjectId(id));
+                return yield room.save();
+            });
+        }
+        leaveRoom(roomName, id) {
+            return __awaiter(this, void 0, void 0, function* () {
+                let room = yield this.roomModel.findOne({ name: roomName });
+                room.user_id = room.user_id.filter(x => x.toString() !== id);
+                return yield room.save();
+            });
+        }
+        checkUserInRoom(roomName, id) {
+            return __awaiter(this, void 0, void 0, function* () {
+                let room = yield this.roomModel.findOne({ name: roomName });
+                let user = room.user_id.find(x => x.toString() === id);
+                if (user)
+                    return true;
+                return false;
             });
         }
     };

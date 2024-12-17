@@ -48,6 +48,7 @@ var __setFunctionName = (this && this.__setFunctionName) || function (f, name, p
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ResponseService = void 0;
+/* eslint-disable prettier/prettier */
 const common_1 = require("@nestjs/common");
 let ResponseService = (() => {
     let _classDecorators = [(0, common_1.Injectable)()];

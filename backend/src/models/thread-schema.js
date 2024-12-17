@@ -59,17 +59,13 @@ let Thread = (() => {
     let _createdBy_decorators;
     let _createdBy_initializers = [];
     let _createdBy_extraInitializers = [];
-    let _topic_id_decorators;
-    let _topic_id_initializers = [];
-    let _topic_id_extraInitializers = [];
     var Thread = _classThis = class {
         constructor() {
             this.threadTitle = __runInitializers(this, _threadTitle_initializers, void 0); // Title of the thread (the main subject of the thread)
             this.content = (__runInitializers(this, _threadTitle_extraInitializers), __runInitializers(this, _content_initializers, void 0)); // Content of the thread
             this.forum_id = (__runInitializers(this, _content_extraInitializers), __runInitializers(this, _forum_id_initializers, void 0));
             this.createdBy = (__runInitializers(this, _forum_id_extraInitializers), __runInitializers(this, _createdBy_initializers, void 0)); // Reference to the user who created the thread
-            this.topic_id = (__runInitializers(this, _createdBy_extraInitializers), __runInitializers(this, _topic_id_initializers, void 0)); // References to replies within the thread
-            __runInitializers(this, _topic_id_extraInitializers);
+            __runInitializers(this, _createdBy_extraInitializers);
         }
     };
     __setFunctionName(_classThis, "Thread");
@@ -79,12 +75,10 @@ let Thread = (() => {
         _content_decorators = [(0, mongoose_1.Prop)({ required: true })];
         _forum_id_decorators = [(0, mongoose_1.Prop)({ type: mongoose_2.Schema.Types.ObjectId, ref: 'Forum', required: true })];
         _createdBy_decorators = [(0, mongoose_1.Prop)({ type: mongoose_2.Schema.Types.ObjectId, ref: 'User', required: true })];
-        _topic_id_decorators = [(0, mongoose_1.Prop)({ type: [{ type: mongoose_2.Schema.Types.ObjectId, ref: 'Topic' }] })];
         __esDecorate(null, null, _threadTitle_decorators, { kind: "field", name: "threadTitle", static: false, private: false, access: { has: obj => "threadTitle" in obj, get: obj => obj.threadTitle, set: (obj, value) => { obj.threadTitle = value; } }, metadata: _metadata }, _threadTitle_initializers, _threadTitle_extraInitializers);
         __esDecorate(null, null, _content_decorators, { kind: "field", name: "content", static: false, private: false, access: { has: obj => "content" in obj, get: obj => obj.content, set: (obj, value) => { obj.content = value; } }, metadata: _metadata }, _content_initializers, _content_extraInitializers);
         __esDecorate(null, null, _forum_id_decorators, { kind: "field", name: "forum_id", static: false, private: false, access: { has: obj => "forum_id" in obj, get: obj => obj.forum_id, set: (obj, value) => { obj.forum_id = value; } }, metadata: _metadata }, _forum_id_initializers, _forum_id_extraInitializers);
         __esDecorate(null, null, _createdBy_decorators, { kind: "field", name: "createdBy", static: false, private: false, access: { has: obj => "createdBy" in obj, get: obj => obj.createdBy, set: (obj, value) => { obj.createdBy = value; } }, metadata: _metadata }, _createdBy_initializers, _createdBy_extraInitializers);
-        __esDecorate(null, null, _topic_id_decorators, { kind: "field", name: "topic_id", static: false, private: false, access: { has: obj => "topic_id" in obj, get: obj => obj.topic_id, set: (obj, value) => { obj.topic_id = value; } }, metadata: _metadata }, _topic_id_initializers, _topic_id_extraInitializers);
         __esDecorate(null, _classDescriptor = { value: _classThis }, _classDecorators, { kind: "class", name: _classThis.name, metadata: _metadata }, null, _classExtraInitializers);
         Thread = _classThis = _classDescriptor.value;
         if (_metadata) Object.defineProperty(_classThis, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
@@ -94,3 +88,4 @@ let Thread = (() => {
 })();
 exports.Thread = Thread;
 exports.ThreadSchema = mongoose_1.SchemaFactory.createForClass(Thread);
+exports.ThreadSchema.index({ content: 'text' });

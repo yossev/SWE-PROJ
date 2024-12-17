@@ -46,17 +46,50 @@ const forum_schema_1 = require("src/models/forum-schema");
 const thread_schema_1 = require("src/models/thread-schema");
 const thread_controller_1 = require("./thread.controller");
 const thread_service_1 = require("./thread.service");
-const topic_schema_1 = require("src/models/topic-schema");
+const reply_schema_1 = require("models/reply-schema");
+const notification_schema_1 = require("models/notification-schema");
+const forum_service_1 = require("src/forum/forum.service");
+const course_service_1 = require("src/course/course.service");
+const notification_service_1 = require("src/notification/notification.service");
+const reply_service_1 = require("src/reply/reply.service");
+const jwt_1 = require("@nestjs/jwt");
+const course_schema_1 = require("models/course-schema");
+const message_schema_1 = require("models/message-schema");
+const module_schema_1 = require("models/module-schema");
+const progress_schema_1 = require("models/progress-schema");
+const quizzes_schema_1 = require("models/quizzes-schema");
+const rating_schema_1 = require("models/rating-schema");
+const responses_schema_1 = require("models/responses-schema");
+const room_schema_1 = require("models/room-schema");
+const user_schema_1 = require("models/user-schema");
+const auth_service_1 = require("src/auth/auth.service");
+const message_service_1 = require("src/chat/message.service");
+const progress_service_1 = require("src/progress/progress.service");
+const rating_service_1 = require("src/rating/rating.service");
+const room_service_1 = require("src/room/room.service");
+const user_service_1 = require("src/user/user.service");
 let ThreadModule = (() => {
     let _classDecorators = [(0, common_1.Module)({
             imports: [
-                mongoose_1.MongooseModule.forFeature([{ name: thread_schema_1.Thread.name, schema: thread_schema_1.ThreadSchema }]),
-                mongoose_1.MongooseModule.forFeature([{ name: forum_schema_1.Forum.name, schema: forum_schema_1.ForumSchema }]),
-                mongoose_1.MongooseModule.forFeature([{ name: topic_schema_1.Topic.name, schema: topic_schema_1.TopicSchema }])
-                //CourseModule, // Import the CourseModule to use Course services
+                mongoose_1.MongooseModule.forFeature([
+                    { name: reply_schema_1.Reply.name, schema: reply_schema_1.ReplySchema },
+                    { name: thread_schema_1.Thread.name, schema: thread_schema_1.ThreadSchema },
+                    { name: notification_schema_1.UserNotification.name, schema: notification_schema_1.NotificationSchema },
+                    { name: message_schema_1.Message.name, schema: message_schema_1.MessageSchema },
+                    { name: course_schema_1.Course.name, schema: course_schema_1.CourseSchema },
+                    { name: user_schema_1.User.name, schema: user_schema_1.UserSchema },
+                    { name: forum_schema_1.Forum.name, schema: forum_schema_1.ForumSchema },
+                    { name: room_schema_1.Room.name, schema: room_schema_1.RoomSchema },
+                    { name: "Progress", schema: progress_schema_1.ProgressSchema },
+                    { name: "Responses", schema: responses_schema_1.ResponseSchema },
+                    { name: "Quiz", schema: quizzes_schema_1.QuizSchema },
+                    { name: "Module", schema: module_schema_1.ModuleSchema },
+                    { name: "Rating", schema: rating_schema_1.RatingSchema },
+                ]),
             ],
             controllers: [thread_controller_1.ThreadController],
-            providers: [thread_service_1.ThreadService],
+            providers: [thread_service_1.ThreadService, reply_service_1.ReplyService, notification_service_1.NotificationService, user_service_1.UserService, jwt_1.JwtService, course_service_1.CourseService, message_service_1.MessageService, room_service_1.RoomService,
+                progress_service_1.ProgressService, auth_service_1.AuthService, rating_service_1.RatingService, forum_service_1.ForumService],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];

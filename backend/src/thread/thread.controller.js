@@ -58,15 +58,16 @@ let ThreadController = (() => {
     let _instanceExtraInitializers = [];
     let _createThread_decorators;
     let _updateThread_decorators;
-    let _findTopicsById_decorators;
+    let _searchThreads_decorators;
     let _deleteThread_decorators;
+    let _getReplies_decorators;
     var ThreadController = _classThis = class {
         constructor(threadService) {
             this.threadService = (__runInitializers(this, _instanceExtraInitializers), threadService);
         }
-        createThread(createThreadDto) {
+        createThread(req, createThreadDto) {
             return __awaiter(this, void 0, void 0, function* () {
-                return this.threadService.createThread(createThreadDto);
+                return this.threadService.createThread(req, createThreadDto);
             });
         }
         updateThread(updateThreadDto) {
@@ -74,14 +75,19 @@ let ThreadController = (() => {
                 return this.threadService.updateThread(updateThreadDto);
             });
         }
-        findTopicsById(searchThreadDto) {
+        searchThreads(keyword) {
             return __awaiter(this, void 0, void 0, function* () {
-                return this.threadService.search(searchThreadDto);
+                return this.threadService.searchThreadsByKeyword(keyword);
             });
         }
         deleteThread(id) {
             return __awaiter(this, void 0, void 0, function* () {
                 return this.threadService.deleteThread(id);
+            });
+        }
+        getReplies(id) {
+            return __awaiter(this, void 0, void 0, function* () {
+                return this.threadService.getThreadReplies(id);
             });
         }
     };
@@ -90,12 +96,14 @@ let ThreadController = (() => {
         const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
         _createThread_decorators = [(0, common_1.Post)('create')];
         _updateThread_decorators = [(0, common_1.Put)('update')];
-        _findTopicsById_decorators = [(0, common_1.Get)('search')];
+        _searchThreads_decorators = [(0, common_1.Get)('search')];
         _deleteThread_decorators = [(0, common_1.Delete)('delete')];
+        _getReplies_decorators = [(0, common_1.Get)('getReplies')];
         __esDecorate(_classThis, null, _createThread_decorators, { kind: "method", name: "createThread", static: false, private: false, access: { has: obj => "createThread" in obj, get: obj => obj.createThread }, metadata: _metadata }, null, _instanceExtraInitializers);
         __esDecorate(_classThis, null, _updateThread_decorators, { kind: "method", name: "updateThread", static: false, private: false, access: { has: obj => "updateThread" in obj, get: obj => obj.updateThread }, metadata: _metadata }, null, _instanceExtraInitializers);
-        __esDecorate(_classThis, null, _findTopicsById_decorators, { kind: "method", name: "findTopicsById", static: false, private: false, access: { has: obj => "findTopicsById" in obj, get: obj => obj.findTopicsById }, metadata: _metadata }, null, _instanceExtraInitializers);
+        __esDecorate(_classThis, null, _searchThreads_decorators, { kind: "method", name: "searchThreads", static: false, private: false, access: { has: obj => "searchThreads" in obj, get: obj => obj.searchThreads }, metadata: _metadata }, null, _instanceExtraInitializers);
         __esDecorate(_classThis, null, _deleteThread_decorators, { kind: "method", name: "deleteThread", static: false, private: false, access: { has: obj => "deleteThread" in obj, get: obj => obj.deleteThread }, metadata: _metadata }, null, _instanceExtraInitializers);
+        __esDecorate(_classThis, null, _getReplies_decorators, { kind: "method", name: "getReplies", static: false, private: false, access: { has: obj => "getReplies" in obj, get: obj => obj.getReplies }, metadata: _metadata }, null, _instanceExtraInitializers);
         __esDecorate(null, _classDescriptor = { value: _classThis }, _classDecorators, { kind: "class", name: _classThis.name, metadata: _metadata }, null, _classExtraInitializers);
         ThreadController = _classThis = _classDescriptor.value;
         if (_metadata) Object.defineProperty(_classThis, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });

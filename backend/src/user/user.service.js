@@ -1,20 +1,6 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
+/* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -49,13 +35,6 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -71,11 +50,9 @@ var __setFunctionName = (this && this.__setFunctionName) || function (f, name, p
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserService = void 0;
-/* eslint-disable prettier/prettier */
 const common_1 = require("@nestjs/common");
 // import { Course } from 'src/models/course-schema';
 const mongoose_1 = require("mongoose");
-const bcrypt = __importStar(require("bcrypt"));
 // import { LoginDto } from './dto/loginDto.dto';
 // import { RefreshAccessTokenDto } from './dto/refreshAccessTokenDto.dto';
 let UserService = (() => {
@@ -91,50 +68,11 @@ let UserService = (() => {
             this.progressService = progressService;
             this.authService = authService;
         }
-        register(createUserDto) {
+        create(userData) {
             return __awaiter(this, void 0, void 0, function* () {
-                console.log('Registering user:', createUserDto);
-                const user = new this.userModel(createUserDto); // Create a new student document
-                yield this.isEmailUnique(createUserDto.email);
-                return yield user.save(); // Save it to the database
-            });
-        }
-        // Login existing user
-        login(loginDto, res) {
-            return __awaiter(this, void 0, void 0, function* () {
-                console.log('Logging in');
-                const { email, password } = loginDto;
-                // 1. Find the user by email
-                const user = yield this.userModel.findOne({ email });
-                if (!user) {
-                    throw new common_1.UnauthorizedException('User not found');
-                }
-                const id = user._id;
-                // 2. Check if the password is correct
-                const isPasswordValid = yield bcrypt.compare(password, user.password_hash);
-                if (!isPasswordValid) {
-                    throw new common_1.UnauthorizedException('Invalid credentials');
-                }
-                // 3. Generate tokens
-                const accessToken = this.jwtService.sign({ email: user.email, userId: user._id }, { secret: process.env.JWT_SECRET, expiresIn: '1h' });
-                console.log('entering refresh token');
-                const refreshToken = yield this.authService.generateRefreshToken(user._id.toString());
-                console.log('finshing refresh token');
-                // 4. Set tokens as cookies
-                res.cookie('AccessToken', accessToken, {
-                    httpOnly: true,
-                    //secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
-                    maxAge: 60 * 60 * 1000, // 1 hour
-                });
-                console.log('finished first');
-                res.cookie('RefreshToken', refreshToken, {
-                    httpOnly: true,
-                    //secure: process.env.NODE_ENV === 'production',
-                    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-                });
-                console.log('finished cookies');
-                // 5. Return response (if needed)
-                return { message: 'Login successful', userId: id };
+                const newUser = new this.userModel(userData); // Create a new student document
+                const user = yield newUser.save();
+                return user; // Save it to the database
             });
         }
         findAll() {
@@ -149,8 +87,7 @@ let UserService = (() => {
         }
         findByEmail(email) {
             return __awaiter(this, void 0, void 0, function* () {
-                const user = yield this.userModel.findOne({ email });
-                return user; // Fetch a student by username
+                return this.userModel.findOne({ email }); // Ensure `_id` is included (default behavior)
             });
         }
         findAllInstructors() {
@@ -166,34 +103,26 @@ let UserService = (() => {
         // instructor or admin Get all students
         findStudentsByInstructor(instructorId) {
             return __awaiter(this, void 0, void 0, function* () {
-                if (!mongoose_1.Types.ObjectId.isValid(instructorId)) {
-                    throw new common_1.BadRequestException('Invalid instructor ID');
+                try {
+                    const instructor = this.userModel.findById(instructorId);
+                    const courses = yield this.courseModel.find({ instructor: instructorId }).exec();
+                    if (courses.length === 0) {
+                        return []; // Return an empty list if the instructor has no courses
+                    }
+                    const courseIds = courses.map((course) => course._id); // Extract course IDs
+                    // Find students enrolled in these courses
+                    return yield this.userModel.find({ role: 'student', course: { $in: courseIds } }).exec();
                 }
-                const validInstructorId = new mongoose_1.Types.ObjectId(instructorId);
-                // Find courses taught by this instructor
-                const courses = yield this.courseModel.find({ instructor: validInstructorId }).exec();
-                if (courses.length === 0) {
-                    return []; // Return an empty list if the instructor has no courses
-                }
-                const courseIds = courses.map((course) => course._id); // Extract course IDs
-                // Find students enrolled in these courses
-                return yield this.userModel.find({ role: 'student', course: { $in: courseIds } }).exec();
-            });
-        }
-        // will register
-        isEmailUnique(email) {
-            return __awaiter(this, void 0, void 0, function* () {
-                const user = yield this.userModel.findOne({ email });
-                if (user) {
-                    throw new common_1.BadRequestException('Email must be unique.');
+                catch (error) {
+                    console.error('Token verification failed:', error);
+                    throw new common_1.UnauthorizedException('Instructor invalid ');
                 }
             });
         }
         // Get a student by ID malhash lazma
         findById(id) {
             return __awaiter(this, void 0, void 0, function* () {
-                console.log(id);
-                const student = yield this.userModel.findById(id); // Fetch a student by ID
+                const student = yield this.userModel.findById(new mongoose_1.Types.ObjectId(id)); // Fetch a student by ID
                 return student;
             });
         }
@@ -214,23 +143,12 @@ let UserService = (() => {
                 return deletedUser;
             });
         }
-        refreshAccessToken(refreshAccessTokenDto) {
-            return __awaiter(this, void 0, void 0, function* () {
-                const userId = yield this.authService.findRefreshToken(refreshAccessTokenDto.refreshToken);
-                const user = yield this.userModel.findById(userId);
-                if (!user) {
-                    throw new common_1.BadRequestException('Bad request');
-                }
-                return {
-                    accessToken: yield this.authService.createAccessToken(user._id.toString()),
-                };
-            });
-        }
         logout(res) {
             return __awaiter(this, void 0, void 0, function* () {
-                res.clearCookie('AccessToken');
+                res.clearCookie('token');
                 res.clearCookie('RefreshToken');
-                return { message: 'Logout successful' };
+                res.clearCookie('jwt');
+                return yield { message: 'Logout successful' };
             });
         }
     };
@@ -245,38 +163,3 @@ let UserService = (() => {
     return UserService = _classThis;
 })();
 exports.UserService = UserService;
-// ngebha men courses
-// async findAllCourses(): Promise<Course[]> {
-//     return await this.courseModel.find(); // Fetch all courses
-// }
-// async findEnrolledCourses(): Promise<Course[]> {
-//     return await this.courseModel.find(); // Fetch all courses
-// }
-// async login(req: Request, loginDto: LoginDto): Promise<{ user: User, jwtToken: string, refreshToken: string }> {
-//     const user = await this.findByEmail(loginDto.email);
-//     await this.checkPassword(loginDto.password, user.password_hash);
-//     const result = {
-//       user,
-//       jwtToken: await this.authService.createAccessToken(user._id.toString()),
-//       refreshToken: await this.authService.createRefreshToken(req, user._id),
-//     };
-//     return result;
-//   }
-//   async checkPassword(password: string, hashPassword: string) {
-//     const match = await bcrypt.compare(password, hashPassword);
-//     if (!match) {
-//       throw new UnauthorizedException('Wrong email or password.');
-//     }
-//   }
-//   async refreshAccessToken(refreshAccessTokenDto: RefreshAccessTokenDto) {
-//     const userId = await this.authService.findRefreshToken(
-//       refreshAccessTokenDto.refreshToken,
-//     );
-//     const user = await this.userModel.findById(userId);
-//     if (!user) {
-//       throw new BadRequestException('Bad request');
-//     }
-//     return {
-//       accessToken: await this.authService.createAccessToken(user._id),
-//     };
-//   }

@@ -53,38 +53,55 @@ let Quiz = (() => {
     let _module_id_decorators;
     let _module_id_initializers = [];
     let _module_id_extraInitializers = [];
+    let _question_ids_decorators;
+    let _question_ids_initializers = [];
+    let _question_ids_extraInitializers = [];
     let _questions_decorators;
     let _questions_initializers = [];
     let _questions_extraInitializers = [];
     let _created_at_decorators;
     let _created_at_initializers = [];
     let _created_at_extraInitializers = [];
+    let _score_decorators;
+    let _score_initializers = [];
+    let _score_extraInitializers = [];
+    let _userId_decorators;
+    let _userId_initializers = [];
+    let _userId_extraInitializers = [];
     var Quiz = _classThis = class {
         constructor() {
             this.module_id = __runInitializers(this, _module_id_initializers, void 0);
-            this.questions = (__runInitializers(this, _module_id_extraInitializers), __runInitializers(this, _questions_initializers, void 0));
+            this.question_ids = (__runInitializers(this, _module_id_extraInitializers), __runInitializers(this, _question_ids_initializers, void 0));
+            this.questions = (__runInitializers(this, _question_ids_extraInitializers), __runInitializers(this, _questions_initializers, void 0));
             this.created_at = (__runInitializers(this, _questions_extraInitializers), __runInitializers(this, _created_at_initializers, void 0));
-            __runInitializers(this, _created_at_extraInitializers);
+            this.score = (__runInitializers(this, _created_at_extraInitializers), __runInitializers(this, _score_initializers, void 0));
+            this.userId = (__runInitializers(this, _score_extraInitializers), __runInitializers(this, _userId_initializers, void 0));
+            __runInitializers(this, _userId_extraInitializers);
         }
     };
     __setFunctionName(_classThis, "Quiz");
     (() => {
         const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
         _module_id_decorators = [(0, mongoose_1.Prop)({ type: mongoose_2.default.Schema.Types.ObjectId, ref: 'Module', required: true })];
+        _question_ids_decorators = [(0, mongoose_1.Prop)({ type: [mongoose_2.default.Schema.Types.ObjectId], ref: 'QuestionBank', required: true })];
         _questions_decorators = [(0, mongoose_1.Prop)({
                 type: [
                     {
                         question: { type: String, required: true },
                         options: { type: [String], required: true },
-                        correct_answer: { type: String, required: true },
                     },
                 ],
                 required: true,
             })];
         _created_at_decorators = [(0, mongoose_1.Prop)({ type: Date, default: new Date(), required: true })];
+        _score_decorators = [(0, mongoose_1.Prop)({ type: Number, min: 0 })];
+        _userId_decorators = [(0, mongoose_1.Prop)({ type: mongoose_2.default.Schema.Types.ObjectId, ref: 'User', required: true })];
         __esDecorate(null, null, _module_id_decorators, { kind: "field", name: "module_id", static: false, private: false, access: { has: obj => "module_id" in obj, get: obj => obj.module_id, set: (obj, value) => { obj.module_id = value; } }, metadata: _metadata }, _module_id_initializers, _module_id_extraInitializers);
+        __esDecorate(null, null, _question_ids_decorators, { kind: "field", name: "question_ids", static: false, private: false, access: { has: obj => "question_ids" in obj, get: obj => obj.question_ids, set: (obj, value) => { obj.question_ids = value; } }, metadata: _metadata }, _question_ids_initializers, _question_ids_extraInitializers);
         __esDecorate(null, null, _questions_decorators, { kind: "field", name: "questions", static: false, private: false, access: { has: obj => "questions" in obj, get: obj => obj.questions, set: (obj, value) => { obj.questions = value; } }, metadata: _metadata }, _questions_initializers, _questions_extraInitializers);
         __esDecorate(null, null, _created_at_decorators, { kind: "field", name: "created_at", static: false, private: false, access: { has: obj => "created_at" in obj, get: obj => obj.created_at, set: (obj, value) => { obj.created_at = value; } }, metadata: _metadata }, _created_at_initializers, _created_at_extraInitializers);
+        __esDecorate(null, null, _score_decorators, { kind: "field", name: "score", static: false, private: false, access: { has: obj => "score" in obj, get: obj => obj.score, set: (obj, value) => { obj.score = value; } }, metadata: _metadata }, _score_initializers, _score_extraInitializers);
+        __esDecorate(null, null, _userId_decorators, { kind: "field", name: "userId", static: false, private: false, access: { has: obj => "userId" in obj, get: obj => obj.userId, set: (obj, value) => { obj.userId = value; } }, metadata: _metadata }, _userId_initializers, _userId_extraInitializers);
         __esDecorate(null, _classDescriptor = { value: _classThis }, _classDecorators, { kind: "class", name: _classThis.name, metadata: _metadata }, null, _classExtraInitializers);
         Quiz = _classThis = _classDescriptor.value;
         if (_metadata) Object.defineProperty(_classThis, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });

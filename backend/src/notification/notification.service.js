@@ -58,19 +58,31 @@ let NotificationService = (() => {
     let _classExtraInitializers = [];
     let _classThis;
     var NotificationService = _classThis = class {
-        constructor(notificationModel, messageModel) {
+        constructor(notificationModel, messageModel, courseModel, userModel, userService) {
             this.notificationModel = notificationModel;
             this.messageModel = messageModel;
+            this.courseModel = courseModel;
+            this.userModel = userModel;
+            this.userService = userService;
         }
         // Notify about a new course creation
-        notifyCourseCreation(userId, courseId, courseName) {
+        notifyCourseCreation(courseId, courseName) {
             return __awaiter(this, void 0, void 0, function* () {
-                const message = `A new course "${courseName}" has been created.`;
+                const message = `A new course "${courseName}" has been created. A new forum has also been created for this course.`;
+                const users = yield this.userService.findAll();
+                const userIds = [];
+                const userIdsObj = [];
+                users.forEach(function (value) {
+                    userIds.push(value._id.toString());
+                });
+                userIds.forEach(function (value) {
+                    userIdsObj.push(mongoose_1.Types.ObjectId.createFromHexString(value));
+                });
                 try {
                     const notification = new this.notificationModel({
-                        userId,
+                        user_id: userIdsObj,
                         message,
-                        relatedMessageId: courseId, // Link the course ID for tracking
+                        relatedMessageId: new mongoose_1.Types.ObjectId(courseId), // Link the course ID for tracking
                     });
                     return yield notification.save();
                 }
@@ -80,8 +92,48 @@ let NotificationService = (() => {
                 }
             });
         }
+        notifyCourseUpdate(courseId, courseName) {
+            return __awaiter(this, void 0, void 0, function* () {
+                try {
+                    // Fetch the course details
+                    const course = yield this.courseModel.findById(courseId).exec();
+                    if (!course) {
+                        throw new Error(`Course with ID ${courseId} not found.`);
+                    }
+                    const message = `The course "${courseName}" has been updated. Here are the updates: 
+      Title: "${course.title}", 
+      Description: "${course.description}", 
+      Category: "${course.category}",
+      Difficulty Level: "${course.difficulty_level}"`;
+                    // Notify each student
+                    for (const studentId of course.students) {
+                        try {
+                            const student = yield this.userModel.findById(studentId).exec();
+                            if (!student) {
+                                throw new Error(`Student with ID ${studentId} not found.`);
+                            }
+                            const notification = new this.notificationModel({
+                                user_id: studentId,
+                                message,
+                                relatedMessageId: courseId,
+                            });
+                            student.notifications.push(notification); // Push notification ID to student
+                            yield student.save(); // Save updated student
+                            return yield notification.save(); // Save notification
+                        }
+                        catch (error) {
+                            console.error(`Error notifying student ${studentId}:`, error);
+                        }
+                    }
+                }
+                catch (error) {
+                    console.error('Error creating course notification:', error);
+                    throw new Error('Failed to create course notification');
+                }
+            });
+        }
         // Create a generic notification
-        createNotification(userId, message, relatedMessageId) {
+        createNotification(userIds, message, relatedMessageId) {
             return __awaiter(this, void 0, void 0, function* () {
                 try {
                     // If a relatedMessageId is provided, append its content to the notification
@@ -91,16 +143,41 @@ let NotificationService = (() => {
                             message += `: "${relatedMessage.content}"`;
                         }
                     }
-                    const notification = new this.notificationModel({
-                        userId,
-                        message,
-                        relatedMessageId,
-                    });
-                    return yield notification.save();
+                    const userIdArray = Array.isArray(userIds) ? userIds : [userIds];
+                    // Collect created notifications
+                    const notifications = [];
+                    console.log('userIdArray', userIdArray);
+                    // Loop through each userId and create a notification
+                    for (const userId of userIdArray) {
+                        try {
+                            const student = yield this.userModel.findById(userId).exec();
+                            if (!student) {
+                                throw new Error(`Student with ID ${userId} not found.`);
+                            }
+                            // Create the notification
+                            const notification = new this.notificationModel({
+                                user_id: userId,
+                                message,
+                                relatedMessageId,
+                            });
+                            // Save the notification to the student's notifications array
+                            student.notifications.push(notification); // Assuming `notifications` stores ObjectIds
+                            yield student.save(); // Save updated student
+                            // Save the notification itself
+                            const savedNotification = yield notification.save();
+                            // Add the saved notification to the array
+                            notifications.push(savedNotification.toObject());
+                        }
+                        catch (error) {
+                            console.error(`Error notifying student ${userId}:`, error);
+                        }
+                    }
+                    // Return the array of created notifications
+                    return notifications;
                 }
                 catch (error) {
-                    console.error('Error creating notification:', error);
-                    throw new Error('Failed to create notification');
+                    console.error('Error creating notifications:', error);
+                    throw new Error('Failed to create notifications');
                 }
             });
         }

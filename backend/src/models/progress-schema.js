@@ -42,6 +42,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProgressSchema = exports.Progress = void 0;
+/* eslint-disable prettier/prettier */
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = __importDefault(require("mongoose"));
 let Progress = (() => {
@@ -72,14 +73,13 @@ let Progress = (() => {
             this.last_accessed = (__runInitializers(this, _completion_percentage_extraInitializers), __runInitializers(this, _last_accessed_initializers, void 0));
             this.attendance = (__runInitializers(this, _last_accessed_extraInitializers), __runInitializers(this, _attendance_initializers, void 0));
             __runInitializers(this, _attendance_extraInitializers);
-            __runInitializers(this, _last_accessed_extraInitializers);
         }
     };
     __setFunctionName(_classThis, "Progress");
     (() => {
         const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
-        _user_id_decorators = [(0, mongoose_1.Prop)({ type: mongoose_2.default.Schema.Types.ObjectId, ref: 'User', required: true })];
-        _course_id_decorators = [(0, mongoose_1.Prop)({ type: mongoose_2.default.Schema.Types.ObjectId, ref: 'Course', required: true })];
+        _user_id_decorators = [(0, mongoose_1.Prop)({ type: mongoose_2.default.Schema.Types.String, ref: 'User', required: true })];
+        _course_id_decorators = [(0, mongoose_1.Prop)({ type: mongoose_2.default.Schema.Types.String, ref: 'Course', required: true })];
         _completion_percentage_decorators = [(0, mongoose_1.Prop)({ type: Number, required: true, min: 0, max: 100 })];
         _last_accessed_decorators = [(0, mongoose_1.Prop)({ type: Date, default: () => new Date(), required: true })];
         _attendance_decorators = [(0, mongoose_1.Prop)({ type: [{ date: { type: Date, required: true }, status: { type: String, enum: ['present', 'absent'], required: true } }] })];

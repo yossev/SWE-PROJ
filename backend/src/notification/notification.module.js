@@ -48,7 +48,7 @@ let NotificationModule = (() => {
     let _classDecorators = [(0, common_1.Module)({
             imports: [
                 mongoose_1.MongooseModule.forFeature([
-                    { name: notification_schema_1.Notification.name, schema: notification_schema_1.NotificationSchema },
+                    { name: Notification.name, schema: notification_schema_1.NotificationSchema },
                 ]),
             ],
             providers: [notification_service_1.NotificationService],

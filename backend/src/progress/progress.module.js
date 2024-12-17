@@ -39,17 +39,19 @@ var __setFunctionName = (this && this.__setFunctionName) || function (f, name, p
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProgressModule = void 0;
+/* eslint-disable prettier/prettier */
 const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
-const progress_schema_1 = require("../models/progress-schema");
+const progress_schema_1 = require("../../src/models/progress-schema");
 const progress_service_1 = require("./progress.service");
 const progress_controller_1 = require("./progress.controller");
-const responses_schema_1 = require("../models/responses-schema");
-const course_schema_1 = require("../models/course-schema");
-const quizzes_schema_1 = require("../models/quizzes-schema");
-const module_schema_1 = require("../models/module-schema");
-const rating_schema_1 = require("../models/rating-schema");
+const responses_schema_1 = require("../../src/models/responses-schema");
+const course_schema_1 = require("../../src/models/course-schema");
+const quizzes_schema_1 = require("../../src/models/quizzes-schema");
+const module_schema_1 = require("../../src/models/module-schema");
+const rating_schema_1 = require("../../src/models/rating-schema");
 const rating_service_1 = require("../rating/rating.service");
+const quiz_module_1 = require("../quiz/quiz.module");
 let ProgressModule = (() => {
     let _classDecorators = [(0, common_1.Module)({
             imports: [
@@ -61,6 +63,7 @@ let ProgressModule = (() => {
                     { name: 'Module', schema: module_schema_1.ModuleSchema },
                     { name: 'Rating', schema: rating_schema_1.RatingSchema }
                 ]),
+                quiz_module_1.QuizModule
             ],
             controllers: [progress_controller_1.ProgressController],
             providers: [progress_service_1.ProgressService, rating_service_1.RatingService],

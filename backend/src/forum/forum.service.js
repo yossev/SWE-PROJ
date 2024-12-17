@@ -58,24 +58,29 @@ let ForumService = (() => {
     let _classExtraInitializers = [];
     let _classThis;
     var ForumService = _classThis = class {
-        constructor(forumModel, folderModel, threadModel, replyModel) {
+        constructor(forumModel, threadModel, replyModel) {
             this.forumModel = forumModel;
-            this.folderModel = folderModel;
             this.threadModel = threadModel;
             this.replyModel = replyModel;
         }
         // Create a new forum
-        createForum(createForumDto) {
+        create(req, createForumDto) {
             return __awaiter(this, void 0, void 0, function* () {
                 createForumDto.active = true;
-                const forum = this.forumModel.create(createForumDto);
-                return forum;
+                createForumDto.createdBy = req.cookies.userId;
+                const forum = new this.forumModel(createForumDto);
+                return forum.save();
             });
         }
         // Get all forums
         getForums() {
             return __awaiter(this, void 0, void 0, function* () {
                 return this.forumModel.find().exec();
+            });
+        }
+        getForumById(id) {
+            return __awaiter(this, void 0, void 0, function* () {
+                return this.forumModel.findById(id);
             });
         }
         deleteForum(forumId, instructorId) {
@@ -91,39 +96,25 @@ let ForumService = (() => {
                 }
             });
         }
-        /*
-        // Create a new folder in the forum
-        async createFolder(createFolderDto: CreateFolderDto) {
-          const forum = await this.forumModel.findById(createFolderDto.forumId);
-          if (!forum) {
-            throw new NotFoundException('Forum not found');
-          }
-      
-          const folder = new this.folderModel(createFolderDto);
-          return folder.save();
-        }
-        */
-        /*
-        // Create a new thread in a folder
-        async createThread(createThreadDto: CreateThreadDto) {
-          const forum = await this.forumModel.findById(createThreadDto.forumId);
-          if (!forum) {
-            throw new NotFoundException('Forum not found');
-          }
-      
-          const thread = new this.threadModel(createThreadDto);
-          return thread.save();
-        }
-          */
         // Create a reply in a thread
         createReply(createReplyDto) {
             return __awaiter(this, void 0, void 0, function* () {
-                const thread = yield this.threadModel.findById(createReplyDto.threadId);
+                const thread = yield this.threadModel.findById(createReplyDto.thread_id);
                 if (!thread) {
                     throw new common_1.NotFoundException('Thread not found');
                 }
                 const reply = new this.replyModel(createReplyDto);
                 return reply.save();
+            });
+        }
+        getForumThreads(forumId) {
+            return __awaiter(this, void 0, void 0, function* () {
+                // Validate and cast the forumId to ObjectId
+                if (!mongoose_1.Types.ObjectId.isValid(forumId)) {
+                    throw new Error('Invalid forum ID');
+                }
+                const forumObjectId = new mongoose_1.Types.ObjectId(forumId);
+                return yield this.threadModel.find({ forum_id: forumObjectId }).exec();
             });
         }
     };

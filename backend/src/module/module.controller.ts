@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
 import { ModuleService } from './module.service'; 
 import { CreateModuleDto } from './DTO/createModule.dto';
 import { UpdateModuleDto } from './DTO/updateModule.dto';
@@ -16,23 +16,33 @@ import { UploadedFile } from '@nestjs/common';
 import { Express } from 'express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { Roles, Role } from 'src/auth/decorators/roles.decorator';
+import { authorizationGuard } from 'src/auth/guards/authorization.guards';
+import { AuthGuard } from 'src/auth/guards/authentication.guards';
+import { InjectModel } from '@nestjs/mongoose';
+import { Reply } from 'models/reply-schema';
+import { Model } from 'mongoose';
+import { Course } from 'models/course-schema';
 
 var fileNameParameter = ""
 
 @Controller('modules')
 export class ModuleController {
-    constructor(private readonly moduleService: ModuleService) {} 
-
+    constructor(private readonly moduleService: ModuleService,@InjectModel(Course.name) private courseModel: Model<Course>) {} 
+    @Roles(Role.Instructor)
+    @UseGuards(authorizationGuard)
     @Post()
-    async createModule(@Body() createModuleDto: CreateModuleDto)
+    async createModule(@Req() req,@Body() createModuleDto: CreateModuleDto)
     {
-        return this.moduleService.createModule(createModuleDto);
+   
+        return this.moduleService.createModule(req,createModuleDto);
 
     }
-
+    @Roles(Role.Instructor)
+    @UseGuards(authorizationGuard)
     @Put(':id')
-    async updateModule(@Param('id') id: string, @Body() updateModuleDto: UpdateModuleDto) {
-        return this.moduleService.updateModule(id, updateModuleDto);
+    async updateModule(@Param('id') id: string, @Req() req,@Body() updateModuleDto: UpdateModuleDto) {
+        return this.moduleService.updateModule(id, req,updateModuleDto);
     }
 
     @Post('moduleLevel')
@@ -41,14 +51,27 @@ export class ModuleController {
         return this.moduleService.checkModuleCompatibility(id , 'Above Average');
         //placeholder value , CHANGE ASAP!!
     }
-
+    @UseGuards(AuthGuard)
     @Get('coursemodules/:id')
-    async getAllCourseModules(@Param('id') course_id : string)
+    async getAllCourseModules(@Req() req,@Param('id') course_id : string)
     {
+      const userid=req.cookies.userid;
+      const course=this.courseModel.findById(course_id);
+      let enrolled=false;
+      (await course).students.forEach(student => {
+          if(student._id.toString()===userid){
+            enrolled=true;
+          }
+      })
+      if(!enrolled){
+        throw new Error("You are not enrolled in this course");
+      }
+
       return this.moduleService.findAllCourseModules(course_id);
     }
 
-    
+    @Roles(Role.Instructor)
+    @UseGuards(authorizationGuard)
     @Post('upload/:id')
     @UseInterceptors(
         FileInterceptor('file', {
@@ -66,9 +89,9 @@ export class ModuleController {
           }),
         }),
       )
-    async uploadFile(@Param('id') module_id : string, @UploadedFile() file: Express.Multer.File)
+    async uploadFile(@Req() req,@Param('id') module_id : string, @UploadedFile() file: Express.Multer.File)
     {
-        return this.moduleService.uploadFile(file , module_id , fileNameParameter);
+        return this.moduleService.uploadFile(req,file , module_id , fileNameParameter);
     }
 
     @Get('download/:id/:file')

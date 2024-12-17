@@ -39,6 +39,7 @@ var __setFunctionName = (this && this.__setFunctionName) || function (f, name, p
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RatingModule = void 0;
+/* eslint-disable prettier/prettier */
 const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
 const rating_controller_1 = require("./rating.controller");

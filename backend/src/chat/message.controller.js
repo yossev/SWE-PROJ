@@ -47,11 +47,12 @@ var __setFunctionName = (this && this.__setFunctionName) || function (f, name, p
     return Object.defineProperty(f, "name", { configurable: true, value: prefix ? "".concat(prefix, " ", name) : name });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MessageController = void 0;
+exports.MessageGateway = void 0;
 const websockets_1 = require("@nestjs/websockets");
+const common_1 = require("@nestjs/common");
 const mongoose_1 = require("mongoose");
-let MessageController = (() => {
-    let _classDecorators = [(0, websockets_1.WebSocketGateway)()];
+let MessageGateway = (() => {
+    let _classDecorators = [(0, websockets_1.WebSocketGateway)({ cors: true })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
@@ -59,11 +60,11 @@ let MessageController = (() => {
     let _server_decorators;
     let _server_initializers = [];
     let _server_extraInitializers = [];
-    let _handleMessage_decorators;
     let _handleJoinRoom_decorators;
     let _handleLeaveRoom_decorators;
+    let _handleMessage_decorators;
     let _handleGetHistory_decorators;
-    var MessageController = _classThis = class {
+    var MessageGateway = _classThis = class {
         constructor(messageService, roomService, userService, notificationService, jwtService) {
             this.messageService = (__runInitializers(this, _instanceExtraInitializers), messageService);
             this.roomService = roomService;
@@ -71,72 +72,94 @@ let MessageController = (() => {
             this.notificationService = notificationService;
             this.jwtService = jwtService;
             this.server = __runInitializers(this, _server_initializers, void 0);
-            __runInitializers(this, _server_extraInitializers);
-            this.messageService = messageService;
-            this.roomService = roomService;
-            this.userService = userService;
-            this.notificationService = notificationService;
-            this.jwtService = jwtService;
+            this.logger = (__runInitializers(this, _server_extraInitializers), new common_1.Logger(MessageGateway.name));
+            this.clientIdArray = [];
+            this.allCurrentRooms = [];
         }
-        // Handle sending messages (both group and private)
-        // message.controller.ts
-        handleMessage(createMessageDto, client) {
+        handleConnection(client) {
+            this.server.emit('room', client.id + ' joined!');
+            this.logger.log(`Client with ID: ${client.id} is connected!`);
+        }
+        handleDisconnect(client) {
             return __awaiter(this, void 0, void 0, function* () {
-                const { userId, content, roomId, chatType, recipientId } = createMessageDto;
-                const sender = yield this.userService.findById(userId);
-                if (!sender) {
-                    throw new Error('Sender not found.');
+                this.server.emit('room', client.id + ' left!');
+                this.logger.log(`Client with ID: ${client.id} is disconnected!`);
+                let clientId = this.clientIdArray.find(i => i.client === client.id);
+                if (clientId) {
+                    console.log("Removing Client...");
+                    let self = this;
+                    this.allCurrentRooms.forEach(function (value) {
+                        const room = value.name;
+                        if (self.roomService.checkUserInRoom(room, clientId.id)) {
+                            self.roomService.leaveRoom(room, clientId.id);
+                            self.server.to(room).emit('join_room', `${clientId.name} has left ${room}!`);
+                        }
+                    });
+                    this.clientIdArray.filter(i => i.client !== clientId.client);
                 }
-                // Ensure roomId and recipientId are valid ObjectIds
-                const savedMessage = yield this.messageService.sendMessage(new mongoose_1.Types.ObjectId(userId), // Ensure userId is an ObjectId
-                content, new mongoose_1.Types.ObjectId(roomId), // Ensure roomId is an ObjectId
-                chatType, recipientId ? new mongoose_1.Types.ObjectId(recipientId) : undefined);
-                // Broadcast the message
-                if (chatType === 'group') {
-                    client.to(roomId).emit('receive_message', savedMessage);
-                }
-                else if (chatType === 'individual') {
-                    const privateRoomId = yield this.roomService.generatePrivateRoomId(new mongoose_1.Types.ObjectId(userId), new mongoose_1.Types.ObjectId(recipientId));
-                    client.to(privateRoomId).emit('receive_message', savedMessage);
-                    yield this.notificationService.createNotification(recipientId, `New message from ${sender.name}`, savedMessage._id.toString());
-                }
-                return { event: 'receive_message', data: savedMessage };
             });
         }
-        // Join a room (group chat)
-        handleJoinRoom(roomId, client) {
-            client.join(roomId); // Join the room
+        handleJoinRoom(client, body) {
+            return __awaiter(this, void 0, void 0, function* () {
+                console.log("ID is: " + body.userId);
+                console.log(`User ${body.user} joined room ${body.roomId}`);
+                const roomFound = this.allCurrentRooms.find(i => i.name === body.roomId);
+                if (!roomFound) {
+                    this.allCurrentRooms.push({ name: body.roomId });
+                }
+                this.clientIdArray.push({ client: client.id, id: body.userId, name: body.user });
+                client.join(body.roomId); // Join the room
+                this.roomService.joinRoom(body.roomId, body.userId);
+                this.server.to(body.roomId).emit('join_room', `${body.user} has joined ${body.roomId}!`);
+            });
         }
         // Leave a room
-        handleLeaveRoom(roomId, client) {
-            client.leave(roomId); // Leave the room
+        handleLeaveRoom(client, body) {
+            return __awaiter(this, void 0, void 0, function* () {
+                client.leave(body.roomId); // Leave the room
+                this.roomService.leaveRoom(body.roomId, body.userId);
+                this.server.to(body.roomId).emit('leave_room', `${body.user} has left room: ${body.roomId}`);
+            });
+        }
+        handleMessage(client, body) {
+            return __awaiter(this, void 0, void 0, function* () {
+                this.server.to(body.roomId).emit('sendMessage', body);
+                yield this.messageService.sendMessage(new mongoose_1.Types.ObjectId(body.userId), body.message, body.roomId, "group");
+            });
         }
         // Get chat history for a room
-        handleGetHistory(roomId, client) {
+        handleGetHistory(client, body) {
             return __awaiter(this, void 0, void 0, function* () {
-                const messages = yield this.messageService.getMessagesByRoom(new mongoose_1.Types.ObjectId(roomId));
-                client.emit('chat_history', messages);
+                console.log("Called sub func");
+                const messages = yield this.messageService.getMessagesByRoomUsingName(body.roomName);
+                const users = yield this.userService.findAll();
+                const messageArray = [];
+                messages.forEach(function (value) {
+                    const userName = users.find(i => i._id.toString() === value.user_id.toString()).name.split(' ')[0];
+                    messageArray.push({ sender: userName, message: value.content });
+                });
+                client.emit('get_chat_history', messageArray);
             });
         }
     };
-    __setFunctionName(_classThis, "MessageController");
+    __setFunctionName(_classThis, "MessageGateway");
     (() => {
         const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
         _server_decorators = [(0, websockets_1.WebSocketServer)()];
-        _handleMessage_decorators = [(0, websockets_1.SubscribeMessage)('send_message')];
         _handleJoinRoom_decorators = [(0, websockets_1.SubscribeMessage)('join_room')];
         _handleLeaveRoom_decorators = [(0, websockets_1.SubscribeMessage)('leave_room')];
+        _handleMessage_decorators = [(0, websockets_1.SubscribeMessage)('sendMessage')];
         _handleGetHistory_decorators = [(0, websockets_1.SubscribeMessage)('get_chat_history')];
-        __esDecorate(_classThis, null, _handleMessage_decorators, { kind: "method", name: "handleMessage", static: false, private: false, access: { has: obj => "handleMessage" in obj, get: obj => obj.handleMessage }, metadata: _metadata }, null, _instanceExtraInitializers);
         __esDecorate(_classThis, null, _handleJoinRoom_decorators, { kind: "method", name: "handleJoinRoom", static: false, private: false, access: { has: obj => "handleJoinRoom" in obj, get: obj => obj.handleJoinRoom }, metadata: _metadata }, null, _instanceExtraInitializers);
         __esDecorate(_classThis, null, _handleLeaveRoom_decorators, { kind: "method", name: "handleLeaveRoom", static: false, private: false, access: { has: obj => "handleLeaveRoom" in obj, get: obj => obj.handleLeaveRoom }, metadata: _metadata }, null, _instanceExtraInitializers);
+        __esDecorate(_classThis, null, _handleMessage_decorators, { kind: "method", name: "handleMessage", static: false, private: false, access: { has: obj => "handleMessage" in obj, get: obj => obj.handleMessage }, metadata: _metadata }, null, _instanceExtraInitializers);
         __esDecorate(_classThis, null, _handleGetHistory_decorators, { kind: "method", name: "handleGetHistory", static: false, private: false, access: { has: obj => "handleGetHistory" in obj, get: obj => obj.handleGetHistory }, metadata: _metadata }, null, _instanceExtraInitializers);
         __esDecorate(null, null, _server_decorators, { kind: "field", name: "server", static: false, private: false, access: { has: obj => "server" in obj, get: obj => obj.server, set: (obj, value) => { obj.server = value; } }, metadata: _metadata }, _server_initializers, _server_extraInitializers);
         __esDecorate(null, _classDescriptor = { value: _classThis }, _classDecorators, { kind: "class", name: _classThis.name, metadata: _metadata }, null, _classExtraInitializers);
-        MessageController = _classThis = _classDescriptor.value;
+        MessageGateway = _classThis = _classDescriptor.value;
         if (_metadata) Object.defineProperty(_classThis, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         __runInitializers(_classThis, _classExtraInitializers);
     })();
-    return MessageController = _classThis;
+    return MessageGateway = _classThis;
 })();
-exports.MessageController = MessageController;
+exports.MessageGateway = MessageGateway;

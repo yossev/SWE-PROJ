@@ -49,13 +49,23 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -74,6 +84,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProgressService = void 0;
+/* eslint-disable prettier/prettier */
 const common_1 = require("@nestjs/common");
 const mongoose_1 = __importDefault(require("mongoose"));
 const PDFDocument = __importStar(require("pdfkit"));
@@ -144,7 +155,7 @@ let ProgressService = (() => {
         // RECORD ATTENDANCE
         recordAttendance(userId, courseId, status) {
             return __awaiter(this, void 0, void 0, function* () {
-                const progress = yield this.progressModel.findOne({ user_id: userId, course_id: userId }).exec();
+                const progress = yield this.progressModel.findOne({ user_id: userId, course_id: courseId }).exec();
                 if (!progress) {
                     throw new common_1.NotFoundException(`Progress record for user ${userId} in course ${courseId} not found`);
                 }
@@ -157,7 +168,7 @@ let ProgressService = (() => {
         // GET ATTENDANCE
         getAttendance(userId, courseId) {
             return __awaiter(this, void 0, void 0, function* () {
-                const progress = yield this.progressModel.findOne({ user_id: userId, course_id: userId }).exec();
+                const progress = yield this.progressModel.findOne({ user_id: userId, course_id: courseId }).exec();
                 if (!progress) {
                     throw new common_1.NotFoundException(`Progress record for user ${userId} in course ${courseId} not found`);
                 }
@@ -166,20 +177,30 @@ let ProgressService = (() => {
         }
         calculateAttendanceRate(userId, courseId) {
             return __awaiter(this, void 0, void 0, function* () {
-                const attendanceRecords = yield this.getAttendance(userId, courseId);
-                const totalClasses = attendanceRecords.length;
-                const presentCount = attendanceRecords.filter(record => record.status === 'Present');
-                return totalClasses ? (presentCount / totalClasses) * 100 : 0;
+                const progress = yield this.progressModel.findOne({
+                    user_id: userId,
+                    course_id: courseId,
+                }).exec();
+                if (!progress || !progress.attendance || progress.attendance.length === 0) {
+                    return 0;
+                }
+                const totalDays = progress.attendance.length;
+                const presentDays = progress.attendance.filter((record) => record.status === "present").length;
+                const attendanceRate = (presentDays / totalDays) * 100;
+                return attendanceRate;
             });
         }
         getDashboard(userId) {
             return __awaiter(this, void 0, void 0, function* () {
+                console.log('Querying progress for userId:', userId);
                 const progress = yield this.progressModel.findOne({ user_id: userId }).exec();
+                console.log('Progress found:', progress);
                 if (!progress) {
                     throw new common_1.NotFoundException(`Dashboard for user ${userId} not found`);
                 }
                 // Calculate student's average score for each course 
                 const modules = yield this.moduleModel.find({ course_id: progress.course_id }).exec();
+                console.log('course id ', progress.course_id);
                 const quizIds = [];
                 for (const module of modules) { //FOR EACH MODULE OF THIS COURSE - COURSE MAY HAVE MORE THAN 1 MODULE
                     const quizzes = yield this.quizModel.find({ module_id: module._id }).exec();
@@ -191,16 +212,25 @@ let ProgressService = (() => {
                 }).exec();
                 const totalScore = responses.reduce((sum, response) => sum + (response.score || 0), 0);
                 const averageScore = responses.length ? totalScore / responses.length : 0;
+                const classification = yield this.classifyUserPerformance(userId.toString());
                 // Calculate course completion rate 
                 const progressData = yield this.progressModel.find({ user_id: userId }).exec();
                 const courseCompletionRates = [];
+                const completedCourses = [];
                 for (const progress of progressData) {
                     const course = yield this.courseModel.findById(progress.course_id).exec();
                     const completionRate = progress.completion_percentage;
                     courseCompletionRates.push({
-                        courseTitle: course.title,
+                        //   courseTitle: course.title,
                         completionRate: completionRate,
                     });
+                    if (completionRate === 100) {
+                        const course = yield this.courseModel.findById(progress.course_id).exec();
+                        completedCourses.push({
+                            courseId: progress.course_id,
+                            // courseTitle: course?.title || 'Unknown Course', 
+                        });
+                    }
                 }
                 // Engagement trends [attendance, how many students completed the course] 
                 const engagementTrends = [];
@@ -221,19 +251,40 @@ let ProgressService = (() => {
                 }
                 return {
                     averageScore,
+                    classification,
+                    completedCourses,
                     courseCompletionRates,
                     engagementTrends,
                     progress,
                 };
             });
         }
-        // Instructor Analytics -- student engagement
+        classifyUserPerformance(userId) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const responses = yield this.responseModel.find({ user_id: userId }).exec();
+                const totalScore = responses.reduce((sum, response) => sum + (response.score || 0), 0);
+                const averageScore = responses.length ? totalScore / responses.length : 0;
+                if (averageScore < 50) {
+                    return 'Below Average';
+                }
+                else if (averageScore >= 50 && averageScore < 70) {
+                    return 'Average';
+                }
+                else if (averageScore >= 70 && averageScore < 90) {
+                    return 'Above Average';
+                }
+                else {
+                    return 'Excellent';
+                }
+            });
+        }
+        // Instructor Analytics -- student engagement 
         getInstructorAnalyticsStudentEngagement(courseId) {
             return __awaiter(this, void 0, void 0, function* () {
                 const course = yield this.courseModel.findById(courseId).exec();
-                if (!course) {
-                    throw new Error('Course not found');
-                }
+                //if (!course) {
+                //throw new Error('Course not found');
+                // }
                 // Number of enrolled students
                 const enrolledStudents = yield this.progressModel.distinct('user_id', { course_id: courseId }).exec();
                 // Number of students completed the course
@@ -247,21 +298,17 @@ let ProgressService = (() => {
                     excellent: 0,
                 };
                 for (const studentId of enrolledStudents) {
-                    // Calculating **total** average score of student - this logic is same as GPA logic
-                    // This is students overall performance -- not tied to any course or module but overall
-                    const responses = yield this.responseModel.find({ user_id: studentId }).exec();
-                    const totalScore = responses.reduce((sum, response) => sum + (response.score || 0), 0);
-                    const averageScore = responses.length ? totalScore / responses.length : 0;
-                    if (averageScore < 50) {
+                    const classification = yield this.classifyUserPerformance(studentId.toString());
+                    if (classification === 'Below Average') {
                         performanceMetrics.belowAverage += 1;
                     }
-                    else if (averageScore >= 50 && averageScore < 70) {
+                    else if (classification === 'Average') {
                         performanceMetrics.average += 1;
                     }
-                    else if (averageScore >= 70 && averageScore < 90) {
+                    else if (classification === 'Above Average') {
                         performanceMetrics.aboveAverage += 1;
                     }
-                    else {
+                    else if (classification === 'Excellent') {
                         performanceMetrics.excellent += 1;
                     }
                 }
@@ -273,17 +320,16 @@ let ProgressService = (() => {
             });
         }
         // Instructor Analytics -- Reports on content effectiveness 
-        // getting the rating -- 
         getInstructorAnalyticsContentEffectiveness(courseId, userId) {
             return __awaiter(this, void 0, void 0, function* () {
                 const course = yield this.courseModel.findById(courseId).exec();
-                if (!course) {
-                    throw new common_1.NotFoundException('Course not found');
-                }
-                const instructor = yield this.courseModel.findById(userId).exec();
-                if (!instructor) {
-                    throw new common_1.NotFoundException('Instructor not found');
-                }
+                //if (!course) {
+                //throw new NotFoundException('Course not found');
+                //}
+                //const instructor = await this.courseModel.findById(userId).exec();
+                //if (!instructor) {
+                //throw new NotFoundException('Instructor not found');
+                //}
                 const courseRating = yield this.ratingService.getCourseRating(courseId);
                 const modules = yield this.moduleModel.find({ course_id: courseId }).exec();
                 const moduleRatings = {};
@@ -295,24 +341,24 @@ let ProgressService = (() => {
                 const instructorRating = yield this.ratingService.getInstructorRating(userId);
                 return {
                     courseId,
-                    courseTitle: course.title,
+                    //courseTitle: course.title,
                     courseRating,
                     moduleRatings,
                     instructorRating,
                 };
             });
         }
-        //Instructor Analytics -- Reports on assessment results
+        //Instructor Analytics -- Reports on assessment results 
         getInstructorAnalyticsAssessmentResults(courseId) {
             return __awaiter(this, void 0, void 0, function* () {
                 const course = yield this.courseModel.findById(courseId).exec();
-                if (!course) {
-                    throw new Error('Course not found');
-                }
+                // if (!course) {
+                //   throw new Error('Course not found');
+                // }
                 const quizzes = yield this.quizModel.find({ course_id: courseId }).exec();
-                if (!quizzes || quizzes.length === 0) {
-                    return { message: 'No quizzes available for this course', results: [] };
-                }
+                // if (!quizzes || quizzes.length === 0) {
+                //   return { message: 'No quizzes available for this course', results: [] };
+                // }
                 const results = [];
                 for (const quiz of quizzes) {
                     const responses = yield this.responseModel.find({ quiz_id: quiz._id }).exec();
@@ -332,9 +378,9 @@ let ProgressService = (() => {
         exportInstructorAnalyticsStudentEngagementPDF(courseId, res) {
             return __awaiter(this, void 0, void 0, function* () {
                 const analytics = yield this.getInstructorAnalyticsStudentEngagement(courseId);
-                if (!analytics) {
-                    return res.status(404).send('Analytics data not found');
-                }
+                // if (!analytics) {
+                //   return res.status(404).send('Analytics data not found');
+                // }
                 const doc = new PDFDocument();
                 res.header('Content-Type', 'application/pdf');
                 res.attachment('instructor_analytics_student_engagement.pdf');
@@ -350,19 +396,19 @@ let ProgressService = (() => {
                 doc.end();
             });
         }
-        //Downloadable Analytics for content effectiveness
+        //Downloadable Analytics for content effectiveness 
         exportInstructorAnalyticsContentEffectivenessPDF(courseId, userId, res) {
             return __awaiter(this, void 0, void 0, function* () {
                 const analytics = yield this.getInstructorAnalyticsContentEffectiveness(courseId, userId);
-                if (!analytics) {
-                    return res.status(404).send('Analytics data not found');
-                }
+                // if (!analytics) {
+                //   return res.status(404).send('Analytics data not found');
+                // }
                 const doc = new PDFDocument();
                 res.header('Content-Type', 'application/pdf');
                 res.attachment('instructor_analytics_content_effectiveness.pdf');
                 doc.pipe(res);
                 doc.fontSize(16).text('Instructor Analytics Report - Content Effectiveness', { align: 'center' }).moveDown();
-                doc.text(`Course Title: ${analytics.courseTitle}`).moveDown();
+                //doc.text(`Course Title: ${analytics.courseTitle}`).moveDown();
                 doc.text(`Course Rating: ${analytics.courseRating}`).moveDown();
                 doc.text('Module Ratings:');
                 for (const [moduleId, rating] of Object.entries(analytics.moduleRatings)) {
@@ -376,9 +422,9 @@ let ProgressService = (() => {
         exportInstructorAnalyticsAssessmentResultsPDF(courseId, res) {
             return __awaiter(this, void 0, void 0, function* () {
                 const analytics = yield this.getInstructorAnalyticsAssessmentResults(courseId);
-                if (!analytics.results || analytics.results.length === 0) {
-                    return res.status(404).send('No assessment results found for this course.');
-                }
+                // if (!analytics.results || analytics.results.length === 0) {
+                //   return res.status(404).send('No assessment results found for this course.');
+                // }
                 const doc = new PDFDocument();
                 res.header('Content-Type', 'application/pdf');
                 res.attachment('instructor_analytics_assessment_results.pdf');

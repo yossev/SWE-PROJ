@@ -1,4 +1,6 @@
 "use strict";
+/* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -48,34 +50,45 @@ var __setFunctionName = (this && this.__setFunctionName) || function (f, name, p
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CourseService = void 0;
-/* eslint-disable prettier/prettier */
 const common_1 = require("@nestjs/common");
-const common_1 = require("@nestjs/common");
-const updateCourse_dto_1 = require("./dto/updateCourse.dto");
+const mongoose_1 = require("mongoose");
 let CourseService = (() => {
     let _classDecorators = [(0, common_1.Injectable)()];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
     var CourseService = _classThis = class {
-        constructor(courseModel, notificationService // Inject NotificationService
-        ) {
+        constructor(courseModel, userModel, forumModel, notificationService, // Inject NotificationService
+        MessageService, forumService) {
             this.courseModel = courseModel;
+            this.userModel = userModel;
+            this.forumModel = forumModel;
             this.notificationService = notificationService;
+            this.MessageService = MessageService;
+            this.forumService = forumService;
         }
         // Create a new course and notify the user
-        create(createCourseDto) {
+        create(createCourseDto, req) {
             return __awaiter(this, void 0, void 0, function* () {
                 try {
                     const createdCourse = new this.courseModel(createCourseDto);
+                    const userId = req.cookies.userId;
+                    console.log('Extracted User ID:', userId);
+                    createdCourse.created_by = userId;
                     const savedCourse = yield createdCourse.save();
-                    // Notify the course creator
-                    const userId = createCourseDto.created_by; // Use the `created_by` property as userId
                     const courseName = createCourseDto.title; // Use the `title` property as the course name
-                    yield this.notificationService.notifyCourseCreation(userId, // Creator of the course
-                    savedCourse._id.toString(), // Saved course ID
-                    courseName // Course title
+                    console.log(savedCourse._id.toString());
+                    yield this.notificationService.notifyCourseCreation(savedCourse._id.toString(), courseName // Course title
+                    // Saved course ID
                     );
+                    const createForumDto = {
+                        forumTitle: createCourseDto.title, // Use course title as forum title
+                        active: true,
+                        createdBy: userId,
+                        course_id: savedCourse._id, // Set the course ID
+                    };
+                    // Call forumService.create
+                    yield this.forumService.create(req, createForumDto);
                     return savedCourse;
                 }
                 catch (error) {
@@ -85,15 +98,6 @@ let CourseService = (() => {
             });
         }
         // Find all courses
-        constructor(courseModel) {
-            this.courseModel = courseModel;
-        }
-        create(createCourseDto) {
-            return __awaiter(this, void 0, void 0, function* () {
-                const createdCourse = new this.courseModel(createCourseDto);
-                return createdCourse.save();
-            });
-        }
         findAll() {
             return __awaiter(this, void 0, void 0, function* () {
                 return this.courseModel.find().exec();
@@ -108,14 +112,23 @@ let CourseService = (() => {
         // Update an existing course
         update(id, updateCourseDto) {
             return __awaiter(this, void 0, void 0, function* () {
-                const course = yield this.courseModel.findById(id).exec();
-                if (course) {
+                try {
+                    const course = yield this.courseModel.findById(id).exec();
+                    if (!course) {
+                        throw new Error(`Course with ID ${id} not found.`);
+                    }
                     course.versions.push(JSON.stringify(course)); // Track changes
                     Object.assign(course, updateCourseDto); // Apply updates
-                    Object.assign(course, updateCourse_dto_1.UpdateCourseDto); // Update Course
-                    return course.save();
+                    const updatedCourse = yield course.save();
+                    // Notify students about the update
+                    yield this.notificationService.notifyCourseUpdate(id, updatedCourse.title // Pass the updated course name
+                    );
+                    return updatedCourse;
                 }
-                return null;
+                catch (error) {
+                    console.error('Error updating course:', error);
+                    throw new Error('Failed to update course');
+                }
             });
         }
         // Search for courses based on a search term
@@ -132,6 +145,31 @@ let CourseService = (() => {
         delete(id) {
             return __awaiter(this, void 0, void 0, function* () {
                 return this.courseModel.findByIdAndDelete(id).exec();
+            });
+        }
+        enroll(id, req) {
+            return __awaiter(this, void 0, void 0, function* () {
+                try {
+                    const course = yield this.courseModel.findById(id); // Fetch the course document
+                    const user = req.cookies.userId; // Get the user ID from cookies
+                    const student = yield this.userModel.findById(user); // Fetch the user document
+                    if (!course) {
+                        throw new Error(`Course with ID ${id} not found.`);
+                    }
+                    if (!student) {
+                        throw new Error(`Student with ID ${user} not found.`);
+                    }
+                    const courseId = new mongoose_1.Types.ObjectId(id);
+                    student.courses.push(courseId);
+                    course.students.push(user);
+                    yield student.save();
+                    yield course.save();
+                    return { message: 'Enrollment successful' };
+                }
+                catch (error) {
+                    console.error('Error during enrollment:', error);
+                    throw new Error('Failed to enroll the student in the course');
+                }
             });
         }
     };

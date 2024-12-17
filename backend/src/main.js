@@ -1,4 +1,7 @@
 "use strict";
+/* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-require-imports */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     var desc = Object.getOwnPropertyDescriptor(m, k);
@@ -15,13 +18,23 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -36,8 +49,6 @@ require('dotenv').config();
 const core_1 = require("@nestjs/core");
 const app_module_1 = require("./app.module");
 const cookieParser = __importStar(require("cookie-parser"));
-const authentication_guards_1 = require("./auth/guards/authentication.guards");
-const jwt_1 = require("@nestjs/jwt");
 const mongoose = require('mongoose');
 const express = require('express');
 const url = "mongodb://localhost:27017/";
@@ -49,12 +60,10 @@ function bootstrap() {
             console.log('Connected');
         }).catch((err) => {
             console.error('MongoDB connection error:', err);
-            return;
         });
         app.use(express.json());
         const reflector = app.get(core_1.Reflector);
         console.log('Reflector in main.ts:', reflector);
-        app.useGlobalGuards(new authentication_guards_1.AuthGuard(new jwt_1.JwtService(), reflector));
         app.use(cookieParser());
         app.listen(3000);
     });

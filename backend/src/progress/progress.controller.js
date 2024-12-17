@@ -48,6 +48,7 @@ var __setFunctionName = (this && this.__setFunctionName) || function (f, name, p
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProgressController = void 0;
+/* eslint-disable prettier/prettier */
 const common_1 = require("@nestjs/common");
 let ProgressController = (() => {
     let _classDecorators = [(0, common_1.Controller)('progress')];
@@ -68,6 +69,7 @@ let ProgressController = (() => {
     let _exportStudentEngagementPDF_decorators;
     let _exportAssessmentResultPDF_decorators;
     let _exportContentEffectivenessPDF_decorators;
+    let _getUserPerformance_decorators;
     var ProgressController = _classThis = class {
         constructor(progressService) {
             this.progressService = (__runInitializers(this, _instanceExtraInitializers), progressService);
@@ -147,23 +149,33 @@ let ProgressController = (() => {
                 yield this.progressService.exportInstructorAnalyticsContentEffectivenessPDF(courseId, userId, res);
             });
         }
+        getUserPerformance(userId) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const classification = yield this.progressService.classifyUserPerformance(userId);
+                return {
+                    userId,
+                    classification,
+                };
+            });
+        }
     };
     __setFunctionName(_classThis, "ProgressController");
     (() => {
         const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
-        _create_decorators = [(0, common_1.Post)()];
+        _create_decorators = [(0, common_1.Post)('createprogress')];
         _findAll_decorators = [(0, common_1.Get)()];
         _findOne_decorators = [(0, common_1.Get)(':id')];
         _update_decorators = [(0, common_1.Put)(':id')];
         _delete_decorators = [(0, common_1.Delete)(':id')];
         _getCompletedCourses_decorators = [(0, common_1.Get)('completed/:userId')];
         _getDashboard_decorators = [(0, common_1.Get)('dashboard/:userId')];
-        _getInstructorAnalyticsAssessmentResults_decorators = [(0, common_1.Get)('assessment-results/:userId')];
-        _getInstructorAnalyticsContentEffectiveness_decorators = [(0, common_1.Get)('content-effectiveness/:courseId')];
+        _getInstructorAnalyticsAssessmentResults_decorators = [(0, common_1.Get)('assessment-results/:courseId')];
+        _getInstructorAnalyticsContentEffectiveness_decorators = [(0, common_1.Get)('content-effectiveness/:courseId/:userId')];
         _getInstructorAnalyticsStudentEngagement_decorators = [(0, common_1.Get)('student-engagement/:courseId')];
         _exportStudentEngagementPDF_decorators = [(0, common_1.Get)('/export-student-engagement/pdf/:courseId')];
         _exportAssessmentResultPDF_decorators = [(0, common_1.Get)('/export-assessment-results/pdf/:courseId')];
         _exportContentEffectivenessPDF_decorators = [(0, common_1.Get)('/export-content-effectivenes/pdf/:courseId')];
+        _getUserPerformance_decorators = [(0, common_1.Get)(':userId/performance')];
         __esDecorate(_classThis, null, _create_decorators, { kind: "method", name: "create", static: false, private: false, access: { has: obj => "create" in obj, get: obj => obj.create }, metadata: _metadata }, null, _instanceExtraInitializers);
         __esDecorate(_classThis, null, _findAll_decorators, { kind: "method", name: "findAll", static: false, private: false, access: { has: obj => "findAll" in obj, get: obj => obj.findAll }, metadata: _metadata }, null, _instanceExtraInitializers);
         __esDecorate(_classThis, null, _findOne_decorators, { kind: "method", name: "findOne", static: false, private: false, access: { has: obj => "findOne" in obj, get: obj => obj.findOne }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -177,6 +189,7 @@ let ProgressController = (() => {
         __esDecorate(_classThis, null, _exportStudentEngagementPDF_decorators, { kind: "method", name: "exportStudentEngagementPDF", static: false, private: false, access: { has: obj => "exportStudentEngagementPDF" in obj, get: obj => obj.exportStudentEngagementPDF }, metadata: _metadata }, null, _instanceExtraInitializers);
         __esDecorate(_classThis, null, _exportAssessmentResultPDF_decorators, { kind: "method", name: "exportAssessmentResultPDF", static: false, private: false, access: { has: obj => "exportAssessmentResultPDF" in obj, get: obj => obj.exportAssessmentResultPDF }, metadata: _metadata }, null, _instanceExtraInitializers);
         __esDecorate(_classThis, null, _exportContentEffectivenessPDF_decorators, { kind: "method", name: "exportContentEffectivenessPDF", static: false, private: false, access: { has: obj => "exportContentEffectivenessPDF" in obj, get: obj => obj.exportContentEffectivenessPDF }, metadata: _metadata }, null, _instanceExtraInitializers);
+        __esDecorate(_classThis, null, _getUserPerformance_decorators, { kind: "method", name: "getUserPerformance", static: false, private: false, access: { has: obj => "getUserPerformance" in obj, get: obj => obj.getUserPerformance }, metadata: _metadata }, null, _instanceExtraInitializers);
         __esDecorate(null, _classDescriptor = { value: _classThis }, _classDecorators, { kind: "class", name: _classThis.name, metadata: _metadata }, null, _classExtraInitializers);
         ProgressController = _classThis = _classDescriptor.value;
         if (_metadata) Object.defineProperty(_classThis, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });

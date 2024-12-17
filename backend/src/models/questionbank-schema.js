@@ -42,6 +42,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.QuestionBankSchema = exports.QuestionBank = void 0;
+/* eslint-disable prettier/prettier */
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = __importDefault(require("mongoose"));
 let QuestionBank = (() => {
@@ -67,15 +68,19 @@ let QuestionBank = (() => {
     let _explanation_decorators;
     let _explanation_initializers = [];
     let _explanation_extraInitializers = [];
+    let _question_type_decorators;
+    let _question_type_initializers = [];
+    let _question_type_extraInitializers = [];
     var QuestionBank = _classThis = class {
         constructor() {
-            this.module_id = __runInitializers(this, _module_id_initializers, void 0); // Associate the question bank with a specific module
-            this.question = (__runInitializers(this, _module_id_extraInitializers), __runInitializers(this, _question_initializers, void 0)); // The question text
-            this.options = (__runInitializers(this, _question_extraInitializers), __runInitializers(this, _options_initializers, void 0)); // The answer options for the question
-            this.correct_answer = (__runInitializers(this, _options_extraInitializers), __runInitializers(this, _correct_answer_initializers, void 0)); // The correct answer for the question
-            this.difficulty_level = (__runInitializers(this, _correct_answer_extraInitializers), __runInitializers(this, _difficulty_level_initializers, void 0)); // The difficulty level of the question
-            this.explanation = (__runInitializers(this, _difficulty_level_extraInitializers), __runInitializers(this, _explanation_initializers, void 0)); // Explanation for the question (optional)
-            __runInitializers(this, _explanation_extraInitializers);
+            this.module_id = __runInitializers(this, _module_id_initializers, void 0);
+            this.question = (__runInitializers(this, _module_id_extraInitializers), __runInitializers(this, _question_initializers, void 0));
+            this.options = (__runInitializers(this, _question_extraInitializers), __runInitializers(this, _options_initializers, void 0));
+            this.correct_answer = (__runInitializers(this, _options_extraInitializers), __runInitializers(this, _correct_answer_initializers, void 0));
+            this.difficulty_level = (__runInitializers(this, _correct_answer_extraInitializers), __runInitializers(this, _difficulty_level_initializers, void 0));
+            this.explanation = (__runInitializers(this, _difficulty_level_extraInitializers), __runInitializers(this, _explanation_initializers, void 0));
+            this.question_type = (__runInitializers(this, _explanation_extraInitializers), __runInitializers(this, _question_type_initializers, void 0));
+            __runInitializers(this, _question_type_extraInitializers);
         }
     };
     __setFunctionName(_classThis, "QuestionBank");
@@ -87,12 +92,14 @@ let QuestionBank = (() => {
         _correct_answer_decorators = [(0, mongoose_1.Prop)({ required: true })];
         _difficulty_level_decorators = [(0, mongoose_1.Prop)({ enum: ['Easy', 'Medium', 'Hard'], required: true })];
         _explanation_decorators = [(0, mongoose_1.Prop)({ required: false })];
+        _question_type_decorators = [(0, mongoose_1.Prop)({ enum: ['MCQ', 'True/False', 'Both'], required: false })];
         __esDecorate(null, null, _module_id_decorators, { kind: "field", name: "module_id", static: false, private: false, access: { has: obj => "module_id" in obj, get: obj => obj.module_id, set: (obj, value) => { obj.module_id = value; } }, metadata: _metadata }, _module_id_initializers, _module_id_extraInitializers);
         __esDecorate(null, null, _question_decorators, { kind: "field", name: "question", static: false, private: false, access: { has: obj => "question" in obj, get: obj => obj.question, set: (obj, value) => { obj.question = value; } }, metadata: _metadata }, _question_initializers, _question_extraInitializers);
         __esDecorate(null, null, _options_decorators, { kind: "field", name: "options", static: false, private: false, access: { has: obj => "options" in obj, get: obj => obj.options, set: (obj, value) => { obj.options = value; } }, metadata: _metadata }, _options_initializers, _options_extraInitializers);
         __esDecorate(null, null, _correct_answer_decorators, { kind: "field", name: "correct_answer", static: false, private: false, access: { has: obj => "correct_answer" in obj, get: obj => obj.correct_answer, set: (obj, value) => { obj.correct_answer = value; } }, metadata: _metadata }, _correct_answer_initializers, _correct_answer_extraInitializers);
         __esDecorate(null, null, _difficulty_level_decorators, { kind: "field", name: "difficulty_level", static: false, private: false, access: { has: obj => "difficulty_level" in obj, get: obj => obj.difficulty_level, set: (obj, value) => { obj.difficulty_level = value; } }, metadata: _metadata }, _difficulty_level_initializers, _difficulty_level_extraInitializers);
         __esDecorate(null, null, _explanation_decorators, { kind: "field", name: "explanation", static: false, private: false, access: { has: obj => "explanation" in obj, get: obj => obj.explanation, set: (obj, value) => { obj.explanation = value; } }, metadata: _metadata }, _explanation_initializers, _explanation_extraInitializers);
+        __esDecorate(null, null, _question_type_decorators, { kind: "field", name: "question_type", static: false, private: false, access: { has: obj => "question_type" in obj, get: obj => obj.question_type, set: (obj, value) => { obj.question_type = value; } }, metadata: _metadata }, _question_type_initializers, _question_type_extraInitializers);
         __esDecorate(null, _classDescriptor = { value: _classThis }, _classDecorators, { kind: "class", name: _classThis.name, metadata: _metadata }, null, _classExtraInitializers);
         QuestionBank = _classThis = _classDescriptor.value;
         if (_metadata) Object.defineProperty(_classThis, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });

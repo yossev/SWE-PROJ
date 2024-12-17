@@ -35,6 +35,8 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createUserDto = void 0;
+/* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 const class_validator_1 = require("class-validator");
 let createUserDto = (() => {
     var _a;

@@ -50,25 +50,50 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ReplyService = void 0;
 /* eslint-disable prettier/prettier */
 const common_1 = require("@nestjs/common");
+const mongoose_1 = require("mongoose");
 let ReplyService = (() => {
     let _classDecorators = [(0, common_1.Injectable)()];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
     var ReplyService = _classThis = class {
-        constructor(replyModel, threadModel) {
+        constructor(replyModel, threadModel, notificationService) {
             this.replyModel = replyModel;
             this.threadModel = threadModel;
+            this.notificationService = notificationService;
         }
         // Create a reply within a thread
-        createReply(createReplyDto) {
+        createReply(req, createReplyDto) {
             return __awaiter(this, void 0, void 0, function* () {
-                const { threadId } = createReplyDto;
-                const thread = yield this.threadModel.findById(threadId);
+                const { thread_id } = createReplyDto;
+                const thread = yield this.threadModel.findById(thread_id);
                 if (!thread) {
                     throw new common_1.NotFoundException('Thread not found');
                 }
+                createReplyDto.createdBy = req.cookies.userId;
+                const message = `You have received a reply to your thread: "${createReplyDto.content}`;
+                this.notificationService.createNotification(thread.createdBy, message);
                 return yield this.replyModel.create(createReplyDto);
+            });
+        }
+        deleteReply(replyId) {
+            return __awaiter(this, void 0, void 0, function* () {
+                return yield this.replyModel.findByIdAndDelete(new mongoose_1.Types.ObjectId(replyId));
+            });
+        }
+        updateReply(updateReplyDto) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const objectId = new mongoose_1.Types.ObjectId(updateReplyDto.reply_id);
+                // Perform the update and return the updated document
+                const reply = yield this.replyModel.findByIdAndUpdate(objectId, // ID of the document to update
+                updateReplyDto, // Data to update
+                { new: true } // Return the updated document
+                );
+                // Optional: Add error handling if no document is found
+                if (!reply) {
+                    throw new Error('Reply not found');
+                }
+                return reply;
             });
         }
     };

@@ -11,6 +11,7 @@ export class ProgressController {
   constructor(private readonly progressService: ProgressService) { }
 
   // Create a new progress record
+  
   @Post('createprogress')
   async create(@Body() progressData: CreateProgressDTO): Promise<Progress> {
     return this.progressService.create(progressData);

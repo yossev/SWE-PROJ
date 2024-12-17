@@ -49,13 +49,23 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -75,6 +85,8 @@ exports.BackupController = void 0;
 const common_1 = require("@nestjs/common");
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
+const roles_decorator_1 = require("src/auth/decorators/roles.decorator");
+const authorization_guards_1 = require("src/auth/guards/authorization.guards");
 let BackupController = (() => {
     let _classDecorators = [(0, common_1.Controller)('backup')];
     let _classDescriptor;
@@ -112,8 +124,8 @@ let BackupController = (() => {
     __setFunctionName(_classThis, "BackupController");
     (() => {
         const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
-        _triggerBackup_decorators = [(0, common_1.Get)('trigger')];
-        _listBackups_decorators = [(0, common_1.Get)('list')];
+        _triggerBackup_decorators = [(0, roles_decorator_1.Roles)(roles_decorator_1.Role.Admin, roles_decorator_1.Role.Instructor), (0, common_1.UseGuards)(authorization_guards_1.authorizationGuard), (0, common_1.Get)('trigger')];
+        _listBackups_decorators = [(0, roles_decorator_1.Roles)(roles_decorator_1.Role.Admin, roles_decorator_1.Role.Instructor), (0, common_1.UseGuards)(authorization_guards_1.authorizationGuard), (0, common_1.Get)('list')];
         __esDecorate(_classThis, null, _triggerBackup_decorators, { kind: "method", name: "triggerBackup", static: false, private: false, access: { has: obj => "triggerBackup" in obj, get: obj => obj.triggerBackup }, metadata: _metadata }, null, _instanceExtraInitializers);
         __esDecorate(_classThis, null, _listBackups_decorators, { kind: "method", name: "listBackups", static: false, private: false, access: { has: obj => "listBackups" in obj, get: obj => obj.listBackups }, metadata: _metadata }, null, _instanceExtraInitializers);
         __esDecorate(null, _classDescriptor = { value: _classThis }, _classDecorators, { kind: "class", name: _classThis.name, metadata: _metadata }, null, _classExtraInitializers);
