@@ -1,17 +1,17 @@
+/* eslint-disable prettier/prettier */
 import {     MessageBody, OnGatewayConnection,
   OnGatewayDisconnect, SubscribeMessage,
   WebSocketGateway, WebSocketServer} from '@nestjs/websockets';
-import { Namespace , Server, Socket } from 'socket.io';
+import {  Server, Socket } from 'socket.io';
 import { ConnectedSocket } from '@nestjs/websockets';
-import { Logger , Req , Res , Get , Param } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { MessageService } from './message.service';
 import { RoomService } from 'src/room/room.service';
 import { UserService } from 'src/user/user.service';
 import { NotificationService } from 'src/notification/notification.service';
 import { JwtService } from '@nestjs/jwt';
 import { Types } from 'mongoose';
-import { CreateMessageDto } from './dto/createMessage.dto';
-import { Type } from 'class-transformer';
+
 
 
 @WebSocketGateway({ cors: true })
@@ -40,11 +40,12 @@ export class MessageGateway implements OnGatewayConnection , OnGatewayDisconnect
   async handleDisconnect(client: Socket) {
       this.server.emit('room', client.id + ' left!')
       this.logger.log(`Client with ID: ${client.id} is disconnected!`);
-      let clientId = this.clientIdArray.find(i => i.client === client.id);
+      const clientId = this.clientIdArray.find(i => i.client === client.id);
       if(clientId)
       {
         console.log("Removing Client...");
-        let self = this;
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        const self = this;
         this.allCurrentRooms.forEach(function(value) {
           const room = value.name;
           if(self.roomService.checkUserInRoom(room , clientId.id))

@@ -1,4 +1,5 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, BadRequestException } from '@nestjs/common';
+/* eslint-disable prettier/prettier */
+import { Body, Controller, Delete, Get,  Post, Put} from '@nestjs/common';
 import { QuestionBankService } from './questionbank.service';
 import { QuestionBank } from 'models/questionbank-schema';
 import { UpdateQuestionBankDto } from './DTO/questionbank.update.dto';

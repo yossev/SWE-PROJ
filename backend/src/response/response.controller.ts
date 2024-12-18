@@ -1,9 +1,12 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Get, Post, Put, Delete, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards } from '@nestjs/common';
 import { ResponseService } from './response.service';
 import { Responses } from '../models/responses-schema';
 import { CreateResponseDto } from './dto/createResponse.dto'; 
 import { UpdateResponseDto  } from './dto/updateResponse.dto';  
+import { Roles, Role } from 'src/auth/decorators/roles.decorator';
+import { authorizationGuard } from 'src/auth/guards/authorization.guards';
+import { AuthGuard } from 'src/auth/guards/authentication.guards';
 
 @Controller('response')
 export class ResponseController {
@@ -14,7 +17,8 @@ export class ResponseController {
     async create(@Body() responseData: CreateResponseDto): Promise<Responses> {
         return this.responseService.create(responseData);
     }
-    
+    @UseGuards(authorizationGuard)
+    @Roles(Role.Instructor, Role.Admin)
     // Get all response records
     @Get()
     async findAll(): Promise<Responses[]> {
@@ -23,6 +27,9 @@ export class ResponseController {
 
     // Get a specific response record by ID
     @Get(':id')
+    @UseGuards(authorizationGuard)
+    @UseGuards(AuthGuard)
+    @Roles(Role.Instructor, Role.Student)
     async findOne(@Param('id') id: string): Promise<Responses> {
         return this.responseService.findOne(id);
     }

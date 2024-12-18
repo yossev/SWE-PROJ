@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { quizController } from './quiz.controller';

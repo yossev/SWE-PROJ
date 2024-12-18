@@ -2,7 +2,7 @@
 import { Body, Controller, Delete, Post, Put, Query, Req } from '@nestjs/common';
 import { ReplyService } from './reply.service';
 import { CreateReplyDto } from './dto/createReply.dto';
-import { UpdateThreadDto } from 'src/thread/dto/updateThread.dto';
+
 import { UpdateReplyDto } from './dto/updateReply.dto';
 
 

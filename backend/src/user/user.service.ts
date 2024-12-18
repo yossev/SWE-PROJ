@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { BadRequestException, forwardRef, Inject, Injectable, UnauthorizedException} from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject, Injectable, Req, UnauthorizedException} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 
 import { User ,UserDocument } from 'models/user-schema';
@@ -43,9 +43,10 @@ export class UserService {
         return await this.userModel.find().exec();
       }
       
-      async findByName(name: string): Promise<User> {
-        return await this.userModel.findOne({ name}); // Filter by role
+      async findByNameAndRole(name: string, role: string): Promise<User> {
+        return this.userModel.findOne({ name, role }).exec();
       }
+      
       
       async findByEmail(email: string): Promise<UserDocument | null> {
         return this.userModel.findOne({ email }); // Ensure `_id` is included (default behavior)
@@ -101,12 +102,22 @@ export class UserService {
       return deletedUser;
      }
     
+    
 
     async logout(res: Response):Promise<any> {
       res.clearCookie('token');
       res.clearCookie('RefreshToken');
       res.clearCookie('jwt');
       return await { message: 'Logout successful' };
+    }
+    async getMyCourses(@Req() req): Promise<any> {
+      const userId = req.cookies.userId;
+      const user = await this.userModel.findById(userId);
+      return user.courses;
+    }
+    async getStudentCourses(userId: string): Promise<any> {
+      const user = await this.userModel.findById(userId);
+      return user.courses;
     }
 }
 

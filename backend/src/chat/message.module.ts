@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Module } from '@nestjs/common';
 import { MessageService } from './message.service';
 import { MessageGateway } from './message.controller';

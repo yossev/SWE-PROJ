@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { IsOptional, IsEnum, IsNumber, Min, IsArray, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { QuestionType } from './quiz.question.dto';

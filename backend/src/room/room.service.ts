@@ -1,4 +1,5 @@
 /* eslint-disable prettier/prettier */
+/* eslint-disable prefer-const */
 // room.service.ts
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';

@@ -1,4 +1,6 @@
 /* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -41,6 +43,13 @@ export class ProgressService {
     const progress = await this.progressModel.findOne({ _id: id }).exec();
     if (!progress) {
       throw new NotFoundException(`Progress record with ID ${id} not found`);
+    }
+    return progress;
+  }
+  async findProgressByUserId(userId: string): Promise<Progress> {
+    const progress = await this.progressModel.findOne({ user_id: userId }).exec();
+    if (!progress) {
+      throw new NotFoundException(`Progress record with ID ${userId} not found`);
     }
     return progress;
   }

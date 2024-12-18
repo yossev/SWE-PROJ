@@ -1,4 +1,5 @@
-import { IsArray, IsDate, IsMongoId, IsNotEmpty, IsNumber, IsOptional, Min } from 'class-validator';
+/* eslint-disable prettier/prettier */
+
 
 export class CreateResponseDto {
 

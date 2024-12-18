@@ -98,9 +98,7 @@ export class ModuleController {
     getFile(@Param('id') module_id : string , @Param('file') file : string): StreamableFile {
       
       return this.moduleService.getFile(file);
-    }
+    }
 
 
 }
-
-

@@ -40,7 +40,7 @@ export class CourseController {
     findOne(@Param('id') id: string) {
         return this.courseService.findOne(id);
     }
-    @Roles(Role.Admin,Role.Instructor)
+    @Roles(Role.Instructor)
     @UseGuards(authorizationGuard)
     @Put(':id')
     update(@Param('id') id: string, @Body() updateCourseDto: UpdateCourseDto) {
@@ -51,4 +51,6 @@ export class CourseController {
     enroll(@Param('id') id: string, @Req() req) {
         this.courseService.enroll(id,req);
     }
-}
+   
+    }
+
