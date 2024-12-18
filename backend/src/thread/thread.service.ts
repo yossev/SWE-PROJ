@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Injectable, Req } from "@nestjs/common";
+import { Injectable, Req, UnauthorizedException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Thread, ThreadDocument } from "src/models/thread-schema";
 import { Model, Types } from "mongoose";
@@ -40,13 +40,32 @@ export class ThreadService {
     return threads;
   }
 
-  async updateThread(updateThreadDto : UpdateThreadDto)
-  {
-    const objectId = new Types.ObjectId(updateThreadDto.thread_id);
-    const thread = this.threadModel.findByIdAndUpdate(objectId , updateThreadDto);
-    (await thread).save();
+  async updateMyThread(@Req() req, updateThreadDto: UpdateThreadDto): Promise<Thread> {
+    const loggedinuser = req.cookies.userId; // Get the logged-in user ID
+    const threadId = updateThreadDto.thread_id;
+  
+    // Find the thread document
+    const thread = await this.threadModel.findById(threadId);
+
+  
+    // Check if the logged-in user is the creator of the thread
+    if (thread.createdBy.toString() !== loggedinuser) {
+      throw new UnauthorizedException("You are not authorized to update this thread");
+    }
+  
+    // Update only the allowed fields (threadTitle, content, forum_id)
+    const { threadTitle, content} = updateThreadDto;
+  
+    if (threadTitle) thread.threadTitle = threadTitle;
+    if (content) thread.content = content;
+  
+  
+    // Save the updated document
+    await thread.save();
+  
     return thread;
   }
+  
 
   async searchThreadsByKeyword(keyword: string): Promise<Thread[]> {
     return this.threadModel

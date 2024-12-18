@@ -44,7 +44,7 @@ export class UserService {
       }
       
       async findByName(name: string): Promise<User> {
-        return await this.userModel.findOne({ name, role: 'instructor' }); // Filter by role
+        return await this.userModel.findOne({ name}); // Filter by role
       }
       
       async findByEmail(email: string): Promise<UserDocument | null> {

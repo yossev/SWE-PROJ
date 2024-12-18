@@ -19,6 +19,7 @@ import { ChatModule } from './chat/message.module';
 import { ForumModule } from './forum/forum.module';
 import { ThreadModule } from './thread/thread.module';
 import { ReplyModule } from './reply/reply.module';
+import { InteractiveModule } from './module/module.module';
 
 
 @Module({
@@ -34,8 +35,8 @@ import { ReplyModule } from './reply/reply.module';
     ChatModule,
     ForumModule,
     ThreadModule,
-    ReplyModule
-    
+    ReplyModule,
+    InteractiveModule
   ],
   controllers: [AppController],
   providers: [

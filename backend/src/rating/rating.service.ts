@@ -75,7 +75,6 @@ export class RatingService {
             instructorRating,
         };
     }
-
     async delete(id: string): Promise<void> {
         const result = await this.ratingModel.deleteOne({ _id: id });
 

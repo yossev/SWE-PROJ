@@ -50,6 +50,14 @@ export class UserController {
         return user;
     }
 
+    @Roles(Role.Instructor, Role.Admin)
+    @UseGuards(authorizationGuard)
+    @Get('fetch/:name')// /student/:id
+    // Get a single student by ID
+    async getUserByName(@Param('name') name: string):Promise<User> {
+        const user = await this.userService.findByName(name);
+        return user;
+    }
     @Roles(Role.Admin)
     @UseGuards(authorizationGuard)
     @Get('instructors')
@@ -86,6 +94,12 @@ export class UserController {
     @Roles(Role.Admin)
     @UseGuards(authorizationGuard)
     async deleteUser(@Param('id')id:string) {
+        const deletedUser = await this.userService.delete(id);
+       return deletedUser;
+    }
+    @Delete('deleteme/:id')
+    @UseGuards(AuthGuard)
+    async deleteMe(@Param('id')id:string) {
         const deletedUser = await this.userService.delete(id);
        return deletedUser;
     }

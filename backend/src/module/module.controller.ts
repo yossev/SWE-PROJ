@@ -20,9 +20,9 @@ import { Roles, Role } from 'src/auth/decorators/roles.decorator';
 import { authorizationGuard } from 'src/auth/guards/authorization.guards';
 import { AuthGuard } from 'src/auth/guards/authentication.guards';
 import { InjectModel } from '@nestjs/mongoose';
-import { Reply } from 'models/reply-schema';
+import { Reply } from '../models/reply-schema';
 import { Model } from 'mongoose';
-import { Course } from 'models/course-schema';
+import { Course } from '../../src/models/course-schema';
 
 var fileNameParameter = ""
 
@@ -31,7 +31,7 @@ export class ModuleController {
     constructor(private readonly moduleService: ModuleService,@InjectModel(Course.name) private courseModel: Model<Course>) {} 
     @Roles(Role.Instructor)
     @UseGuards(authorizationGuard)
-    @Post()
+    @Post('create')
     async createModule(@Req() req,@Body() createModuleDto: CreateModuleDto)
     {
    
@@ -55,7 +55,7 @@ export class ModuleController {
     @Get('coursemodules/:id')
     async getAllCourseModules(@Req() req,@Param('id') course_id : string)
     {
-      const userid=req.cookies.userid;
+      const userid=req.cookies.userId;
       const course=this.courseModel.findById(course_id);
       let enrolled=false;
       (await course).students.forEach(student => {

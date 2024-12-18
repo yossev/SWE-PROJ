@@ -6,6 +6,6 @@ export class CreateModuleDto {
     title: string;
     difficulty: string;
     content: string;
-    resources: string[];
+    resources?: string[];
     created_at: Date;
 }

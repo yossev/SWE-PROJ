@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Get, Post, Put, Body, Query, Delete, Req } from '@nestjs/common';
+import { Controller, Get, Post, Put, Body, Query, Delete, Req, Param } from '@nestjs/common';
 import { CreateThreadDto } from './dto/createThread.dto';
 import { UpdateThreadDto } from './dto/updateThread.dto';
 import { ThreadService } from './thread.service';
@@ -14,9 +14,9 @@ export class ThreadController {
         return this.threadService.createThread(req,createThreadDto);
     }
 
-    @Put('update')
-    async updateThread(@Body() updateThreadDto: UpdateThreadDto) {
-        return this.threadService.updateThread(updateThreadDto);
+    @Put('update/:id')
+    async updateThread(@Req() req,@Body() updateThreadDto: UpdateThreadDto) {
+        return this.threadService.updateMyThread(req,updateThreadDto);
     }
 
     @Get('search')

@@ -14,7 +14,7 @@ export class BackupController {
   constructor(private readonly backupService: BackupService) {}
 
   // Endpoint to trigger the backup manually
-  @Roles(Role.Admin,Role.Instructor)
+  @Roles(Role.Admin)
   @UseGuards(authorizationGuard)
   @Get('trigger')
   async triggerBackup() {
@@ -24,7 +24,7 @@ export class BackupController {
   }
 
   // Endpoint to list all existing backup files
-  @Roles(Role.Admin,Role.Instructor)
+  @Roles(Role.Admin)
   @UseGuards(authorizationGuard)
   @Get('list')
   listBackups() {

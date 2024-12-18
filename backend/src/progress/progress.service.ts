@@ -145,7 +145,6 @@ export class ProgressService {
     const averageScore = responses.length ? totalScore / responses.length : 0;
     const classification = await this.classifyUserPerformance(userId.toString());
 
-
     // Calculate course completion rate 
     const progressData = await this.progressModel.find({ user_id: userId }).exec();
     const courseCompletionRates = [];

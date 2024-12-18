@@ -39,37 +39,44 @@ export class ModuleService {
     const module  = await this.moduleModel.findById(new mongoose.Types.ObjectId(id)).exec();
     return module;
   }
-  async createModule(@Req() req,createModuleDto : CreateModuleDto)
-  {
-    const userid=req.cookies.userid;
-    const course=this.courseModel.findById(createModuleDto.course_id);
-    if (userid!=(await course).created_by){
+  async createModule(@Req() req, createModuleDto: CreateModuleDto) {
+    const userid = req.cookies.userId;
+
+    const course = await this.courseModel.findById(createModuleDto.course_id);
+  
+    if (!course) {
+      throw new UnauthorizedException("Course not found");
+    }
+ 
+    if (userid.toString() !== course.created_by.toString()) {
       throw new UnauthorizedException("You are not authorized to create a module");
     }
+
     const createdModule = new this.moduleModel(createModuleDto);
-    createdModule.save();
-    const message = `New module for course ${(await course).title} has been added`;
-    await this.notificationService.createNotification(
-      (await course).students,
-      message
-    );
+    createdModule.valid_content = true;
+    await createdModule.save();
+
+    const message = `New module ${createdModule.title} for course ${course.title} has been added`;
+    await this.notificationService.createNotification(course.students, message);
+  
     return "Module created and added";
   }
+  
 
   async updateModule(id : string ,@Req() req, updateModuleDto : UpdateModuleDto)
   {
-    const userid=req.cookies.userid;
-    const usedModule=this.moduleModel.findById(new Types.ObjectId(id));
-    const courseid=(await usedModule).course_id;
-    const course=this.courseModel.findById(courseid);
-    if (userid!=(await course).created_by){
+    const userid=req.cookies.userId;
+    const usedModule=await this.moduleModel.findById(id);
+    const courseid=usedModule.course_id;
+    const course=await this.courseModel.findById(courseid);
+    if (userid!=course.created_by){
       throw new UnauthorizedException("You are not authorized to update this module");
     }
     const module = await this.moduleModel.findById(new mongoose.Types.ObjectId(id)).exec();
     if(module)
     {
       Object.assign(module, updateModuleDto) // Update Course
-      const message = `Module ${(await usedModule).title} for course ${(await course).title} has been updated`;
+      const message = `Module ${usedModule.title} for course ${course.title} has been updated`;
       await this.notificationService.createNotification(
         (await course).students,
         message

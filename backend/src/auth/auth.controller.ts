@@ -23,7 +23,6 @@ export class AuthController {
           secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
           maxAge: 3600 * 1000, // Cookie expiration time in milliseconds
         });
-        
 
         res.cookie('userId' , result.userId , {
           httpOnly: true, // Prevents client-side JavaScript access
@@ -65,7 +64,7 @@ export class AuthController {
     try {
       // Call the AuthService to handle registration
       const result = await this.authService.register(registerRequestDto);
-
+      this.signIn;
       // Return a success response with HTTP 201 Created status
       return {
         statusCode: HttpStatus.CREATED,
