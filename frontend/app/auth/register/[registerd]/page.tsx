@@ -12,7 +12,7 @@ export default function RegisterPage() {
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [role, setRole] = useState<string>("user");
+  const [role, setRole] = useState<string>("student");
 
   const redirectToSignUp = () => {
     redirect("/auth/login/x");
@@ -23,7 +23,7 @@ export default function RegisterPage() {
     let status = 0;
     try
     {
-      const response = await axios.post(`$(backend_url)/auth/register`, { name: name, email: email, password_hash : password, role: role } , {withCredentials: true});   
+      const response = await axios.post(`${backend_url}/auth/register`, { name: name, email: email, password_hash : password, role: role } , {withCredentials: true});   
       status = response.status;
       console.log("Axios headers:" + response.headers);
       console.log("Status: " + status);
@@ -94,7 +94,8 @@ export default function RegisterPage() {
 
           <div className="mb-4">
             <label className="block text-gray-800">Role</label>
-            <select className="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500" name="role" value={role} onChange={(e) => setRole(e.target.value)}>
+            <select className="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500"  name="role" value={role} onChange={(e) => setRole(e.target.value)}>
+            <option value="">Choose here</option>
            <option value="student">Student</option>
            <option value="instructor">Instructor</option>
            <option value="admin">Admin</option>

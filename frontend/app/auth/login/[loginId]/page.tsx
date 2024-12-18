@@ -49,9 +49,11 @@ export default function LoginPage() {
       }
     } catch (err: any) {
       console.error("Login error:", err.response?.data?.message || err.message);
-      alert("Login failed. Please check your credentials.");
+      alert("Login failed. Please check your credentials.", );
     }
+    
   };
+  
 
   return (
     <>

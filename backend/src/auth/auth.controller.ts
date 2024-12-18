@@ -77,7 +77,7 @@ export class AuthController {
       throw new HttpException(
         {
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: 'An error occurred during registration',
+          message: error,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
