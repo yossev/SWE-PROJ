@@ -1,135 +1,166 @@
 'use client';
-
-import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Doughnut } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  ArcElement,
+  Tooltip,
+  Legend,
+} from 'chart.js';
 
-// Define interfaces based on the backend response
-interface CourseCompletion {
-  courseId: string;
-}
-
-interface CourseCompletionRate {
-  completionRate: number;
-}
-
-interface EngagementTrend {
-  courseId: string;
-  attendanceRate: number;
-  completedStudentCount: number;
-}
+ChartJS.register(CategoryScale, LinearScale, ArcElement, Tooltip, Legend);
 
 interface Dashboard {
   averageScore: number;
   classification: string;
-  completedCourses: CourseCompletion[];
-  courseCompletionRates: CourseCompletionRate[];
-  engagementTrends: EngagementTrend[];
-  progress: any;
+  completedCourses: { courseId: string }[];
+  courseCompletionRates: { courseId: string; completionRate: number }[];
+  engagementTrends: { courseId: string; attendanceRate: number }[];
+  courseScores: { courseId: string; averageScore: number }[];
 }
 
 export default function DashboardPage() {
-  const { userId } = useParams(); // Extract userId from the dynamic route
-  console.log('Extracted User ID:', userId);
-
+  const { userId } = useParams();
   const [dashboardData, setDashboardData] = useState<Dashboard | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        console.log('Fetching data for userId:', userId);
         const response = await axios.get(`http://localhost:3001/progress/dashboard/${userId}`);
-        console.log('API Response:', response.data);
         setDashboardData(response.data);
       } catch (err: any) {
-        console.error('Error fetching dashboard:', err.message);
-        console.error('Error Details:', err.response?.data || err);
-        setError('Failed to fetch dashboard data. Please try again later.');
+        setError('Failed to fetch dashboard data.');
+        console.error(err.message);
       }
     };
-  
-    if (userId) {
-      fetchDashboard();
-    }
+
+    if (userId) fetchDashboard();
   }, [userId]);
 
-  return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+  };
 
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+  return (
+    <div className="h-screen w-full bg-gray-900 text-white p-4 flex flex-col items-center overflow-auto">
+      <h1 className="text-2xl font-bold mb-4">User Dashboard</h1>
+
+      {error && <p className="text-red-500">{error}</p>}
 
       {dashboardData ? (
-        <div>
-          {/* Average Score */}
-          <div className="mb-6">
-            <h2 className="text-xl font-bold">Average Score</h2>
-            <p>{dashboardData.averageScore.toFixed(2)}%</p>
+        <div className="space-y-6 w-full max-w-5xl">
+          {/* Overall Performance */}
+          <div className="bg-gray-800 p-4 rounded-lg text-center">
+            <h2 className="text-lg font-semibold mb-2">Overall Performance</h2>
+            <p className="text-base">Average Score: {dashboardData.averageScore}%</p>
+            <p className="text-base">Classification: {dashboardData.classification}</p>
           </div>
 
-          {/* Classification */}
-          <div className="mb-6">
-            <h2 className="text-xl font-bold">Classification</h2>
-            <p>{dashboardData.classification}</p>
-          </div>
-
-          {/* Completed Courses */}
-          <div className="mb-6">
-            <h2 className="text-xl font-bold">Completed Courses</h2>
-            {dashboardData.completedCourses.length ? (
-              <ul>
-                {dashboardData.completedCourses.map((course, idx) => (
-                  <li key={idx}>
-                    Course ID: {course.courseId}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p>No completed courses.</p>
-            )}
+          {/* Average Scores for Each Course */}
+          <div className="bg-gray-800 p-4 rounded-lg text-center">
+            <h2 className="text-lg font-semibold mb-4">Your Average Scores for Each Course</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 justify-items-center">
+              {dashboardData.courseScores.map((course, index) => {
+                const data = {
+                  labels: ['Average', 'Remaining'],
+                  datasets: [
+                    {
+                      data: [course.averageScore, 100 - course.averageScore],
+                      backgroundColor: ['#36A2EB', '#CFCFCF'],
+                    },
+                  ],
+                };
+                return (
+                  <div key={index} className="flex flex-col items-center text-center">
+                    <div className="w-[100px] h-[100px]">
+                      <Doughnut data={data} options={chartOptions} />
+                    </div>
+                    <p className="text-sm mt-2">Course {index + 1}: {course.averageScore}%</p>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
           {/* Course Completion Rates */}
-          <div className="mb-6">
-            <h2 className="text-xl font-bold">Course Completion Rates</h2>
-            {dashboardData.courseCompletionRates.length ? (
-              <ul>
-                {dashboardData.courseCompletionRates.map((rate, idx) => (
-                  <li key={idx}>
-                    Completion Rate: {rate.completionRate}%
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p>No course completion data available.</p>
-            )}
+          <div className="bg-gray-800 p-4 rounded-lg text-center">
+            <h2 className="text-lg font-semibold mb-4">Your Course Completion Rates</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 justify-items-center">
+              {dashboardData.courseCompletionRates.map((rate, index) => {
+                const data = {
+                  labels: ['Completed', 'Remaining'],
+                  datasets: [
+                    {
+                      data: [rate.completionRate, 100 - rate.completionRate],
+                      backgroundColor: ['#FF6384', '#CFCFCF'],
+                    },
+                  ],
+                };
+                return (
+                  <div key={index} className="flex flex-col items-center text-center">
+                    <div className="w-[100px] h-[100px]">
+                      <Doughnut data={data} options={chartOptions} />
+                    </div>
+                    <p className="text-sm mt-2">Course {index + 1}: {rate.completionRate}% Completed</p>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
           {/* Engagement Trends */}
-          <div className="mb-6">
-            <h2 className="text-xl font-bold">Engagement Trends</h2>
-            {dashboardData.engagementTrends.length ? (
-              <ul>
-                {dashboardData.engagementTrends.map((trend, idx) => (
-                  <li key={idx}>
-                    Course ID: {trend.courseId} | Attendance Rate: {trend.attendanceRate}% | Completed Students: {trend.completedStudentCount}
+          <div className="bg-gray-800 p-4 rounded-lg text-center">
+            <h2 className="text-lg font-semibold mb-4">Your Engagement Trends</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 justify-items-center">
+              {dashboardData.engagementTrends.map((trend, index) => {
+                const data = {
+                  labels: ['Attendance', 'Remaining'],
+                  datasets: [
+                    {
+                      data: [trend.attendanceRate, 100 - trend.attendanceRate],
+                      backgroundColor: ['#FF9F40', '#CFCFCF'],
+                    },
+                  ],
+                };
+                return (
+                  <div key={index} className="flex flex-col items-center text-center">
+                    <div className="w-[100px] h-[100px]">
+                      <Doughnut data={data} options={chartOptions} />
+                    </div>
+                    <p className="text-sm mt-2">
+                      Course {index + 1}: {trend.attendanceRate.toFixed(2)}% Attendance
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Completed Courses */}
+          <div className="bg-gray-800 p-4 rounded-lg text-center">
+            <h2 className="text-lg font-semibold mb-2">Courses You Have Completed</h2>
+            {dashboardData.completedCourses.length > 0 ? (
+              <ul className="list-disc list-inside text-center">
+                {dashboardData.completedCourses.map((course, index) => (
+                  <li key={index} className="text-sm text-green-400">
+                    Course {index + 1}: {course.courseId}
                   </li>
                 ))}
               </ul>
             ) : (
-              <p>No engagement data available.</p>
+              <p className="text-gray-400">No completed courses yet.</p>
             )}
-          </div>
-
-          {/* Progress Data */}
-          <div className="mb-6">
-            <h2 className="text-xl font-bold">Progress Data</h2>
-            <pre className="bg-gray-100 p-2">{JSON.stringify(dashboardData.progress, null, 2)}</pre>
           </div>
         </div>
       ) : (
-        <p>Loading dashboard data...</p>
+        <p className="text-gray-400 text-center">Loading dashboard data...</p>
       )}
     </div>
   );
