@@ -1,4 +1,37 @@
+"use client";
+import { useState } from "react";
+import axios from "axios";
+
 export default function Home() {
+  const [showFindById, setShowFindById] = useState(false); // Toggle Find by ID input
+  const [id, setId] = useState<string>(""); // Input ID
+  const [questionBank, setQuestionBank] = useState<any>(null); // Fetched question bank
+  const [loading, setLoading] = useState<boolean>(false); // Loading state
+  const [error, setError] = useState<string>(""); // Error state
+
+  // Function to fetch question bank by ID
+  const fetchQuestionBankById = async () => {
+    if (!id) {
+      setError("Please enter a valid ID.");
+      return;
+    }
+    setLoading(true);
+    setError("");
+    setQuestionBank(null);
+
+    try {
+      const response = await axios.get(
+        `http://localhost:3001/questionbank/questionbank?id=${id}`
+      );
+      setQuestionBank(response.data);
+    } catch (err) {
+      console.error("Error fetching Question Bank by ID:", err);
+      setError("No Question Bank found for the provided ID.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
@@ -35,7 +68,62 @@ export default function Home() {
           >
             Update Quiz
           </a>
+
+          {/* Find All Question Banks */}
+          <button
+            className="rounded-full border border-solid border-green-500 text-green-500 transition-colors flex items-center justify-center hover:bg-green-500 hover:text-white text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
+            onClick={() => setShowFindById(true)}
+          >
+            Find All Question Banks
+          </button>
         </div>
+
+        {/* Find by ID Section */}
+        {showFindById && (
+          <div className="mt-8 w-full max-w-md flex flex-col items-center gap-4">
+            <h2 className="text-2xl font-bold text-black">Find by ID</h2>
+            <div className="w-full flex items-center gap-2">
+              <input
+                type="text"
+                value={id}
+                onChange={(e) => setId(e.target.value)}
+                placeholder="Enter Question Bank ID"
+                className="border p-2 w-full rounded text-black"
+              />
+              <button
+                onClick={fetchQuestionBankById}
+                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+              >
+                Search
+              </button>
+            </div>
+
+            {/* Loading */}
+            {loading && <p className="text-gray-500">Loading...</p>}
+
+            {/* Error */}
+            {error && <p className="text-red-500">{error}</p>}
+
+            {/* Display Question Bank */}
+            {questionBank && (
+              <div className="w-full border rounded-lg shadow-md p-4 bg-gray-100 text-black">
+                <h3 className="text-xl font-semibold">Question Bank Details</h3>
+                <p>
+                  <strong>ID:</strong> {questionBank._id}
+                </p>
+                <p>
+                  <strong>Question:</strong> {questionBank.question}
+                </p>
+                <p>
+                  <strong>Difficulty:</strong> {questionBank.difficulty_level}
+                </p>
+                <p>
+                  <strong>Type:</strong> {questionBank.question_type}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
       </main>
 
       {/* Footer */}
