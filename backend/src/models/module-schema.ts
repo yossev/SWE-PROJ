@@ -21,8 +21,8 @@ export class Module {
   @Prop({ type: String, required: true, minlength: 1, maxlength: 5000 })
   content: string;
 
-  @Prop( {type : Boolean , required: true})
-  valid_content : boolean
+  @Prop( {type : Boolean , required: true , default : true})
+  valid_content : Boolean
 
   @Prop({ type: [String], required: false })
   resources: string[];
