@@ -20,11 +20,10 @@ import { ForumModule } from './forum/forum.module';
 import { ThreadModule } from './thread/thread.module';
 import { ReplyModule } from './reply/reply.module';
 import { InteractiveModule } from './module/module.module';
-import { ResponseModule } from './response/response.module';
-import { RatingModule } from './rating/rating.module';
-import { ResponseModule } from './response/response.module';
-import { RatingModule } from './rating/rating.module';
+
 import { QuestionBankModule } from './questionbank/questionbank.module';
+import { RatingModule } from './rating/rating.module';
+import { ResponseModule } from './response/response.module';
 
 
 @Module({

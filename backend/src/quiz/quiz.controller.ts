@@ -1,38 +1,33 @@
 /* eslint-disable prettier/prettier */
-import { BadRequestException, Body, Controller, Delete, Get, Post, Put, Req, UseGuards, Req, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Post, Put, Req, UseGuards } from '@nestjs/common';
 import { QuizService } from './quiz.service'; 
 import {Quiz } from '../../models/quizzes-schema';   
 import { CreateQuizDto } from './DTO/quiz.create.dto';
 import { UpdateQuizDto } from './DTO/quiz.update.dto';
 import { Query } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { Roles, Role } from 'src/auth/decorators/roles.decorator';
 import { authorizationGuard } from 'src/auth/guards/authorization.guards';
-import { AuthGuard } from 'src/auth/guards/authentication.guards';
-import { Roles, Role } from 'src/auth/decorators/roles.decorator';
-import { authorizationGuard } from 'src/auth/guards/authorization.guards';
-import { AuthGuard } from 'src/auth/guards/authentication.guards';
+
 @Controller('quiz')
 export class quizController {
     constructor(private readonly quizService: QuizService) {} 
     @Roles(Role.Instructor)
-    @UseGuards(authorizationGuard)    @Roles(Role.Instructor)
-    @UseGuards(authorizationGuard)
+    @UseGuards(authorizationGuard)    
     @Get('findall')
     async getAllQuizzes(): Promise<Quiz[]> {
         return await this.quizService.findAll();
     }
-    @Roles(Role.Instructor)
-    @UseGuards(authorizationGuard)
+
     @Roles(Role.Instructor)
     @UseGuards(authorizationGuard)
     @Get('singlequiz')
-        async getQuizById(@Query('id') id: string): Promise<Quiz> {
-            console.log('Received ID: ' + id);
-            const quiz = await this.quizService.findById(id);  
-            return quiz;
-        }
+    async getQuizById(@Query('id') id: string): Promise<Quiz> {
+        console.log('Received ID: ' + id);
+        const quiz = await this.quizService.findById(id);  
+        return quiz;
+    }
     @UseGuards(AuthGuard)
-        @UseGuards(AuthGuard)
     @Get('assigned')
         async getQuizByUserId(@Req() req ): Promise<Quiz> {
       const userid=req.cookies.userId;
@@ -44,12 +39,7 @@ export class quizController {
       if (!quiz) {
         throw new BadRequestException('No quiz found for the provided user ID.');
       }
-      if (!quiz) {
-        throw new BadRequestException('No quiz found for the provided user ID.');
-      }
 
-      return quiz;
-    }
       return quiz;
     }
 
@@ -85,18 +75,18 @@ export class quizController {
     
   }
   @Post('evaluate')
-async evaluateQuiz(
-  @Body('quizId') quizId: string, // Add quizId here
-  @Body('userAnswers') userAnswers: string[],
-  @Body('selectedQuestions') selectedQuestions: any[],
-  @Query('userId') userId: string,
-) {
-  const evaluation = await this.quizService.evaluateQuiz(userAnswers, selectedQuestions, userId, quizId); // Pass quizId to service
-  return {
-    success: true,
-    message: 'Quiz evaluated successfully.',
-    data: evaluation,
-  };
-}
+  async evaluateQuiz(
+    @Body('quizId') quizId: string, // Add quizId here
+    @Body('userAnswers') userAnswers: string[],
+    @Body('selectedQuestions') selectedQuestions: any[],
+    @Query('userId') userId: string,
+  ) {
+    const evaluation = await this.quizService.evaluateQuiz(userAnswers, selectedQuestions, userId, quizId); // Pass quizId to service
+    return {
+      success: true,
+      message: 'Quiz evaluated successfully.',
+      data: evaluation,
+    };
+  }
 
 }
