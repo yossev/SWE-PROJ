@@ -46,24 +46,18 @@ export class RatingController {
 }
 
   @Get('course-rating/:courseId')
-  async getCourseRating(@Param('courseId') courseId: string): Promise<number> {
-    return await this.ratingService.getCourseRating(courseId);
+  async getCourseRatingFromModules(@Param('courseId') courseId: string) {
+    return await this.ratingService.getCourseRatingFromModules(courseId);
   }
 
   @Get('instructor-rating/:instructorId')
-  async getInstructorRating(@Param('instructorId') instructorId: string): Promise<number> {
+  async getInstructorRating(@Param('instructorId') instructorId: string) {
     return await this.ratingService.getInstructorRating(instructorId);
   }
 
   @Get('module-rating/:moduleId')
-  async getModuleRating(@Param('moduleId') moduleId: string): Promise<number> {
-    return await this.ratingService.getModuleRating(moduleId);
-  }
-  @UseGuards(authorizationGuard)
-  @Roles(Role.Student)
-  @Delete(':id')
-  async delete(@Param('id') id: string): Promise<void> {
-    return this.ratingService.delete(id);
+  async getModuleRatingsByCourse(@Param('moduleId') courseId: string) {
+    return await this.ratingService.getModuleRatingsByCourse(courseId);
   }
 
 }

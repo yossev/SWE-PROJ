@@ -149,6 +149,7 @@ export class ProgressService {
       user_id: userId,
       quiz_id: { $in: quizIds }, //quiz_id present in quizIds array
     }).exec();
+    
 
     const totalScore = responses.reduce((sum, response) => sum + (response.score || 0), 0);
     const averageScore = responses.length ? totalScore / responses.length : 0;
@@ -275,37 +276,16 @@ export class ProgressService {
 
   // Instructor Analytics -- Reports on content effectiveness 
 
-  async getInstructorAnalyticsContentEffectiveness(courseId: string, userId: string) {
-
-    const course = await this.courseModel.findById(courseId).exec();
-    //if (!course) {
-    //throw new NotFoundException('Course not found');
-    //}
-
-    //const instructor = await this.courseModel.findById(userId).exec();
-    //if (!instructor) {
-    //throw new NotFoundException('Instructor not found');
-    //}
-
-    const courseRating = await this.ratingService.getCourseRating(courseId);
-
-    const modules = await this.moduleModel.find({ course_id: courseId }).exec();
-    const moduleRatings: { [moduleId: string]: number } = {};
-
-    for (const module of modules) {
-      const moduleIdStr = module._id.toString();
-      const moduleRating = await this.ratingService.getModuleRating(moduleIdStr);
-      moduleRatings[moduleIdStr] = moduleRating;
-    }
-
-    const instructorRating = await this.ratingService.getInstructorRating(userId);
-
+  async getInstructorAnalyticsContentEffectiveness(courseId: string, instructorId: string) {
+    const moduleRatings = await this.ratingService.getModuleRatingsByCourse(courseId);
+    const courseRating = await this.ratingService.getCourseRatingFromModules(courseId);
+    const instructorRating = await this.ratingService.getInstructorRating(instructorId);
+  
     return {
       courseId,
-      //courseTitle: course.title,
-      courseRating,
-      moduleRatings,
+      courseRating, 
       instructorRating,
+      moduleRatings, 
     };
   }
 
@@ -339,7 +319,7 @@ export class ProgressService {
       });
     }
 
-    return { courseId, courseName: course.title, results };
+    return { courseId, results };
   }
 
 
@@ -401,7 +381,7 @@ export class ProgressService {
     res.attachment('instructor_analytics_assessment_results.pdf');
     doc.pipe(res);
     doc.fontSize(16).text('Instructor Analytics - Assessment Results', { align: 'center' }).moveDown();
-    doc.text(`Course: ${analytics.courseName}`);
+   // doc.text(`Course: ${analytics.courseName}`);
     doc.text(`Course ID: ${analytics.courseId}`).moveDown();
     doc.text('Assessment Results:', { underline: true }).moveDown();
     analytics.results.forEach(result => {
