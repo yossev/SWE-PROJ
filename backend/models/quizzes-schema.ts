@@ -12,11 +12,10 @@ export class Quiz {
   question_ids: mongoose.Schema.Types.ObjectId[];
 
   @Prop({ type: String, enum: ['MCQ', 'True/False', 'Both'], required: true })
-  questionType?: string; // Add questionType field
+  questionType?: string; 
 
   @Prop({ type: Number, min: 1, required: true })
-  numberOfQuestions?: number; // Add numberOfQuestions field
-
+  numberOfQuestions?: number; 
   @Prop({
     type: [
       {

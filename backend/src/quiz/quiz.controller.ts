@@ -38,8 +38,11 @@ async getQuizByUserId(@Query('userId') userId: string): Promise<Quiz> {
 }
 
 @Put('updatequiz')
-async updateQuiz(@Query('id') id: string, @Body() updateData: UpdateQuizDto): Promise<Quiz> {
-  return await this.quizService.update(id, updateData);
+async updateQuiz(
+  @Query('quizId') quizId: string, 
+  @Body() updateData: UpdateQuizDto
+): Promise<Quiz> {
+  return await this.quizService.update(quizId, updateData);
 }
 
 
