@@ -1,9 +1,9 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Get, Post, Put, Body, Query, Delete, Req, Param } from '@nestjs/common';
+import { Controller, Get, Post, Put, Body, Query, Delete, Req} from '@nestjs/common';
 import { CreateThreadDto } from './dto/createThread.dto';
 import { UpdateThreadDto } from './dto/updateThread.dto';
 import { ThreadService } from './thread.service';
-import { SearchThreadDto } from './dto/searchThread.dto';
+
 
 @Controller('threads')
 export class ThreadController {

@@ -11,7 +11,7 @@ import { CourseSchema } from '../../src/models/course-schema';
 import { NotificationSchema } from 'models/notification-schema';
 import { NotificationService } from 'src/notification/notification.service';
 import { MessageSchema } from 'models/message-schema';
-import { User, UserSchema } from 'models/user-schema';
+import {  UserSchema } from 'models/user-schema';
 import { UserService } from 'src/user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { AuthService } from 'src/auth/auth.service';

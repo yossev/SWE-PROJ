@@ -1,9 +1,11 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, BadRequestException } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, BadRequestException, UseGuards } from '@nestjs/common';
 import { QuestionBankService } from './questionbank.service';
 import { QuestionBank } from 'models/questionbank-schema';
 import { UpdateQuestionBankDto } from './DTO/questionbank.update.dto';
 import { CreateQuestionBankDto } from './DTO/questionbank.create.dto';
 import { Query } from '@nestjs/common';
+import { Role, Roles } from 'src/auth/decorators/roles.decorator';
+import { authorizationGuard } from 'src/auth/guards/authorization.guards';
 @Controller('questionbank')
 export class QuestionBankController {
   constructor(private readonly questionBankService: QuestionBankService) {}
@@ -19,6 +21,8 @@ async getQuestionBankById(@Query('id') id: string): Promise<QuestionBank> {
   console.log('Received ID: ' + id );
   return await this.questionBankService.findById(id);
 }
+@Roles(Role.Instructor)
+@UseGuards(authorizationGuard)
 @Post('createquestion')
 async createQuestionBank(
   @Body() questionBankData: CreateQuestionBankDto
@@ -27,7 +31,8 @@ async createQuestionBank(
 }
 
 
-
+@Roles(Role.Instructor)
+@UseGuards(authorizationGuard)
 @Put('updatequestionbank')
 async updateQuestionBank(
   @Query('id') id: string,
@@ -37,7 +42,8 @@ async updateQuestionBank(
   return await this.questionBankService.update(id, questionBankData);
 }
 
-
+@Roles(Role.Instructor)
+@UseGuards(authorizationGuard)
 @Delete('deletequestionbank')
 async deleteQuestionBank(@Query('id') id: string): Promise<QuestionBank> {
   console.log('Received ID: ' + id);

@@ -1,4 +1,6 @@
 /* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -17,7 +19,7 @@ import { Rating } from 'models/rating-schema';
 @Injectable()
 export class ProgressService {
   constructor(
-    @InjectModel(Progress.name) private readonly progressModel: Model<ProgressDocument>,
+    @InjectModel(Progress.name) private readonly progressModel: Model<Progress>,
     @InjectModel(Responses.name) private responseModel: Model<Responses>,
     @InjectModel(Course.name) private courseModel: Model<Course>,
     @InjectModel(Quiz.name) private quizModel: Model<Quiz>,
@@ -41,6 +43,13 @@ export class ProgressService {
     const progress = await this.progressModel.findOne({ _id: id }).exec();
     if (!progress) {
       throw new NotFoundException(`Progress record with ID ${id} not found`);
+    }
+    return progress;
+  }
+  async findProgressByUserId(userId: string): Promise<Progress> {
+    const progress = await this.progressModel.findOne({ user_id: userId }).exec();
+    if (!progress) {
+      throw new NotFoundException(`Progress record with ID ${userId} not found`);
     }
     return progress;
   }
@@ -125,88 +134,85 @@ export class ProgressService {
   }
 
   async getDashboard(userId: string): Promise<any> {
-
-    console.log('Querying progress for userId:', userId);
-    const progress = await this.progressModel.findOne({ user_id: userId}).exec();
-    console.log('Progress found:', progress);
-    if (!progress) {
-      throw new NotFoundException(`Dashboard for user ${userId} not found`);
-    }
-
-    // Calculate student's average score for each course 
-
-    const modules = await this.moduleModel.find({ course_id: progress.course_id }).exec();
-    console.log('course id ', progress.course_id)
-    const quizIds = [];
-    for (const module of modules) { //FOR EACH MODULE OF THIS COURSE - COURSE MAY HAVE MORE THAN 1 MODULE
-      const quizzes = await this.quizModel.find({ module_id: module._id }).exec();
-      quizzes.forEach(quiz => quizIds.push(quiz._id));
-    }
-
-    const responses = await this.responseModel.find({
-      user_id: userId,
-      quiz_id: { $in: quizIds }, //quiz_id present in quizIds array
-    }).exec();
-
-    const totalScore = responses.reduce((sum, response) => sum + (response.score || 0), 0);
-    const averageScore = responses.length ? totalScore / responses.length : 0;
-    const classification = await this.classifyUserPerformance(userId.toString());
-
-    // Calculate course completion rate 
     const progressData = await this.progressModel.find({ user_id: userId }).exec();
+    const courseScores = [];
+  
+    for (const progress of progressData) {
+      const courseId = progress.course_id.toString();
+  
+      // The modules of the current course
+      const modules = await this.moduleModel.find({ course_id: courseId }).exec();
+  
+      const quizIds = [];
+      for (const module of modules) {
+        const quizzes = await this.quizModel.find({ module_id: module._id }).exec();
+        quizzes.forEach(quiz => quizIds.push(quiz._id));
+      }
+  
+      // Responses for quizzes that exist in this course
+      const responses = await this.responseModel.find({
+        user_id: userId,
+        quiz_id: { $in: quizIds },
+      }).exec();
+      
+
+      // AVERAGE SCORE FOR COURSE
+      const totalScore = responses.reduce((sum, response) => sum + (response.score || 0), 0);
+      const averageScore = responses.length ? totalScore / responses.length : 0;
+  
+      
+      courseScores.push({
+        courseId,
+        averageScore,
+      });
+    }
+  
+    const totalGlobalScore = courseScores.reduce((sum, cs) => sum + cs.averageScore, 0);
+    const averageScore = courseScores.length ? totalGlobalScore / courseScores.length : 0;
+  
+    const classification = await this.classifyUserPerformance(userId.toString());
     const courseCompletionRates = [];
     const completedCourses = [];
-
+    const engagementTrends = [];
+   
     for (const progress of progressData) {
-      const course = await this.courseModel.findById(progress.course_id).exec();
+      const courseId = progress.course_id.toString();
       const completionRate = progress.completion_percentage;
 
+  // Course Completion Rate if its 100 then the student completed the course
+
       courseCompletionRates.push({
-        //   courseTitle: course.title,
-        completionRate: completionRate,
+        courseId,
+        completionRate,
       });
-
+  
       if (completionRate === 100) {
-        const course = await this.courseModel.findById(progress.course_id).exec();
-        completedCourses.push({
-          courseId: progress.course_id,
-          // courseTitle: course?.title || 'Unknown Course', 
-        });
+        completedCourses.push({ courseId });
       }
-    }
-
-    // Engagement trends [attendance, how many students completed the course] 
-
-    const engagementTrends = [];
-
-    for (const progress of progressData) {
-      const courseId = progress.course_id;
-      const courseIdString: string = courseId.toString();
-
-      const attendanceRate = await this.calculateAttendanceRate(userId, courseIdString);
-
+  // Engagement Trends attendance and how many students completed the course
+      const attendanceRate = await this.calculateAttendanceRate(userId, courseId);
       const completedStudents = await this.progressModel.find({
         course_id: courseId,
         completion_percentage: 100,
       }).exec();
-      const completedStudentCount = completedStudents.length;
-
+  
       engagementTrends.push({
-        courseId: courseIdString,
+        courseId,
         attendanceRate,
-        completedStudentCount,
+        completedStudentCount: completedStudents.length,
       });
     }
-
+  
     return {
-      averageScore,
+      averageScore, // GPA equivalent 
+      courseScores, // Average score per course
       classification,
       completedCourses,
       courseCompletionRates,
       engagementTrends,
-      progress,
     };
   }
+  
 
   async classifyUserPerformance(userId: string) { 
 
@@ -273,37 +279,16 @@ export class ProgressService {
 
   // Instructor Analytics -- Reports on content effectiveness 
 
-  async getInstructorAnalyticsContentEffectiveness(courseId: string, userId: string) {
-
-    const course = await this.courseModel.findById(courseId).exec();
-    //if (!course) {
-    //throw new NotFoundException('Course not found');
-    //}
-
-    //const instructor = await this.courseModel.findById(userId).exec();
-    //if (!instructor) {
-    //throw new NotFoundException('Instructor not found');
-    //}
-
-    const courseRating = await this.ratingService.getCourseRating(courseId);
-
-    const modules = await this.moduleModel.find({ course_id: courseId }).exec();
-    const moduleRatings: { [moduleId: string]: number } = {};
-
-    for (const module of modules) {
-      const moduleIdStr = module._id.toString();
-      const moduleRating = await this.ratingService.getModuleRating(moduleIdStr);
-      moduleRatings[moduleIdStr] = moduleRating;
-    }
-
-    const instructorRating = await this.ratingService.getInstructorRating(userId);
-
+  async getInstructorAnalyticsContentEffectiveness(courseId: string, instructorId: string) {
+    const moduleRatings = await this.ratingService.getModuleRatingsByCourse(courseId);
+    const courseRating = await this.ratingService.getCourseRatingFromModules(courseId);
+    const instructorRating = await this.ratingService.getInstructorRating(instructorId);
+  
     return {
       courseId,
-      //courseTitle: course.title,
-      courseRating,
-      moduleRatings,
+      courseRating, 
       instructorRating,
+      moduleRatings, 
     };
   }
 
@@ -337,7 +322,7 @@ export class ProgressService {
       });
     }
 
-    return { courseId, courseName: course.title, results };
+    return { courseId, results };
   }
 
 
@@ -399,7 +384,7 @@ export class ProgressService {
     res.attachment('instructor_analytics_assessment_results.pdf');
     doc.pipe(res);
     doc.fontSize(16).text('Instructor Analytics - Assessment Results', { align: 'center' }).moveDown();
-    doc.text(`Course: ${analytics.courseName}`);
+   // doc.text(`Course: ${analytics.courseName}`);
     doc.text(`Course ID: ${analytics.courseId}`).moveDown();
     doc.text('Assessment Results:', { underline: true }).moveDown();
     analytics.results.forEach(result => {

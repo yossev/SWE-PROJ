@@ -5,6 +5,7 @@ export class CreateCourseDto {
     description: string;
     category: string;
     difficulty_level: 'Beginner' | 'Intermediate' | 'Advanced';
+    available: true;
   }
 
   // Might have to handle Assertions later ~Yossef

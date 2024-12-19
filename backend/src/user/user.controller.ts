@@ -52,12 +52,30 @@ export class UserController {
 
     @Roles(Role.Instructor, Role.Admin)
     @UseGuards(authorizationGuard)
-    @Get('fetch/:name')// /student/:id
-    // Get a single student by ID
-    async getUserByName(@Param('name') name: string):Promise<User> {
-        const user = await this.userService.findByName(name);
-        return user;
+    @Get('Studentfetch/:name') // /student/:id
+    async getStudentByName(@Param('name') name: string): Promise<User> {
+      const user = await this.userService.findByNameAndRole(name, 'student');
+    
+      if (!user) {
+        throw new NotFoundException('Instructor not found');
+      }
+    
+      return user;
+    
     }
+    @Roles(Role.Student, Role.Admin)
+    @UseGuards(authorizationGuard)
+    @Get('Instructorfetch/:name') // /student/:id
+    async getInstructorByName(@Param('name') name: string): Promise<User> {
+      const user = await this.userService.findByNameAndRole(name, 'instructor');
+    
+      if (!user) {
+        throw new NotFoundException('Instructor not found');
+      }
+    
+      return user;
+    }
+
     @Roles(Role.Admin)
     @UseGuards(authorizationGuard)
     @Get('instructors')
@@ -75,8 +93,7 @@ export class UserController {
     @Put('updateuser')
     @UseGuards(AuthGuard)
     async updateUserProfile(@Req() req, @Body() updateData: updateUserDto) {
-      console.log('Entered function');
-      console.log('Cookies in request:', req.cookies);
+   
       const userId = req.cookies.userId;
       const updatedUser = await this.userService.update(userId, updateData);
       console.log('Updated user data:', updatedUser);
@@ -99,8 +116,9 @@ export class UserController {
     }
     @Delete('deleteme/:id')
     @UseGuards(AuthGuard)
-    async deleteMe(@Param('id')id:string) {
-        const deletedUser = await this.userService.delete(id);
+    async deleteMe(@Req() req) {
+      const userId = req.cookies.userId;
+        const deletedUser = await this.userService.delete(userId);
        return deletedUser;
     }
 
@@ -109,26 +127,23 @@ export class UserController {
     @UseGuards(authorizationGuard)
     async getCompletedCourses(@Req() req) {
       return await this.progressService.getCompletedCourses(req.cookies.userId);
-    }
-    @Get('courses')
-    @UseGuards(AuthGuard)
-    async getCourses(@Req() req) {
-      const userid = req.cookies.userId;
-      if (!userid) {
-        throw new UnauthorizedException('No token provided');
-      }
     
-      try {
-        const user= this.userService.findById(userid);
-        return (await user).courses;
-      } catch (error) {
-        console.error('Token verification failed:', error);
-        throw new UnauthorizedException('Invalid token');
-      }
     }
     @Post('logout')
     async logout(@Res({passthrough:true}) res: Response) {
       return await this.userService.logout(res);
     }
-  
+    @UseGuards(authorizationGuard)
+    @Roles(Role.Student)
+    @Get('mycourses')
+    getMyCourses(@Req() req) {
+        return this.userService.getMyCourses(req);
+    
+    }
+    @UseGuards(authorizationGuard)
+    @Roles(Role.Instructor)
+    @Get('Studentcourses/:userId')
+    getStudentCourses(@Param('userId') userId: string) {
+        return this.userService.getStudentCourses(userId);
+}
 }

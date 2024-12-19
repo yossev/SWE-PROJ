@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 export class UpdateModuleDto {
     title?: string;
     difficulty?: 'Easy' | 'Medium' | 'Hard';

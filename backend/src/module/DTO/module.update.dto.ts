@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsString, IsOptional, IsArray, IsDate, Length } from 'class-validator';
+/* eslint-disable prettier/prettier */
+import {IsString, IsOptional, IsArray, IsDate, Length } from 'class-validator';
 import { Types } from 'mongoose';
 
 export class UpdateModuleDto {

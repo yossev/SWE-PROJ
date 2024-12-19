@@ -7,7 +7,7 @@ import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from 
 import { ModuleService } from './module.service'; 
 import { CreateModuleDto } from './DTO/createModule.dto';
 import { UpdateModuleDto } from './DTO/updateModule.dto';
-import { UseInterceptors } from '@nestjs/common';
+import { UseInterceptors , Query } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { StreamableFile } from '@nestjs/common';
 import { createReadStream } from 'fs';
@@ -24,7 +24,7 @@ import { Reply } from '../models/reply-schema';
 import { Model } from 'mongoose';
 import { Course } from '../../src/models/course-schema';
 
-var fileNameParameter = ""
+var currentFileName = ""
 
 @Controller('modules')
 export class ModuleController {
@@ -79,28 +79,29 @@ export class ModuleController {
             destination: './uploads',
             filename: (req, file, callback) => {
               const uniqueSuffix =
-                Date.now() + '-' + Math.round(Math.random() * 1e9);
+              Date.now() + '-' + Math.round(Math.random() * 1e9);
+              const name = file.originalname;
+              const fileNameNoExtension = name.split(".")[0];
               const ext = extname(file.originalname);
-              const fileNameNoExtension = file.originalname.split("." , 2)[0];
-              const filename =  `${fileNameNoExtension}.${uniqueSuffix}${ext}`;
-              fileNameParameter = filename
+              const filename = `${fileNameNoExtension}.${uniqueSuffix}${ext}`;
+              currentFileName = filename;
               callback(null, filename);
             },
           }),
         }),
       )
-    async uploadFile(@Req() req,@Param('id') module_id : string, @UploadedFile() file: Express.Multer.File)
+    async uploadFile(@Req() req , @UploadedFile() file: Express.Multer.File , @Param('id') moduleId: string)
     {
-        return this.moduleService.uploadFile(req,file , module_id , fileNameParameter);
+      const fileName = currentFileName;
+      console.log("Test -- filename is: " + fileName);
+      return this.moduleService.uploadFile(req , file , moduleId , fileName);
     }
 
-    @Get('download/:id/:file')
-    getFile(@Param('id') module_id : string , @Param('file') file : string): StreamableFile {
-      
-      return this.moduleService.getFile(file);
+    @Get('download')
+    getFile(@Query('fileUrl') fileUrl : string): StreamableFile {
+      console.log('fileUrl is: ' + fileUrl);
+      return this.moduleService.getFile(fileUrl);
     }
 
 
 }
-
-

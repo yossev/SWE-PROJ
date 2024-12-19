@@ -1,11 +1,14 @@
-import { Injectable ,UnauthorizedException,BadRequestException} from '@nestjs/common';
+/* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
+import { Injectable, Req, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Quiz, QuizDocument } from '../../models/quizzes-schema';
 
 import { QuestionType, DifficultyLevel } from './DTO/quiz.question.dto'; 
 
-import { Responses, ResponsesDocument } from '../../models/responses-schema'; 
+import {  ResponsesDocument } from '../../models/responses-schema'; 
 
 import {ProgressService} from '../progress/progress.service'
 
@@ -13,9 +16,12 @@ import mongoose from 'mongoose';
 import { ProgressDocument } from 'models/progress-schema';
 import { QuestionBank } from 'models/questionbank-schema';
 import { User } from 'models/user-schema';
-import Module from 'module';
 import { CreateQuizDto } from './DTO/quiz.create.dto';
 import { UpdateQuizDto } from './DTO/quiz.update.dto';
+import { Course } from 'models/course-schema';
+import { CourseDocument } from 'models/course-schema';
+import { Module } from 'models/module-schema';
+import { NotificationService } from 'src/notification/notification.service';
 
 @Injectable()
 export class QuizService {
@@ -26,8 +32,10 @@ export class QuizService {
     @InjectModel('User') private readonly userModel: Model<User>,
     @InjectModel('Progress') private readonly progressModel: Model<ProgressDocument>,
     @InjectModel('Responses') private readonly responsesModel: Model<ResponsesDocument>,
+    @InjectModel('Course') private readonly courseModel: Model<CourseDocument>,
 
-    private readonly progressService: ProgressService
+    private readonly progressService: ProgressService,
+    private readonly notificationService: NotificationService
 
   ) {}
 
@@ -52,14 +60,30 @@ async findByUserId(userId: string): Promise<Quiz> {
 }
 
 
-async update(id: string, updateData: UpdateQuizDto): Promise<Quiz> {
+async update(@Req() req, id: string, updateData: UpdateQuizDto): Promise<Quiz> {
+  const userId = req.cookies.userId;
+  const quiz=await this.quizModel.findById(id).exec();
+  const module=await this.moduleModel.findOne({module_id:quiz.module_id});
+  const instructor=(await this.courseModel.findOne({course_id:module.course_id})).instructor;
+  if(instructor.toString()!==userId)
+  {
+    throw new UnauthorizedException("You are not authorized to update this quiz");
+  }
   const inpStr: string= id;
   const objectId = new mongoose.Types.ObjectId(inpStr);  
   return await this.quizModel.findByIdAndUpdate(objectId, updateData, { new: true }).exec();
 }
 
 
-async delete(id: string): Promise<Quiz> {
+async delete(@Req() req,id: string): Promise<Quiz> {
+  const userId = req.cookies.userId;
+  const quiz=await this.quizModel.findById(id).exec();
+  const module=await this.moduleModel.findOne({module_id:quiz.module_id});
+  const instructor=(await this.courseModel.findOne({course_id:module.course_id})).instructor;
+  if(instructor.toString()!==userId)
+  {
+    throw new UnauthorizedException("You are not authorized to update this quiz");
+  }
   const inpStr: string= id;
   const objectId = new mongoose.Types.ObjectId(inpStr);  
   return await this.quizModel.findByIdAndDelete(objectId).exec();
@@ -93,7 +117,7 @@ async generateQuiz(createQuizDto: CreateQuizDto, userId: string): Promise<any> {
     questionType,
   });
 
-  let questionFilter: any = {
+  const questionFilter: any = {
     module_id: moduleId,
     difficulty_level: { $in: difficultyLevels },
   };
@@ -166,10 +190,9 @@ async generateQuiz(createQuizDto: CreateQuizDto, userId: string): Promise<any> {
     userId: new mongoose.Types.ObjectId(userId), 
   };
   
-
-  
-
   const savedQuiz = await new this.quizModel(quiz).save();
+
+  this.notificationService.createNotification(new Types.ObjectId(userId), 'New quiz has been generated for you.', savedQuiz._id.toString());
   console.log('Saved Quiz:', savedQuiz);
   await this.userModel.findByIdAndUpdate(
     userId,
@@ -219,7 +242,7 @@ private shuffleArray(array: any[]): any[] {
     quizId: string, // Add quizId parameter
   ): Promise<any> {
     let correctAnswersCount = 0;
-    let incorrectAnswers = [];
+    const incorrectAnswers = [];
   
     // Fetch correct answers using question IDs
     const question_ids = selectedQuestions.map((q) => q.questionId);

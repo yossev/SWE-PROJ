@@ -21,6 +21,10 @@ import { ThreadModule } from './thread/thread.module';
 import { ReplyModule } from './reply/reply.module';
 import { InteractiveModule } from './module/module.module';
 
+import { QuestionBankModule } from './questionbank/questionbank.module';
+import { RatingModule } from './rating/rating.module';
+import { ResponseModule } from './response/response.module';
+
 
 @Module({
   imports: [
@@ -30,13 +34,18 @@ import { InteractiveModule } from './module/module.module';
     UserModule,  // Ensure UserModule is imported here
     ProgressModule,  // Import ProgressModule to make ProgressService available,
     CourseModule,
+    ResponseModule,
+    RatingModule,
     
     BackupModule,
     ChatModule,
     ForumModule,
     ThreadModule,
     ReplyModule,
-    InteractiveModule
+    InteractiveModule,
+    ResponseModule,
+    RatingModule,
+    QuestionBankModule
   ],
   controllers: [AppController],
   providers: [

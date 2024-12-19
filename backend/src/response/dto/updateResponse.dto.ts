@@ -1,5 +1,4 @@
-import { IsArray, IsDate, IsMongoId, IsNotEmpty, IsNumber, IsOptional, Min } from 'class-validator';
-import mongoose from 'mongoose';
+/* eslint-disable prettier/prettier */
 export class UpdateResponseDto {
   user_id?: string; 
 

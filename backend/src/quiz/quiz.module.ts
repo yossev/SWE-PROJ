@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { quizController } from './quiz.controller';
@@ -10,6 +11,7 @@ import { ModuleSchema } from '../../src/models/module-schema';
 import { QuestionBankSchema } from '../../src/models/questionbank-schema';
 import { UserSchema } from '../../src/models/user-schema';
 import { ResponseSchema } from 'models/responses-schema';
+import { JwtService } from '@nestjs/jwt';
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -23,6 +25,6 @@ import { ResponseSchema } from 'models/responses-schema';
     forwardRef(() => ProgressModule) 
   ],
   controllers: [quizController],
-  providers: [QuizService],
+  providers: [QuizService,JwtService],
 })
 export class QuizModule {}

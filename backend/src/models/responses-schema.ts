@@ -26,7 +26,7 @@ export class Responses {
   answers: [
     {
       questionId: { type: mongoose.Schema.Types.ObjectId, ref: 'QuestionBank', required: true },
-      answer: { type: String, required: true },
+      answer: { type: string, required: true },
     }
   ]
   

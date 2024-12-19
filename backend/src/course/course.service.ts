@@ -114,7 +114,11 @@ export class CourseService {
 
   // Delete a course by ID
   async delete(id: string): Promise<CourseDocument | null> {
-    return this.courseModel.findByIdAndDelete(id).exec();
+     const course=await this.courseModel.findById(id).exec();
+     course.available=false;
+     return  course.save();
+
+     // Delete the course document
   }
 
   async enroll(id: string, @Req() req) {

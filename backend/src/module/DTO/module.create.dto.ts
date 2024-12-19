@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { IsNotEmpty, IsString, IsOptional, IsArray, IsDate, Length } from 'class-validator';
 import { Types } from 'mongoose';
 

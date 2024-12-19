@@ -33,7 +33,11 @@ export class Course {
 
   @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'User' })
   students: mongoose.Types.ObjectId[];
+
+  @Prop({ type: Boolean, default: false })
+  available: boolean;
 }
+
 
 export const CourseSchema = SchemaFactory.createForClass(Course);
 

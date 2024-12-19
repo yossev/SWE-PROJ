@@ -1,5 +1,6 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument } from 'mongoose';
+/* eslint-disable prettier/prettier */
+
+import mongoose from 'mongoose';
 
 export class CreateModuleDto {
     course_id : mongoose.Schema.Types.ObjectId;

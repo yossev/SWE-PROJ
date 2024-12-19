@@ -1,4 +1,8 @@
-import { Controller, Post, Body, UnauthorizedException, HttpException, HttpStatus, Res } from '@nestjs/common';
+/* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
+
+
+import { Controller, Post, Body, HttpException, HttpStatus, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterRequestDto } from './dto/RegisterRequest.dto.';
 import { SignInDto } from './dto/SignIn.dto';
