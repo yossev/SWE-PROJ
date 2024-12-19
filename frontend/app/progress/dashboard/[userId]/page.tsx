@@ -1,5 +1,5 @@
 'use client';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Doughnut } from 'react-chartjs-2';
@@ -25,6 +25,7 @@ interface Dashboard {
 
 export default function DashboardPage() {
   const { userId } = useParams();
+  const router = useRouter();
   const [dashboardData, setDashboardData] = useState<Dashboard | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -48,6 +49,14 @@ export default function DashboardPage() {
     plugins: { legend: { display: false } },
   };
 
+  const handleRateInstructor = () => {
+    router.push(`/rate-instructor/${userId}`);
+  };
+
+  const handleRateModule = () => {
+    router.push(`/rate-module/${userId}`);
+  };
+
   return (
     <div className="h-screen w-full bg-gray-900 text-white p-4 flex flex-col items-center overflow-auto">
       <h1 className="text-2xl font-bold mb-4">User Dashboard</h1>
@@ -61,6 +70,22 @@ export default function DashboardPage() {
             <h2 className="text-lg font-semibold mb-2">Overall Performance</h2>
             <p className="text-base">Average Score: {dashboardData.averageScore}%</p>
             <p className="text-base">Classification: {dashboardData.classification}</p>
+          </div>
+
+          {/* Buttons to Rate */}
+          <div className="flex justify-center gap-4 my-4">
+            <button
+              onClick={handleRateInstructor}
+              className="px-4 py-2 bg-green-500 hover:bg-green-600 rounded text-white"
+            >
+              Rate an Instructor
+            </button>
+            <button
+              onClick={handleRateModule}
+              className="px-4 py-2 bg-green-500 hover:bg-green-600 rounded text-white"
+            >
+              Rate a Module
+            </button>
           </div>
 
           {/* Average Scores for Each Course */}
