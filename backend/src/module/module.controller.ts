@@ -90,11 +90,11 @@ export class ModuleController {
           }),
         }),
       )
-    async uploadFile(@UploadedFile() file: Express.Multer.File , @Param('id') moduleId: string)
+    async uploadFile(@Req() req , @UploadedFile() file: Express.Multer.File , @Param('id') moduleId: string)
     {
       const fileName = currentFileName;
       console.log("Test -- filename is: " + fileName);
-      return this.moduleService.uploadFile(file , moduleId , fileName);
+      return this.moduleService.uploadFile(req , file , moduleId , fileName);
     }
 
     @Get('download')
