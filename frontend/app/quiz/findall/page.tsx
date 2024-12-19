@@ -32,22 +32,24 @@ export default function FindAllQuizzesPage() {
         <ul className="list-disc space-y-4">
           {quizzes.map((quiz) => (
             <li key={quiz._id} className="p-4 border rounded-lg bg-gray-800">
-              <p>
-                <strong>ID:</strong> {quiz._id}
-              </p>
-              <p>
-                <strong>Module:</strong> {quiz.module_id}
-              </p>
-              <p>
-                <strong>Number of Questions:</strong> {quiz.numberOfQuestions}
-              </p>
-              <p>
-                <strong>User ID:</strong> {quiz.userId}
-              </p>
-              <p>
-                <strong>Created At:</strong> {new Date(quiz.created_at).toLocaleString()}
-              </p>
-              <p>
+              <div>
+                <p>
+                  <strong>ID:</strong> {quiz._id}
+                </p>
+                <p>
+                  <strong>Module:</strong> {quiz.module_id}
+                </p>
+                <p>
+                  <strong>Number of Questions:</strong> {quiz.numberOfQuestions}
+                </p>
+                <p>
+                  <strong>User ID:</strong> {quiz.userId}
+                </p>
+                <p>
+                  <strong>Created At:</strong> {new Date(quiz.created_at).toLocaleString()}
+                </p>
+              </div>
+              <div>
                 <strong>Questions:</strong>
                 <ul className="list-decimal pl-6">
                   {quiz.questions.map((question, index) => (
@@ -61,7 +63,7 @@ export default function FindAllQuizzesPage() {
                     </li>
                   ))}
                 </ul>
-              </p>
+              </div>
             </li>
           ))}
         </ul>

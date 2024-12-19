@@ -1,14 +1,15 @@
 "use client";
 import { useState } from "react";
 import axios from "axios";
+import { Quiz } from "../../../types/quiz"; // Assuming your Quiz type is stored here
 
 export default function UpdateQuizPage() {
   const [quizId, setQuizId] = useState<string>(""); // For the quiz ID
   const [isPopupVisible, setIsPopupVisible] = useState<boolean>(false); // Controls pop-up visibility
-  const [quizDetails, setQuizDetails] = useState<any>({}); // Holds the current quiz details
-  const [updatedData, setUpdatedData] = useState<any>({
+  const [quizDetails, setQuizDetails] = useState<Quiz | null>(null); // Holds the current quiz details
+  const [updatedData, setUpdatedData] = useState<Partial<Quiz>>({
     questionType: "",
-    numberOfQuestions: "",
+    numberOfQuestions: 0,
   });
   const [message, setMessage] = useState<string>("");
 
@@ -27,10 +28,10 @@ export default function UpdateQuizPage() {
         params: { id: quizId },
       });
 
-      setQuizDetails(response.data); // Store fetched quiz details
+      setQuizDetails(response.data as Quiz); // Store fetched quiz details
       setUpdatedData({
         questionType: response.data.questionType || "",
-        numberOfQuestions: response.data.numberOfQuestions || "",
+        numberOfQuestions: response.data.numberOfQuestions || 0,
       });
       setIsPopupVisible(false); // Hide popup
       setMessage("");
@@ -41,16 +42,17 @@ export default function UpdateQuizPage() {
   };
 
   // Handle form input changes for updated data
-  const handleInputChange = (field: string, value: any) => {
-    setUpdatedData((prev: any) => ({ ...prev, [field]: value }));
+  const handleInputChange = (field: keyof Quiz, value: any) => {
+    setUpdatedData((prev) => ({ ...prev, [field]: value }));
   };
 
   // Handle updating the quiz
   const handleUpdateQuiz = async () => {
     try {
       const payload = {
-        questionType: updatedData.questionType || quizDetails.questionType,
-        numberOfQuestions: updatedData.numberOfQuestions || quizDetails.numberOfQuestions,
+        questionType: updatedData.questionType || quizDetails?.questionType,
+        numberOfQuestions:
+          updatedData.numberOfQuestions || quizDetails?.numberOfQuestions,
       };
 
       const response = await axios.put(
@@ -58,7 +60,7 @@ export default function UpdateQuizPage() {
         payload
       );
 
-      setQuizDetails(response.data); // Update displayed quiz details
+      setQuizDetails(response.data as Quiz); // Update displayed quiz details
       setMessage("Quiz updated successfully!");
     } catch (error) {
       console.error("Failed to update quiz:", error);
@@ -109,11 +111,14 @@ export default function UpdateQuizPage() {
       </button>
 
       {/* Display quiz details */}
-      {quizDetails && quizDetails._id && (
+      {quizDetails && (
         <div className="border p-4 mb-4">
           <h2 className="text-xl font-bold">Quiz Details</h2>
           <p>
             <strong>Quiz ID:</strong> {quizDetails._id}
+          </p>
+          <p>
+            <strong>Module ID:</strong> {quizDetails.module_id}
           </p>
           <p>
             <strong>Question Type:</strong> {quizDetails.questionType}
@@ -121,11 +126,32 @@ export default function UpdateQuizPage() {
           <p>
             <strong>Number of Questions:</strong> {quizDetails.numberOfQuestions}
           </p>
+          <p>
+            <strong>Created At:</strong> {new Date(quizDetails.created_at).toLocaleString()}
+          </p>
+          <p>
+            <strong>User ID:</strong> {quizDetails.userId}
+          </p>
+          <p>
+            <strong>Questions:</strong>
+          </p>
+          <ul className="list-disc pl-4">
+            {quizDetails.questions.map((question, index) => (
+              <li key={index}>
+                <p>
+                  <strong>Q{index + 1}:</strong> {question.question}
+                </p>
+                <p>
+                  <strong>Options:</strong> {question.options.join(", ")}
+                </p>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 
       {/* Update form */}
-      {quizDetails && quizDetails._id && (
+      {quizDetails && (
         <div>
           <h2 className="text-lg font-bold mb-2">Update Quiz Details</h2>
 
@@ -133,7 +159,7 @@ export default function UpdateQuizPage() {
           <label className="block mb-2 font-medium">Question Type:</label>
           <select
             onChange={(e) => handleInputChange("questionType", e.target.value)}
-            value={updatedData.questionType || quizDetails.questionType || ""}
+            value={updatedData.questionType || ""}
             className="border p-2 w-full mb-4 text-black"
           >
             <option value="">Select Question Type</option>
@@ -147,8 +173,10 @@ export default function UpdateQuizPage() {
           <input
             type="number"
             placeholder="Number of Questions"
-            value={updatedData.numberOfQuestions || quizDetails.numberOfQuestions || ""}
-            onChange={(e) => handleInputChange("numberOfQuestions", e.target.value)}
+            value={updatedData.numberOfQuestions || ""}
+            onChange={(e) =>
+              handleInputChange("numberOfQuestions", Number(e.target.value))
+            }
             className="border p-2 w-full mb-4 text-black"
           />
 
@@ -167,3 +195,4 @@ export default function UpdateQuizPage() {
     </div>
   );
 }
+
