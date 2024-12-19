@@ -72,7 +72,7 @@ export class UserController {
     }
     // Update a student's details
    
-    @Put('me')
+    @Put('updateuser')
     @UseGuards(AuthGuard)
     async updateUserProfile(@Req() req, @Body() updateData: updateUserDto) {
       console.log('Entered function');
