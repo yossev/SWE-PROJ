@@ -22,6 +22,9 @@ import { ReplyModule } from './reply/reply.module';
 import { InteractiveModule } from './module/module.module';
 import { ResponseModule } from './response/response.module';
 import { RatingModule } from './rating/rating.module';
+import { ResponseModule } from './response/response.module';
+import { RatingModule } from './rating/rating.module';
+import { QuestionBankModule } from './questionbank/questionbank.module';
 
 
 @Module({
@@ -40,7 +43,10 @@ import { RatingModule } from './rating/rating.module';
     ForumModule,
     ThreadModule,
     ReplyModule,
-    InteractiveModule
+    InteractiveModule,
+    ResponseModule,
+    RatingModule,
+    QuestionBankModule
   ],
   controllers: [AppController],
   providers: [

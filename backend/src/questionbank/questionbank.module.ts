@@ -3,7 +3,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { QuestionBankController } from './questionbank.controller';
 import { QuestionBankService } from './questionbank.service';
-import { QuizSchema } from '../../models/quizzes-schema';
+import { QuizSchema } from '../../src/models/quizzes-schema';
 import { ModuleSchema } from 'models/module-schema';
 import {  UserSchema } from 'models/user-schema';
 import { QuestionBankSchema } from 'models/questionbank-schema';
