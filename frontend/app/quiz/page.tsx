@@ -14,9 +14,9 @@ export default function QuizPage() {
           </a>
           <a
             className="rounded-lg bg-gradient-to-r from-green-600 to-green-400 text-white shadow-lg hover:scale-105 transition-transform duration-200 text-lg h-14 px-8 flex items-center justify-center"
-            href="/quiz/history"
+            href="/quiz/findall"
           >
-            View Quiz History
+            Find All Quizzes
           </a>
           <a
             className="rounded-lg bg-gradient-to-r from-yellow-600 to-yellow-400 text-white shadow-lg hover:scale-105 transition-transform duration-200 text-lg h-14 px-8 flex items-center justify-center"

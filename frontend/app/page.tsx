@@ -4,9 +4,9 @@ export default function Home() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-8 bg-gray-900 text-white">
       <main className="text-center">
-        <h1 className="text-5xl font-bold mb-6">Welcome to the App!</h1>
+        <h1 className="text-5xl font-bold mb-6">Welcome to the E-learning App!</h1>
         <p className="text-gray-400 text-xl mb-6">
-          Choose a module to manage or participate in.
+          Choose to be redirected to quizzes or question bank.
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <a
