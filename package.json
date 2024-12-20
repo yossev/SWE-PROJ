@@ -11,6 +11,27 @@
     "pdfkit": "^0.15.1"
   },
   "devDependencies": {
-    "axios": "^1.7.7"
+    "axios": "^1.7.7",
+    "@nestjs/passport": "^10.0.3",
+    "@nestjs/platform-socket.io": "^10.4.12",
+    "@nestjs/websockets": "^10.4.12",
+    "bcrypt": "^5.1.1",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1",
+    "cookie-parser": "^1.4.7",
+    "cookies-next": "^5.0.2",
+    "dotenv": "^16.4.5",
+    "json2csv": "^6.0.0-alpha.2",
+    "mongoose": "^8.8.2",
+    "nestjs": "^0.0.1",
+    "passport-jwt": "^4.0.1",
+    "pdfkit": "^0.15.1",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1"
+  },
+  "devDependencies": {
+    "@types/axios": "^0.14.4",
+    "@types/passport-jwt": "^4.0.1",
+    "axios": "^1.7.9"
   }
 }

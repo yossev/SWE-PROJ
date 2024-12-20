@@ -34,11 +34,12 @@ export class AuthService {
       }
 
       async signIn(email: string, password: string): Promise< {access_token:string , userId : string}> {
+        console.log("Email is: " + email + " and password is: " + password);
         const user: UserDocument = await this.usersService.findByEmail(email); // Use UserDocument type
         if (!user) {
           throw new NotFoundException('User not found');
         }
-      
+        
         console.log('password: ', user.password_hash);
         const isPasswordValid = await bcrypt.compare(password, user.password_hash);
         if (!isPasswordValid) {
