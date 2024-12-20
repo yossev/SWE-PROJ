@@ -79,9 +79,16 @@ export class ProgressService {
       })
       .populate('course_id');
   }
-
+  // Get the Enrolled Courses of the specific user
+  async getEnrolledCourses(userId: string): Promise<Progress[]> {
+    return await this.progressModel.find({
+      user_id: new mongoose.Types.ObjectId(userId),
+      completion_percentage: { $gte: 1 }, // Filter for completion_percentage >= 1
+    })
+    .populate('course_id');
+  }
+  
   // LOGIC FOR ATTENDANCE
-
   // RECORD ATTENDANCE
   async recordAttendance(userId: string, courseId: string, status: 'present' | 'absent'): Promise<void> {
 

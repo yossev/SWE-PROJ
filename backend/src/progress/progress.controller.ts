@@ -73,6 +73,12 @@ export class ProgressController {
     return await this.progressService.getCompletedCourses(userid);
   }
 
+  // Get Enrolled courses for a student
+    @Get('enrolled-courses/:userId')
+  async getEnrolledCourses(@Param('userId') userId: string): Promise<Progress[]> {
+    return await this.progressService.getEnrolledCourses(userId);
+  }
+
   // Get dashboard
   @UseGuards(AuthGuard)
   @Get('dashboard')
@@ -141,6 +147,15 @@ export class ProgressController {
       userId,
       classification,
     };
+  }
+
+  @Get('attendance-rate/:userId/:courseId')
+  async getAttendanceRate(
+    @Param('userId') userId: string,
+    @Param('courseId') courseId: string,
+  ) {
+    const rate = await this.progressService.calculateAttendanceRate(userId, courseId);
+    return { attendanceRate: rate };
   }
 
 

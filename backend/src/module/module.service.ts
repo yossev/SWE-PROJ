@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { Injectable, Req, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model } from 'mongoose';
 import { Module } from 'models/module-schema';
 import { StreamableFile } from '@nestjs/common';
 import { createReadStream } from 'fs';
@@ -35,11 +35,6 @@ export class ModuleService {
     private readonly notificationService: NotificationService
   ) {}
 
-  async getModule(id : string)
-  {
-    const module  = await this.moduleModel.findById(new mongoose.Types.ObjectId(id)).exec();
-    return module;
-  }
   async createModule(@Req() req, createModuleDto: CreateModuleDto) {
     const userid = req.cookies.userId;
 
@@ -62,7 +57,7 @@ export class ModuleService {
   
     return "Module created and added";
   }
-  
+
 
   async updateModule(id : string ,@Req() req, updateModuleDto : UpdateModuleDto)
   {
@@ -87,6 +82,7 @@ export class ModuleService {
     
     return null;
   }
+
 
   async findAllCourseModules(id: string)
   {
@@ -139,7 +135,7 @@ export class ModuleService {
 
   async uploadFile(@Req() req,@UploadedFile() file: Express.Multer.File , moduleId : string , fileName: string) {
     const userid=req.cookies.userid;
-    const usedModule=this.moduleModel.findById(new Types.ObjectId(moduleId));
+    const usedModule=this.moduleModel.findById(new mongoose.Types.ObjectId(moduleId));
     const courseid=(await usedModule).course_id;
     const course=this.courseModel.findById(courseid);
     if (userid!=(await course).created_by){
@@ -159,8 +155,9 @@ export class ModuleService {
     return new StreamableFile(file , {
       type: 'application/octet-stream',
       disposition: 'attachment; filename="' + fileUrl + '"',
-    });
-  }
+    });
+  }
+
 
 
 
