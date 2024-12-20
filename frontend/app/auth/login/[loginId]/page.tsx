@@ -41,6 +41,8 @@ export default function LoginPage() {
       console.log("Token: " + token);
       if (status === 201) {
 
+          
+        
         /*setTimeout(() => {
           router.push("/welcome");
         }, 1000);*/
