@@ -30,8 +30,8 @@ async function bootstrap() {
   const reflector = app.get(Reflector);
   console.log('Reflector in main.ts:', reflector);
   app.use(cookieParser());
-  await app.listen(3001);
-  console.log('Server is running on http://localhost:3001');
+  await app.listen(3000);
+  console.log('Server is running on http://localhost:3000');
   app.enableCors();
 }
 bootstrap();
