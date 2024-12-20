@@ -34,7 +34,6 @@ export class ProgressService {
     return newProgress.save();
   }
 
-
   async findAll(): Promise<Progress[]> {
     return this.progressModel.find().exec();
   }
@@ -119,7 +118,7 @@ export class ProgressService {
 
   }
 
-   async calculateAttendanceRate(userId: string, courseId: string): Promise<number> {
+  async calculateAttendanceRate(userId: string, courseId: string): Promise<number> {
     const progress = await this.progressModel.findOne({
       user_id: userId,
       course_id: courseId,
@@ -132,89 +131,9 @@ export class ProgressService {
     const attendanceRate = (presentDays / totalDays) * 100;
     return attendanceRate;
   }
-
-  async getDashboard(userId: string): Promise<any> {
-    const progressData = await this.progressModel.find({ user_id: userId }).exec();
-    const courseScores = [];
-  
-    for (const progress of progressData) {
-      const courseId = progress.course_id.toString();
-  
-      // The modules of the current course
-      const modules = await this.moduleModel.find({ course_id: courseId }).exec();
-  
-      const quizIds = [];
-      for (const module of modules) {
-        const quizzes = await this.quizModel.find({ module_id: module._id }).exec();
-        quizzes.forEach(quiz => quizIds.push(quiz._id));
-      }
-  
-      // Responses for quizzes that exist in this course
-      const responses = await this.responseModel.find({
-        user_id: userId,
-        quiz_id: { $in: quizIds },
-      }).exec();
-      
-
-      // AVERAGE SCORE FOR COURSE
-      const totalScore = responses.reduce((sum, response) => sum + (response.score || 0), 0);
-      const averageScore = responses.length ? totalScore / responses.length : 0;
-  
-      
-      courseScores.push({
-        courseId,
-        averageScore,
-      });
-    }
-  
-    const totalGlobalScore = courseScores.reduce((sum, cs) => sum + cs.averageScore, 0);
-    const averageScore = courseScores.length ? totalGlobalScore / courseScores.length : 0;
-  
-    const classification = await this.classifyUserPerformance(userId.toString());
-    const courseCompletionRates = [];
-    const completedCourses = [];
-    const engagementTrends = [];
-   
-    for (const progress of progressData) {
-      const courseId = progress.course_id.toString();
-      const completionRate = progress.completion_percentage;
-
-  // Course Completion Rate if its 100 then the student completed the course
-
-      courseCompletionRates.push({
-        courseId,
-        completionRate,
-      });
-  
-      if (completionRate === 100) {
-        completedCourses.push({ courseId });
-      }
-  // Engagement Trends attendance and how many students completed the course
-      const attendanceRate = await this.calculateAttendanceRate(userId, courseId);
-      const completedStudents = await this.progressModel.find({
-        course_id: courseId,
-        completion_percentage: 100,
-      }).exec();
-  
-      engagementTrends.push({
-        courseId,
-        attendanceRate,
-        completedStudentCount: completedStudents.length,
-      });
-    }
-  
-    return {
-      averageScore, // GPA equivalent 
-      courseScores, // Average score per course
-      classification,
-      completedCourses,
-      courseCompletionRates,
-      engagementTrends,
-    };
-  }
   
 
-  async classifyUserPerformance(userId: string) { 
+  async classifyUserPerformance(userId: string) {
 
     const responses = await this.responseModel.find({ user_id: userId }).exec();
     const totalScore = responses.reduce((sum, response) => sum + (response.score || 0), 0);
@@ -230,6 +149,83 @@ export class ProgressService {
       return 'Excellent';
     }
   }
+
+  async getDashboard(userId: string): Promise<any> {
+    const progressData = await this.progressModel.find({ user_id: userId }).exec();
+    const courseScores = [];
+
+    for (const progress of progressData) {
+      const courseId = progress.course_id.toString();
+
+      // The modules of the current course
+      const modules = await this.moduleModel.find({ course_id: courseId }).exec();
+
+      const quizIds = [];
+      for (const module of modules) {
+        const quizzes = await this.quizModel.find({ module_id: module._id }).exec();
+        quizzes.forEach(quiz => quizIds.push(quiz._id));
+      }
+
+      // Responses for quizzes that exist in this course
+      const responses = await this.responseModel.find({
+        user_id: userId,
+        quiz_id: { $in: quizIds },
+      }).exec();
+
+      // AVERAGE SCORE FOR COURSE
+      const totalScore = responses.reduce((sum, response) => sum + (response.score || 0), 0);
+      const averageScore = responses.length ? totalScore / responses.length : 0;
+
+
+      courseScores.push({
+        courseId,
+        averageScore,
+      });
+    }
+
+    const totalGlobalScore = courseScores.reduce((sum, cs) => sum + cs.averageScore, 0);
+    const averageScore = courseScores.length ? totalGlobalScore / courseScores.length : 0;
+
+    const classification = await this.classifyUserPerformance(userId.toString());
+    const courseCompletionRates = [];
+    const completedCourses = [];
+    const engagementTrends = [];
+
+    for (const progress of progressData) {
+      const courseId = progress.course_id.toString();
+      const completionRate = progress.completion_percentage;
+
+      // Course Completion Rate if its 100 then the student completed the course
+
+      courseCompletionRates.push({
+        courseId,
+        completionRate,
+      });
+
+      if (completionRate === 100) {
+        completedCourses.push({ courseId });
+      }
+      // Engagement Trends attendance note that I have the logic for courses the student completed implemented in completedCourses
+      const attendanceRate = await this.calculateAttendanceRate(userId, courseId);
+
+      engagementTrends.push({
+        courseId,
+        attendanceRate,
+      });
+    }
+
+    return {
+      averageScore, // GPA equivalent 
+      courseScores, // Average score per course
+      classification,
+      completedCourses,
+      courseCompletionRates,
+      engagementTrends,
+    };
+  }
+
+
+
 
   // Instructor Analytics -- student engagement 
   async getInstructorAnalyticsStudentEngagement(courseId: string) {
@@ -283,12 +279,12 @@ export class ProgressService {
     const moduleRatings = await this.ratingService.getModuleRatingsByCourse(courseId);
     const courseRating = await this.ratingService.getCourseRatingFromModules(courseId);
     const instructorRating = await this.ratingService.getInstructorRating(instructorId);
-  
+
     return {
       courseId,
-      courseRating, 
+      courseRating,
       instructorRating,
-      moduleRatings, 
+      moduleRatings,
     };
   }
 
@@ -321,7 +317,7 @@ export class ProgressService {
         numParticipants,
       });
     }
-
+    // courseName: course.title,
     return { courseId, results };
   }
 
@@ -384,7 +380,7 @@ export class ProgressService {
     res.attachment('instructor_analytics_assessment_results.pdf');
     doc.pipe(res);
     doc.fontSize(16).text('Instructor Analytics - Assessment Results', { align: 'center' }).moveDown();
-   // doc.text(`Course: ${analytics.courseName}`);
+    // doc.text(`Course: ${analytics.courseName}`);
     doc.text(`Course ID: ${analytics.courseId}`).moveDown();
     doc.text('Assessment Results:', { underline: true }).moveDown();
     analytics.results.forEach(result => {
