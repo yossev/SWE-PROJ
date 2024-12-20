@@ -44,13 +44,14 @@ export class UserController {
     @Roles(Role.Instructor, Role.Admin)
     @UseGuards(authorizationGuard)
     @Get('fetch/:id')// /student/:id
+    
     // Get a single student by ID
     async getUserById(@Param('id') id: string):Promise<User> {// Get the student ID from the route parameters
         const user = await this.userService.findById(id);
         return user;
     }
 
-    @Roles(Role.Instructor, Role.Admin)
+    @Roles(Role.Instructor)
     @UseGuards(authorizationGuard)
     @Get('Studentfetch/:name') // /student/:id
     async getStudentByName(@Param('name') name: string): Promise<User> {
@@ -63,7 +64,7 @@ export class UserController {
       return user;
     
     }
-    @Roles(Role.Student, Role.Admin)
+    @Roles(Role.Student)
     @UseGuards(authorizationGuard)
     @Get('Instructorfetch/:name') // /student/:id
     async getInstructorByName(@Param('name') name: string): Promise<User> {
@@ -89,7 +90,8 @@ export class UserController {
       return this.userService.findStudentsByInstructor(instructorId);
     }
     // Update a student's details
-   
+    @Roles(Role.Student,Role.Instructor)
+    @UseGuards(authorizationGuard)
     @Put('me')
     @UseGuards(AuthGuard)
     async updateUserProfile(@Req() req, @Body() updateData: updateUserDto) {
@@ -116,6 +118,8 @@ export class UserController {
     }
     @Delete('deleteme/:id')
     @UseGuards(AuthGuard)
+    @Roles(Role.Student,Role.Instructor)
+    @UseGuards(authorizationGuard)
     async deleteMe(@Req() req) {
       const userId = req.cookies.userId;
         const deletedUser = await this.userService.delete(userId);
@@ -130,6 +134,8 @@ export class UserController {
     
     }
     @Post('logout')
+    @Roles(Role.Student,Role.Instructor)
+    @UseGuards(authorizationGuard)
     async logout(@Res({passthrough:true}) res: Response) {
       return await this.userService.logout(res);
     }

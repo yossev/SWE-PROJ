@@ -11,7 +11,7 @@ import { AuthGuard } from 'src/auth/guards/authentication.guards';
 @Controller('courses')
 export class CourseController {
     constructor(private readonly courseService: CourseService) {}
-    @Roles(Role.Admin,Role.Instructor)
+    @Roles(Role.Instructor)
     @UseGuards(authorizationGuard)
     @Post('create')
     create(@Req() req,@Body() createCourseDto: CreateCourseDto) {
@@ -31,12 +31,16 @@ export class CourseController {
     }
 
     @Get('search')
+    @Roles(Role.Student)
+    @UseGuards(authorizationGuard)
     search(@Query('query') query: string){
         console.log('Search Query: ', query)
         return this.courseService.search(query);
     }
 
     @Get(':id')
+    @Roles(Role.Instructor)
+    @UseGuards(authorizationGuard)
     findOne(@Param('id') id: string) {
         return this.courseService.findOne(id);
     }
@@ -47,6 +51,8 @@ export class CourseController {
         return this.courseService.update(id, updateCourseDto);
     }
     @UseGuards(AuthGuard)
+    @Roles(Role.Student)
+    @UseGuards(authorizationGuard)
     @Put('enroll/:id')
     enroll(@Param('id') id: string, @Req() req) {
         this.courseService.enroll(id,req);

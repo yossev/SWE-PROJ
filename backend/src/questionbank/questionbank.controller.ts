@@ -10,17 +10,21 @@ import { authorizationGuard } from 'src/auth/guards/authorization.guards';
 export class QuestionBankController {
   constructor(private readonly questionBankService: QuestionBankService) {}
 
+  @Roles(Role.Instructor)
+@UseGuards(authorizationGuard)
   @Get('allquestionbanks')
   async getAllQuestionBanks(): Promise<QuestionBank[]> {
       return await this.questionBankService.findAll();  
   }
   
-
+  @Roles(Role.Instructor)
+  @UseGuards(authorizationGuard)
 @Get('questionbank')
 async getQuestionBankById(@Query('id') id: string): Promise<QuestionBank> {
   console.log('Received ID: ' + id );
   return await this.questionBankService.findById(id);
 }
+
 @Roles(Role.Instructor)
 @UseGuards(authorizationGuard)
 @Post('createquestion')

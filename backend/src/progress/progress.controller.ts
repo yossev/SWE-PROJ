@@ -23,16 +23,22 @@ export class ProgressController {
 
 
   // Get all progress records
+  @Roles(Role.Instructor)
+  @UseGuards(authorizationGuard)
   @Get()
   async findAll(): Promise<Progress[]> {
     return this.progressService.findAll();
   }
 
   // Get a specific progress record by ID
+  @Roles(Role.Instructor)
+  @UseGuards(authorizationGuard)
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<Progress> {
     return this.progressService.findOne(id);
   }
+  @Roles(Role.Instructor,Role.Student)
+  @UseGuards(authorizationGuard)
   @UseGuards(AuthGuard)
   @Get('myprogress')
   async getMyProgress(@Req() req): Promise<Progress> {

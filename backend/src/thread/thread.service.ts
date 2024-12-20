@@ -75,10 +75,6 @@ export class ThreadService {
       .exec();
   }
 
-  async deleteThread(threadId:string)
-  {
-    return await this.threadModel.findByIdAndDelete(new Types.ObjectId(threadId));
-  }
   async getThreadReplies(threadId: string) {
     // Validate and cast the forumId to ObjectId
     if (!Types.ObjectId.isValid(threadId)) {
@@ -89,4 +85,33 @@ export class ThreadService {
 
     return await this.replyModel.find({ thread_id: threadObjectId }).exec();
   }
+
+  async getAllThreads(userId: string ) {
+    const threads = await this.threadModel.find({ createdBy: userId }).exec();
+    return threads;
+  }
+
+  async deleteThread(userId : string , threadId : string)
+  {
+    const thread = await this.threadModel.findById(new Types.ObjectId(threadId)).exec();
+    if(thread.createdBy.toString()===userId)
+    {
+      return await this.threadModel.findByIdAndDelete(new Types.ObjectId(threadId));
+    }
+    else
+    {
+      const forum=await this.forumService.getForumById(thread.forum_id);
+      const course=await this.courseService.findOne((await forum).course_id.toString());
+      const instructorId = course.created_by;
+      if(instructorId.toString()===userId)
+        {
+          return await this.threadModel.findByIdAndDelete(new Types.ObjectId(threadId));
+        }
+      else
+        {
+          throw new Error("You are not authorized to delete this thread");
+        }
+    }
+  }
+
 }

@@ -44,17 +44,20 @@ export class RatingController {
       throw new NotFoundException(error.message);
     }
 }
-
+@Roles(Role.Instructor, Role.Admin, Role.Student)
+@UseGuards(authorizationGuard)
   @Get('course-rating/:courseId')
   async getCourseRatingFromModules(@Param('courseId') courseId: string) {
     return await this.ratingService.getCourseRatingFromModules(courseId);
   }
-
+  @Roles(Role.Instructor, Role.Admin, Role.Student)
+  @UseGuards(authorizationGuard)
   @Get('instructor-rating/:instructorId')
   async getInstructorRating(@Param('instructorId') instructorId: string) {
     return await this.ratingService.getInstructorRating(instructorId);
   }
-
+  @Roles(Role.Instructor, Role.Admin, Role.Student)
+  @UseGuards(authorizationGuard)
   @Get('module-rating/:moduleId')
   async getModuleRatingsByCourse(@Param('moduleId') courseId: string) {
     return await this.ratingService.getModuleRatingsByCourse(courseId);

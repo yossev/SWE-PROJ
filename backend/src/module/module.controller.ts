@@ -52,6 +52,8 @@ export class ModuleController {
         //placeholder value , CHANGE ASAP!!
     }
     @UseGuards(AuthGuard)
+    @Roles(Role.Instructor,Role.Student)
+    @UseGuards(authorizationGuard)
     @Get('coursemodules/:id')
     async getAllCourseModules(@Req() req,@Param('id') course_id : string)
     {
@@ -93,7 +95,8 @@ export class ModuleController {
     {
         return this.moduleService.uploadFile(req,file , module_id , fileNameParameter);
     }
-
+    @Roles(Role.Instructor)
+    @UseGuards(authorizationGuard)
     @Get('download/:id/:file')
     getFile(@Param('id') module_id : string , @Param('file') file : string): StreamableFile {
       

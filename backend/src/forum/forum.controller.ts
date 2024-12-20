@@ -29,10 +29,13 @@ async getForums() {
 @Roles(Role.Instructor)
 @UseGuards(authorizationGuard)
 @Delete('delete')
-async deleteForum(@Query('id') id: string , @Query('creatorId') creatorId : string)
+async deleteForum(@Query('id') id: string , @Req() req)
 {
+  const creatorId=req.cookies.userId;
   return this.forumService.deleteForum(id , creatorId);
 }
+@Roles(Role.Instructor, Role.Student) 
+@UseGuards(authorizationGuard)
 @Get('getThreads')
 async getThreads(@Query('id') id: string )
 {

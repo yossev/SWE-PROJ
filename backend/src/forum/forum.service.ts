@@ -38,12 +38,12 @@ export class ForumService {
   }
   async deleteForum(forumId: string , instructorId : string)
   {
-    const forum = this.forumModel.findById(new Types.ObjectId(forumId)).exec();
-    const creatorIdString = ((await forum).createdBy).toString();
+    const forum = await this.forumModel.findById(new Types.ObjectId(forumId)).exec();
+    const creatorIdString = forum.createdBy.toString();
     if(creatorIdString === instructorId)
     {
-      (await forum).active = false;
-      return (await forum).save();
+      forum.active = false;
+      return forum.save();
     }
     else
     {
