@@ -2,14 +2,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Responses, ResponsesDocument } from '../../models/responses-schema';
+import { Responses, ResponsesDocument } from '../../src/models/responses-schema';
 import { CreateResponseDto } from './dto/createResponse.dto';
 import { UpdateResponseDto } from './dto/updateResponse.dto';
 
 @Injectable()
 export class ResponseService {
   constructor(
-    @InjectModel(Response.name) private responseModel: Model<ResponsesDocument>,
+    @InjectModel(Responses.name) private responseModel: Model<ResponsesDocument>,
   ) { }
 
   async create(createResponseDto: CreateResponseDto): Promise<Responses> {

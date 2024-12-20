@@ -11,6 +11,13 @@ import {ModuleSchema } from '../../src/models/module-schema';
 import { RatingSchema } from '../../src/models/rating-schema';
 import { RatingService } from '../rating/rating.service';
 import { QuizModule } from '../quiz/quiz.module';
+import { JwtService } from '@nestjs/jwt';
+import { ResponseService } from 'src/response/response.service';
+import { Course } from 'models/course-schema';
+import { CourseService } from 'src/course/course.service';
+import { QuizService } from 'src/quiz/quiz.service';
+import { ModuleService } from 'src/module/module.service';
+import { UserSchema } from 'src/models/user-schema';
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -19,12 +26,14 @@ import { QuizModule } from '../quiz/quiz.module';
       { name: 'Course', schema: CourseSchema }, 
       { name: 'Quiz', schema: QuizSchema }, 
       { name: 'Module', schema: ModuleSchema},
-      {name: 'Rating', schema: RatingSchema}
+      {name: 'Rating', schema: RatingSchema},
+      {name: 'User', schema: UserSchema}
     ]), 
-    QuizModule
+
   ],
   controllers: [ProgressController],
-  providers: [ProgressService, RatingService],
+  providers: [ProgressService, RatingService,JwtService,ResponseService,CourseService,QuizService,ModuleService
+  ],
   exports: [ProgressService],
 })
 export class ProgressModule {}

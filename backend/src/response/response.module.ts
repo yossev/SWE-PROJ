@@ -4,12 +4,13 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ResponseSchema } from '../models/responses-schema';
 import { ResponseService } from './response.service';
 import { ResponseController } from './response.controller';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: 'Response', schema: ResponseSchema }]),  
+    MongooseModule.forFeature([{ name: 'Responses', schema: ResponseSchema }]),  
   ],
   controllers: [ResponseController],  
-  providers: [ResponseService],  
+  providers: [ResponseService,JwtService],  
 })
 export class ResponseModule {}
