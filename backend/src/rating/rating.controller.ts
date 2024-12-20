@@ -52,6 +52,8 @@ export class RatingController {
   }
   @Roles(Role.Instructor, Role.Admin, Role.Student)
   @UseGuards(authorizationGuard)
+
+
   @Get('instructor-rating/:instructorId')
   async getInstructorRating(@Param('instructorId') instructorId: string) {
     return await this.ratingService.getInstructorRating(instructorId);

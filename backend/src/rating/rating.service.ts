@@ -6,12 +6,16 @@ import { Rating, RatingDocument } from '../models/rating-schema';
 import mongoose from 'mongoose';
 import { CreateRatingDto } from './dto/createRating.dto';
 import { UpdateRatingDto } from './dto/updateRating.dto';
-import { Module } from 'models/module-schema';
+import { Module, ModuleDocument } from 'models/module-schema';
+
 
 @Injectable()
 export class RatingService {
-    constructor(@InjectModel('Rating') private readonly ratingModel: Model<RatingDocument>,
-    @InjectModel('Module') private readonly moduleModel: Model<Module>, ) { }
+    constructor(
+        @InjectModel('Rating') private readonly ratingModel: Model<RatingDocument>,
+        @InjectModel('Module') private readonly moduleModel: Model<Module>, 
+    ) { }
+
 
     async createRating(createRatingDto: CreateRatingDto): Promise<Rating> {
         const newRating = new this.ratingModel(createRatingDto);
@@ -53,20 +57,7 @@ export class RatingService {
 
         return moduleRatings;
     }
-
-    async getCourseRating(courseId: string): Promise<number> {
-        const ratings = await this.ratingModel
-            .aggregate([ // Filtering the documents to only include the ones where ratedEntity: 'Course'
-                // Check that the ratedEntityId (id of course) matches the courseId.
-                { $match: { ratedEntity: 'Course', ratedEntityId: new mongoose.Types.ObjectId(courseId) } },
-                // group documents that match together to calculate average rating for all
-                { $group: { _id: '$ratedEntityId', averageRating: { $avg: '$rating' } } },
-            ]);
-        // Check if ratings are larger than 0 meaning there are ratings for this course, if so it will take the 
-        //first element (the one that contains the average) will be returned
-        return ratings.length > 0 ? ratings[0].averageRating : 0;
-    }
-
+    
     async getCourseRatingFromModules(courseId: string): Promise<number> {
         const moduleRatings = await this.getModuleRatingsByCourse(courseId);
 
@@ -77,13 +68,21 @@ export class RatingService {
         return averageCourseRating;
     }
 
+    
     async getInstructorRating(instructorId: string): Promise<number> {
-        const ratings = await this.ratingModel
-            .aggregate([
-                { $match: { ratedEntity: 'Instructor', ratedEntityId: new mongoose.Types.ObjectId(instructorId) } },
-                { $group: { _id: '$ratedEntityId', averageRating: { $avg: '$rating' } } },
-            ]);
+        const ratings = await this.ratingModel.aggregate([
+            { $match: { ratedEntity: 'Instructor', ratedEntityId: new mongoose.Types.ObjectId(instructorId) } },
+            { $group: { _id: '$ratedEntityId', averageRating: { $avg: '$rating' } } },
+        ]);
+
         return ratings.length > 0 ? ratings[0].averageRating : 0;
     }
-
 }
+
+
+
+
+
+   
+
+
