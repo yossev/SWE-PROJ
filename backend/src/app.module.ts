@@ -24,6 +24,9 @@ import { InteractiveModule } from './module/module.module';
 import { QuestionBankModule } from './questionbank/questionbank.module';
 import { RatingModule } from './rating/rating.module';
 import { ResponseModule } from './response/response.module';
+import { QuizModule } from './quiz/quiz.module';
+import { NotificationModule } from './notification/notification.module';
+import { RoomModule } from './room/room.module';
 
 
 @Module({
@@ -36,7 +39,7 @@ import { ResponseModule } from './response/response.module';
     CourseModule,
     ResponseModule,
     RatingModule,
-    
+  NotificationModule,
     BackupModule,
     ChatModule,
     ForumModule,
@@ -45,7 +48,11 @@ import { ResponseModule } from './response/response.module';
     InteractiveModule,
     ResponseModule,
     RatingModule,
-    QuestionBankModule
+    QuestionBankModule,
+    QuizModule,
+    RoomModule,
+    
+  
   ],
   controllers: [AppController],
   providers: [

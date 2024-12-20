@@ -49,5 +49,7 @@ import { AuthService } from 'src/auth/auth.service';
   ],
   controllers: [quizController],
   providers: [QuizService,JwtService,CourseService,NotificationService,ForumService,MessageService,UserService,ThreadService,ReplyService,RoomService,AuthService],
+  exports:[QuizService]
+
 })
 export class QuizModule {}

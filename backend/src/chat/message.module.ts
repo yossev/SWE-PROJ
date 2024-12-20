@@ -34,5 +34,6 @@ import { RefreshToken, RefreshTokenSchema } from 'models/refreshToken-schema';
     UserService,
     NotificationService,
   JwtService , ProgressService , AuthService , RatingService],
+  exports:[MessageService]
 })
 export class ChatModule {}

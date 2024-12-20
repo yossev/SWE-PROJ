@@ -49,7 +49,8 @@ import { QuestionBankService } from 'src/questionbank/questionbank.service';
   ],
   controllers: [RatingController],
   providers: [RatingService,ModuleService,CourseService,NotificationService,UserService,ForumService,MessageService,NotificationService,
-    JwtService,ProgressService,AuthService,RoomService,ResponseService,QuizService,QuestionBankService]
+    JwtService,ProgressService,AuthService,RoomService,ResponseService,QuizService,QuestionBankService],
+    exports:[RatingService]
 })
 
  export class RatingModule {}

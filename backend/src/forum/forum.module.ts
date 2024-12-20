@@ -17,5 +17,6 @@ import { Reply, ReplySchema } from 'src/models/reply-schema';
   ],
   providers: [ForumService],
   controllers: [ForumController],
+  exports:[ForumService]
 })
 export class ForumModule {}

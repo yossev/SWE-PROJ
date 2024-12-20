@@ -54,5 +54,6 @@ import { Thread, ThreadSchema } from 'models/thread-schema';
   providers: [ModuleService,NotificationService,UserService,CourseService, NotificationService, MessageService, UserService, RoomService, JwtService,
        ProgressService, AuthService, RatingService,ForumService,ThreadService,ReplyService
   ],
+  exports:[ModuleService]
 })
 export class InteractiveModule {}

@@ -12,5 +12,6 @@ import { JwtService } from '@nestjs/jwt';
   ],
   controllers: [ResponseController],  
   providers: [ResponseService,JwtService],  
+  exports:[ResponseService]
 })
 export class ResponseModule {}

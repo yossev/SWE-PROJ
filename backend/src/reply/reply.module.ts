@@ -51,5 +51,6 @@ import { ResponseSchema } from 'models/responses-schema';
   providers: [ReplyService,NotificationService,UserService,JwtService,CourseService, MessageService, RoomService,
        ProgressService, AuthService, RatingService,ForumService,ThreadService],
   controllers: [ReplyController],
+  exports:[ReplyService]
 })
 export class ReplyModule {}

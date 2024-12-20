@@ -52,5 +52,6 @@ import { ReplyService } from 'src/reply/reply.service';
      ProgressService, AuthService, RatingService,ForumService,ThreadService,ReplyService
 
   ],
+  exports:[CourseService]
 })
 export class CourseModule {}
