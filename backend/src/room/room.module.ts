@@ -6,16 +6,34 @@ import { RoomController } from './room.controller';
 import { RoomService } from './room.service';
 import { Course, CourseSchema } from 'src/models/course-schema';
 import { Room, RoomSchema } from 'src/models/room-schema';
+import { UserService } from 'src/user/user.service';
+import { JwtService } from '@nestjs/jwt';
+import { User, UserSchema } from 'models/user-schema';
+import { ProgressService } from 'src/progress/progress.service';
+import { AuthService } from 'src/auth/auth.service';
+import { Progress, ProgressSchema } from 'models/progress-schema';
+import { Responses, ResponseSchema } from 'models/responses-schema';
+import { Quiz, QuizSchema } from 'models/quizzes-schema';
+import { ModuleSchema } from 'models/module-schema';
+import { Rating, RatingSchema } from 'models/rating-schema';
+import { RatingService } from 'src/rating/rating.service';
 
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Room.name, schema: RoomSchema }]),
     MongooseModule.forFeature([{ name: Course.name, schema: CourseSchema }]),
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MongooseModule.forFeature([{ name: Progress.name, schema: ProgressSchema }]),
+    MongooseModule.forFeature([{ name: Responses.name, schema: ResponseSchema }]),
+    MongooseModule.forFeature([{ name: Quiz.name, schema: QuizSchema }]),
+    MongooseModule.forFeature([{ name: Module.name, schema: ModuleSchema }]),
+    MongooseModule.forFeature([{ name: Rating.name, schema: RatingSchema }]),
+
     //CourseModule, // Import the CourseModule to use Course services
   ],
   controllers: [RoomController],
-  providers: [RoomService],
+  providers: [RoomService,UserService,JwtService,ProgressService,AuthService,RatingService],
   exports:[RoomService]
 })
 export class RoomModule {}

@@ -9,7 +9,7 @@ import { UpdateResponseDto } from './dto/updateResponse.dto';
 @Injectable()
 export class ResponseService {
   constructor(
-    @InjectModel(Responses.name) private responseModel: Model<ResponsesDocument>,
+    @InjectModel(Responses.name) private responseModel: Model<Responses>,
   ) { }
 
   async create(createResponseDto: CreateResponseDto): Promise<Responses> {

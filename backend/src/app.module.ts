@@ -27,13 +27,15 @@ import { ResponseModule } from './response/response.module';
 import { QuizModule } from './quiz/quiz.module';
 import { NotificationModule } from './notification/notification.module';
 import { RoomModule } from './room/room.module';
+import { JwtService } from '@nestjs/jwt';
 
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     MongooseModule.forRoot(process.env.DATABASE),
-    AuthModule,
+  
+    /*AuthModule,
     UserModule,  // Ensure UserModule is imported here
     ProgressModule,  // Import ProgressModule to make ProgressService available,
     CourseModule,
@@ -46,12 +48,10 @@ import { RoomModule } from './room/room.module';
     ThreadModule,
     ReplyModule,
     InteractiveModule,
-    ResponseModule,
-    RatingModule,
     QuestionBankModule,
     QuizModule,
     RoomModule,
-    
+*/
   
   ],
   controllers: [AppController],
