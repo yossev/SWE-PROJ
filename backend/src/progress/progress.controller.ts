@@ -7,7 +7,7 @@ import { UpdateProgressDTO } from './dto/updateProgress.dto';
 import { Response } from 'express';
 import { Role, Roles } from 'src/auth/decorators/roles.decorator';
 import { authorizationGuard } from 'src/auth/guards/authorization.guards';
-import { AuthGuard } from 'src/auth/guards/authentication.guards';
+import { AuthGuard } from 'src/auth/guards/auth.guards';
 
 @Controller('progress')
 export class ProgressController {

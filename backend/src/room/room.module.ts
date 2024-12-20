@@ -17,18 +17,23 @@ import { Quiz, QuizSchema } from 'models/quizzes-schema';
 import { ModuleSchema } from 'models/module-schema';
 import { Rating, RatingSchema } from 'models/rating-schema';
 import { RatingService } from 'src/rating/rating.service';
+import { Message, MessageSchema } from 'models/message-schema';
 
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Room.name, schema: RoomSchema }]),
-    MongooseModule.forFeature([{ name: Course.name, schema: CourseSchema }]),
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    MongooseModule.forFeature([{ name: Progress.name, schema: ProgressSchema }]),
-    MongooseModule.forFeature([{ name: Responses.name, schema: ResponseSchema }]),
-    MongooseModule.forFeature([{ name: Quiz.name, schema: QuizSchema }]),
-    MongooseModule.forFeature([{ name: Module.name, schema: ModuleSchema }]),
-    MongooseModule.forFeature([{ name: Rating.name, schema: RatingSchema }]),
+    MongooseModule.forFeature([{ name: Room.name, schema: RoomSchema },
+      { name: Course.name, schema: CourseSchema },
+      { name: User.name, schema: UserSchema },
+      { name: Progress.name, schema: ProgressSchema },
+      { name: Responses.name, schema: ResponseSchema },
+      { name: Quiz.name, schema: QuizSchema },
+      { name: 'Module', schema: ModuleSchema },
+      { name: Rating.name, schema: RatingSchema },
+      { name: Message.name, schema: MessageSchema }
+
+    ]),
+  
 
     //CourseModule, // Import the CourseModule to use Course services
   ],

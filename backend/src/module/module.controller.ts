@@ -18,7 +18,7 @@ import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { Roles, Role } from 'src/auth/decorators/roles.decorator';
 import { authorizationGuard } from 'src/auth/guards/authorization.guards';
-import { AuthGuard } from 'src/auth/guards/authentication.guards';
+import { AuthGuard } from 'src/auth/guards/auth.guards';
 import { InjectModel } from '@nestjs/mongoose';
 import { Reply } from '../models/reply-schema';
 import { Model } from 'mongoose';

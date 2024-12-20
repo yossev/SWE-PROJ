@@ -7,7 +7,7 @@ require('dotenv').config();
 import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
-import { AuthGuard } from './auth/guards/authentication.guards';
+import { AuthGuard } from './auth/guards/auth.guards';
 import { JwtService } from '@nestjs/jwt';
 const mongoose=require('mongoose');
 const express=require('express');

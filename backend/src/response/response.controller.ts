@@ -6,7 +6,7 @@ import { CreateResponseDto } from './dto/createResponse.dto';
 import { UpdateResponseDto  } from './dto/updateResponse.dto';  
 import { Roles, Role } from 'src/auth/decorators/roles.decorator';
 import { authorizationGuard } from 'src/auth/guards/authorization.guards';
-import { AuthGuard } from 'src/auth/guards/authentication.guards';
+import { AuthGuard } from 'src/auth/guards/auth.guards';
 
 @Controller('response')
 export class ResponseController {

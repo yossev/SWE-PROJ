@@ -10,7 +10,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { JwtStrategy } from './auth/jwt.strategy';
 import { UserService } from './user/user.service';
-import { AuthGuard } from './auth/guards/authentication.guards';
+import { AuthGuard } from './auth/guards/auth.guards';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { APP_GUARD, Reflector } from '@nestjs/core';
 
@@ -35,22 +35,36 @@ import { JwtService } from '@nestjs/jwt';
     ConfigModule.forRoot(),
     MongooseModule.forRoot(process.env.DATABASE),
   
-    /*AuthModule,
-    UserModule,  // Ensure UserModule is imported here
-    ProgressModule,  // Import ProgressModule to make ProgressService available,
+    AuthModule,
+    UserModule,
+    ProgressModule,
     CourseModule,
     ResponseModule,
     RatingModule,
-  NotificationModule,
+    NotificationModule,
     BackupModule,
     ChatModule,
-    ForumModule,
-    ThreadModule,
-    ReplyModule,
-    InteractiveModule,
-    QuestionBankModule,
-    QuizModule,
-    RoomModule,
+     // Ensure UserModule is imported here
+     // Import ProgressModule to make ProgressService available,
+    
+    
+    
+  
+     ForumModule,
+     ThreadModule,
+     ReplyModule,
+     InteractiveModule,
+     QuestionBankModule,
+     RoomModule,
+    // QuizModule,
+
+    /*
+  
+    
+   
+   
+   
+   
 */
   
   ],

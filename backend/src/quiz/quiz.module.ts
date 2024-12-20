@@ -28,6 +28,9 @@ import { ReplyService } from 'src/reply/reply.service';
 import { RoomService } from 'src/room/room.service';
 import { RoomSchema } from 'src/models/room-schema';
 import { AuthService } from 'src/auth/auth.service';
+import { ProgressService } from 'src/progress/progress.service';
+import { RatingSchema } from 'models/rating-schema';
+import { RatingService } from 'src/rating/rating.service';
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -44,11 +47,12 @@ import { AuthService } from 'src/auth/auth.service';
       { name: 'Thread', schema: ThreadSchema },
       { name: 'Reply', schema: ReplySchema },
       { name: 'Room', schema: RoomSchema },
-    ]),
-    forwardRef(() => ProgressModule) 
+      { name: 'Rating', schema: RatingSchema },
+    ])
+    //forwardRef(() => ProgressModule) 
   ],
   controllers: [quizController],
-  providers: [QuizService,JwtService,CourseService,NotificationService,ForumService,MessageService,UserService,ThreadService,ReplyService,RoomService,AuthService],
+  providers: [QuizService,RatingService,JwtService,CourseService,NotificationService,ForumService,MessageService,UserService,ThreadService,ReplyService,RoomService,AuthService,ProgressService],
   exports:[QuizService]
 
 })

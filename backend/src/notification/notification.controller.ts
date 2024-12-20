@@ -5,7 +5,7 @@ import { Controller, Get, Param, Patch, Req, UseGuards } from '@nestjs/common';
 import { NotificationService } from './notification.service';
 import { UserNotification } from '../models/notification-schema';  // Ensure this points to the correct file
 import { authorizationGuard } from 'src/auth/guards/authorization.guards';
-import { AuthGuard } from 'src/auth/guards/authentication.guards';
+import { AuthGuard } from 'src/auth/guards/auth.guards';
 import { Roles, Role } from 'src/auth/decorators/roles.decorator';
 
 

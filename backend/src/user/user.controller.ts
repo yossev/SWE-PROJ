@@ -9,7 +9,7 @@ import * as bcrypt from 'bcrypt';
 import { createUserDto } from './dto/createUser.dto';
 import updateUserDto from './dto/updateUser.dto';
 
-import { AuthGuard } from '../auth/guards/authentication.guards';
+import { AuthGuard } from '../auth/guards/auth.guards';
 import { Public } from '../auth/decorators/public.decorator';
 import { authorizationGuard } from 'src/auth/guards/authorization.guards';
 import { Role, Roles } from '../auth/decorators/roles.decorator';

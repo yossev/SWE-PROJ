@@ -6,7 +6,7 @@ import { CreateCourseDto } from './dto/createCourse.dto';
 import { UpdateCourseDto } from './dto/updateCourse.dto'; 
 import { Roles, Role } from 'src/auth/decorators/roles.decorator';
 import { authorizationGuard } from 'src/auth/guards/authorization.guards';
-import { AuthGuard } from 'src/auth/guards/authentication.guards';
+import { AuthGuard } from 'src/auth/guards/auth.guards';
 
 @Controller('courses')
 export class CourseController {
