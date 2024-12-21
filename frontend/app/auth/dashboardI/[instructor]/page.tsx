@@ -165,7 +165,48 @@ export default function InstructorDashboard() {
 
         {/* Dashboard Sections */}
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-          {/* Add your dashboard sections here */}
+          <Link
+            href="/course-management"
+            className="p-6 bg-white shadow rounded-lg hover:shadow-lg transition transform hover:scale-105 text-center"
+          >
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Course Management</h2>
+            <p className="text-gray-600">Organize and manage your courses effectively.</p>
+          </Link>
+          <Link
+            href="/interactive-modules"
+            className="p-6 bg-white shadow rounded-lg hover:shadow-lg transition transform hover:scale-105 text-center"
+          >
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Interactive Modules</h2>
+            <p className="text-gray-600">Engage students with interactive content.</p>
+          </Link>
+          <Link
+            href="/performance-tracking"
+            className="p-6 bg-white shadow rounded-lg hover:shadow-lg transition transform hover:scale-105 text-center"
+          >
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Performance Tracking</h2>
+            <p className="text-gray-600">Monitor student progress and scores.</p>
+          </Link>
+          <Link
+            href="/real-time-chat"
+            className="p-6 bg-white shadow rounded-lg hover:shadow-lg transition transform hover:scale-105 text-center"
+          >
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Real-Time Chat</h2>
+            <p className="text-gray-600">Communicate instantly with students.</p>
+          </Link>
+          <Link
+            href="/discussion-forums"
+            className="p-6 bg-white shadow rounded-lg hover:shadow-lg transition transform hover:scale-105 text-center"
+          >
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Discussion Forums</h2>
+            <p className="text-gray-600">Create forums for meaningful discussions.</p>
+          </Link>
+          <Link
+            href="/notes"
+            className="p-6 bg-white shadow rounded-lg hover:shadow-lg transition transform hover:scale-105 text-center"
+          >
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Notes</h2>
+            <p className="text-gray-600">Help students take and organize notes.</p>
+          </Link>
         </section>
 
         {/* Search Section */}
