@@ -81,7 +81,7 @@ export default function CreateQuizPage() {
               className="p-3 border border-gray-700 rounded text-black"
             >
               <option value="MCQ">MCQ</option>
-              <option value="TrueFalse">True/False</option>
+              <option value="True/False">True/False</option>
               <option value="Both">Both</option>
             </select>
           </label>

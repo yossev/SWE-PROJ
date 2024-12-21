@@ -5,10 +5,10 @@ import axios from "axios";
 
 export default function QuizResultsPage() {
   const searchParams = useSearchParams();
-  const userId = searchParams.get("userId"); // Get userId
-  const quizId = searchParams.get("quizId"); // Get quizId
-  const userAnswers = searchParams.get("userAnswers"); // Encoded user answers
-  const selectedQuestions = searchParams.get("selectedQuestions"); // Encoded question data
+  const userId = searchParams.get("userId");
+  const quizId = searchParams.get("quizId");
+  const userAnswers = searchParams.get("userAnswers");
+  const selectedQuestions = searchParams.get("selectedQuestions");
 
   const [score, setScore] = useState<number | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -22,22 +22,16 @@ export default function QuizResultsPage() {
       }
 
       try {
-        // Decode userAnswers and selectedQuestions
         const parsedUserAnswers = JSON.parse(decodeURIComponent(userAnswers));
-        const parsedSelectedQuestions = JSON.parse(decodeURIComponent(selectedQuestions));
-
-        // Call the backend API to evaluate the quiz
-        const response = await axios.post(
-          "http://localhost:3001/quiz/evaluate",
-          {
-            quizId, // Include quizId in the request body
-            userAnswers: parsedUserAnswers,
-            selectedQuestions: parsedSelectedQuestions, // Pass full question data if required
-          },
-          {
-            params: { userId }, // Include userId as a query parameter
-          }
+        const parsedSelectedQuestions = JSON.parse(
+          decodeURIComponent(selectedQuestions)
         );
+
+        const response = await axios.post("http://localhost:3001/quiz/evaluate", {
+          quizId,
+          userAnswers: parsedUserAnswers,
+          selectedQuestions: parsedSelectedQuestions,
+        });
 
         console.log("Evaluation Response:", response.data);
 

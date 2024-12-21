@@ -4,9 +4,8 @@ import mongoose,{ HydratedDocument } from 'mongoose';
 export type ResponsesDocument = HydratedDocument<Responses>;
 
 
-@Schema({ timestamps: true, strict: false })
+@Schema({ timestamps: true })
 export class Responses {
-
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
   user_id: mongoose.Schema.Types.ObjectId;
 
@@ -16,19 +15,17 @@ export class Responses {
   @Prop({
     type: [
       {
-        questionId: { type: mongoose.Schema.Types.ObjectId, ref: 'Quiz.questions', required: true }, // Reference to the question in the Quiz schema
-        answer: { type: String, required: true }, // User's answer to the question
+        questionId: { type: mongoose.Schema.Types.ObjectId, ref: 'QuestionBank', required: true },
+        answer: { type: String, required: true },
       },
     ],
     required: true,
   })
-  answers: [
-    {
-      questionId: { type: mongoose.Schema.Types.ObjectId, ref: 'QuestionBank', required: true },
-      answer: { type: String, required: true },
-    }
-  ]
-  
+  answers: Array<{
+    questionId: mongoose.Schema.Types.ObjectId;
+    answer: string;
+  }>;
+
   @Prop({ type: Number, min: 0 })
   score: number;
 

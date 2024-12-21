@@ -68,18 +68,38 @@ async updateQuiz(
     
   }
   @Post('evaluate')
-async evaluateQuiz(
-  @Body('quizId') quizId: string, // Add quizId here
-  @Body('userAnswers') userAnswers: string[],
-  @Body('selectedQuestions') selectedQuestions: any[],
-  @Query('userId') userId: string,
-) {
-  const evaluation = await this.quizService.evaluateQuiz(userAnswers, selectedQuestions, userId, quizId); // Pass quizId to service
-  return {
-    success: true,
-    message: 'Quiz evaluated successfully.',
-    data: evaluation,
-  };
-}
+  async evaluateQuiz(
+    @Body('quizId') quizId: string, // Quiz ID
+    @Body('userAnswers') userAnswers: string[], // Array of user answers
+    @Body('selectedQuestions') selectedQuestions: { questionId: string }[], // Array of selected questions with questionId
+    @Query('userId') userId: string, // User ID passed as query parameter
+  ) {
+    console.log('POST /quiz/evaluate called');
+    console.log('quizId:', quizId);
+    console.log('userId:', userId);
+    console.log('userAnswers:', userAnswers);
+    console.log('selectedQuestions:', selectedQuestions);
+
+    // Ensure selectedQuestions contains valid questionIds
+    if (!selectedQuestions || selectedQuestions.length === 0) {
+      throw new Error('Selected questions are missing.');
+    }
+
+    // Call the service to evaluate the quiz
+    const evaluation = await this.quizService.evaluateQuiz(
+      userAnswers,
+      selectedQuestions,
+      userId,
+      quizId,
+    );
+
+    console.log('Evaluation Result:', evaluation);
+
+    return {
+      success: true,
+      message: 'Quiz evaluated successfully.',
+      data: evaluation,
+    };
+  }
 
 }

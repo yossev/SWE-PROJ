@@ -38,15 +38,35 @@ export class QuizService {
     const objectId = new mongoose.Types.ObjectId(inpStr);  
     return await this.quizModel.findById(objectId).exec();
 }
-async findByUserId(userId: string): Promise<Quiz> {
+async findByUserId(userId: string): Promise<any> {
   console.log('Querying quiz for userId:', userId);
 
   const objectId = new mongoose.Types.ObjectId(userId);
 
-
   const quiz = await this.quizModel.findOne({ userId: objectId }).exec();
 
-  return quiz;
+  if (!quiz) {
+    throw new Error('No quiz found for the provided user ID.');
+  }
+
+  // Extract question ids and pass them along with the questions
+  const questionIds = quiz.question_ids;
+  const questions = await this.questionBankModel.find({
+    _id: { $in: questionIds },
+  });
+
+  const responseQuiz = {
+    quizId: quiz._id,
+    questions: questions.map((q: any) => ({
+      questionId: q._id.toString(),
+      question: q.question,
+      options: q.options,
+      correctAnswer: q.correct_answer, // Add correctAnswer if needed
+    })),
+    questionIds: questionIds, // Include the question ids
+  };
+
+  return responseQuiz;
 }
 
 
@@ -194,7 +214,7 @@ async generateQuiz(createQuizDto: CreateQuizDto, userId: string): Promise<any> {
   console.log('Selected Questions:', selectedQuestions);
 
   const transformedQuestions = selectedQuestions.map((q) => ({
-    questionId: q._id,
+    questionId: q._id.toString(),
     question: q.question,
     options: q.options,
     correct_answer: q.correct_answer,
@@ -260,73 +280,78 @@ private shuffleArray(array: any[]): any[] {
   }
 
 
+  private calculateScore(
+    answers: { questionId: mongoose.Types.ObjectId; answer: string }[],
+    selectedQuestions: { questionId: string; correctAnswer: string }[],
+  ): number {
+    let correctAnswersCount = 0;
+  
+    // Compare user answers with the correct answers
+    answers.forEach((answerObj) => {
+      const matchedQuestion = selectedQuestions.find(
+        (q) => q.questionId === answerObj.questionId.toString(),
+      );
+  
+      if (matchedQuestion && matchedQuestion.correctAnswer === answerObj.answer) {
+        correctAnswersCount++;
+      }
+    });
+  
+    // Calculate score as a percentage
+    const score = (correctAnswersCount / selectedQuestions.length) * 100;
+  
+    return score;
+  }
   
 
   async evaluateQuiz(
     userAnswers: string[],
-    selectedQuestions: any[],
+    selectedQuestions: { questionId: string }[],
     userId: string,
-    quizId: string, // Add quizId parameter
+    quizId: string
   ): Promise<any> {
-    let correctAnswersCount = 0;
-    let incorrectAnswers = [];
+    const questionIds = selectedQuestions.map((q) => q.questionId);
   
-    // Fetch correct answers using question IDs
-    const question_ids = selectedQuestions.map((q) => q.questionId);
-    const fetchedQuestions = await this.questionBankModel.find({ _id: { $in: question_ids } });
+    const objectIds = questionIds.map((id) => new mongoose.Types.ObjectId(id));
   
-    const questionMap = fetchedQuestions.reduce((map, question) => {
-      map[question._id.toString()] = question.correct_answer;
-      return map;
-    }, {});
+    // Fetch correct answers using the questionIds
+    const questionsFromDB = await this.questionBankModel.find({
+      _id: { $in: objectIds },
+    }).select('correct_answer');
   
-    const answersToSave = [];
-    selectedQuestions.forEach((question, index) => {
-      const userAnswer = userAnswers[index];
-      const correctAnswer = questionMap[question.questionId];
+    const answers = selectedQuestions.map((question, index) => {
+      const correctAnswer = questionsFromDB.find(
+        (q) => q._id.toString() === question.questionId
+      )?.correct_answer;
   
-      answersToSave.push({
-        questionId: question.questionId,
-        answer: userAnswer,
-      });
-  
-      if (userAnswer === correctAnswer) {
-        correctAnswersCount++;
-      } else {
-        incorrectAnswers.push({
-          question: question.question,
-          correctAnswer: correctAnswer || "N/A",
-          userAnswer: userAnswer || "N/A",
-        });
-      }
+      return {
+        questionId: new mongoose.Types.ObjectId(question.questionId),
+        answer: userAnswers[index] || '',
+        correctAnswer: correctAnswer || 'Not available',
+      };
     });
   
-    const score = (correctAnswersCount / selectedQuestions.length) * 100;
-    let feedbackMessage = '';
-    if (score < 60) {
-      feedbackMessage = 'You have not scored enough. We recommend revisiting the module content and studying the material again.';
-    } else {
-      feedbackMessage = 'Great job! You have passed the quiz. Keep up the good work!';
-    }
+    const correctAnswersCount = answers.reduce((count, answerObj) => {
+      if (answerObj.correctAnswer === answerObj.answer) {
+        return count + 1;
+      }
+      return count;
+    }, 0);
   
-    // Save the results in the Responses schema
+    const score = (correctAnswersCount / selectedQuestions.length) * 100;
+  
     const responseDocument = new this.responsesModel({
       user_id: new mongoose.Types.ObjectId(userId),
-      quiz_id: quizId, // Use quizId passed from Postman
-      answers: answersToSave,
+      quiz_id: new mongoose.Types.ObjectId(quizId),
+      answers,
       score,
       submittedAt: new Date(),
     });
   
     await responseDocument.save();
   
-    return {
-      score,
-      feedback: feedbackMessage,
-      incorrectAnswers,
-    };
+    return { score, feedback: score >= 50 ? 'Good job!' : 'Needs improvement' };
   }
   
-  
-  
 }
+  
