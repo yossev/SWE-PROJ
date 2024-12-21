@@ -1,13 +1,14 @@
 /* eslint-disable prettier/prettier */
 import { BadRequestException, Body, Controller, Delete, Get, Post, Put, Req, UseGuards } from '@nestjs/common';
 import { QuizService } from './quiz.service'; 
-import {Quiz } from '../../models/quizzes-schema';   
+ 
 import { CreateQuizDto } from './DTO/quiz.create.dto';
 import { UpdateQuizDto } from './DTO/quiz.update.dto';
 import { Query } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Roles, Role } from 'src/auth/decorators/roles.decorator';
 import { authorizationGuard } from 'src/auth/guards/authorization.guards';
+import { Quiz } from 'src/models/quizzes-schema';
 
 @Controller('quiz')
 export class quizController {

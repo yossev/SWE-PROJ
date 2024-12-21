@@ -56,7 +56,7 @@ import { JwtService } from '@nestjs/jwt';
      InteractiveModule,
      QuestionBankModule,
      RoomModule,
-    // QuizModule,
+     QuizModule,
 
     /*
   

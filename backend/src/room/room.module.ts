@@ -8,16 +8,17 @@ import { Course, CourseSchema } from 'src/models/course-schema';
 import { Room, RoomSchema } from 'src/models/room-schema';
 import { UserService } from 'src/user/user.service';
 import { JwtService } from '@nestjs/jwt';
-import { User, UserSchema } from 'models/user-schema';
-import { ProgressService } from 'src/progress/progress.service';
 import { AuthService } from 'src/auth/auth.service';
-import { Progress, ProgressSchema } from 'models/progress-schema';
-import { Responses, ResponseSchema } from 'models/responses-schema';
-import { Quiz, QuizSchema } from 'models/quizzes-schema';
-import { ModuleSchema } from 'models/module-schema';
-import { Rating, RatingSchema } from 'models/rating-schema';
+import { Message, MessageSchema } from 'src/models/message-schema';
+import { ModuleSchema } from 'src/models/module-schema';
+import { Progress, ProgressSchema } from 'src/models/progress-schema';
+import { Quiz, QuizSchema } from 'src/models/quizzes-schema';
+import { Rating, RatingSchema } from 'src/models/rating-schema';
+import { Responses, ResponseSchema } from 'src/models/responses-schema';
+import { User, UserSchema } from 'src/models/user-schema';
+import { ProgressService } from 'src/progress/progress.service';
 import { RatingService } from 'src/rating/rating.service';
-import { Message, MessageSchema } from 'models/message-schema';
+
 
 
 @Module({

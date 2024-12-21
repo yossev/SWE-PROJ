@@ -10,10 +10,11 @@ import {  Course,CourseDocument } from '../models/course-schema'; // Import Noti
 import { NotificationService } from 'src/notification/notification.service';
 import { AuthGuard as Auth } from '@nestjs/passport';
 import { MessageService } from 'src/chat/message.service';
-import { User, UserDocument } from 'models/user-schema';
-import { ForumService } from 'src/forum/forum.service';
 import { CreateForumDto } from 'src/forum/dto/createForum.dto';
-import { Forum, ForumDocument } from 'models/forum-schema';
+import { ForumService } from 'src/forum/forum.service';
+import { Forum, ForumDocument } from 'src/models/forum-schema';
+import { User, UserDocument } from 'src/models/user-schema';
+;
 
 @Injectable()
 export class CourseService {
