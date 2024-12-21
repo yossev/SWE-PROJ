@@ -7,7 +7,7 @@ export default function CreateQuizPage() {
   const [formData, setFormData] = useState({
     moduleId: "",
     questionType: "MCQ",
-    number: 0, 
+    numberOfQuestions: 0, // Corrected key
     userId: "",
   });
   const [successMessage, setSuccessMessage] = useState("");
@@ -20,12 +20,12 @@ export default function CreateQuizPage() {
 
     setFormData({
       ...formData,
-      [name]: name === "number" ? parseInt(value, 10) || 0 : value, 
+      [name]: name === "numberOfQuestions" ? parseInt(value, 10) || 0 : value,
     });
   };
 
   const handleSubmit = async () => {
-    if (!formData.moduleId || !formData.number || !formData.questionType) {
+    if (!formData.moduleId || !formData.numberOfQuestions || !formData.questionType) {
       setErrorMessage("All fields are required. Please check your input.");
       return;
     }
@@ -37,7 +37,7 @@ export default function CreateQuizPage() {
       const payload = {
         moduleId: formData.moduleId.trim(),
         questionType: formData.questionType,
-        number: formData.number,
+        numberOfQuestions: formData.numberOfQuestions, // Corrected key
         userId: formData.userId.trim(),
       };
 
@@ -47,6 +47,7 @@ export default function CreateQuizPage() {
         { params: { userId: payload.userId } }
       );
 
+      console.log("Quiz Created Successfully:", response.data);
       setSuccessMessage("Quiz created successfully!");
     } catch (error) {
       console.error("Error creating quiz:", error);
@@ -67,6 +68,7 @@ export default function CreateQuizPage() {
               value={formData.moduleId}
               onChange={handleInputChange}
               className="p-3 border border-gray-700 rounded text-black"
+              placeholder="Enter Module ID"
             />
           </label>
 
@@ -88,10 +90,11 @@ export default function CreateQuizPage() {
             <span>Number of Questions:</span>
             <input
               type="number"
-              name="number"
-              value={formData.number}
+              name="numberOfQuestions"
+              value={formData.numberOfQuestions}
               onChange={handleInputChange}
               className="p-3 border border-gray-700 rounded text-black"
+              placeholder="Enter Number of Questions"
             />
           </label>
 
@@ -103,6 +106,7 @@ export default function CreateQuizPage() {
               value={formData.userId}
               onChange={handleInputChange}
               className="p-3 border border-gray-700 rounded text-black"
+              placeholder="Enter User ID"
             />
           </label>
 

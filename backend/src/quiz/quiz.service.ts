@@ -208,10 +208,12 @@ async generateQuiz(createQuizDto: CreateQuizDto, userId: string): Promise<any> {
   console.log("Extracted: " + extractedQuestionIds);
   const quiz = {
     module_id: moduleId,
-    question_ids: extractedQuestionIds , 
+    question_ids: extractedQuestionIds,
     questions: transformedQuestions,
     created_at: new Date(),
-    userId: new mongoose.Types.ObjectId(userId), 
+    userId: new mongoose.Types.ObjectId(userId),
+    numberOfQuestions: numberOfQuestions, // Include this
+    questionType: questionType, // Include this
   };
   console.log("Quiz Object Before Save:", quiz);
 
