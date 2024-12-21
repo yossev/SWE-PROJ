@@ -184,8 +184,11 @@ export default function InstructorDashboard({
             >
               {loading ? 'Searching...' : 'Search by Email'}
             </button>
-          </div>
-          {error && <p className="text-red-500 mt-4">{error}</p>}
+            </div>
+          {error && <p className="text-blue-500 mt-4">{error}</p>}
+          
+          
+          
           {searchResult && (
             <div className="mt-6 p-4 bg-gray-100 border rounded-lg">
               <h3 className="text-lg font-semibold text-gray-800">Search Result:</h3>

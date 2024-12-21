@@ -9,11 +9,12 @@ import { SignInDto } from './dto/SignIn.dto';
 import { Public } from './decorators/public.decorator';
 import { UserService } from 'src/user/user.service';
 
+
 @Controller('auth')
 export class AuthController {
     constructor(private authService: AuthService,private userService:UserService) {}
 
-    @Public()
+   @Public()
     @Post('login')
     async signIn(@Body() signInDto: SignInDto, @Res({ passthrough: true }) res) {
       try {
