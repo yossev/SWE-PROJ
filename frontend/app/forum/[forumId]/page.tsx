@@ -1,92 +1,149 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
 
-const backendUrl = "http://localhost:3001"; // Replace with your backend URL
+type Thread = {
+  id: string;
+  title: string;
+  creator: string;
+  time: string;
+  replies: number;
+};
 
-const ForumPage = ({ params }: { params: { forumId: string } }) => {
-  const { forumId } = params;
-  const [threads, setThreads] = useState<any[]>([]);
-  const [newThreadTitle, setNewThreadTitle] = useState("");
+export default function ForumPage() {
+  const { forumId } = useParams();
+  const [search, setSearch] = useState("");
+  const [threads, setThreads] = useState<Thread[]>([]);
+  const [searchResult, setSearchResult] = useState<Thread | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    fetchThreads();
-  }, []);
-
-  const fetchThreads = async () => {
-    try {
-      const response = await axios.get(`${backendUrl}/forums/getThreads`, {
-        params: { id: forumId },
-      });
-      setThreads(response.data);
-    } catch (err) {
-      if (err instanceof Error) {
-        console.error("Error fetching threads:", err.message);
-      } else {
-        console.error("Unknown error occurred while fetching threads:", err);
-      }
+    if (forumId) {
+      fetch(`/api/forums/${forumId}/threads`)
+        .then((res) => res.json())
+        .then((data) => setThreads(data))
+        .catch((err) => console.error("Error fetching threads:", err));
     }
+  }, [forumId]);
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(e.target.value);
+    setSearchResult(null);
+    setError("");
   };
 
-  const handleCreateThread = async () => {
-    if (!newThreadTitle) return; // Avoid empty thread titles
-
-    try {
-      const response = await axios.post(
-        `${backendUrl}/threads/create`,
-        {
-          title: newThreadTitle,
-          forum_id: forumId,
-        },
-        { withCredentials: true }
-      );
-      setNewThreadTitle(""); // Clear input
-      fetchThreads(); // Refresh threads
-    } catch (err) {
-      if (err instanceof Error) {
-        console.error("Error creating thread:", err.message);
-      } else {
-        console.error("Unknown error occurred while creating thread:", err);
-      }
+  const searchByTitle = () => {
+    setLoading(true);
+    setError("");
+    const result = threads.find((thread) =>
+      thread.title.toLowerCase().includes(search.toLowerCase())
+    );
+    setLoading(false);
+    if (result) {
+      setSearchResult(result);
+    } else {
+      setError("No threads found matching the title.");
     }
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-4">Forum</h1>
-      <div className="mb-4">
-        <input
-          type="text"
-          value={newThreadTitle}
-          onChange={(e) => setNewThreadTitle(e.target.value)}
-          placeholder="Create a new thread"
-          className="border border-gray-300 rounded-md p-2 w-full"
-        />
-        <button
-          onClick={handleCreateThread}
-          className="bg-blue-500 text-white px-4 py-2 rounded-md mt-2"
-        >
-          Create Thread
-        </button>
-      </div>
-      <div>
-        {threads.length > 0 ? (
-          threads.map((thread) => (
-            <div
-              key={thread._id}
-              className="border border-gray-300 rounded-md p-4 mb-2"
+    <div className="flex min-h-screen bg-gray-50">
+      {/* Sidebar */}
+      <aside className="w-64 bg-gradient-to-br from-gray-800 to-gray-900 text-white shadow-lg">
+        <div className="p-6 border-b border-gray-700 text-2xl font-bold">
+          Forum Navigation
+        </div>
+        <nav className="mt-6">
+          <ul className="space-y-4">
+            <li>
+              <button
+                onClick={() => {}}
+                className="block w-full text-left py-3 px-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-all duration-300 transform hover:scale-105"
+              >
+                📄 All Threads
+              </button>
+            </li>
+            <li>
+              <button
+                onClick={() => {}}
+                className="block py-3 px-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-all duration-300 transform hover:scale-105"
+              >
+                ➕ Create New Thread
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </aside>
+
+      {/* Main Content */}
+      <main className="flex-1 p-8">
+        {/* Header */}
+        <header className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-800">Forum: {forumId}</h1>
+          <p className="text-gray-600">
+            Browse threads or search for specific discussions below.
+          </p>
+        </header>
+
+        {/* Search Section */}
+        <section className="mb-10">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">Search Threads</h2>
+          <div className="flex space-x-4">
+            <input
+              type="text"
+              className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-indigo-300 transition-all duration-300"
+              placeholder="Search threads by title"
+              value={search}
+              onChange={handleSearch}
+            />
+            <button
+              className="px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition-all duration-300 transform hover:scale-105"
+              onClick={searchByTitle}
             >
-              <h2 className="text-xl font-semibold">{thread.title}</h2>
-              <p className="text-gray-600">Created at: {thread.createdAt}</p>
+              {loading ? "Searching..." : "Search"}
+            </button>
+          </div>
+          {error && <p className="text-red-500 mt-4">{error}</p>}
+
+          {searchResult && (
+            <div className="mt-6 p-4 bg-gray-100 border rounded-lg">
+              <h3 className="text-lg font-semibold text-gray-800">Search Result:</h3>
+              <p className="text-gray-700">Title: {searchResult.title}</p>
+              <p className="text-gray-700">Creator: {searchResult.creator}</p>
+              <p className="text-gray-700">Replies: {searchResult.replies}</p>
             </div>
-          ))
-        ) : (
-          <p>No threads found.</p>
-        )}
-      </div>
+          )}
+        </section>
+
+        {/* Threads Section */}
+        <section className="bg-white shadow p-6 rounded-lg">
+          <h2 className="text-2xl font-semibold mb-6 text-gray-800">All Threads</h2>
+          <ul>
+            {threads.map((thread) => (
+              <li
+                key={thread.id}
+                className="border-b last:border-none pb-4 mb-4 flex justify-between items-start"
+              >
+                <div>
+                  <h3 className="text-lg font-bold text-blue-800 hover:underline">
+                    {thread.title}
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    Created by: {thread.creator} • {thread.time}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-gray-500">
+                    <span className="font-semibold text-gray-700">{thread.replies}</span> replies
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      </main>
     </div>
   );
-};
-
-export default ForumPage;
+}
