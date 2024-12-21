@@ -2,6 +2,7 @@
 /* eslint-disable prefer-const */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 'use client'
+'use client'
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -58,7 +59,7 @@ export default function InstructorDashboard() {
 
     try {
       const res = await axios.get(
-       ` http://localhost:3001/users/by-email?email=${searchTerm}`
+        `http://localhost:3001/users/by-email?email=${searchTerm}`, { withCredentials: true }
       );
       if (res.status !== 200) {
         throw new Error(`Failed to fetch user: ${res.status}`);
@@ -84,7 +85,7 @@ export default function InstructorDashboard() {
 
     try {
       const res = await axios.get(
-          `http://localhost:3001/users/Studentfetch/${searchTerm}`
+        `http://localhost:3001/users/Studentfetch/${searchTerm}`, { withCredentials: true }
       );
       if (res.status !== 200) {
         throw new Error(res.statusText || 'Failed to fetch user');

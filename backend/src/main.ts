@@ -40,10 +40,9 @@ async function bootstrap() {
 
   // Middleware
   app.use(cookieParser());
-
-  // Start the server
-  await app.listen(PORT);
-  console.log(`Server is running on http://localhost:${PORT}`);
+  await app.listen(3001);
+  console.log('Server is running on http://localhost:3001');
+  app.enableCors();
 }
 
 bootstrap();
