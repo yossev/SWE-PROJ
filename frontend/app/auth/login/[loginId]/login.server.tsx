@@ -1,7 +1,9 @@
 'use server'
-import axiosInstance from "@/app/utils/axiosInstance";
+
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import axiosInstance from "app/utils/axiosInstance";
+
 let backend_url = "http://localhost:3001";
 export default async function login(prevState:any,formData:FormData){
     const cookieStrore=await cookies()
