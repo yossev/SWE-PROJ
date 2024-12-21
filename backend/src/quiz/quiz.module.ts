@@ -1,11 +1,10 @@
 /* eslint-disable prettier/prettier */
-import { Module, forwardRef } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { quizController } from './quiz.controller';
 import { QuizService } from './quiz.service';
 import { QuizSchema } from 'models/quizzes-schema';
 
-import { ProgressModule } from 'src/progress/progress.module';
 import { ProgressSchema } from '../../src/models/progress-schema';
 import { ModuleSchema } from '../../src/models/module-schema';
 import { QuestionBankSchema } from '../../src/models/questionbank-schema';
@@ -16,7 +15,7 @@ import { CourseSchema } from 'models/course-schema';
 import { CourseService } from 'src/course/course.service';
 import { NotificationSchema } from 'models/notification-schema';
 import { NotificationService } from 'src/notification/notification.service';
-import { Forum, ForumSchema } from 'models/forum-schema';
+import { ForumSchema } from 'models/forum-schema';
 import { ForumService } from 'src/forum/forum.service';
 import { MessageSchema } from 'models/message-schema';
 import { MessageService } from 'src/chat/message.service';
