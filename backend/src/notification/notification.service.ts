@@ -90,6 +90,30 @@ export class NotificationService {
     }
   }
   
+  async createNotificationForAllUsers(
+    message: string,
+   
+  ): Promise<UserNotification[]> {
+    try {
+      // Fetch all instructors and students
+      const users = await this.userModel
+        .find({ role: { $in: ['instructor', 'student'] } }) // Adjust roles as per your schema
+        .exec();
+  
+      if (!users || users.length === 0) {
+        throw new Error('No users found.');
+      }
+  
+      const userIds = users.map((user) => user._id);
+  
+      // Delegate the notification creation to the existing method
+      return this.createNotification(userIds, message
+      );
+    } catch (error) {
+      console.error('Error creating notifications for all users:', error);
+      throw new Error('Failed to create notifications for all users');
+    }
+  }
   
 
   // Create a generic notification

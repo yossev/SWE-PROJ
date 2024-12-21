@@ -4,36 +4,44 @@
 
 require('dotenv').config();
 
-import { NestFactory, Reflector } from '@nestjs/core';
+import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
-import { AuthGuard } from './auth/guards/auth.guards';
-import { JwtService } from '@nestjs/jwt';
-import { CorsOptions } from 'cors';
-const mongoose=require('mongoose');
-const express=require('express');
-const url: string = "mongodb://localhost:27017/";
-
+import * as mongoose from 'mongoose';
 
 async function bootstrap() {
+  const { DATABASE, PORT = 3001 } = process.env;
 
-   console.log("Database URL:" , process.env.DATABASE);
-  const app = await NestFactory.create(AppModule , {cors : true});
-  app.enableCors({origin : true , credentials : true});
-  await mongoose.connect(process.env.DATABASE , {
-  }).then( () => {
-     console.log('Connected');
-  }).catch((err) => {
-     console.error('MongoDB connection error:', err);
+  if (!DATABASE) {
+    console.error('Error: DATABASE URL is missing in environment variables.');
+    process.exit(1); // Exit the process if DATABASE is not defined
+  }
+
+  console.log("Connecting to Database URL:", DATABASE);
+
+  // Connect to MongoDB
+  try {
+    await mongoose.connect(DATABASE);
+    console.log('MongoDB connection successful.');
+  } catch (error) {
+    console.error('MongoDB connection error:', error);
+    process.exit(1); // Exit if database connection fails
+  }
+
+  // Create the app
+  const app = await NestFactory.create(AppModule);
+
+  // Enable CORS
+  app.enableCors({
+    origin: 'http://localhost:3000', // Set your frontend's origin
+    credentials: true,              // Allow credentials like cookies
   });
-  app.use(express.json());
-  const reflector = app.get(Reflector);
-  console.log('Reflector in main.ts:', reflector);
+
+  // Middleware
   app.use(cookieParser());
   await app.listen(3001);
   console.log('Server is running on http://localhost:3001');
   app.enableCors();
 }
+
 bootstrap();
-
-

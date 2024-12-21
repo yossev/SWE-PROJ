@@ -18,7 +18,7 @@ export class CourseController {
         console.log('Creating course:', createCourseDto);
         return this.courseService.create(createCourseDto, req);
     }
-
+    @Roles(Role.Instructor,Role.Student,Role.Admin)
     @Get()
     findAll() {
         return this.courseService.findAll();
@@ -31,7 +31,7 @@ export class CourseController {
     }
 
     @Get('search')
-    @Roles(Role.Student)
+    @Roles(Role.Student,Role.Instructor,Role.Admin)
     @UseGuards(authorizationGuard)
     search(@Query('query') query: string){
         console.log('Search Query: ', query)
@@ -39,7 +39,7 @@ export class CourseController {
     }
 
     @Get(':id')
-    @Roles(Role.Instructor)
+    @Roles(Role.Instructor,Role.Admin)
     @UseGuards(authorizationGuard)
     findOne(@Param('id') id: string) {
         return this.courseService.findOne(id);

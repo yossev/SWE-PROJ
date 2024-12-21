@@ -1,11 +1,11 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Get, Post, Put, Body, Query, Delete, Req, UseGuards, Param} from '@nestjs/common';
+import { Controller, Get, Post, Put, Body, Query, Delete, Req, UseGuards} from '@nestjs/common';
 import { CreateThreadDto } from './dto/createThread.dto';
 import { UpdateThreadDto } from './dto/updateThread.dto';
 import { ThreadService } from './thread.service';
 import { Roles, Role } from 'src/auth/decorators/roles.decorator';
 import { authorizationGuard } from 'src/auth/guards/authorization.guards';
-import { AuthGuard } from 'src/auth/guards/auth.guards';
+
 
 
 @Controller('threads')

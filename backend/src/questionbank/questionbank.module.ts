@@ -17,6 +17,5 @@ import { QuestionBankSchema } from 'models/questionbank-schema';
   ],
   controllers: [QuestionBankController],
   providers: [QuestionBankService],
-  exports:[QuestionBankService]
 })
 export class QuestionBankModule {}

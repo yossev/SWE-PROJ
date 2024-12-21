@@ -9,11 +9,12 @@ import { SignInDto } from './dto/SignIn.dto';
 import { Public } from './decorators/public.decorator';
 import { UserService } from 'src/user/user.service';
 
+
 @Controller('auth')
 export class AuthController {
     constructor(private authService: AuthService,private userService:UserService) {}
 
-    @Public()
+   @Public()
     @Post('login')
     async signIn(@Body() signInDto: SignInDto, @Res({ passthrough: true }) res) {
       try {
@@ -22,19 +23,19 @@ export class AuthController {
         console.log("result",result);
         const user=this.userService.findById(result.userId);
         const role=(await user).role;
-        res.cookie('token', result.access_token, {
-          httpOnly: true, // Prevents client-side JavaScript access
+        res.cookie('token', result.access_token, { // Prevents client-side JavaScript access
           secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
           maxAge: 3600 * 1000, // Cookie expiration time in milliseconds
         });
 
         res.cookie('userId' , result.userId , {
-          httpOnly: true, // Prevents client-side JavaScript access
+ // Prevents client-side JavaScript access
           secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
           maxAge: 3600 * 1000, // Cookie expiration time in milliseconds
-        });
-        res.cookie('role', role, {
-          httpOnly: true, // Prevents client-side JavaScript access
+        }
+
+      );
+        res.cookie('role', role, { // Prevents client-side JavaScript access
           secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
           maxAge: 3600 * 1000, // Cookie expiration time in milliseconds
         });
