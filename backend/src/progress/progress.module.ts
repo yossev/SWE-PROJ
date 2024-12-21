@@ -18,22 +18,22 @@ import { CourseService } from 'src/course/course.service';
 import { QuizService } from 'src/quiz/quiz.service';
 import { ModuleService } from 'src/module/module.service';
 import { UserSchema } from 'src/models/user-schema';
-import { ForumSchema } from 'models/forum-schema';
 
-import { NotificationSchema } from 'models/notification-schema';
-import { NotificationService } from 'src/notification/notification.service';
-import { MessageService } from 'src/chat/message.service';
-import { ForumService } from 'src/forum/forum.service';
-import { QuestionBankSchema } from 'models/questionbank-schema';
-import { MessageSchema } from 'models/message-schema';
-import { UserService } from 'src/user/user.service';
-import { RoomSchema } from 'models/room-schema';
-import { RoomService } from 'src/room/room.service';
-import { ThreadSchema } from 'models/thread-schema';
-import { ThreadService } from 'src/thread/thread.service';
-import { ReplySchema } from 'models/reply-schema';
 import { ReplyService } from 'src/reply/reply.service';
 import { AuthService } from 'src/auth/auth.service';
+import { MessageService } from 'src/chat/message.service';
+import { ForumService } from 'src/forum/forum.service';
+import { ForumSchema } from 'src/models/forum-schema';
+import { MessageSchema } from 'src/models/message-schema';
+import { NotificationSchema } from 'src/models/notification-schema';
+import { QuestionBankSchema } from 'src/models/questionbank-schema';
+import { ReplySchema } from 'src/models/reply-schema';
+import { RoomSchema } from 'src/models/room-schema';
+import { ThreadSchema } from 'src/models/thread-schema';
+import { NotificationService } from 'src/notification/notification.service';
+import { RoomService } from 'src/room/room.service';
+import { ThreadService } from 'src/thread/thread.service';
+import { UserService } from 'src/user/user.service';
 @Module({
   imports: [
     MongooseModule.forFeature([

@@ -5,9 +5,11 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import {  UserNotification } from '../models/notification-schema';
 import { Message } from '../models/message-schema';
-import { Course } from 'models/course-schema';
-import { User, UserDocument } from 'models/user-schema';
+
 import { UserService } from 'src/user/user.service';
+
+import { User, UserDocument } from 'src/models/user-schema';
+import { Course } from 'src/models/course-schema';
 
 @Injectable()
 export class NotificationService {

@@ -1,11 +1,12 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, BadRequestException, UseGuards } from '@nestjs/common';
-import { QuestionBankService } from './questionbank.service';
-import { QuestionBank } from 'models/questionbank-schema';
+
 import { UpdateQuestionBankDto } from './DTO/questionbank.update.dto';
 import { CreateQuestionBankDto } from './DTO/questionbank.create.dto';
 import { Query } from '@nestjs/common';
 import { Role, Roles } from 'src/auth/decorators/roles.decorator';
 import { authorizationGuard } from 'src/auth/guards/authorization.guards';
+import { QuestionBank } from 'src/models/questionbank-schema';
+import { QuestionBankService } from './questionbank.service';
 @Controller('questionbank')
 export class QuestionBankController {
   constructor(private readonly questionBankService: QuestionBankService) {}

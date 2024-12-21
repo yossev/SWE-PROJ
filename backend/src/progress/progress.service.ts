@@ -15,7 +15,8 @@ import { RatingService } from '../rating/rating.service';
 import mongoose from 'mongoose';
 import * as PDFDocument from 'pdfkit';
 import { Response } from 'express';
-import { Rating } from 'models/rating-schema';
+import { Rating } from 'src/models/rating-schema';
+
 @Injectable()
 export class ProgressService {
   constructor(

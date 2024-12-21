@@ -3,24 +3,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { quizController } from './quiz.controller';
 import { QuizService } from './quiz.service';
-import { QuizSchema } from 'models/quizzes-schema';
 
-import { ProgressSchema } from '../../src/models/progress-schema';
-import { ModuleSchema } from '../../src/models/module-schema';
-import { QuestionBankSchema } from '../../src/models/questionbank-schema';
-import { UserSchema } from '../../src/models/user-schema';
-import { ResponseSchema } from 'models/responses-schema';
-import { JwtService } from '@nestjs/jwt';
-import { CourseSchema } from 'models/course-schema';
-import { CourseService } from 'src/course/course.service';
-import { NotificationSchema } from 'models/notification-schema';
-import { NotificationService } from 'src/notification/notification.service';
-import { ForumSchema } from 'models/forum-schema';
-import { ForumService } from 'src/forum/forum.service';
-import { MessageSchema } from 'models/message-schema';
-import { MessageService } from 'src/chat/message.service';
-import { UserService } from 'src/user/user.service';
-import { ThreadSchema } from 'models/thread-schema';
 import { ThreadService } from 'src/thread/thread.service';
 import { ReplySchema } from 'src/models/reply-schema';
 import { ReplyService } from 'src/reply/reply.service';
@@ -28,8 +11,26 @@ import { RoomService } from 'src/room/room.service';
 import { RoomSchema } from 'src/models/room-schema';
 import { AuthService } from 'src/auth/auth.service';
 import { ProgressService } from 'src/progress/progress.service';
-import { RatingSchema } from 'models/rating-schema';
+
 import { RatingService } from 'src/rating/rating.service';
+import { JwtService } from '@nestjs/jwt';
+import { MessageService } from 'src/chat/message.service';
+import { CourseService } from 'src/course/course.service';
+import { ForumService } from 'src/forum/forum.service';
+import { CourseSchema } from 'src/models/course-schema';
+import { ForumSchema } from 'src/models/forum-schema';
+import { MessageSchema } from 'src/models/message-schema';
+import { ModuleSchema } from 'src/models/module-schema';
+import { NotificationSchema } from 'src/models/notification-schema';
+import { ProgressSchema } from 'src/models/progress-schema';
+import { QuestionBankSchema } from 'src/models/questionbank-schema';
+import { QuizSchema } from 'src/models/quizzes-schema';
+import { RatingSchema } from 'src/models/rating-schema';
+import { ResponseSchema } from 'src/models/responses-schema';
+import { ThreadSchema } from 'src/models/thread-schema';
+import { UserSchema } from 'src/models/user-schema';
+import { NotificationService } from 'src/notification/notification.service';
+import { UserService } from 'src/user/user.service';
 @Module({
   imports: [
     MongooseModule.forFeature([
