@@ -1,4 +1,5 @@
 'use client'
+'use client'
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -138,7 +139,7 @@ export default function InstructorDashboard() {
                 href="#"
                 className="block py-3 px-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-all duration-300 transform hover:scale-105"
               >
-                ✉️ Search Student by Email
+                ✉ Search Student by Email
               </Link>
             </li>
             <li>
@@ -146,7 +147,7 @@ export default function InstructorDashboard() {
                 href="/update-profile"
                 className="block py-3 px-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-all duration-300 transform hover:scale-105"
               >
-                ✏️ Update Personal Information
+                ✏ Update Personal Information
               </Link>
             </li>
           </ul>

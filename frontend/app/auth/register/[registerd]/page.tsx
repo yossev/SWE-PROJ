@@ -22,7 +22,7 @@ export default function RegisterPage() {
     let status = 0;
     try {
       const response = await axios.post(
-        `${backend_url}/auth/register`,
+       ` ${backend_url}/auth/register`,
         { name: name, email: email, password_hash: password, role: role },
         { withCredentials: true }
       );

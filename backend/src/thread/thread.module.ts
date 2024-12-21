@@ -53,5 +53,6 @@ import { UserService } from 'src/user/user.service';
   providers: [ThreadService,ReplyService,NotificationService,UserService,JwtService,CourseService, MessageService, RoomService,
        ProgressService, AuthService, RatingService,ForumService],
        exports:[ThreadService]
+       
   })
   export class ThreadModule {}

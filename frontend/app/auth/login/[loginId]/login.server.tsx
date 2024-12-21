@@ -1,7 +1,8 @@
 'use server'
-import axiosInstance from "@/app/utils/axiosInstance";
+
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import axiosInstance from "app/utils/axiosInstance";
 
 let backend_url = "http://localhost:3001";
 
