@@ -42,7 +42,26 @@ async updateQuiz(
   @Query('quizId') quizId: string, 
   @Body() updateData: UpdateQuizDto
 ): Promise<Quiz> {
-  return await this.quizService.update(quizId, updateData);
+  console.log("Received ID:", quizId);
+  console.log("Update Data:", updateData); // Debugging log
+
+  // Ensure the data is valid
+  if (!quizId || !updateData) {
+    throw new BadRequestException('Quiz ID or update data is missing.');
+  }
+
+  // Fetch the quiz document using the quizId
+  const quiz = await this.quizService.findById(quizId);
+
+  if (!quiz) {
+    throw new BadRequestException('Quiz not found.');
+  }
+
+  // Extract the userId from the fetched quiz document and cast it to string
+  const userId = quiz.userId.toString();  // Ensure userId is a string
+  
+  // Pass the userId to the service method
+  return await this.quizService.update(quizId, updateData, userId);
 }
 
 

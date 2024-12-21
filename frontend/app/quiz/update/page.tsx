@@ -51,16 +51,21 @@ export default function UpdateQuizPage() {
   // Update Quiz
   const handleUpdateQuiz = async () => {
     try {
-      const payload = {
-        questionType: updatedData.questionType || quizDetails?.questionType,
-        numberOfQuestions:
-          updatedData.numberOfQuestions || quizDetails?.numberOfQuestions,
-      };
+      const payload: any = {};
+
+      // Only add fields to payload if they are provided
+      if (updatedData.questionType) {
+        payload.questionType = updatedData.questionType;
+      }
+
+      if (updatedData.numberOfQuestions) {
+        payload.numberOfQuestions = updatedData.numberOfQuestions;
+      }
 
       console.log("Payload being sent:", payload);
 
       const response = await axios.put(
-        `http://localhost:3001/quiz/updatequiz?id=${quizId}`,
+        `http://localhost:3001/quiz/updatequiz?quizId=${quizId}`,
         payload
       );
 

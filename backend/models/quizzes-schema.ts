@@ -11,7 +11,7 @@ export class Quiz {
   @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'QuestionBank', required: true })
   question_ids: mongoose.Schema.Types.ObjectId[];
 
-  @Prop({ type: String, enum: ['MCQ', 'True/False'], required: true })
+  @Prop({ type: String, enum: ['MCQ', 'True/False','Both'], required: true })
   questionType: string;
 
   @Prop({ type: Number, min: 1, required: true })

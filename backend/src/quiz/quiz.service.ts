@@ -70,14 +70,14 @@ async findByUserId(userId: string): Promise<any> {
 }
 
 
-async update(quizId: string, updateData: UpdateQuizDto): Promise<Quiz> {
+async update(quizId: string, updateData: UpdateQuizDto, userId: string): Promise<Quiz> {
   if (!mongoose.Types.ObjectId.isValid(quizId)) {
-    throw new BadRequestException("Invalid Quiz ID format.");
+    throw new BadRequestException('Invalid Quiz ID format.');
   }
-  const quiz = await this.quizModel.findById(quizId);
 
+  const quiz = await this.quizModel.findById(quizId);
   if (!quiz) {
-    throw new Error("Quiz not found");
+    throw new Error('Quiz not found');
   }
 
   // Update fields if provided
@@ -86,24 +86,54 @@ async update(quizId: string, updateData: UpdateQuizDto): Promise<Quiz> {
 
   // Validate required fields
   if (!quiz.questionType || !quiz.numberOfQuestions) {
-    throw new Error("numberOfQuestions and questionType are required fields.");
+    throw new Error('numberOfQuestions and questionType are required fields.');
   }
 
-  // Fetch and update questions based on the new criteria
+  // Fetch all questions from the QuestionBank
   const allQuestions = await this.questionBankModel.find();
+
+  // Initialize difficultyLevels based on some criteria
+  let difficultyLevels: string[] = [];
+  if (quiz.questionType === QuestionType.MCQ) {
+    difficultyLevels = ['Easy', 'Medium', 'Hard'];  // Adjust based on logic or performance metrics
+  } else if (quiz.questionType === QuestionType.TrueFalse) {
+    difficultyLevels = ['Easy', 'Medium'];  // Adjust based on logic or performance metrics
+  }
+
+  // Define the filter for selecting questions based on the provided questionType
+  let questionFilter: any = {
+    module_id: quiz.module_id,
+    difficulty_level: { $in: difficultyLevels },
+  };
+
+  // If the questionType is MCQ or True/False, update the filter accordingly
+  if (quiz.questionType === QuestionType.MCQ) {
+    questionFilter.question_type = 'MCQ';
+  } else if (quiz.questionType === QuestionType.TrueFalse) {
+    questionFilter.question_type = 'True/False';
+  } else {
+    // If it's neither MCQ nor True/False, treat it as Both
+    questionFilter.question_type = { $in: ['MCQ', 'True/False'] };
+  }
+
+  // Filter questions based on type and module
   const filteredQuestions = allQuestions.filter((q) => {
     const matchesType =
-      quiz.questionType === QuestionType.Both ||
-      q.question_type === quiz.questionType;
+      (quiz.questionType === QuestionType.MCQ && q.question_type === 'MCQ') ||
+      (quiz.questionType === QuestionType.TrueFalse && q.question_type === 'True/False') ||
+      (quiz.questionType === QuestionType.Both && ['MCQ', 'True/False'].includes(q.question_type));
+
     const matchesModule = q.module_id.toString() === quiz.module_id.toString();
 
     return matchesType && matchesModule;
   });
 
+  // If not enough questions are available, throw an error
   if (filteredQuestions.length < quiz.numberOfQuestions) {
-    throw new Error("Not enough questions to satisfy the quiz requirements.");
+    throw new Error('Not enough questions to satisfy the quiz requirements.');
   }
 
+  // Randomly select the required number of questions
   const selectedQuestions = this.getRandomQuestions(filteredQuestions, quiz.numberOfQuestions);
 
   // Update quiz questions and question IDs
@@ -114,15 +144,15 @@ async update(quizId: string, updateData: UpdateQuizDto): Promise<Quiz> {
     correct_answer: q.correct_answer,
     difficultyLevel: q.difficulty_level,
   }));
+
   quiz.question_ids = selectedQuestions.map((q) => q._id);
 
   // Save updated quiz
-  console.log("Updated Quiz Object Before Saving:", quiz);
+  console.log('Updated Quiz Object Before Saving:', quiz);
   await quiz.save();
 
   return quiz;
 }
-
 
 
 
