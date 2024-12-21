@@ -20,21 +20,16 @@ export default function RegisterPage() {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     let status = 0;
-    try {
-      const response = await axios.post(
-        `${backend_url}/auth/register`,
-        {
-          name: name,
-          email: email,
-          password_hash: password,
-          role: role,
-        },
-        { withCredentials: true }
-      );
+    try
+    {
+      const response = await axios.post(`${backend_url}/auth/register`, { name: name, email: email, password_hash : password, role: role } , {withCredentials: true});   
       status = response.status;
-      console.log("Axios headers:", response.headers);
-      console.log("Status:", status);
-    } catch (err: any) {
+      console.log("Axios headers:" + response.headers);
+      console.log("Status: " + status);
+
+    }
+    catch (err: any)
+    {
       console.error("Register error:", err.response?.data?.message || err.message);
       alert("Register failed. Please check your credentials.");
     } finally {
@@ -48,31 +43,24 @@ export default function RegisterPage() {
   return (
     <>
       <div className="bg-sky-100 flex justify-center items-center h-screen">
-        <div className="w-1/2 h-screen hidden lg:block relative">
-          <Image
-            className="object-cover"
-            src="/detailed.jpg"
-            alt="login"
-            layout="fill"
-            objectFit="cover"
-            priority
+      <div className="w-1/2 h-screen hidden lg:block">
+      <Image className="object-cover w-full h-full" src="/detailed.jpg" alt="login"/>
+      </div>
+      <div className= "lg:p-36 md:p-52 sm:20 p-8 w-full lg:w-1/2">
+        <h1 className="text-3xl font-semibold mb-4">Register</h1>
+        <form onSubmit={handleRegister}>
+          <div className="mb-4 bg-sky-100">
+            <label className="block text-gray-600">Username</label>
+          <input
+          className="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500"
+          name="name"
+          type="name"
+          placeholder="Name"
+          onChange={(e) => setName(e.target.value)}
+          value={name}
+          required
           />
-        </div>
-        <div className="lg:p-36 md:p-52 sm:20 p-8 w-full lg:w-1/2">
-          <h1 className="text-3xl font-semibold mb-4">Register</h1>
-          <form onSubmit={handleRegister}>
-            <div className="mb-4 bg-sky-100">
-              <label className="block text-gray-600">Username</label>
-              <input
-                className="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500"
-                name="name"
-                type="text"
-                placeholder="Name"
-                onChange={(e) => setName(e.target.value)}
-                value={name}
-                required
-              />
-            </div>
+          </div>
 
             <div className="mb-4">
               <label className="block text-gray-800">Email</label>
@@ -100,21 +88,15 @@ export default function RegisterPage() {
               />
             </div>
 
-            <div className="mb-4">
-              <label className="block text-gray-800">Role</label>
-              <select
-                className="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500"
-                name="role"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                required
-              >
-                <option value="">Choose here</option>
-                <option value="student">Student</option>
-                <option value="instructor">Instructor</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
+          <div className="mb-4">
+            <label className="block text-gray-800">Role</label>
+            <select className="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500"  name="role" value={role} onChange={(e) => setRole(e.target.value)}>
+            <option value="">Choose here</option>
+           <option value="student">Student</option>
+           <option value="instructor">Instructor</option>
+           <option value="admin">Admin</option>
+            </select>
+          </div>
 
             <button
               type="submit"
