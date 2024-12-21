@@ -1,10 +1,10 @@
-export type Quiz = {
+export type Quizupdate = {
     _id: string;
     module_id: string;
     numberOfQuestions: number;
-    questionType: string;
     userId: string;
     created_at: string;
+    questionType: string; // Add this field
     questions: {
       question: string;
       options: string[];

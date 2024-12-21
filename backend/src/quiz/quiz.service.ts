@@ -51,29 +51,53 @@ async findByUserId(userId: string): Promise<Quiz> {
 
 
 async update(quizId: string, updateData: UpdateQuizDto): Promise<Quiz> {
+  if (!mongoose.Types.ObjectId.isValid(quizId)) {
+    throw new BadRequestException("Invalid Quiz ID format.");
+  }
   const quiz = await this.quizModel.findById(quizId);
 
   if (!quiz) {
-    throw new Error('Quiz not found');
+    throw new Error("Quiz not found");
   }
 
-  // Update the fields if provided in `updateData`
+  // Update fields if provided
   quiz.questionType = updateData.questionType || quiz.questionType;
   quiz.numberOfQuestions = updateData.numberOfQuestions || quiz.numberOfQuestions;
 
-  // Prepare data for generating a new quiz
-  const generateQuizDto: CreateQuizDto = {
-    moduleId: quiz.module_id.toString(), // Required field
-    questionType: quiz.questionType as QuestionType, // Updated field
-    numberOfQuestions: quiz.numberOfQuestions, // Updated field
-    userId: quiz.userId.toString(), // Required field
-  };
+  // Validate required fields
+  if (!quiz.questionType || !quiz.numberOfQuestions) {
+    throw new Error("numberOfQuestions and questionType are required fields.");
+  }
 
-  const updatedQuizData = await this.generateQuiz(generateQuizDto, quiz.userId.toString());
+  // Fetch and update questions based on the new criteria
+  const allQuestions = await this.questionBankModel.find();
+  const filteredQuestions = allQuestions.filter((q) => {
+    const matchesType =
+      quiz.questionType === QuestionType.Both ||
+      q.question_type === quiz.questionType;
+    const matchesModule = q.module_id.toString() === quiz.module_id.toString();
 
-  quiz.question_ids = updatedQuizData.questions.map((q) => new Types.ObjectId(q.questionId));
-  quiz.questions = updatedQuizData.questions;
+    return matchesType && matchesModule;
+  });
 
+  if (filteredQuestions.length < quiz.numberOfQuestions) {
+    throw new Error("Not enough questions to satisfy the quiz requirements.");
+  }
+
+  const selectedQuestions = this.getRandomQuestions(filteredQuestions, quiz.numberOfQuestions);
+
+  // Update quiz questions and question IDs
+  quiz.questions = selectedQuestions.map((q) => ({
+    questionId: q._id,
+    question: q.question,
+    options: q.options,
+    correct_answer: q.correct_answer,
+    difficultyLevel: q.difficulty_level,
+  }));
+  quiz.question_ids = selectedQuestions.map((q) => q._id);
+
+  // Save updated quiz
+  console.log("Updated Quiz Object Before Saving:", quiz);
   await quiz.save();
 
   return quiz;
@@ -189,7 +213,7 @@ async generateQuiz(createQuizDto: CreateQuizDto, userId: string): Promise<any> {
     created_at: new Date(),
     userId: new mongoose.Types.ObjectId(userId), 
   };
-  
+  console.log("Quiz Object Before Save:", quiz);
 
   
 

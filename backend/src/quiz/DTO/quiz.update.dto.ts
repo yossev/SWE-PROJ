@@ -4,14 +4,13 @@ import { QuestionType } from './quiz.question.dto';
 import { QuestionDto } from './quiz.question.dto';
 
 export class UpdateQuizDto {
-  @IsOptional()
-  @IsEnum(QuestionType)
-  questionType?: QuestionType;
 
-  @IsOptional()
+  @IsEnum(QuestionType)
+  questionType: QuestionType;
+
   @IsNumber()
   @Min(1)
-  numberOfQuestions?: number;
+  numberOfQuestions: number;
 
   @IsOptional()
   @IsArray()
