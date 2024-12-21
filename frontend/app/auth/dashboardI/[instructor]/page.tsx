@@ -1,24 +1,24 @@
-'use client';
+'use client'
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
 import { getCookie, getCookies, setCookie, deleteCookie, hasCookie } from 'cookies-next/client';
+import { usePathname } from 'next/navigation';
 type User = {
   name: string;
   email: string;
 };
 
-export default function InstructorDashboard({
-  params,
-}: {
-  params: Promise<{ instructor: string }>;
-}) {
+export default function InstructorDashboard() {
+  const path=usePathname().split('/');
+  
   const getInstructorData = async () => {
-    const instructorId = (await params).instructor;
-    const res = await fetch('http://localhost:3001/users/fetch/' + instructorId);
+    const instructorId = path[path.length - 1];
+    const res = await fetch('http://localhost:3001/users/fetch/' + instructorId,{credentials: 'include'});
     return res.json();
   };
+
 
   const [isInstructor, setIsInstructor] = useState(false); // To track if the user is an instructor
   const [courses, setCourses] = useState([]); // Holds the list of courses
@@ -26,9 +26,15 @@ export default function InstructorDashboard({
   const [searchResult, setSearchResult] = useState<User | null>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  let role=getCookie("role");
+  console.log("Role fetched: " + role);
+
+  const userId = getCookie("userId");
+  console.log("User ID: " + userId);
 
   // Check role and set instructor state
   useEffect(() => {
+    console.log('All cookies are ' + JSON.stringify(getCookies()));
     const role = getCookie('role'); // Assuming the user's role is stored in a cookie named 'role'
     console.log("Role: ", role);
     if (role === 'instructor') {
@@ -49,7 +55,7 @@ export default function InstructorDashboard({
 
     try {
       const res = await axios.get(
-        `http://localhost:3001/users/by-email?email=${searchTerm}`
+        `http://localhost:3001/users/by-email?email=${searchTerm}`, { withCredentials: true }
       );
       if (res.status !== 200) {
         throw new Error(`Failed to fetch user: ${res.status}`);
@@ -75,7 +81,7 @@ export default function InstructorDashboard({
 
     try {
       const res = await axios.get(
-        `http://localhost:3001/users/Studentfetch/${searchTerm}`
+        `http://localhost:3001/users/Studentfetch/${searchTerm}`, { withCredentials: true }
       );
       if (res.status !== 200) {
         throw new Error(res.statusText || 'Failed to fetch user');
