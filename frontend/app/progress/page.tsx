@@ -1,6 +1,7 @@
-'use client';
+'use client'
+
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 
 export default function DashboardPortal() {
   const router = useRouter();
@@ -19,6 +20,7 @@ export default function DashboardPortal() {
       console.error('User ID is not available');
     }
   };
+
 
   return (
     <div className="p-4">
