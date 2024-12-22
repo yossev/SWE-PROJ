@@ -4,9 +4,9 @@ import { redirect } from "next/navigation";
 import { usePathname } from 'next/navigation'
 import { getCookie, getCookies, setCookie, deleteCookie, hasCookie } from 'cookies-next/client';
 import { useEffect, useState } from "react";
-import ModuleSidebar from "@/components/ModuleSidebar";
-import ModuleContent from "@/components/ModuleContent";
-import CourseNotes from "@/components/CourseNotes";
+import ModuleSidebar from "components/ModuleSidebar";
+import ModuleContent from "components/ModuleContent";
+import CourseNotes from "components/CourseNotes";
 
 type Dispatcher<S> = Dispatch<SetStateAction<S>>;
 

@@ -22,7 +22,16 @@ export default function SecurityManagement() {
         const response = await axios.get('http://localhost:3001/users/failed-logins', {
           withCredentials: true,
         });
-        setFailedAttempts(response.data); // Assuming the backend sends the logs as an array
+
+        // Transform the response data
+        setFailedAttempts(
+          response.data.map((log: any, index: number) => ({
+            id: index + 1,
+            email: log.email,
+            reason: log.reason,
+            createdAt: log.createdAt,
+          }))
+        );
       } catch (err: any) {
         setError(err.response?.data?.message || 'Failed to fetch logs');
       } finally {
