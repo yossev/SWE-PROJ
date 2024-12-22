@@ -3,25 +3,20 @@
 
 import { Injectable, Req, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
-import { Quiz, QuizDocument } from '../../models/quizzes-schema';
+import{ Module} from '../models/module-schema';
+import mongoose, { Model, Types } from 'mongoose';
+import { CourseDocument } from '../models/course-schema';
+import { ProgressDocument } from '../models/progress-schema';
+import { QuestionBank } from '../models/questionbank-schema';
+import { QuizDocument, Quiz } from '../models/quizzes-schema';
+import { ResponsesDocument } from '../models/responses-schema';
+import { User } from '../models/user-schema';
 
-import { QuestionType, DifficultyLevel } from './DTO/quiz.question.dto'; 
-
-import {  ResponsesDocument } from '../../models/responses-schema'; 
-
-import {ProgressService} from '../progress/progress.service'
-
-import mongoose from 'mongoose';
-import { ProgressDocument } from 'models/progress-schema';
-import { QuestionBank } from 'models/questionbank-schema';
-import { User } from 'models/user-schema';
-import { CreateQuizDto } from './DTO/quiz.create.dto';
-import { UpdateQuizDto } from './DTO/quiz.update.dto';
-import { Course } from 'models/course-schema';
-import { CourseDocument } from 'models/course-schema';
-import { Module } from 'models/module-schema';
 import { NotificationService } from 'src/notification/notification.service';
+import { ProgressService } from 'src/progress/progress.service';
+import { CreateQuizDto } from './DTO/quiz.create.dto';
+import { DifficultyLevel, QuestionType } from './DTO/quiz.question.dto';
+import { UpdateQuizDto } from './DTO/quiz.update.dto';
 
 @Injectable()
 export class QuizService {

@@ -2,11 +2,11 @@
 import { Controller, Post, Get, Param, Body } from '@nestjs/common';
 import { RoomService } from './room.service';
 import { CreateRoomDto } from './dto/createRoom.dto';
-import { Room, RoomDocument } from 'src/models/room-schema';
+import { Room, RoomDocument } from '../models/room-schema';
 import mongoose, { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import {  MessageDocument } from 'models/message-schema';
-import { CourseDocument } from 'models/course-schema';
+import { CourseDocument } from '../models/course-schema';
+import { MessageDocument } from '../models/message-schema';
 
 @Controller('courses/:courseId/rooms')
 export class RoomController {

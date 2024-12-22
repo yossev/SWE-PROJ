@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 
-import { Controller, Post, Body, Get, Delete, Query, Req, UseGuards } from "@nestjs/common";
+import { Controller, Post, Body, Get, Delete, Query, Req, UseGuards, Param } from "@nestjs/common";
 
 //import { CreateThreadDto } from "src/thread/dto/createThread.dto";
 import { ForumService } from "./forum.service";
@@ -19,6 +19,14 @@ export class ForumController {
 createForum(@Req() req,@Body() createForumDto : CreateForumDto) {
   return this.forumService.create(req,createForumDto);
 }
+@Roles(Role.Instructor,Role.Student)
+@UseGuards(authorizationGuard)
+@Get('getForum/:id')
+getForum(@Param('id') id: string) {
+  return this.forumService.getForumById(id);
+}
+
+
 // Endpoint to get all forums
 @Roles(Role.Instructor, Role.Student)  // Allow both Instructor and Student to view forums
 @UseGuards(authorizationGuard)

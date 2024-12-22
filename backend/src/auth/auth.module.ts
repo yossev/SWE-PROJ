@@ -10,7 +10,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
 
-import { RefreshToken, RefreshTokenSchema } from 'src/models/refreshToken-schema'; // Use correct path
+import { RefreshToken, RefreshTokenSchema } from '../models/refreshToken-schema'; // Use correct path
 import { UserModule } from 'src/user/user.module';
 import { AuthController } from './auth.controller';
 

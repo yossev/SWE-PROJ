@@ -4,19 +4,21 @@
 import { BadRequestException, forwardRef, Inject, Injectable, Req, UnauthorizedException} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 
-import { User ,UserDocument } from 'models/user-schema';
+
 import updateUserDto from './dto/updateUser.dto';
-// import { Course } from 'src/models/course-schema';
+// import { Course } from '../models/course-schema';
 import { Model, Types } from 'mongoose';
 import { createUserDto } from './dto/createUser.dto';
 import { LoginDto } from './dto/login.dto';
  import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt/dist/jwt.service';
-import { CourseDocument } from 'models/course-schema';
+
 import { AuthService } from 'src/auth/auth.service';
 import { RefreshAccessTokenDto } from './dto/refreshAccessTokenDto.dto';
 import { Response } from 'express';
 import { ProgressService } from 'src/progress/progress.service';
+import { CourseDocument } from '../models/course-schema';
+import { User, UserDocument } from '../models/user-schema';
 // import { LoginDto } from './dto/loginDto.dto';
 // import { RefreshAccessTokenDto } from './dto/refreshAccessTokenDto.dto';
 
@@ -40,17 +42,28 @@ export class UserService {
     
 
       async findAll(): Promise<UserDocument[]> {
-        return await this.userModel.find().exec();
+        return await this.userModel.find({role: { $in: ['student', 'instructor'] }}).exec();
       }
       
-      async findByNameAndRole(name: string, role: string): Promise<User> {
-        return this.userModel.findOne({ name, role }).exec();
+      async findByName(name: string): Promise<User> {
+        return this.userModel.findOne({ name}).exec();
       }
       
       
       async findByEmail(email: string): Promise<UserDocument | null> {
         return this.userModel.findOne({ email }); // Ensure `_id` is included (default behavior)
       }
+      async findStudentByEmail(email: string): Promise<UserDocument | null> {
+        const user = await this.userModel.findOne({ email });
+        if (!user) {
+          throw new BadRequestException('User not found');
+        }
+        if (user.role !== 'student') {
+          throw new BadRequestException('User is not a student');
+        }
+        return user;
+      }
+      
      async findAllInstructors(): Promise<User[]> {
       return await this.userModel.find({ role: 'instructor' }).exec();
     }

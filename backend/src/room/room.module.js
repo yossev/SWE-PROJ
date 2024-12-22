@@ -45,8 +45,8 @@ const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
 const room_controller_1 = require("./room.controller");
 const room_service_1 = require("./room.service");
-const course_schema_1 = require("src/models/course-schema");
-const room_schema_1 = require("src/models/room-schema");
+const course_schema_1 = require("../models/course-schema");
+const room_schema_1 = require("../models/room-schema");
 let RoomModule = (() => {
     let _classDecorators = [(0, common_1.Module)({
             imports: [

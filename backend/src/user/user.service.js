@@ -51,7 +51,7 @@ var __setFunctionName = (this && this.__setFunctionName) || function (f, name, p
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserService = void 0;
 const common_1 = require("@nestjs/common");
-// import { Course } from 'src/models/course-schema';
+// import { Course } from '../models/course-schema';
 const mongoose_1 = require("mongoose");
 // import { LoginDto } from './dto/loginDto.dto';
 // import { RefreshAccessTokenDto } from './dto/refreshAccessTokenDto.dto';
@@ -70,9 +70,52 @@ let UserService = (() => {
         }
         create(userData) {
             return __awaiter(this, void 0, void 0, function* () {
-                const newUser = new this.userModel(userData); // Create a new student document
-                const user = yield newUser.save();
-                return user; // Save it to the database
+                console.log('Registering user:', createUserDto);
+                const user = new this.userModel(createUserDto); // Create a new student document
+                yield this.isEmailUnique(createUserDto.email);
+                return yield user.save(); // Save it to the database
+            });
+        }
+        // Login existing user
+        login(loginDto, res) {
+            return __awaiter(this, void 0, void 0, function* () {
+                console.log('Logging in');
+                const { email, password } = loginDto;
+                // 1. Find the user by email
+                const user = yield this.userModel.findOne({ email });
+                if (!user) {
+                    throw new common_1.UnauthorizedException('User not found');
+                }
+                const id = user._id;
+                // 2. Check if the password is correct
+                const isPasswordValid = yield bcrypt.compare(password, user.password_hash);
+                if (!isPasswordValid) {
+                    throw new common_1.UnauthorizedException('Invalid credentials');
+                }
+                // 3. Generate tokens
+                const accessToken = this.jwtService.sign({ email: user.email, userId: user._id }, { secret: process.env.JWT_SECRET, expiresIn: '1h' });
+                console.log('entering refresh token');
+                const refreshToken = yield this.authService.generateRefreshToken(user._id.toString());
+                console.log('finshing refresh token');
+                // 4. Set tokens as cookies
+                res.cookie('AccessToken', accessToken, {
+                    httpOnly: true,
+                    sameSite: 'None',
+                    secure: true,
+                    //secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+                    maxAge: 60 * 60 * 1000, // 1 hour
+                });
+                console.log('finished first');
+                res.cookie('RefreshToken', refreshToken, {
+                    httpOnly: true,
+                    sameSite: 'None',
+                    secure: true,
+                    //secure: process.env.NODE_ENV === 'production',
+                    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+                });
+                console.log('finished cookies');
+                // 5. Return response (if needed)
+                return { message: 'Login successful', userId: id };
             });
         }
         findAll() {

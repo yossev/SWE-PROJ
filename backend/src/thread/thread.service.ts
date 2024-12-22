@@ -1,15 +1,16 @@
 /* eslint-disable prettier/prettier */
 import { Injectable, Req, UnauthorizedException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { Thread, ThreadDocument } from "src/models/thread-schema";
+import { Thread, ThreadDocument } from "../models/thread-schema";
 import { Model, Types } from "mongoose";
 import { CreateThreadDto } from "./dto/createThread.dto";
 import { SearchThreadDto } from "./dto/searchThread.dto";
 import { UpdateThreadDto } from "./dto/updateThread.dto";
-import { Reply } from "models/reply-schema";
+
 import { ForumService } from "src/forum/forum.service";
 import { CourseService } from "src/course/course.service";
 import { NotificationService } from "src/notification/notification.service";
+import { Reply } from "../models/reply-schema";
 
 
 @Injectable()
@@ -25,7 +26,7 @@ export class ThreadService {
   // Create a new thread in a folder
   async createThread(@Req() req,createThreadDto: CreateThreadDto) {
     createThreadDto.createdBy=req.cookies.userId;
-    const forum=this.forumService.getForumById(createThreadDto.forum_id);
+    const forum=this.forumService.getForumById(createThreadDto.forum_id.toString());
     const forumTitle=(await forum).forumTitle;
     const course=this.courseService.findOne((await forum).course_id.toString());
     const users=(await course).students;
@@ -76,14 +77,12 @@ export class ThreadService {
   }
 
   async getThreadReplies(threadId: string) {
-    // Validate and cast the forumId to ObjectId
-    if (!Types.ObjectId.isValid(threadId)) {
-      throw new Error('Invalid forum ID');
-    }
-  
-    const threadObjectId = new Types.ObjectId(threadId);
+    
+    /*if (!Types.ObjectId.isValid(threadId)) {
+      throw new Error('Invalid thread ID');
+    }*/
 
-    return await this.replyModel.find({ thread_id: threadObjectId }).exec();
+    return await this.replyModel.find({ thread_id: threadId }).exec();
   }
 
   async getAllThreads(userId: string ) {
@@ -100,7 +99,7 @@ export class ThreadService {
     }
     else
     {
-      const forum=await this.forumService.getForumById(thread.forum_id);
+      const forum=await this.forumService.getForumById(thread.forum_id.toString());
       const course=await this.courseService.findOne((await forum).course_id.toString());
       const instructorId = course.created_by;
       if(instructorId.toString()===userId)
@@ -112,6 +111,11 @@ export class ThreadService {
           throw new Error("You are not authorized to delete this thread");
         }
     }
+  }
+  async getThreadsByForumId(forumId: string): Promise<Thread[]> {
+    return this.threadModel
+      .find({ forum_id: new Types.ObjectId(forumId) }) // Populate createdBy with user details (e.g., name)
+      .exec();
   }
 
 }

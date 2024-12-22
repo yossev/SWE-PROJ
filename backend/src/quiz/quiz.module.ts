@@ -1,37 +1,39 @@
 /* eslint-disable prettier/prettier */
-import { Module, forwardRef } from '@nestjs/common';
+import { forwardRef, Module, Module as module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { quizController } from './quiz.controller';
 import { QuizService } from './quiz.service';
-import { QuizSchema } from 'models/quizzes-schema';
 
-import { ProgressModule } from 'src/progress/progress.module';
-import { ProgressSchema } from '../../src/models/progress-schema';
-import { ModuleSchema } from '../../src/models/module-schema';
-import { QuestionBankSchema } from '../../src/models/questionbank-schema';
-import { UserSchema } from '../../src/models/user-schema';
-import { ResponseSchema } from 'models/responses-schema';
-import { JwtService } from '@nestjs/jwt';
-import { CourseSchema } from 'models/course-schema';
-import { CourseService } from 'src/course/course.service';
-import { NotificationSchema } from 'models/notification-schema';
-import { NotificationService } from 'src/notification/notification.service';
-import { Forum, ForumSchema } from 'models/forum-schema';
-import { ForumService } from 'src/forum/forum.service';
-import { MessageSchema } from 'models/message-schema';
-import { MessageService } from 'src/chat/message.service';
-import { UserService } from 'src/user/user.service';
-import { ThreadSchema } from 'models/thread-schema';
 import { ThreadService } from 'src/thread/thread.service';
-import { ReplySchema } from 'src/models/reply-schema';
+import { ReplySchema } from '../models/reply-schema';
 import { ReplyService } from 'src/reply/reply.service';
 import { RoomService } from 'src/room/room.service';
-import { RoomSchema } from 'src/models/room-schema';
+import { RoomSchema } from '../models/room-schema';
 import { AuthService } from 'src/auth/auth.service';
 import { ProgressService } from 'src/progress/progress.service';
-import { RatingSchema } from 'models/rating-schema';
+
 import { RatingService } from 'src/rating/rating.service';
-@Module({
+import { JwtService } from '@nestjs/jwt';
+import { MessageService } from 'src/chat/message.service';
+import { CourseService } from 'src/course/course.service';
+import { ForumService } from 'src/forum/forum.service';
+import { CourseSchema } from '../models/course-schema';
+import { ForumSchema } from '../models/forum-schema';
+import { MessageSchema } from '../models/message-schema';
+
+import { NotificationSchema, UserNotification } from '../models/notification-schema';
+import { ProgressSchema } from '../models/progress-schema';
+import { QuestionBankSchema } from '../models/questionbank-schema';
+import { QuizSchema } from '../models/quizzes-schema';
+import { RatingSchema } from '../models/rating-schema';
+import { ResponseSchema } from '../models/responses-schema';
+import { ThreadSchema } from '../models/thread-schema';
+import { UserSchema } from '../models/user-schema';
+import { NotificationService } from 'src/notification/notification.service';
+import { UserService } from 'src/user/user.service';
+import { ModuleService } from 'src/module/module.service';
+import { ModuleSchema } from 'src/models/module-schema';
+@module({
   imports: [
     MongooseModule.forFeature([
       { name: 'Quiz', schema: QuizSchema },
@@ -48,11 +50,11 @@ import { RatingService } from 'src/rating/rating.service';
       { name: 'Reply', schema: ReplySchema },
       { name: 'Room', schema: RoomSchema },
       { name: 'Rating', schema: RatingSchema },
-    ])
-    //forwardRef(() => ProgressModule) 
+    ]),
+    forwardRef(() => Module) 
   ],
   controllers: [quizController],
-  providers: [QuizService,RatingService,JwtService,CourseService,NotificationService,ForumService,MessageService,UserService,ThreadService,ReplyService,RoomService,AuthService,ProgressService],
+  providers: [QuizService,RatingService,JwtService,CourseService,NotificationService,ForumService,MessageService,UserService,ThreadService,ReplyService,RoomService,AuthService,ProgressService,ModuleService],
   exports:[QuizService]
 
 })

@@ -4,11 +4,12 @@ import { InjectModel } from "@nestjs/mongoose";
 
 import { Model, Types } from "mongoose";
 import { CreateReplyDto } from "./dto/createReply.dto";
-import { Reply, ReplyDocument } from "models/reply-schema";
-import { Thread, ThreadDocument } from "models/thread-schema";
+
 import { UpdateThreadDto } from "src/thread/dto/updateThread.dto";
 import { UpdateReplyDto } from "./dto/updateReply.dto";
 import { NotificationService } from "src/notification/notification.service";
+import { Reply, ReplyDocument } from "../models/reply-schema";
+import { Thread, ThreadDocument } from "../models/thread-schema";
 
 @Injectable()
 export class ReplyService {

@@ -6,8 +6,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
-import { User, UserSchema } from '../../src/models/user-schema';
-import { Course, CourseSchema } from '../../src/models/course-schema';
+import { User, UserSchema } from '../models/user-schema';
+import { Course, CourseSchema } from '../models/course-schema';
 import { AuthModule } from 'src/auth/auth.module';
 import { ProgressModule } from 'src/progress/progress.module';
 import { ProgressService } from 'src/progress/progress.service';
