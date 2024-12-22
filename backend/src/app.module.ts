@@ -29,6 +29,7 @@ import { NotificationModule } from './notification/notification.module';
 import { RoomModule } from './room/room.module';
 import { JwtService } from '@nestjs/jwt';
 import { NotesModule } from './notes/notes.module';
+import { QuizModule } from './quiz/quiz.module';
 
 
 @Module({
@@ -53,8 +54,8 @@ import { NotesModule } from './notes/notes.module';
      InteractiveModule,
      QuestionBankModule,
      RoomModule,
-     NotesModule
-     QuizModule,
+     NotesModule,
+     //QuizModule,
 
     /*
   
