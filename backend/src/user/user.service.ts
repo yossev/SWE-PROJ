@@ -42,7 +42,7 @@ export class UserService {
     
 
       async findAll(): Promise<UserDocument[]> {
-        return await this.userModel.find({role:'student'}).exec();
+        return await this.userModel.find({role: { $in: ['student', 'instructor'] }}).exec();
       }
       
       async findByName(name: string): Promise<User> {
