@@ -83,7 +83,7 @@ export class quizController {
         const userId = quiz.userId.toString();  // Ensure userId is a string
   
   // Pass the userId to the service method
-        return await this.quizService.update(quizId, updateData, userId);
+        return await this.quizService.update(quizId, updateData);
     }
     @Roles(Role.Instructor)
     @UseGuards(authorizationGuard)
