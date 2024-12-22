@@ -1,4 +1,4 @@
-import { Injectable ,UnauthorizedException,BadRequestException} from '@nestjs/common';
+import { Injectable ,UnauthorizedException,BadRequestException, HttpStatus, HttpException} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Quiz, QuizDocument } from '../../models/quizzes-schema';
@@ -158,10 +158,10 @@ async delete(id: string): Promise<Quiz> {
   const responsesExist = await this.responsesModel.findOne({ quiz_id: objectId });
   
   if (responsesExist) {
-    throw new UnauthorizedException('This quiz has already been taken by a student and cannot be deleted.');
+    throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
   }
 
-  // Attempt to delete the quiz if no responses exist
+  //await this.responsesModel.deleteMany({ quiz_id: objectId });
   const deletedQuiz = await this.quizModel.findByIdAndDelete(objectId);
   if (!deletedQuiz) {
     throw new BadRequestException('Quiz not found.');
@@ -402,6 +402,10 @@ private shuffleArray(array: any[]): any[] {
         incorrectAnswers: answers.filter(a => !a.isCorrect)
     };
 }
-
+async getresponsestotal(id: string): Promise<any> {
+  const objectId = new mongoose.Types.ObjectId(id);
+  const responses = await this.responsesModel.find({ quiz_id: objectId });
+  return responses.length;
+}
 }
   

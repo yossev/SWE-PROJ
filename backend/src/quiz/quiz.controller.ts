@@ -31,6 +31,12 @@ export class quizController {
     return quiz;
   }
 
+  @Get('getresponsestotal')
+  async getResponsesTotal(@Query('id') id: string): Promise<any> {
+    console.log('Received ID: ' + id);
+    const quiz = await this.quizService.getresponsestotal(id);
+    return quiz;
+  }
   @Get('assigned')
   async getQuizByUserId(@Query('userId') userId: string): Promise<Quiz> {
     console.log('Fetching quiz for User ID:', userId);

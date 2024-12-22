@@ -9,6 +9,7 @@ export default function DeleteQuizPage() {
   // Handle Deletion of Quiz
   const handleDeleteQuiz = async () => {
     try {
+      let allow=true;
       if (!quizId) {
         setMessage("Please enter a valid Quiz ID.");
         return;
@@ -17,22 +18,29 @@ export default function DeleteQuizPage() {
       console.log("Deleting quiz with ID:", quizId); // Check if the correct quizId is printed
   
       // Fetch Quiz details to check if there are any responses
-      const response = await axios.get("http://localhost:3001/quiz/singlequiz", {
+      const response = await axios.get("http://localhost:3001/quiz/getresponsestotal", {
         params: { id: quizId },
-      });
-  
-      if (response.data.responses && response.data.responses.length > 0) {
+      }
+    )
+ console.log("Response from backend:", response.data);
+      if (response.data && response.data > 0) {
         setMessage("This quiz has already been taken by students and cannot be deleted.");
-        return;
+        allow=false;
+        return ;
       }
   
-      // Send DELETE request to backend if no responses exist
+      if (allow) {
+        // Send DELETE request to backend if no responses exist
       const deleteResponse = await axios.delete(
         `http://localhost:3001/quiz/deletequiz?id=${quizId}`
-      );
+      ).catch(function (error) {
+        console.log(error);
+        return error;
+      });;
   
       setMessage("Quiz deleted successfully!");
       setQuizId(""); // Clear input box
+      }
     } catch (error: any) {
       console.error("Error deleting quiz:", error);
   
