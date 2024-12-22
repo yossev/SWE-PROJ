@@ -336,53 +336,65 @@ private shuffleArray(array: any[]): any[] {
   
 
   async evaluateQuiz(
-    userAnswers: string[],
-    selectedQuestions: { questionId: string }[],
-    userId: string,
+    userAnswers: string[], 
+    selectedQuestions: { questionId: string }[], 
+    userId: string, 
     quizId: string
-  ): Promise<any> {
+): Promise<any> {
     const questionIds = selectedQuestions.map((q) => q.questionId);
-  
     const objectIds = questionIds.map((id) => new mongoose.Types.ObjectId(id));
-  
+
     // Fetch correct answers using the questionIds
     const questionsFromDB = await this.questionBankModel.find({
-      _id: { $in: objectIds },
-    }).select('correct_answer');
-  
+        _id: { $in: objectIds },
+    }).select('correct_answer explanation');
+
     const answers = selectedQuestions.map((question, index) => {
-      const correctAnswer = questionsFromDB.find(
-        (q) => q._id.toString() === question.questionId
-      )?.correct_answer;
-  
-      return {
-        questionId: new mongoose.Types.ObjectId(question.questionId),
-        answer: userAnswers[index] || '',
-        correctAnswer: correctAnswer || 'Not available',
-      };
+        const correctAnswer = questionsFromDB.find(
+            (q) => q._id.toString() === question.questionId
+        )?.correct_answer;
+
+        const explanation = questionsFromDB.find(
+            (q) => q._id.toString() === question.questionId
+        )?.explanation;
+
+        // Compare answers (trim whitespace and standardize case)
+        const userAnswer = userAnswers[index]?.trim().toLowerCase();
+        const correctAnswerTrimmed = correctAnswer?.trim().toLowerCase();
+
+        return {
+            questionId: new mongoose.Types.ObjectId(question.questionId),
+            answer: userAnswer || '',
+            correctAnswer: correctAnswer || 'Not available',
+            explanation: explanation || 'No explanation available',
+            isCorrect: userAnswer === correctAnswerTrimmed // Flag if answer is correct
+        };
     });
-  
-    const correctAnswersCount = answers.reduce((count, answerObj) => {
-      if (answerObj.correctAnswer === answerObj.answer) {
-        return count + 1;
-      }
-      return count;
-    }, 0);
-  
+
+    const correctAnswersCount = answers.filter(a => a.isCorrect).length;
+
     const score = (correctAnswersCount / selectedQuestions.length) * 100;
-  
+
+    // Save responses
     const responseDocument = new this.responsesModel({
-      user_id: new mongoose.Types.ObjectId(userId),
-      quiz_id: new mongoose.Types.ObjectId(quizId),
-      answers,
-      score,
-      submittedAt: new Date(),
+        user_id: new mongoose.Types.ObjectId(userId),
+        quiz_id: new mongoose.Types.ObjectId(quizId),
+        answers,
+        correctAnswers: answers.filter(a => a.isCorrect),
+        incorrectAnswers: answers.filter(a => !a.isCorrect),
+        score,
+        submittedAt: new Date(),
     });
-  
+
     await responseDocument.save();
-  
-    return { score, feedback: score >= 50 ? 'Good job!, you are ready for the next module!' : 'Needs improvement, please re-study the module again  ' };
-  }
-  
+
+    return { 
+        score, 
+        feedback: score >= 50 ? 'Good job!, you are ready for the next module!' : 'Needs improvement, please re-study the module again',
+        correctAnswers: answers.filter(a => a.isCorrect),
+        incorrectAnswers: answers.filter(a => !a.isCorrect)
+    };
+}
+
 }
   

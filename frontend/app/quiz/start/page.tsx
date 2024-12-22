@@ -74,7 +74,7 @@ export default function QuizStart() {
       const result = await response.json();
       setScore(result.data.score);
       setFeedback(result.data.feedback);
-      setResultDetails(result.data.details); // Store result details from backend
+      setResultDetails(result.data); // Store result details from backend
       setStep("results");
     } catch (err) {
       console.error(err);
@@ -110,19 +110,43 @@ export default function QuizStart() {
           {quizData.questions.map((question: any, index: number) => (
             <div key={question.questionId} className="mb-6">
               <p className="font-semibold mb-2">{`Q${index + 1}: ${question.question}`}</p>
-              {question.options.map((option: string, i: number) => (
-                <label key={i} className="block">
-                  <input
-                    type="radio"
-                    name={`question-${index}`}
-                    value={option}
-                    checked={userAnswers[index] === option}
-                    onChange={() => handleAnswerChange(index, option)}
-                    className="mr-2"
-                  />
-                  {option}
-                </label>
-              ))}
+              {question.options.map((option: string, i: number) => {
+                const isUserAnswer = userAnswers[index] === option;
+                const correctAnswer = resultDetails?.correctAnswers?.find(
+                  (answer: any) => answer.questionId === question.questionId
+                );
+                const incorrectAnswer = resultDetails?.incorrectAnswers?.find(
+                  (answer: any) => answer.questionId === question.questionId
+                );
+
+                const isCorrect = correctAnswer && userAnswers[index] === correctAnswer.answer;
+                const isIncorrect = incorrectAnswer && userAnswers[index] === incorrectAnswer.answer;
+
+                return (
+                  <label
+                    key={i}
+                    className={`block p-2 rounded-lg ${
+                      isUserAnswer
+                        ? isCorrect
+                          ? "bg-green-200 text-green-800"  // Correct answer in green
+                          : isIncorrect
+                          ? "bg-red-200 text-red-800"  // Incorrect answer in red
+                          : "bg-gray-200 text-gray-800"
+                        : "text-gray-900"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name={`question-${index}`}
+                      value={option}
+                      checked={isUserAnswer}
+                      onChange={() => handleAnswerChange(index, option)}
+                      className="mr-2"
+                    />
+                    {option}
+                  </label>
+                );
+              })}
             </div>
           ))}
           <button
@@ -135,64 +159,76 @@ export default function QuizStart() {
         </div>
       )}
 
-      {step === "results" && (
-        <div className="text-center p-6 bg-gray-900 text-white rounded-lg w-full max-w-lg">
-          <h1 className="text-4xl font-extrabold mb-6">Quiz Results</h1>
-          {score !== null && feedback ? (
-            <>
-              <p className="text-xl mb-4">Your Score: {score}%</p>
-              <p className="text-lg mb-4">{feedback}</p>
+{step === "results" && (
+  <div className="text-center p-6 bg-gray-900 text-white rounded-lg w-full max-w-lg">
+    <h1 className="text-4xl font-extrabold mb-6">Quiz Results</h1>
+    {score !== null && feedback ? (
+      <>
+        <p className="text-xl mb-4">Your Score: {score}%</p>
+        <p className="text-lg mb-4">{feedback}</p>
 
-              {/* Displaying the quiz with highlighted answers */}
-              <div className="mt-6">
-                {quizData.questions.map((question: any, index: number) => {
-                  const userAnswer = userAnswers[index];
-                  const correctAnswer = resultDetails?.answers[index]?.correctAnswer; // Fixing result details access
-                  const isCorrect = userAnswer === correctAnswer;
-                  const explanation = question.explanation;
+        {/* Displaying the quiz with highlighted answers */}
+        <div className="mt-6">
+          {quizData.questions.map((question: any, index: number) => {
+            const userAnswer = userAnswers[index];
+            const correctAnswer = resultDetails?.correctAnswers?.find(
+              (answer: any) => answer.questionId.toString() === question.questionId.toString()
+            );
+            const incorrectAnswer = resultDetails?.incorrectAnswers?.find(
+              (answer: any) => answer.questionId.toString() === question.questionId.toString()
+            );
 
+            // Check if the user answer matches the correct or incorrect answers (case insensitive)
+            const isCorrect = correctAnswer && userAnswer.trim().toLowerCase() === correctAnswer.answer.trim().toLowerCase();
+            const isIncorrect = incorrectAnswer && userAnswer.trim().toLowerCase() === incorrectAnswer.answer.trim().toLowerCase();
+            const explanation = isIncorrect ? incorrectAnswer?.explanation : correctAnswer?.explanation;
+
+            return (
+              <div key={question.questionId} className="mb-6">
+                <p className="font-semibold mb-2">{`Q${index + 1}: ${question.question}`}</p>
+                {question.options.map((option: string, i: number) => {
+                  const isUserAnswer = userAnswer === option;
                   return (
-                    <div key={question.questionId} className="mb-6">
-                      <p className="font-semibold mb-2">{`Q${index + 1}: ${question.question}`}</p>
-                      {question.options.map((option: string, i: number) => {
-                        const isUserAnswer = userAnswer === option;
-                        return (
-                          <label
-                            key={i}
-                            className={`block p-2 rounded-lg ${
-                              isUserAnswer
-                                ? isCorrect
-                                  ? "bg-green-200 text-green-800"
-                                  : "bg-red-200 text-red-800"
-                                : "text-gray-900"
-                            }`}
-                          >
-                            <input
-                              type="radio"
-                              name={`question-${index}`}
-                              value={option}
-                              checked={isUserAnswer}
-                              readOnly
-                              className="mr-2"
-                            />
-                            {option}
-                          </label>
-                        );
-                      })}
-                      {/* Show explanation for wrong answers */}
-                      {userAnswer !== correctAnswer && explanation && (
-                        <p className="text-red-500 mt-2">Explanation: {explanation}</p>
-                      )}
-                    </div>
+                    <label
+                      key={i}
+                      className={`block p-2 rounded-lg ${
+                        isUserAnswer
+                          ? isCorrect
+                            ? "bg-green-200 text-green-800"  // Correct answer in green
+                            : isIncorrect
+                            ? "bg-red-200 text-red-800"  // Incorrect answer in red
+                            : "bg-gray-200 text-gray-800"
+                          : "bg-white text-gray-900" // Non-selected options in white
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name={`question-${index}`}
+                        value={option}
+                        checked={isUserAnswer}
+                        readOnly
+                        className="mr-2"
+                      />
+                      {option}
+                    </label>
                   );
                 })}
+                {/* Show explanation for incorrect answers */}
+                {isIncorrect && explanation && (
+                  <p className="text-red-500 mt-2">Explanation: {explanation}</p>
+                )}
               </div>
-            </>
-          ) : (
-            <p>Loading results...</p>
-          )}
+            );
+          })}
         </div>
-      )}
+      </>
+    ) : (
+      <p>Loading results...</p>
+    )}
+  </div>
+)}
+
+
     </div>
   );
 }
