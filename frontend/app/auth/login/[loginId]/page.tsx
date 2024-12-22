@@ -38,6 +38,7 @@ export default function LoginPage() {
 
       if (status === 201) {
         console.log("Login successful");
+        alert("Login successful");
         // Redirect logic or additional actions here
       } else {
         console.log("Unexpected response:", response);

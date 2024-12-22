@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import * as React from 'react'
 import { getCookie, getCookies, setCookie, deleteCookie, hasCookie } from 'cookies-next/client';
 import { useEffect, useState } from "react";
-import axiosInstance from '@/app/utils/axiosInstance';
+import axiosInstance from 'app/utils/axiosInstance';
 
 import io from 'socket.io-client';
 
