@@ -12,8 +12,8 @@ import { AuthGuard as Auth } from '@nestjs/passport';
 import { MessageService } from 'src/chat/message.service';
 import { CreateForumDto } from 'src/forum/dto/createForum.dto';
 import { ForumService } from 'src/forum/forum.service';
-import { Forum, ForumDocument } from 'src/models/forum-schema';
-import { User, UserDocument } from 'src/models/user-schema';
+import { Forum, ForumDocument } from '../models/forum-schema';
+import { User, UserDocument } from '../models/user-schema';
 ;
 
 @Injectable()

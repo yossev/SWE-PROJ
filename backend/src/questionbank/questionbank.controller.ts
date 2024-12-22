@@ -5,7 +5,7 @@ import { CreateQuestionBankDto } from './DTO/questionbank.create.dto';
 import { Query } from '@nestjs/common';
 import { Role, Roles } from 'src/auth/decorators/roles.decorator';
 import { authorizationGuard } from 'src/auth/guards/authorization.guards';
-import { QuestionBank } from 'src/models/questionbank-schema';
+import { QuestionBank } from '../models/questionbank-schema';
 import { QuestionBankService } from './questionbank.service';
 @Controller('questionbank')
 export class QuestionBankController {

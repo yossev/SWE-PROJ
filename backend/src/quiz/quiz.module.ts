@@ -1,14 +1,14 @@
 /* eslint-disable prettier/prettier */
-import { Module } from '@nestjs/common';
+import { Module as yarab } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { quizController } from './quiz.controller';
 import { QuizService } from './quiz.service';
 
 import { ThreadService } from 'src/thread/thread.service';
-import { ReplySchema } from 'src/models/reply-schema';
+import { ReplySchema } from '../models/reply-schema';
 import { ReplyService } from 'src/reply/reply.service';
 import { RoomService } from 'src/room/room.service';
-import { RoomSchema } from 'src/models/room-schema';
+import { RoomSchema } from '../models/room-schema';
 import { AuthService } from 'src/auth/auth.service';
 import { ProgressService } from 'src/progress/progress.service';
 
@@ -17,25 +17,25 @@ import { JwtService } from '@nestjs/jwt';
 import { MessageService } from 'src/chat/message.service';
 import { CourseService } from 'src/course/course.service';
 import { ForumService } from 'src/forum/forum.service';
-import { CourseSchema } from 'src/models/course-schema';
-import { ForumSchema } from 'src/models/forum-schema';
-import { MessageSchema } from 'src/models/message-schema';
-import { ModuleSchema } from 'src/models/module-schema';
-import { NotificationSchema } from 'src/models/notification-schema';
-import { ProgressSchema } from 'src/models/progress-schema';
-import { QuestionBankSchema } from 'src/models/questionbank-schema';
-import { QuizSchema } from 'src/models/quizzes-schema';
-import { RatingSchema } from 'src/models/rating-schema';
-import { ResponseSchema } from 'src/models/responses-schema';
-import { ThreadSchema } from 'src/models/thread-schema';
-import { UserSchema } from 'src/models/user-schema';
+import { CourseSchema } from '../models/course-schema';
+import { ForumSchema } from '../models/forum-schema';
+import { MessageSchema } from '../models/message-schema';
+import { Module as mod , ModuleSchema as modSchema } from '../models/module-schema';
+import { NotificationSchema, UserNotification } from '../models/notification-schema';
+import { ProgressSchema } from '../models/progress-schema';
+import { QuestionBankSchema } from '../models/questionbank-schema';
+import { QuizSchema } from '../models/quizzes-schema';
+import { RatingSchema } from '../models/rating-schema';
+import { ResponseSchema } from '../models/responses-schema';
+import { ThreadSchema } from '../models/thread-schema';
+import { UserSchema } from '../models/user-schema';
 import { NotificationService } from 'src/notification/notification.service';
 import { UserService } from 'src/user/user.service';
-@Module({
+@yarab({
   imports: [
     MongooseModule.forFeature([
       { name: 'Quiz', schema: QuizSchema },
-      { name: 'Module', schema: ModuleSchema },
+      { name: mod.name, schema: modSchema },
       { name: 'QuestionBank', schema: QuestionBankSchema },
       { name: 'User', schema: UserSchema },
       { name: 'Progress', schema: ProgressSchema} ,

@@ -42,8 +42,8 @@ exports.ThreadModule = void 0;
 /* eslint-disable prettier/prettier */
 const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
-const forum_schema_1 = require("src/models/forum-schema");
-const thread_schema_1 = require("src/models/thread-schema");
+const forum_schema_1 = require("../models/forum-schema");
+const thread_schema_1 = require("../models/thread-schema");
 const thread_controller_1 = require("./thread.controller");
 const thread_service_1 = require("./thread.service");
 const reply_schema_1 = require("models/reply-schema");

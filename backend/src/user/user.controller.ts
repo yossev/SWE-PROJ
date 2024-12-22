@@ -3,7 +3,7 @@
 
 import { BadRequestException, Body, Controller, Delete, Get, HttpCode, HttpException, HttpStatus, NotFoundException, Param, Post, Put, Query, Req, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
-import { User } from 'src/models/user-schema';
+import { User } from '../models/user-schema';
 import * as bcrypt from 'bcrypt';
 
 import { createUserDto } from './dto/createUser.dto';

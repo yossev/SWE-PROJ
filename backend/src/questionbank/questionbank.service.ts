@@ -3,9 +3,9 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import mongoose from 'mongoose';
-import { QuestionBank } from 'src/models/questionbank-schema';
-import { Quiz } from 'src/models/quizzes-schema';
-import { User } from 'src/models/user-schema';
+import { QuestionBank } from '../models/questionbank-schema';
+import { Quiz } from '../models/quizzes-schema';
+import { User } from '../models/user-schema';
 import { CreateQuestionBankDto } from './DTO/questionbank.create.dto';
 import { UpdateQuestionBankDto } from './DTO/questionbank.update.dto';
 

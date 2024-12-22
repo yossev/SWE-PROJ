@@ -2,7 +2,7 @@
 import { Injectable, Req, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Module } from 'src/models/module-schema';
+import { Module } from '../models/module-schema';
 import { StreamableFile } from '@nestjs/common';
 import { createReadStream } from 'fs';
 import { join } from 'path';
@@ -13,7 +13,7 @@ import { UpdateModuleDto } from './DTO/updateModule.dto';
 import { UploadedFile } from '@nestjs/common';
 
 import { PipeTransform, ArgumentMetadata } from '@nestjs/common';
-import { Course } from 'src/models/course-schema';
+import { Course } from '../models/course-schema';
 import { NotificationService } from 'src/notification/notification.service';
 
 @Injectable()

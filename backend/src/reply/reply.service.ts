@@ -8,8 +8,8 @@ import { CreateReplyDto } from "./dto/createReply.dto";
 import { UpdateThreadDto } from "src/thread/dto/updateThread.dto";
 import { UpdateReplyDto } from "./dto/updateReply.dto";
 import { NotificationService } from "src/notification/notification.service";
-import { Reply, ReplyDocument } from "src/models/reply-schema";
-import { Thread, ThreadDocument } from "src/models/thread-schema";
+import { Reply, ReplyDocument } from "../models/reply-schema";
+import { Thread, ThreadDocument } from "../models/thread-schema";
 
 @Injectable()
 export class ReplyService {

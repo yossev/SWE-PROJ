@@ -8,7 +8,7 @@ import { Query } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Roles, Role } from 'src/auth/decorators/roles.decorator';
 import { authorizationGuard } from 'src/auth/guards/authorization.guards';
-import { Quiz } from 'src/models/quizzes-schema';
+import { Quiz } from '../models/quizzes-schema';
 
 @Controller('quiz')
 export class quizController {

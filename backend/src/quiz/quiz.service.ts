@@ -3,14 +3,14 @@
 
 import { Injectable, Req, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import{ Module} from 'src/models/module-schema';
+import{ Module} from '../models/module-schema';
 import mongoose, { Model, Types } from 'mongoose';
-import { CourseDocument } from 'src/models/course-schema';
-import { ProgressDocument } from 'src/models/progress-schema';
-import { QuestionBank } from 'src/models/questionbank-schema';
-import { QuizDocument, Quiz } from 'src/models/quizzes-schema';
-import { ResponsesDocument } from 'src/models/responses-schema';
-import { User } from 'src/models/user-schema';
+import { CourseDocument } from '../models/course-schema';
+import { ProgressDocument } from '../models/progress-schema';
+import { QuestionBank } from '../models/questionbank-schema';
+import { QuizDocument, Quiz } from '../models/quizzes-schema';
+import { ResponsesDocument } from '../models/responses-schema';
+import { User } from '../models/user-schema';
 
 import { NotificationService } from 'src/notification/notification.service';
 import { ProgressService } from 'src/progress/progress.service';
