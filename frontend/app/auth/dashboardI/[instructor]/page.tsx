@@ -214,7 +214,7 @@ export default function InstructorDashboard() {
             <p className="text-gray-600">Monitor student progress and scores.</p>
           </Link>
           <Link
-            href="/real-time-chat"
+            href="http://localhost:3000/chat/chatid"
             className="p-6 bg-white shadow rounded-lg hover:shadow-lg transition transform hover:scale-105 text-center"
           >
             <h2 className="text-xl font-semibold text-gray-800 mb-4">Real-Time Chat</h2>

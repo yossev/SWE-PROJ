@@ -1,7 +1,7 @@
 "use client";
 
-import ChatForm from "@/components/ChatForm";
-import ChatMessage from "@/components/ChatMessage";
+import ChatForm from "components/ChatForm";
+import ChatMessage from "components/ChatMessage";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import * as React from 'react'
