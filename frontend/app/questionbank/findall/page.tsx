@@ -28,8 +28,8 @@ export default function FindAllQuestionBanks() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center p-6">
-      <h1 className="text-3xl font-bold mb-6 text-black">All Question Banks</h1>
+    <div className="min-h-screen bg-gray-900 flex flex-col items-center p-6">
+      <h1 className="text-3xl font-bold mb-6 text-white">All Question Banks</h1>
 
       {/* Loading State */}
       {loading && <p className="text-gray-500 text-lg">Loading...</p>}
@@ -43,7 +43,7 @@ export default function FindAllQuestionBanks() {
           {questionBanks.map((qb) => (
             <div
               key={qb._id}
-              className="border rounded-lg shadow-md p-4 bg-gray-100 text-black"
+              className="border rounded-lg shadow-md p-4 bg-gray-800 text-white"
             >
               <h2 className="text-xl font-semibold mb-2">Question Bank</h2>
               <p>

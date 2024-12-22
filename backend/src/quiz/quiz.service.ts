@@ -61,7 +61,8 @@ async findByUserId(userId: string): Promise<any> {
       questionId: q._id.toString(),
       question: q.question,
       options: q.options,
-      correctAnswer: q.correct_answer, // Add correctAnswer if needed
+      correctAnswer: q.correct_answer,
+      explanation: q.explanation, 
     })),
     questionIds: questionIds, // Include the question ids
   };
@@ -380,7 +381,7 @@ private shuffleArray(array: any[]): any[] {
   
     await responseDocument.save();
   
-    return { score, feedback: score >= 50 ? 'Good job!' : 'Needs improvement' };
+    return { score, feedback: score >= 50 ? 'Good job!, you are ready for the next module!' : 'Needs improvement, please re-study the module again  ' };
   }
   
 }

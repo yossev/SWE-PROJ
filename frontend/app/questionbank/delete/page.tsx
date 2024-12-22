@@ -32,21 +32,21 @@ export default function DeleteQuestion() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center p-6">
-      <h1 className="text-3xl font-bold mb-8 text-black">Delete a Question</h1>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900 text-white p-6">
+      <h1 className="text-3xl font-extrabold mb-6">Delete a Question</h1>
 
-      {/* Input Field */}
+      {/* Input Field for Question ID */}
       <div className="w-full max-w-md flex items-center gap-2 mb-6">
         <input
           type="text"
           value={id}
           onChange={(e) => setId(e.target.value)}
           placeholder="Enter Question ID"
-          className="border p-2 w-full rounded text-black"
+          className="border p-3 w-full rounded text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <button
           onClick={deleteQuestionById}
-          className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+          className="bg-red-500 text-white px-6 py-3 rounded-full hover:bg-red-600 transition-all duration-300"
         >
           Delete
         </button>

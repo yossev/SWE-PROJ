@@ -27,12 +27,12 @@ export default function DeleteQuizPage() {
   };
 
   return (
-    <div className="p-8 flex flex-col items-center">
-      <h1 className="text-2xl font-bold mb-6">Delete Quiz</h1>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-800 text-white p-8">
+      <h1 className="text-3xl font-extrabold mb-8">Delete Quiz</h1>
 
       {/* Input Box for Quiz ID */}
-      <div className="mb-4 w-full max-w-md">
-        <label htmlFor="quizId" className="block mb-2 font-medium">
+      <div className="mb-6 w-full max-w-sm">
+        <label htmlFor="quizId" className="block mb-2 font-medium text-lg">
           Enter Quiz ID to Delete:
         </label>
         <input
@@ -41,14 +41,14 @@ export default function DeleteQuizPage() {
           placeholder="Enter Quiz ID"
           value={quizId}
           onChange={(e) => setQuizId(e.target.value)}
-          className="border p-2 w-full rounded text-black"
+          className="border p-3 w-full rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
       {/* Delete Button */}
       <button
         onClick={handleDeleteQuiz}
-        className="bg-red-500 text-white px-6 py-3 rounded hover:bg-red-600"
+        className="bg-red-500 text-white px-6 py-3 rounded-full hover:bg-red-600 transition-all duration-300"
       >
         Delete Quiz
       </button>
