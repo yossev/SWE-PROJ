@@ -4,19 +4,21 @@
 import { BadRequestException, forwardRef, Inject, Injectable, Req, UnauthorizedException} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 
-import { User ,UserDocument } from 'models/user-schema';
+
 import updateUserDto from './dto/updateUser.dto';
-// import { Course } from 'src/models/course-schema';
+// import { Course } from '../models/course-schema';
 import { Model, Types } from 'mongoose';
 import { createUserDto } from './dto/createUser.dto';
 import { LoginDto } from './dto/login.dto';
  import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt/dist/jwt.service';
-import { CourseDocument } from 'models/course-schema';
+
 import { AuthService } from 'src/auth/auth.service';
 import { RefreshAccessTokenDto } from './dto/refreshAccessTokenDto.dto';
 import { Response } from 'express';
 import { ProgressService } from 'src/progress/progress.service';
+import { CourseDocument } from '../models/course-schema';
+import { User, UserDocument } from '../models/user-schema';
 // import { LoginDto } from './dto/loginDto.dto';
 // import { RefreshAccessTokenDto } from './dto/refreshAccessTokenDto.dto';
 

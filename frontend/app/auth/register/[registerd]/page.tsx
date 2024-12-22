@@ -41,7 +41,6 @@ export default function RegisterPage() {
   };
 
   return (
-    <>
       <div className="bg-sky-100 flex justify-center items-center h-screen">
         {/* Fixed Image Section */}
         <div className="w-1/2 h-screen hidden lg:block relative">
@@ -120,6 +119,5 @@ export default function RegisterPage() {
           </form>
         </div>
       </div>
-    </>
   );
 }

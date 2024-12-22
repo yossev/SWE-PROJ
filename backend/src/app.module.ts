@@ -24,10 +24,11 @@ import { InteractiveModule } from './module/module.module';
 import { QuestionBankModule } from './questionbank/questionbank.module';
 import { RatingModule } from './rating/rating.module';
 import { ResponseModule } from './response/response.module';
-import { QuizModule } from './quiz/quiz.module';
+//import { QuizModule } from './quiz/quiz.module';
 import { NotificationModule } from './notification/notification.module';
 import { RoomModule } from './room/room.module';
 import { JwtService } from '@nestjs/jwt';
+import { QuizModule } from './quiz/quiz.module';
 
 
 @Module({
@@ -56,7 +57,7 @@ import { JwtService } from '@nestjs/jwt';
      InteractiveModule,
      QuestionBankModule,
      RoomModule,
-    // QuizModule,
+     //QuizModule
 
     /*
   
@@ -75,8 +76,6 @@ import { JwtService } from '@nestjs/jwt';
       provide: APP_GUARD,
       useClass: AuthGuard,
     },
-    JwtStrategy,
-    UserService,
   ],
 })
 export class AppModule {

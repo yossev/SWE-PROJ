@@ -44,9 +44,9 @@ const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
 const forum_service_1 = require("./forum.service");
 const forum_controller_1 = require("./forum.controller");
-const forum_schema_1 = require("src/models/forum-schema");
-const thread_schema_1 = require("src/models/thread-schema");
-const reply_schema_1 = require("src/models/reply-schema");
+const forum_schema_1 = require("../models/forum-schema");
+const thread_schema_1 = require("../models/thread-schema");
+const reply_schema_1 = require("../models/reply-schema");
 let ForumModule = (() => {
     let _classDecorators = [(0, common_1.Module)({
             imports: [

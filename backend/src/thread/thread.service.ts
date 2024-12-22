@@ -1,15 +1,16 @@
 /* eslint-disable prettier/prettier */
 import { Injectable, Req, UnauthorizedException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { Thread, ThreadDocument } from "src/models/thread-schema";
+import { Thread, ThreadDocument } from "../models/thread-schema";
 import { Model, Types } from "mongoose";
 import { CreateThreadDto } from "./dto/createThread.dto";
 import { SearchThreadDto } from "./dto/searchThread.dto";
 import { UpdateThreadDto } from "./dto/updateThread.dto";
-import { Reply } from "models/reply-schema";
+
 import { ForumService } from "src/forum/forum.service";
 import { CourseService } from "src/course/course.service";
 import { NotificationService } from "src/notification/notification.service";
+import { Reply } from "../models/reply-schema";
 
 
 @Injectable()

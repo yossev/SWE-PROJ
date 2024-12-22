@@ -22,7 +22,7 @@ import { AuthGuard } from 'src/auth/guards/auth.guards';
 import { InjectModel } from '@nestjs/mongoose';
 import { Reply } from '../models/reply-schema';
 import { Model } from 'mongoose';
-import { Course } from '../../src/models/course-schema';
+import { Course } from '../models/course-schema';
 
 var currentFileName = ""
 

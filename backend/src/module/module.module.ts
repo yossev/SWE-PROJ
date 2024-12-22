@@ -4,14 +4,11 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ModuleController } from './module.controller';
 import { ModuleService } from './module.service';
-import { QuizSchema } from '../../src/models/quizzes-schema';
-import { ModuleSchema } from '../../src/models/module-schema';
-import { QuestionBankSchema } from '../../src/models/questionbank-schema';
-import { CourseSchema } from '../../src/models/course-schema';
-import { NotificationSchema } from 'models/notification-schema';
-import { NotificationService } from 'src/notification/notification.service';
-import { MessageSchema } from 'models/message-schema';
-import {  UserSchema } from 'models/user-schema';
+import { QuizSchema } from '../models/quizzes-schema';
+import { ModuleSchema } from '../models/module-schema';
+import { QuestionBankSchema } from '../models/questionbank-schema';
+import { CourseSchema } from '../models/course-schema';
+
 import { UserService } from 'src/user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { AuthService } from 'src/auth/auth.service';
@@ -23,13 +20,17 @@ import { RatingService } from 'src/rating/rating.service';
 import { ReplyService } from 'src/reply/reply.service';
 import { RoomService } from 'src/room/room.service';
 import { ThreadService } from 'src/thread/thread.service';
-import { Forum, ForumSchema } from 'models/forum-schema';
-import { ProgressSchema } from 'models/progress-schema';
-import { RatingSchema } from 'models/rating-schema';
-import { Reply, ReplySchema } from 'models/reply-schema';
-import { ResponseSchema } from 'models/responses-schema';
-import { Room, RoomSchema } from 'models/room-schema';
-import { Thread, ThreadSchema } from 'models/thread-schema';
+import { Forum, ForumSchema } from '../models/forum-schema';
+import { ProgressSchema } from '../models/progress-schema';
+import { RatingSchema } from '../models/rating-schema';
+import { Reply, ReplySchema } from '../models/reply-schema';
+import { ResponseSchema } from '../models/responses-schema';
+import { Room, RoomSchema } from '../models/room-schema';
+import { Thread, ThreadSchema } from '../models/thread-schema';
+import { MessageSchema } from '../models/message-schema';
+import { NotificationSchema } from '../models/notification-schema';
+import { UserSchema } from '../models/user-schema';
+import { NotificationService } from 'src/notification/notification.service';
 
 @Module({
   imports: [

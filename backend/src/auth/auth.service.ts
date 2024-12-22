@@ -4,7 +4,7 @@
 import { ConflictException, forwardRef, Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { User, UserDocument } from 'src/models/user-schema';
+import { User , UserDocument } from '../models/user-schema';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { RefreshToken, RefreshTokenDocument} from'../models/refreshToken-schema';

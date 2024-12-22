@@ -3,8 +3,8 @@
 // room.service.ts
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Course } from 'src/models/course-schema';
-import { Room } from 'src/models/room-schema';
+import { Course } from '../models/course-schema';
+import { Room } from '../models/room-schema';
 import mongoose, { Model, Types } from 'mongoose';
 import { CreateRoomDto } from './dto/createRoom.dto';
 import { UserService } from 'src/user/user.service';

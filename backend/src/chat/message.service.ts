@@ -7,7 +7,7 @@ import { Room } from '../models/room-schema';
 import { NotificationService } from '../notification/notification.service';
 import { UserService } from 'src/user/user.service';  // Import UserSer
 import { RoomService } from 'src/room/room.service';
-import { UserNotification } from 'models/notification-schema';
+import { UserNotification } from '../models/notification-schema';
 @Injectable()
 export class MessageService {
  

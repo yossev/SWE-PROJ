@@ -45,10 +45,10 @@ const quiz_controller_1 = require("./quiz.controller");
 const quiz_service_1 = require("./quiz.service");
 const quizzes_schema_1 = require("models/quizzes-schema");
 const progress_module_1 = require("src/progress/progress.module");
-const progress_schema_1 = require("../../src/models/progress-schema");
-const module_schema_1 = require("../../src/models/module-schema");
-const questionbank_schema_1 = require("../../src/models/questionbank-schema");
-const user_schema_1 = require("../../src/models/user-schema");
+const progress_schema_1 = require("../../../models/progress-schema");
+const module_schema_1 = require("../../../models/module-schema");
+const questionbank_schema_1 = require("../../../models/questionbank-schema");
+const user_schema_1 = require("../../../models/user-schema");
 const responses_schema_1 = require("models/responses-schema");
 let QuizModule = (() => {
     let _classDecorators = [(0, common_1.Module)({

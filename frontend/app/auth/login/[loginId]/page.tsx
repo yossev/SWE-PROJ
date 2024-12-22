@@ -49,7 +49,6 @@ export default function LoginPage() {
   };
 
   return (
-    <>
       <div className="bg-sky-100 flex justify-center items-center h-screen">
         <div className="w-1/2 h-screen hidden lg:block">
           <div className="relative w-full h-full">
@@ -99,6 +98,5 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
-    </>
   );
 }

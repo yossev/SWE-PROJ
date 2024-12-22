@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -24,6 +25,7 @@ export default function ManageUsers() {
     try {
       const response = await axios.get(`${backend_url}/all`, { withCredentials: true });
       setUsers(response.data);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to fetch users');
     } finally {
