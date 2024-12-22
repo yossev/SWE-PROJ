@@ -33,6 +33,7 @@ import { LoggerService } from './logger.service';
     }),forwardRef(() => UserModule),
   ],
   controllers:[AuthController],
+ // Export necessary services for other modules
   providers: [AuthService,JwtStrategy,LoggerService],
   exports: [AuthService,JwtModule,LoggerService], // Export necessary services for other modules
 })
