@@ -13,25 +13,34 @@ export default function DeleteQuizPage() {
         setMessage("Please enter a valid Quiz ID.");
         return;
       }
-
-      // Send DELETE request to backend
-      const response = await axios.delete(`http://localhost:3001/quiz/deletequiz?id=${quizId}`);
-
-      // Notify the user of success
+  
+      console.log("Deleting quiz with ID:", quizId); // Check if the correct quizId is printed
+  
+      // Fetch Quiz details to check if there are any responses
+      const response = await axios.get("http://localhost:3001/quiz/singlequiz", {
+        params: { id: quizId },
+      });
+  
+      if (response.data.responses && response.data.responses.length > 0) {
+        setMessage("This quiz has already been taken by students and cannot be deleted.");
+        return;
+      }
+  
+      // Send DELETE request to backend if no responses exist
+      const deleteResponse = await axios.delete(
+        `http://localhost:3001/quiz/deletequiz?id=${quizId}`
+      );
+  
       setMessage("Quiz deleted successfully!");
       setQuizId(""); // Clear input box
     } catch (error: any) {
       console.error("Error deleting quiz:", error);
-      
-      // Handle case where quiz has already been taken
-      if (error.response && error.response.status === 401) {
-        setMessage("This quiz has already been taken by a student and cannot be deleted.");
-      } else {
-        setMessage("Failed to delete quiz. Please try again.");
-      }
+  
+      // Simplified error handling
+      setMessage("This quiz has already been taken by a student and cannot be deleted.");
     }
   };
-
+  
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-800 text-white p-8">
       <h1 className="text-3xl font-extrabold mb-8">Delete Quiz</h1>

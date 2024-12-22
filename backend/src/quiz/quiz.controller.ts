@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, BadRequestException } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, BadRequestException ,UnauthorizedException} from '@nestjs/common';
 import { QuizService } from './quiz.service'; 
 import { Quiz } from '../../models/quizzes-schema';   
 import { CreateQuizDto } from './DTO/quiz.create.dto';
@@ -73,22 +73,18 @@ async updateQuiz(
 
 @Delete('deletequiz')
 async deleteQuiz(@Query('id') id: string): Promise<any> {
-  console.log('Received quiz ID for deletion:', id);  // This will now show the actual ID received
+  console.log("Received quiz ID for deletion:", id);  // Log quizId received from frontend
+
   try {
-    const deletedQuiz = await this.quizService.delete(id);
-    return {
-      success: true,
-      message: 'Quiz deleted successfully!',
-      data: deletedQuiz,
-    };
+    const deletedQuiz = await this.quizService.delete(id); // Calling service method
+    return { success: true, message: 'Quiz deleted successfully!' };
   } catch (error) {
-    throw new BadRequestException(error.message);
+    if (error instanceof UnauthorizedException) {
+      throw new UnauthorizedException('This quiz has already been taken by a student and cannot be deleted.');
+    }
+    throw new BadRequestException('Quiz not found or already deleted.');
   }
 }
-
-
-
-
 
   @Post('generateQuiz')
   async generateQuiz(
