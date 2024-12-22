@@ -1,5 +1,4 @@
 'use client'
-'use client'
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -13,18 +12,19 @@ type User = {
 
 export default function InstructorDashboard() {
   const path=usePathname().split('/');
-  
+
   const getInstructorData = async () => {
     const instructorId = path[path.length - 1];
     const res = await fetch('http://localhost:3001/users/fetch/' + instructorId,{credentials: 'include'});
     return res.json();
   };
 
-
   const [isInstructor, setIsInstructor] = useState(false); // To track if the user is an instructor
   const [courses, setCourses] = useState([]); // Holds the list of courses
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResult, setSearchResult] = useState<User | null>(null);
+  const [updateForm, setUpdateForm] = useState({ name: '', email: '' });
+  const [updateMessage, setUpdateMessage] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   let role=getCookie("role");
@@ -96,7 +96,34 @@ export default function InstructorDashboard() {
     }
   };
 
-  // Scroll to "My Courses" section
+  const handleUpdateSubmit = async () => {
+    if (!updateForm.name && !updateForm.email) {
+      setError('Please provide at least one field to update.');
+      return;
+    }
+
+    setLoading(true);
+    setUpdateMessage('');
+
+    try {
+      const res = await axios.put(
+        'http://localhost:3001/users/me',
+        updateForm,
+        { withCredentials: true }
+      );
+      if (res.status === 200) {
+        setUpdateMessage('Profile updated successfully.');
+        setUpdateForm({ name: '', email: '' });
+      } else {
+        throw new Error('Failed to update profile');
+      }
+    } catch (err: any) {
+      setError(err.message || 'An error occurred while updating.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const scrollToCourses = () => {
     document.getElementById('my-courses')?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -144,7 +171,7 @@ export default function InstructorDashboard() {
             </li>
             <li>
               <Link
-                href="/update-profile"
+                href="#"
                 className="block py-3 px-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-all duration-300 transform hover:scale-105"
               >
                 ✏ Update Personal Information
@@ -165,7 +192,48 @@ export default function InstructorDashboard() {
 
         {/* Dashboard Sections */}
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-          {/* Add your dashboard sections here */}
+          <Link
+            href="/course-management"
+            className="p-6 bg-white shadow rounded-lg hover:shadow-lg transition transform hover:scale-105 text-center"
+          >
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Course Management</h2>
+            <p className="text-gray-600">Organize and manage your courses effectively.</p>
+          </Link>
+          <Link
+            href="/interactive-modules"
+            className="p-6 bg-white shadow rounded-lg hover:shadow-lg transition transform hover:scale-105 text-center"
+          >
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Interactive Modules</h2>
+            <p className="text-gray-600">Engage students with interactive content.</p>
+          </Link>
+          <Link
+            href="/performance-tracking"
+            className="p-6 bg-white shadow rounded-lg hover:shadow-lg transition transform hover:scale-105 text-center"
+          >
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Performance Tracking</h2>
+            <p className="text-gray-600">Monitor student progress and scores.</p>
+          </Link>
+          <Link
+            href="/real-time-chat"
+            className="p-6 bg-white shadow rounded-lg hover:shadow-lg transition transform hover:scale-105 text-center"
+          >
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Real-Time Chat</h2>
+            <p className="text-gray-600">Communicate instantly with students.</p>
+          </Link>
+          <Link
+            href="/discussion-forums"
+            className="p-6 bg-white shadow rounded-lg hover:shadow-lg transition transform hover:scale-105 text-center"
+          >
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Discussion Forums</h2>
+            <p className="text-gray-600">Create forums for meaningful discussions.</p>
+          </Link>
+          <Link
+            href="/notes"
+            className="p-6 bg-white shadow rounded-lg hover:shadow-lg transition transform hover:scale-105 text-center"
+          >
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Notes</h2>
+            <p className="text-gray-600">Help students take and organize notes.</p>
+          </Link>
         </section>
 
         {/* Search Section */}
@@ -200,6 +268,42 @@ export default function InstructorDashboard() {
               <p className="text-gray-700">Email: {searchResult.email}</p>
             </div>
           )}
+        </section>
+
+        {/* Update Section */}
+        <section className="mb-10">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">Update Personal Information</h2>
+          <div className="flex space-x-4">
+            <input
+              type="text"
+              className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-indigo-300 transition-all duration-300"
+              placeholder="Enter new name"
+              value={updateForm.name}
+              onChange={(e) => setUpdateForm({ ...updateForm, name: e.target.value })}
+            />
+            <input
+              type="email"
+              className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-indigo-300 transition-all duration-300"
+              placeholder="Enter new email"
+              value={updateForm.email}
+              onChange={(e) => setUpdateForm({ ...updateForm, email: e.target.value })}
+            />
+            <button
+              className="px-4 py-2 bg-purple-600 text-white rounded-lg shadow hover:bg-purple-700 transition-all duration-300 transform hover:scale-105"
+              onClick={handleUpdateSubmit}
+            >
+              {loading ? 'Updating...' : 'Update Information'}
+            </button>
+          </div>
+          {updateMessage && <p className="text-green-600 mt-4">{updateMessage}</p>}
+        </section>
+
+        {/* My Courses Section at Bottom */}
+        <section id="my-courses" className="mt-10">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">My Courses</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Courses will be dynamically added here */}
+          </div>
         </section>
       </main>
     </div>
