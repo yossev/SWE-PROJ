@@ -193,7 +193,7 @@ export default function InstructorDashboard() {
         {/* Dashboard Sections */}
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
           <Link
-            href="/course-management"
+            href="http://localhost:3000/courses"
             className="p-6 bg-white shadow rounded-lg hover:shadow-lg transition transform hover:scale-105 text-center"
           >
             <h2 className="text-xl font-semibold text-gray-800 mb-4">Course Management</h2>

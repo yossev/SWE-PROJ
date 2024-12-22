@@ -6,13 +6,13 @@ export type CourseDocument = HydratedDocument<Course>;
 
 @Schema()
 export class Course {
-  @Prop({ type: String, required: true, minlength: 3, maxlength: 100 })
+  @Prop({ type: String, required: true })
   title: string;
 
-  @Prop({ type: String, required: true, minlength: 10, maxlength: 10000 })
+  @Prop({ type: String, required: true })
   description: string;
 
-  @Prop({ type: String, required: true, minlength: 2, maxlength: 50 })
+  @Prop({ type: String, required: true})
   category: string;
 
   @Prop({ type: String, required: true, enum: ['Beginner', 'Intermediate', 'Advanced'] })

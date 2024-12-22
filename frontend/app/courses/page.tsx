@@ -7,7 +7,8 @@ import 'react-toastify/dist/ReactToastify.css'; // Import toast styles
 import '../courses/app.css'
 
 const CoursePage = () => {
-
+ 
+    axios.defaults.withCredentials = true;
     interface Course {
         _id: string;
         title: string;
@@ -55,7 +56,7 @@ const CoursePage = () => {
 
     const addCourse = async () => {
         try {
-            const response = await axios.post('http://localhost:3001/courses', newCourse);
+            const response = await axios.post('http://localhost:3001/courses/create', newCourse);
             setCourses([...Courses, response.data]); 
             setIsModalOpen(false); 
             setNewCourse({ title: '', description: '', category: '', difficulty_level: 'Beginner', created_by: '', created_at: new Date() }); // Reset form
