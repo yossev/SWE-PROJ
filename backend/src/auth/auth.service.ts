@@ -11,12 +11,14 @@ import { RefreshToken, RefreshTokenDocument} from'../models/refreshToken-schema'
 import { LoginDto } from '../user/dto/login.dto';
 import { UserService } from 'src/user/user.service';
 import { RegisterRequestDto } from './dto/RegisterRequest.dto.';
+import { LoggerService } from './logger.service';
 
 @Injectable()
 export class AuthService {
     constructor(
         private usersService: UserService,
-        private jwtService: JwtService
+        private jwtService: JwtService,
+        private readonly loggerService: LoggerService
     ) { }
     async register(user: RegisterRequestDto): Promise<string> {
         const existingUser = await this.usersService.findByEmail(user.email);
@@ -33,7 +35,7 @@ export class AuthService {
         return 'registered successfully';
       }
 
-      async signIn(email: string, password: string): Promise< {access_token:string , userId : string}> {
+      async signIn(email: string,password: string): Promise< {access_token:string , userId : string}> {
         console.log("Email is: " + email + " and password is: " + password);
         const user: UserDocument = await this.usersService.findByEmail(email); // Use UserDocument type
         if (!user) {
@@ -43,7 +45,10 @@ export class AuthService {
         console.log('password: ', user.password_hash);
         const isPasswordValid = await bcrypt.compare(password, user.password_hash);
         if (!isPasswordValid) {
+          this.loggerService.logFailedLogin(email, 'Invalid credentials');
           throw new UnauthorizedException('Invalid credentials');
+          
+  
         }
       
         const payload = { userid: user._id, role: user.role }; // _id is accessible from UserDocument

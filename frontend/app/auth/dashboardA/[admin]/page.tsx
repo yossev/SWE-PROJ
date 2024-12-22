@@ -83,12 +83,13 @@ export default function AdminDashboard() {
           </Link>
 
           <Link
-            href="/security-management"
+            href="/auth/dashboardA/security-management"
             className="p-6 bg-white shadow rounded-lg hover:shadow-lg transition transform hover:scale-105 text-center"
           >
             <h2 className="text-xl font-semibold text-gray-800 mb-4">Security Management</h2>
-            <p className="text-gray-600">Monitor login attempts and security logs.</p>
+            <p className="text-gray-600">View failed login attempts and unauthorized access.</p>
           </Link>
+
           <Link
             href="/notifications"
             className="p-6 bg-white shadow rounded-lg hover:shadow-lg transition transform hover:scale-105 text-center"

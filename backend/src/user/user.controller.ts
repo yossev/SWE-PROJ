@@ -19,6 +19,7 @@ import { RefreshAccessTokenDto } from './dto/refreshAccessTokenDto.dto';
 import { ProgressService } from 'src/progress/progress.service';
 import { Response } from 'express';
 import { JwtService } from '@nestjs/jwt';
+import { readFileSync } from 'node:fs';
 
 // @UseGuards(AuthGuard) //class level
 @Controller('users') // it means anything starts with /student
@@ -162,4 +163,15 @@ export class UserController {
     getStudentCourses(@Param('userId') userId: string) {
         return this.userService.getStudentCourses(userId);
 }
+@UseGuards(authorizationGuard)
+    @Roles(Role.Admin)
+@Get('failed-logins')
+  async getFailedLogins(): Promise<string> {
+    try {
+      const data = readFileSync('failed-logins.log', 'utf-8');
+      return data;
+    } catch (err) {
+      throw new Error('Failed to read log file');
+    }
+  }
 }

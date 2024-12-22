@@ -31,6 +31,7 @@ import { ThreadSchema } from '../models/thread-schema';
 import { UserSchema } from '../models/user-schema';
 import { NotificationService } from 'src/notification/notification.service';
 import { UserService } from 'src/user/user.service';
+import { LoggerService } from 'src/auth/logger.service';
 @yarab({
   imports: [
     MongooseModule.forFeature([
@@ -52,7 +53,7 @@ import { UserService } from 'src/user/user.service';
     //forwardRef(() => ProgressModule) 
   ],
   controllers: [quizController],
-  providers: [QuizService,RatingService,JwtService,CourseService,NotificationService,ForumService,MessageService,UserService,ThreadService,ReplyService,RoomService,AuthService,ProgressService],
+  providers: [QuizService,RatingService,JwtService,CourseService,NotificationService,ForumService,MessageService,UserService,ThreadService,ReplyService,RoomService,AuthService,ProgressService,LoggerService],
   exports:[QuizService]
 
 })

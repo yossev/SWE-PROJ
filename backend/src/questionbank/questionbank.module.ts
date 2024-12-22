@@ -7,6 +7,7 @@ import { QuizSchema } from '../models/quizzes-schema';
 import { ModuleSchema } from '../models/module-schema';
 import { QuestionBankSchema } from '../models/questionbank-schema';
 import { UserSchema } from '../models/user-schema';
+import { LoggerService } from 'src/auth/logger.service';
 
 @Module({
   imports: [
@@ -16,6 +17,6 @@ import { UserSchema } from '../models/user-schema';
     MongooseModule.forFeature([{name: 'User' , schema : UserSchema}])
   ],
   controllers: [QuestionBankController],
-  providers: [QuestionBankService],
+  providers: [QuestionBankService,LoggerService],
 })
 export class QuestionBankModule {}
