@@ -72,52 +72,51 @@ async findByUserId(userId: string): Promise<any> {
 
 
 async update(quizId: string, updateData: UpdateQuizDto, userId: string): Promise<Quiz> {
-  if (!mongoose.Types.ObjectId.isValid(quizId)) {
-    throw new BadRequestException('Invalid Quiz ID format.');
-  }
-
+  // Check if the quiz exists
   const quiz = await this.quizModel.findById(quizId);
   if (!quiz) {
-    throw new Error('Quiz not found');
+    throw new BadRequestException('Quiz not found.');
   }
 
-  // Update fields if provided
+  // Check if there are responses for this quiz (should happen before any update logic)
+  const responsesExist = await this.responsesModel.findOne({ quiz_id: quizId });
+  if (responsesExist) {
+    throw new UnauthorizedException('This quiz has already been taken by a student and cannot be edited.');
+  }
+
+  // Proceed with the update only if no responses exist
   quiz.questionType = updateData.questionType || quiz.questionType;
   quiz.numberOfQuestions = updateData.numberOfQuestions || quiz.numberOfQuestions;
 
   // Validate required fields
   if (!quiz.questionType || !quiz.numberOfQuestions) {
-    throw new Error('numberOfQuestions and questionType are required fields.');
+    throw new BadRequestException('numberOfQuestions and questionType are required fields.');
   }
 
   // Fetch all questions from the QuestionBank
   const allQuestions = await this.questionBankModel.find();
 
-  // Initialize difficultyLevels based on some criteria
+  // Define the filter for selecting questions based on the provided questionType
   let difficultyLevels: string[] = [];
   if (quiz.questionType === QuestionType.MCQ) {
-    difficultyLevels = ['Easy', 'Medium', 'Hard'];  // Adjust based on logic or performance metrics
+    difficultyLevels = ['Easy', 'Medium', 'Hard'];
   } else if (quiz.questionType === QuestionType.TrueFalse) {
-    difficultyLevels = ['Easy', 'Medium'];  // Adjust based on logic or performance metrics
+    difficultyLevels = ['Easy', 'Medium'];
   }
 
-  // Define the filter for selecting questions based on the provided questionType
   let questionFilter: any = {
     module_id: quiz.module_id,
     difficulty_level: { $in: difficultyLevels },
   };
 
-  // If the questionType is MCQ or True/False, update the filter accordingly
   if (quiz.questionType === QuestionType.MCQ) {
     questionFilter.question_type = 'MCQ';
   } else if (quiz.questionType === QuestionType.TrueFalse) {
     questionFilter.question_type = 'True/False';
   } else {
-    // If it's neither MCQ nor True/False, treat it as Both
     questionFilter.question_type = { $in: ['MCQ', 'True/False'] };
   }
 
-  // Filter questions based on type and module
   const filteredQuestions = allQuestions.filter((q) => {
     const matchesType =
       (quiz.questionType === QuestionType.MCQ && q.question_type === 'MCQ') ||
@@ -129,15 +128,13 @@ async update(quizId: string, updateData: UpdateQuizDto, userId: string): Promise
     return matchesType && matchesModule;
   });
 
-  // If not enough questions are available, throw an error
   if (filteredQuestions.length < quiz.numberOfQuestions) {
-    throw new Error('Not enough questions to satisfy the quiz requirements.');
+    throw new BadRequestException('Not enough questions to satisfy the quiz requirements.');
   }
 
-  // Randomly select the required number of questions
+  // Randomly select questions
   const selectedQuestions = this.getRandomQuestions(filteredQuestions, quiz.numberOfQuestions);
 
-  // Update quiz questions and question IDs
   quiz.questions = selectedQuestions.map((q) => ({
     questionId: q._id,
     question: q.question,
@@ -148,21 +145,31 @@ async update(quizId: string, updateData: UpdateQuizDto, userId: string): Promise
 
   quiz.question_ids = selectedQuestions.map((q) => q._id);
 
-  // Save updated quiz
-  console.log('Updated Quiz Object Before Saving:', quiz);
+  // Save the updated quiz
   await quiz.save();
-
   return quiz;
 }
 
-
-
-
 async delete(id: string): Promise<Quiz> {
-  const inpStr: string= id;
-  const objectId = new mongoose.Types.ObjectId(inpStr);  
-  return await this.quizModel.findByIdAndDelete(objectId).exec();
+  const objectId = new mongoose.Types.ObjectId(id); 
+  console.log('Quiz ID to delete:', objectId);
+
+  // Check if there are responses for this quiz (should happen before any deletion logic)
+  const responsesExist = await this.responsesModel.findOne({ quiz_id: objectId });
+  
+  if (responsesExist) {
+    throw new UnauthorizedException('This quiz has already been taken by a student and cannot be deleted.');
+  }
+
+  // Attempt to delete the quiz if no responses exist
+  const deletedQuiz = await this.quizModel.findByIdAndDelete(objectId);
+  if (!deletedQuiz) {
+    throw new BadRequestException('Quiz not found.');
+  }
+
+  return deletedQuiz;
 }
+
 
 // DONT TOUCH THIS VODOO ( IT WORKS AND IDK HOW )
 async generateQuiz(createQuizDto: CreateQuizDto, userId: string): Promise<any> {

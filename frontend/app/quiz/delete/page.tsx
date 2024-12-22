@@ -20,9 +20,15 @@ export default function DeleteQuizPage() {
       // Notify the user of success
       setMessage("Quiz deleted successfully!");
       setQuizId(""); // Clear input box
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error deleting quiz:", error);
-      setMessage("Failed to delete quiz. Please try again.");
+      
+      // Handle case where quiz has already been taken
+      if (error.response && error.response.status === 401) {
+        setMessage("This quiz has already been taken by a student and cannot be deleted.");
+      } else {
+        setMessage("Failed to delete quiz. Please try again.");
+      }
     }
   };
 

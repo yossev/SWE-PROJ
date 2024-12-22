@@ -28,6 +28,12 @@ export default function UpdateQuizPage() {
         params: { id: quizId },
       });
 
+      // Check if there are responses for the quiz
+      if (response.data.responses && response.data.responses.length > 0) {
+        setMessage("This quiz has already been taken by students and cannot be updated.");
+        return;
+      }
+
       setQuizDetails(response.data);
       setUpdatedData({
         questionType: response.data.questionType || "",
@@ -66,7 +72,7 @@ export default function UpdateQuizPage() {
       setQuizDetails(response.data);
       setMessage("Quiz updated successfully!");
     } catch (error) {
-      setMessage("Error updating quiz. Please try again.");
+      setMessage("This quiz has already been taken by a student and cannot be edited.");
     }
   };
 
