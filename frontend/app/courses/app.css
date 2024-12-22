@@ -145,3 +145,25 @@
 .course-table tr:hover {
   background-color: #ddd;
 }
+.header-container {
+  position: relative;
+  width: 100%;
+}
+
+.go-to-forum {
+  position: absolute;
+  top: 20px; /* Adjust the distance from the top */
+  right: 20px; /* Adjust the distance from the right */
+  padding: 10px 20px;
+  background-color: #007bff; /* Button background color */
+  color: white; /* Button text color */
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.go-to-forum:hover {
+  background-color: #0056b3; /* Button hover background color */
+}
+

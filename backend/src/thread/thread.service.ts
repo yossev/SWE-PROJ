@@ -26,7 +26,7 @@ export class ThreadService {
   // Create a new thread in a folder
   async createThread(@Req() req,createThreadDto: CreateThreadDto) {
     createThreadDto.createdBy=req.cookies.userId;
-    const forum=this.forumService.getForumById(createThreadDto.forum_id);
+    const forum=this.forumService.getForumById(createThreadDto.forum_id.toString());
     const forumTitle=(await forum).forumTitle;
     const course=this.courseService.findOne((await forum).course_id.toString());
     const users=(await course).students;
@@ -78,8 +78,9 @@ export class ThreadService {
 
   async getThreadReplies(threadId: string) {
     // Validate and cast the forumId to ObjectId
+    
     if (!Types.ObjectId.isValid(threadId)) {
-      throw new Error('Invalid forum ID');
+      throw new Error('Invalid thread ID');
     }
   
     const threadObjectId = new Types.ObjectId(threadId);
@@ -101,7 +102,7 @@ export class ThreadService {
     }
     else
     {
-      const forum=await this.forumService.getForumById(thread.forum_id);
+      const forum=await this.forumService.getForumById(thread.forum_id.toString());
       const course=await this.courseService.findOne((await forum).course_id.toString());
       const instructorId = course.created_by;
       if(instructorId.toString()===userId)
@@ -113,6 +114,11 @@ export class ThreadService {
           throw new Error("You are not authorized to delete this thread");
         }
     }
+  }
+  async getThreadsByForumId(forumId: string): Promise<Thread[]> {
+    return this.threadModel
+      .find({ forum_id: new Types.ObjectId(forumId) }) // Populate createdBy with user details (e.g., name)
+      .exec();
   }
 
 }
