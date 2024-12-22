@@ -3,40 +3,40 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
-import { getCookie, getCookies, setCookie, deleteCookie, hasCookie } from 'cookies-next/client';
+import { getCookie, getCookies } from 'cookies-next/client';
 import { usePathname } from 'next/navigation';
+
 type User = {
   name: string;
   email: string;
 };
 
 export default function InstructorDashboard() {
-  const path=usePathname().split('/');
+  const path = usePathname().split('/');
 
   const getInstructorData = async () => {
     const instructorId = path[path.length - 1];
-    const res = await fetch('http://localhost:3001/users/fetch/' + instructorId,{credentials: 'include'});
+    const res = await fetch('http://localhost:3001/users/fetch/' + instructorId, { credentials: 'include' });
     return res.json();
   };
 
   const [isInstructor, setIsInstructor] = useState(false); // To track if the user is an instructor
-  const [courses, setCourses] = useState([]); // Holds the list of courses
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResult, setSearchResult] = useState<User | null>(null);
   const [updateForm, setUpdateForm] = useState({ name: '', email: '' });
   const [updateMessage, setUpdateMessage] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  let role=getCookie("role");
+
+  const role = getCookie("role");
   console.log("Role fetched: " + role);
 
   const userId = getCookie("userId");
   console.log("User ID: " + userId);
 
-  // Check role and set instructor state
   useEffect(() => {
     console.log('All cookies are ' + JSON.stringify(getCookies()));
-    const role = getCookie('role'); // Assuming the user's role is stored in a cookie named 'role'
+    const role = getCookie('role');
     console.log("Role: ", role);
     if (role === 'instructor') {
       setIsInstructor(true);
@@ -124,10 +124,6 @@ export default function InstructorDashboard() {
     }
   };
 
-  const scrollToCourses = () => {
-    document.getElementById('my-courses')?.scrollIntoView({ behavior: 'smooth' });
-  };
-
   if (error && !isInstructor) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-gray-100">
@@ -145,14 +141,6 @@ export default function InstructorDashboard() {
         </div>
         <nav className="mt-6">
           <ul className="space-y-4">
-            <li>
-              <button
-                onClick={scrollToCourses}
-                className="block w-full text-left py-3 px-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-all duration-300 transform hover:scale-105"
-              >
-                📚 My Courses
-              </button>
-            </li>
             <li>
               <Link
                 href="#"
@@ -214,6 +202,20 @@ export default function InstructorDashboard() {
             <p className="text-gray-600">Monitor student progress and scores.</p>
           </Link>
           <Link
+            href="/quiz"
+            className="p-6 bg-white shadow rounded-lg hover:shadow-lg transition transform hover:scale-105 text-center"
+          >
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Quiz</h2>
+            <p className="text-gray-600">Create and manage quizzes for your courses.</p>
+          </Link>
+          <Link
+            href="/questionbank"
+            className="p-6 bg-white shadow rounded-lg hover:shadow-lg transition transform hover:scale-105 text-center"
+          >
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Question Bank</h2>
+            <p className="text-gray-600">Build and maintain a repository of questions.</p>
+          </Link>
+          <Link
             href="http://localhost:3000/chat/chatid"
             className="p-6 bg-white shadow rounded-lg hover:shadow-lg transition transform hover:scale-105 text-center"
           >
@@ -221,7 +223,7 @@ export default function InstructorDashboard() {
             <p className="text-gray-600">Communicate instantly with students.</p>
           </Link>
           <Link
-            href="/discussion-forums"
+            href="http://localhost:3000/forum/forumid"
             className="p-6 bg-white shadow rounded-lg hover:shadow-lg transition transform hover:scale-105 text-center"
           >
             <h2 className="text-xl font-semibold text-gray-800 mb-4">Discussion Forums</h2>
@@ -296,14 +298,6 @@ export default function InstructorDashboard() {
             </button>
           </div>
           {updateMessage && <p className="text-green-600 mt-4">{updateMessage}</p>}
-        </section>
-
-        {/* My Courses Section at Bottom */}
-        <section id="my-courses" className="mt-10">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">My Courses</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Courses will be dynamically added here */}
-          </div>
         </section>
       </main>
     </div>
