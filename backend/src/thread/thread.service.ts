@@ -77,15 +77,12 @@ export class ThreadService {
   }
 
   async getThreadReplies(threadId: string) {
-    // Validate and cast the forumId to ObjectId
     
-    if (!Types.ObjectId.isValid(threadId)) {
+    /*if (!Types.ObjectId.isValid(threadId)) {
       throw new Error('Invalid thread ID');
-    }
-  
-    const threadObjectId = new Types.ObjectId(threadId);
+    }*/
 
-    return await this.replyModel.find({ thread_id: threadObjectId }).exec();
+    return await this.replyModel.find({ thread_id: threadId }).exec();
   }
 
   async getAllThreads(userId: string ) {

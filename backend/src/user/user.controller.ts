@@ -38,7 +38,7 @@ export class UserController {
       if (!email) {
         throw new BadRequestException('Email is required');
       }
-      return this.userService.findByEmail(email);
+      return this.userService.findStudentByEmail(email);
     }
   
     @Roles(Role.Instructor, Role.Admin)

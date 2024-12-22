@@ -42,7 +42,7 @@ export class UserService {
     
 
       async findAll(): Promise<UserDocument[]> {
-        return await this.userModel.find().exec();
+        return await this.userModel.find({role:'student'}).exec();
       }
       
       async findByNameAndRole(name: string, role: string): Promise<User> {
@@ -52,6 +52,9 @@ export class UserService {
       
       async findByEmail(email: string): Promise<UserDocument | null> {
         return this.userModel.findOne({ email }); // Ensure `_id` is included (default behavior)
+      }
+      async findStudentByEmail(email: string): Promise<UserDocument | null> {
+        return this.userModel.findOne({ email ,role:'student'}); // Ensure `_id` is included (default behavior)
       }
      async findAllInstructors(): Promise<User[]> {
       return await this.userModel.find({ role: 'instructor' }).exec();
