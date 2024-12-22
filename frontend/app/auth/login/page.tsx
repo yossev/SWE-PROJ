@@ -14,7 +14,7 @@ export default function LoginPage() {
   const router = useRouter();
 
   const redirectToSignUp = () => {
-    redirect("/auth/register/signup");
+    redirect("/auth/register/");
   };
 
   const handleLogin = async (e: React.FormEvent) => {

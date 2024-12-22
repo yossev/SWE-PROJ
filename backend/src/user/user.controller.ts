@@ -38,7 +38,7 @@ export class UserController {
       if (!email) {
         throw new BadRequestException('Email is required');
       }
-      return this.userService.findByEmail(email);
+      return this.userService.findStudentByEmail(email);
     }
   
     @Roles(Role.Instructor, Role.Admin)
@@ -55,7 +55,12 @@ export class UserController {
     @UseGuards(authorizationGuard)
     @Get('Studentfetch/:name') // /student/:id
     async getStudentByName(@Param('name') name: string): Promise<User> {
-      const user = await this.userService.findByNameAndRole(name, 'student');
+      const user = await this.userService.findByName(name);
+      if (user.role === 'student') {
+        return user;
+      }else{
+        throw new NotFoundException('User is not a student');
+      }
     
       if (!user) {
         throw new NotFoundException('Instructor not found');
@@ -68,7 +73,12 @@ export class UserController {
     @UseGuards(authorizationGuard)
     @Get('Instructorfetch/:name') // /student/:id
     async getInstructorByName(@Param('name') name: string): Promise<User> {
-      const user = await this.userService.findByNameAndRole(name, 'instructor');
+      const user = await this.userService.findByName(name);
+      if (user.role === 'instructor') {
+        return user;
+      }else{
+        throw new NotFoundException('User is not an instructor');
+      }
     
       if (!user) {
         throw new NotFoundException('Instructor not found');

@@ -11,10 +11,10 @@ export default function RegisterPage() {
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [role, setRole] = useState<string>("student");
+  const [role, setRole] = useState<string>("");
 
   const redirectToSignUp = () => {
-    redirect("/auth/login/x");
+    redirect("/auth/login/");
   };
 
   const handleRegister = async (e: React.FormEvent) => {

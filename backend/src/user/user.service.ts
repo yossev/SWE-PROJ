@@ -42,17 +42,28 @@ export class UserService {
     
 
       async findAll(): Promise<UserDocument[]> {
-        return await this.userModel.find().exec();
+        return await this.userModel.find({role: { $in: ['student', 'instructor'] }}).exec();
       }
       
-      async findByNameAndRole(name: string, role: string): Promise<User> {
-        return this.userModel.findOne({ name, role }).exec();
+      async findByName(name: string): Promise<User> {
+        return this.userModel.findOne({ name}).exec();
       }
       
       
       async findByEmail(email: string): Promise<UserDocument | null> {
         return this.userModel.findOne({ email }); // Ensure `_id` is included (default behavior)
       }
+      async findStudentByEmail(email: string): Promise<UserDocument | null> {
+        const user = await this.userModel.findOne({ email });
+        if (!user) {
+          throw new BadRequestException('User not found');
+        }
+        if (user.role !== 'student') {
+          throw new BadRequestException('User is not a student');
+        }
+        return user;
+      }
+      
      async findAllInstructors(): Promise<User[]> {
       return await this.userModel.find({ role: 'instructor' }).exec();
     }

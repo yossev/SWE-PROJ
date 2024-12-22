@@ -45,6 +45,12 @@ export class ModuleController {
         return this.moduleService.updateModule(id, req,updateModuleDto);
     }
 
+    @Get('get/:id')
+    async getModule(@Param('id') id: string)
+    {
+        return this.moduleService.getModule(id);
+    }
+
     @Post('moduleLevel')
     async checkModuleCompatibility(@Param('id') id: string)
     {
@@ -98,7 +104,8 @@ export class ModuleController {
       console.log("Test -- filename is: " + fileName);
       return this.moduleService.uploadFile(req , file , moduleId , fileName);
     }
-    @Roles(Role.Instructor)
+
+    @Roles(Role.Instructor , Role.Student)
     @UseGuards(authorizationGuard)
     @Get('download/:id/:file')
     getFile(@Param('id') module_id : string , @Param('file') file : string): StreamableFile {

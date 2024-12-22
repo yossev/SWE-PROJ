@@ -50,13 +50,15 @@ export default function InstructorDashboard() {
       setError('Please enter an email to search.');
       return;
     }
-
+  
     setLoading(true);
     setError('');
-
+    setSearchResult(null);
+  
     try {
       const res = await axios.get(
-        `http://localhost:3001/users/by-email?email=${searchTerm}`, { withCredentials: true }
+        `http://localhost:3001/users/by-email?email=${searchTerm}`, 
+        { withCredentials: true }
       );
       if (res.status !== 200) {
         throw new Error(`Failed to fetch user: ${res.status}`);
@@ -64,38 +66,16 @@ export default function InstructorDashboard() {
       const userData = res.data;
       setSearchResult(userData);
     } catch (err: any) {
-      setError(err.message || 'An error occurred');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const searchByName = async () => {
-    if (!searchTerm) {
-      setError('Please enter a name to search.');
-      return;
-    }
-
-    setLoading(true);
-    setError('');
-    setSearchResult(null);
-
-    try {
-      const res = await axios.get(
-        `http://localhost:3001/users/Studentfetch/${searchTerm}`, { withCredentials: true }
-      );
-      if (res.status !== 200) {
-        throw new Error(res.statusText || 'Failed to fetch user');
+      // Extract error message from the response if available
+      if (err.response && err.response.data) {
+        setError(err.response.data.message || 'An error occurred');
+      } else {
+        setError(err.message || 'An error occurred');
       }
-      const userData = res.data;
-      setSearchResult(userData);
-    } catch (err: any) {
-      setError(err.message || 'An error occurred');
     } finally {
       setLoading(false);
     }
   };
-
   const handleUpdateSubmit = async () => {
     if (!updateForm.name && !updateForm.email) {
       setError('Please provide at least one field to update.');
@@ -122,6 +102,42 @@ export default function InstructorDashboard() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const searchByName = async () => {
+    if (!searchTerm) {
+      setError('Please enter a name to search.');
+      return;
+    }
+  
+    setLoading(true);
+    setError('');
+    setSearchResult(null);
+  
+    try {
+      const res = await axios.get(
+        `http://localhost:3001/users/Studentfetch/${searchTerm}`,
+        { withCredentials: true }
+      );
+      if (res.status !== 200) {
+        throw new Error(res.statusText || 'Failed to fetch user');
+      }
+      const userData = res.data;
+      setSearchResult(userData);
+    } catch (err: any) {
+      // Extract error message from the response if available
+      if (err.response && err.response.data) {
+        setError(err.response.data.message || 'An error occurred');
+      } else {
+        setError(err.message || 'An error occurred');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const scrollToCourses = () => {
+    document.getElementById('my-courses')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   if (error && !isInstructor) {

@@ -18,14 +18,20 @@ export default function ManageUsers() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Fetch all users
   const fetchUsers = async () => {
+    if (loading) return; // Prevent redundant fetches
     setLoading(true);
     setError(null);
     try {
       const response = await axios.get(`${backend_url}/all`, { withCredentials: true });
-      setUsers(response.data);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const mappedUsers = response.data.map((user: any) => ({
+        id: user._id, // Map _id to id
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      }));
+      console.log("Mapped Users:", mappedUsers);
+      setUsers(mappedUsers);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to fetch users');
     } finally {
@@ -33,22 +39,24 @@ export default function ManageUsers() {
     }
   };
 
-  // Delete a user
   const deleteUser = async (id: string) => {
     const confirmDelete = window.confirm('Are you sure you want to delete this user?');
     if (!confirmDelete) return;
 
+    setLoading(true); // Signal loading to avoid triggering re-renders
     try {
       await axios.delete(`${backend_url}/delete/${id}`, { withCredentials: true });
       alert('User deleted successfully');
-      fetchUsers(); // Refresh the user list
+      await fetchUsers(); // Refresh user list
     } catch (err: any) {
       alert(err.response?.data?.message || 'Failed to delete user');
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchUsers();
+    fetchUsers(); // Fetch users on component mount
   }, []);
 
   return (
@@ -62,8 +70,8 @@ export default function ManageUsers() {
       {loading && <p>Loading...</p>}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {users.map((user) => (
-          <div key={user.id} className="bg-white shadow rounded-lg p-6">
+        {users.map((user, index) => (
+          <div key={user.id || index} className="bg-white shadow rounded-lg p-6">
             <h3 className="text-xl font-semibold text-gray-800">{user.name}</h3>
             <p className="text-gray-600">{user.email}</p>
             <p className="text-gray-500 capitalize">{user.role}</p>

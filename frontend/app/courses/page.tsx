@@ -99,6 +99,11 @@ const CoursePage = () => {
     return (
       <div className="course-table-container">
         <h1 className="title">Courses</h1>
+        <div className="header-container">
+        <button className="go-to-forum" onClick={() => (window.location.href = '/forum')}>
+            Go to Forum
+        </button>
+        </div>
         <button onClick={() => setIsModalOpen(true)}>Add Course</button> {/* Button to open modal */}
         
         {isModalOpen && ( // Modal for adding a course

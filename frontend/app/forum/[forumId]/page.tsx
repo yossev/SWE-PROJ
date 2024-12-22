@@ -2,30 +2,82 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
+import axios from "axios";
+
+type Reply = {
+  id: string;
+  content: string;
+  createdBy: string;
+  createdAt: string;
+};
 
 type Thread = {
   id: string;
-  title: string;
-  creator: string;
-  time: string;
-  replies: number;
+  threadTitle: string;
+  content: string;
+  createdBy: string;
+  createdAt: string;
+  replies: Reply[]; // Include replies
 };
+
+type Forum = {
+  id: string;
+  forumTitle: string;
+};
+
+const backend_url = "http://localhost:3001";
 
 export default function ForumPage() {
   const { forumId } = useParams();
-  const [search, setSearch] = useState("");
+  const [forum, setForum] = useState<Forum | null>(null);
   const [threads, setThreads] = useState<Thread[]>([]);
+  const [search, setSearch] = useState("");
   const [searchResult, setSearchResult] = useState<Thread | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (forumId) {
-      fetch(`/api/forums/${forumId}/threads`)
-        .then((res) => res.json())
-        .then((data) => setThreads(data))
-        .catch((err) => console.error("Error fetching threads:", err));
-    }
+    const fetchForumData = async () => {
+      if (forumId) {
+        try {
+          // Fetch forum details
+          const forumRes = await axios.get(`${backend_url}/forums/getForum/${forumId}`, {
+            withCredentials: true,
+          });
+          setForum({
+            id: forumRes.data._id,
+            forumTitle: forumRes.data.forumTitle,
+          });
+
+          // Fetch threads for the forum
+          const threadsRes = await axios.get(`${backend_url}/threads/by-forum/${forumId}`, {
+            withCredentials: true,
+          });
+
+          const threadsWithReplies = await Promise.all(
+            threadsRes.data.map(async (thread: Thread) => {
+              try {
+                const repliesRes = await axios.get(
+                  `${backend_url}/threads/getReplies?id=${thread.id}`,
+                  { withCredentials: true }
+                );
+                return { ...thread, replies: repliesRes.data };
+              } catch (err) {
+                console.error(`Error fetching replies for thread ${thread.id}:`, err);
+                return { ...thread, replies: [] }; // Set empty replies if fetching fails
+              }
+            })
+          );
+
+          setThreads(threadsWithReplies);
+        } catch (err) {
+          console.error("Error fetching forum or threads:", err);
+          setError("Failed to load forum or threads data");
+        }
+      }
+    };
+
+    fetchForumData();
   }, [forumId]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -37,9 +89,11 @@ export default function ForumPage() {
   const searchByTitle = () => {
     setLoading(true);
     setError("");
+
     const result = threads.find((thread) =>
-      thread.title.toLowerCase().includes(search.toLowerCase())
+      thread.threadTitle.toLowerCase().includes(search.toLowerCase())
     );
+
     setLoading(false);
     if (result) {
       setSearchResult(result);
@@ -47,6 +101,14 @@ export default function ForumPage() {
       setError("No threads found matching the title.");
     }
   };
+
+  if (!forum) {
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-gray-50">
+        <p className="text-gray-600">{error || "Loading forum..."}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -81,7 +143,7 @@ export default function ForumPage() {
       <main className="flex-1 p-8">
         {/* Header */}
         <header className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">Forum: {forumId}</h1>
+          <h1 className="text-3xl font-bold text-gray-800">Forum: {forum.forumTitle}</h1>
           <p className="text-gray-600">
             Browse threads or search for specific discussions below.
           </p>
@@ -110,9 +172,9 @@ export default function ForumPage() {
           {searchResult && (
             <div className="mt-6 p-4 bg-gray-100 border rounded-lg">
               <h3 className="text-lg font-semibold text-gray-800">Search Result:</h3>
-              <p className="text-gray-700">Title: {searchResult.title}</p>
-              <p className="text-gray-700">Creator: {searchResult.creator}</p>
-              <p className="text-gray-700">Replies: {searchResult.replies}</p>
+              <p className="text-gray-700">Title: {searchResult.threadTitle}</p>
+              <p className="text-gray-700">Creator: {searchResult.createdBy}</p>
+              <p className="text-gray-700">Content: {searchResult.content}</p>
             </div>
           )}
         </section>
@@ -124,21 +186,29 @@ export default function ForumPage() {
             {threads.map((thread) => (
               <li
                 key={thread.id}
-                className="border-b last:border-none pb-4 mb-4 flex justify-between items-start"
+                className="border-b last:border-none pb-4 mb-4"
               >
                 <div>
                   <h3 className="text-lg font-bold text-blue-800 hover:underline">
-                    {thread.title}
+                    {thread.threadTitle}
                   </h3>
                   <p className="text-sm text-gray-600">
-                    Created by: {thread.creator} • {thread.time}
+                    Created by: {thread.createdBy} •{" "}
+                    {new Date(thread.createdAt).toLocaleDateString()}
                   </p>
+                  <p className="text-gray-800">{thread.content}</p>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm text-gray-500">
-                    <span className="font-semibold text-gray-700">{thread.replies}</span> replies
-                  </p>
-                </div>
+                <ul className="mt-4 pl-4 border-l-2 border-gray-300">
+                  {thread.replies.map((reply) => (
+                    <li key={reply.id} className="mb-2">
+                      <p className="text-sm text-gray-600">
+                        {reply.createdBy} •{" "}
+                        {new Date(reply.createdAt).toLocaleDateString()}
+                      </p>
+                      <p>{reply.content}</p>
+                    </li>
+                  ))}
+                </ul>
               </li>
             ))}
           </ul>

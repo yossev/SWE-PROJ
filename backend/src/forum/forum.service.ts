@@ -33,7 +33,7 @@ export class ForumService {
   async getForums() {
     return this.forumModel.find().exec();
   }
-  async getForumById(id:Types.ObjectId){
+  async getForumById(id:string){
     return this.forumModel.findById(id);
   }
   async deleteForum(forumId: string , instructorId : string)
