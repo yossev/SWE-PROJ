@@ -144,6 +144,22 @@ export default function StudentDashboard() {
           <p className="text-gray-600">Track your progress and manage your account.</p>
         </header>
 
+        {/* Redirection Box */}
+        <section className="mb-10">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">Subsections</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {['Course Management', 'Interactive Modules', 'Performance Tracking', 'Quiz', 'Question Bank', 'Real-Time Chat', 'Discussion Forums', 'Notes'].map((section) => (
+              <Link
+                key={section}
+                href={`/${section.replace(/ /g, '-').toLowerCase()}`}
+                className="block py-3 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-all duration-300 transform hover:scale-105 text-center"
+              >
+                {section}
+              </Link>
+            ))}
+          </div>
+        </section>
+
         {/* Courses Section */}
         <section className="mb-10">
           <h2 className="text-2xl font-semibold text-gray-800 mb-4">My Courses</h2>
@@ -207,7 +223,7 @@ export default function StudentDashboard() {
                 Profile Picture URL:
                 <input
                   type="text"
-                  name="profile_picture_url" // Use the same name as the input field
+                  name="profile_picture_url"
                   value={formData.profile_picture_url}
                   onChange={handleInputChange}
                   className="w-full px-4 py-2 border rounded-lg focus:outline-none"

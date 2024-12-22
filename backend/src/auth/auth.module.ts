@@ -2,15 +2,15 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { forwardRef, Module } from '@nestjs/common';
-import { JwtModule, JwtService } from '@nestjs/jwt';
+import { JwtModule} from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { MongooseModule } from '@nestjs/mongoose';
+
 
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
 
-import { RefreshToken, RefreshTokenSchema } from '../models/refreshToken-schema'; // Use correct path
+
 import { UserModule } from 'src/user/user.module';
 import { AuthController } from './auth.controller';
 import { LoggerService } from './logger.service';
@@ -34,7 +34,7 @@ import { LoggerService } from './logger.service';
   ],
   controllers:[AuthController],
  // Export necessary services for other modules
-  providers: [AuthService,JwtStrategy,LoggerService],
+  providers: [AuthService,LoggerService],
   exports: [AuthService,JwtModule,LoggerService], // Export necessary services for other modules
 })
 export class AuthModule {}

@@ -11,7 +11,7 @@ import { CreateModuleDto } from './DTO/createModule.dto';
 import { UpdateModuleDto } from './DTO/updateModule.dto';
 import { UploadedFile } from '@nestjs/common';
 
-import { PipeTransform, ArgumentMetadata } from '@nestjs/common';
+
 import { Course } from '../models/course-schema';
 import { NotificationService } from 'src/notification/notification.service';
 

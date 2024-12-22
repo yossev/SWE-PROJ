@@ -8,8 +8,7 @@ import { UserModule } from './user/user.module';  // UserModule is already impor
 import { ProgressModule } from './progress/progress.module';  // Import ProgressModule
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { JwtStrategy } from './auth/jwt.strategy';
-import { UserService } from './user/user.service';
+
 import { AuthGuard } from './auth/guards/auth.guards';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { APP_GUARD, Reflector } from '@nestjs/core';
@@ -27,8 +26,9 @@ import { ResponseModule } from './response/response.module';
 //import { QuizModule } from './quiz/quiz.module';
 import { NotificationModule } from './notification/notification.module';
 import { RoomModule } from './room/room.module';
-import { JwtService } from '@nestjs/jwt';
+
 import { NotesModule } from './notes/notes.module';
+import { QuizModule } from './quiz/quiz.module';
 
 
 @Module({
@@ -53,7 +53,7 @@ import { NotesModule } from './notes/notes.module';
      InteractiveModule,
      QuestionBankModule,
      RoomModule,
-     NotesModule
+     NotesModule,
      QuizModule,
 
     /*
