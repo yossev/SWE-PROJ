@@ -34,6 +34,7 @@ import { NotificationService } from 'src/notification/notification.service';
 import { RoomService } from 'src/room/room.service';
 import { ThreadService } from 'src/thread/thread.service';
 import { UserService } from 'src/user/user.service';
+import { LoggerService } from 'src/auth/logger.service';
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -61,7 +62,7 @@ import { UserService } from 'src/user/user.service';
   ],
   controllers: [ProgressController],
   providers: [ProgressService, RatingService,JwtService,ResponseService,CourseService,QuizService,ModuleService,NotificationService,
-    MessageService,ForumService,UserService,RoomService,ThreadService,ReplyService,AuthService
+    MessageService,ForumService,UserService,RoomService,ThreadService,ReplyService,AuthService,LoggerService
   ],
   exports: [ProgressService],
 })

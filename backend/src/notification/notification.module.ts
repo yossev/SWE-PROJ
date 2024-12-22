@@ -22,6 +22,7 @@ import { ThreadSchema } from '../models/thread-schema';
 import { UserSchema } from '../models/user-schema';
 import { ProgressService } from 'src/progress/progress.service';
 import { UserService } from 'src/user/user.service';
+import { LoggerService } from 'src/auth/logger.service';
 
 
 @Module({
@@ -49,7 +50,7 @@ import { UserService } from 'src/user/user.service';
       
     ]),
   ],
-  providers: [NotificationService,JwtService,ProgressService,AuthService,RatingService,UserService],
+  providers: [NotificationService,JwtService,ProgressService,AuthService,RatingService,UserService,LoggerService],
   exports: [NotificationService,JwtService], // Export the service so it can be used in other modules
 })
 export class NotificationModule {}

@@ -11,6 +11,7 @@ import { Course, CourseSchema } from '../models/course-schema';
 import { AuthModule } from 'src/auth/auth.module';
 import { ProgressModule } from 'src/progress/progress.module';
 import { ProgressService } from 'src/progress/progress.service';
+import { LoggerService } from 'src/auth/logger.service';
 
 @Module({
   imports: [
@@ -36,7 +37,7 @@ import { ProgressService } from 'src/progress/progress.service';
     }),
   ],
   controllers: [UserController],
-  providers: [UserService],
+  providers: [UserService,LoggerService],
   exports: [UserService, MongooseModule], // Export UserService for use in AuthModule
 })
 export class UserModule {}

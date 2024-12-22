@@ -28,6 +28,7 @@ import { NotificationService } from 'src/notification/notification.service';
 import { UserService } from 'src/user/user.service';
 import { ReplyController } from './reply.controller';
 import { ReplyService } from './reply.service';
+import { LoggerService } from 'src/auth/logger.service';
 ;
 
 
@@ -51,7 +52,7 @@ import { ReplyService } from './reply.service';
     ]),
   ],
   providers: [ReplyService,NotificationService,UserService,JwtService,CourseService, MessageService, RoomService,
-       ProgressService, AuthService, RatingService,ForumService,ThreadService],
+       ProgressService, AuthService, RatingService,ForumService,ThreadService,LoggerService],
   controllers: [ReplyController],
   exports:[ReplyService]
 })

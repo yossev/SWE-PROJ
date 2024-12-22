@@ -28,7 +28,7 @@ import { ResponseModule } from './response/response.module';
 import { NotificationModule } from './notification/notification.module';
 import { RoomModule } from './room/room.module';
 import { JwtService } from '@nestjs/jwt';
-import { QuizModule } from './quiz/quiz.module';
+import { NotesModule } from './notes/notes.module';
 
 
 @Module({
@@ -47,17 +47,14 @@ import { QuizModule } from './quiz/quiz.module';
     ChatModule,
      // Ensure UserModule is imported here
      // Import ProgressModule to make ProgressService available,
-    
-    
-    
-  
      ForumModule,
      ThreadModule,
      ReplyModule,
      InteractiveModule,
      QuestionBankModule,
      RoomModule,
-     QuizModule
+     NotesModule
+     QuizModule,
 
     /*
   

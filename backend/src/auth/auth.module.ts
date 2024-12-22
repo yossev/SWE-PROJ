@@ -13,6 +13,7 @@ import { JwtStrategy } from './jwt.strategy';
 import { RefreshToken, RefreshTokenSchema } from '../models/refreshToken-schema'; // Use correct path
 import { UserModule } from 'src/user/user.module';
 import { AuthController } from './auth.controller';
+import { LoggerService } from './logger.service';
 
 @Module({
   imports: [
@@ -32,7 +33,8 @@ import { AuthController } from './auth.controller';
     }),forwardRef(() => UserModule),
   ],
   controllers:[AuthController],
-  providers: [AuthService],
-  exports: [AuthService,JwtModule], // Export necessary services for other modules
+ // Export necessary services for other modules
+  providers: [AuthService,JwtStrategy,LoggerService],
+  exports: [AuthService,JwtModule,LoggerService], // Export necessary services for other modules
 })
 export class AuthModule {}
