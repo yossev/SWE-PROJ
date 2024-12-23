@@ -82,8 +82,8 @@ export class ProgressController {
     await this.progressService.exportInstructorAnalyticsAssessmentResultsPDF(courseId, res);
   }
 
-  @Get('/export-content-effectivenes/pdf/:courseId')
-  async exportContentEffectivenessPDF(@Param('courseId') courseId: string, userId: string, @Res() res: Response) {
+  @Get('/export-content-effectivenes/pdf/:courseId/:userId')
+  async exportContentEffectivenessPDF(@Param('courseId') courseId: string, @Param('userId') userId: string, @Res() res: Response) {
     await this.progressService.exportInstructorAnalyticsContentEffectivenessPDF(courseId, userId, res);
   }
 

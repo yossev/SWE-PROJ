@@ -13,7 +13,7 @@ export default function RateModulePage() {
   useEffect(() => {
     const fetchModules = async () => {
       try {
-        const response = await axios.get(`http://localhost:3001/modules`);
+        const response = await axios.get(`http://localhost:3001/ratings/modules`);
         setModules(response.data);
       } catch (err) {
         console.error('Failed to fetch modules', err);
