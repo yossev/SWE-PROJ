@@ -54,7 +54,7 @@ export class CourseController {
     @UseGuards(AuthGuard)
     @Roles(Role.Student)
     @UseGuards(authorizationGuard)
-    @Put('enroll/:id')
+    @Post('enroll/:id')
     enroll(@Param('id') id: string, @Req() req) {
         this.courseService.enroll(id,req);
     }

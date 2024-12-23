@@ -9,6 +9,7 @@ import { Reply } from '../models/reply-schema'; // Assuming reply schema is defi
 //import { CreateFolderDto } from 'src/folder/dto/createFolder.dto';
 import { CreateReplyDto } from 'src/reply/dto/createReply.dto';
 import { CreateForumDto } from './dto/createForum.dto';
+import { User, UserDocument } from 'src/models/user-schema';
 //import { CreateThreadDto } from 'src/thread/dto/createThread.dto';
 
 
@@ -19,7 +20,9 @@ export class ForumService {
     @InjectModel(Forum.name) private forumModel: Model<Forum>,
     @InjectModel(Thread.name) private threadModel: Model<Thread>,
     @InjectModel(Reply.name) private replyModel: Model<Reply>,
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
   ) {}
+
 
   // Create a new forum
   async create(@Req() req,createForumDto : CreateForumDto) {
@@ -68,10 +71,14 @@ export class ForumService {
     if (!Types.ObjectId.isValid(forumId)) {
       throw new Error('Invalid forum ID');
     }
-  
     const forumObjectId = new Types.ObjectId(forumId);
-
-    return await this.threadModel.find({ forum_id: forumObjectId }).exec();
+    const threads = await this.threadModel.find({ forum_id: forumObjectId }).exec();
+    let returnJsonArray = [];
+    threads.forEach(async (thread) => {
+      const user = await this.userModel.findById(thread.createdBy).exec();
+      returnJsonArray.push({thread : thread , username : user.name});
+    });
+    return returnJsonArray;
   }
   
 }

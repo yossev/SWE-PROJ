@@ -1,52 +1,52 @@
 'use client'
 
-import React from 'react'
-import { useEffect, useState } from "react";
-import axios from 'axios';
-import { redirect } from 'next/navigation';
+import React, { useState } from "react";
+import axios from "axios";
+import { redirect } from "next/navigation";
 
-const NotificationBell = ({data} : {data : any}) => {
-    const [opened , setOpened] = useState(false);
-    let dataModified : any[] = [];
-    let totalReads : number = 0;
-    data.forEach((item : any) => {
-        console.log("Item id: " + item._id + " and read status is: " + item.read);
-        if(item.read === false)
-        {
-            dataModified.push(item);
-            totalReads++;
-        }
-    });
-    let finalIcon : string = "";
-    if(totalReads === 0)
-    {
-        finalIcon = "●";
-    }
-    else if(totalReads > 3)
-    {
-        finalIcon = "3+";
-    }
-    else
-    {
-        finalIcon = totalReads.toString();
-    }
+const NotificationBell = ({ data }: { data: any }) => {
+  const [opened, setOpened] = useState(false);
+  let dataModified: any[] = [];
+  let totalReads: number = 0;
 
-    dataModified = dataModified.slice(0 , 3);
-    const markAsRead = (notificationId : string) => (e : any) => {
-        e.preventDefault();
-        axios.patch('http://localhost:3001/notifications/' + notificationId , {read : true}) , {withCredentials : true};
-    }
+  // Check if `data` is an array, if not default to an empty array
+  const notifications = Array.isArray(data) ? data : [];
 
-    const redirectToNotification = (notificationId : string) => (e : any) => {
-        e.preventDefault();
-        redirect('http://localhost:3000/Notification/' + notificationId);
+  notifications.forEach((item: any) => {
+    console.log("Item id: " + item._id + " and read status is: " + item.read);
+    if (item.read === false) {
+      dataModified.push(item);
+      totalReads++;
     }
-    console.log("Data passed to Notification is: " + JSON.stringify(data));
-    console.log("Data Modified is: " + JSON.stringify(dataModified));
+  });
 
-    return (
-        <>
-        {opened? 
+  let finalIcon: string = "";
+  if (totalReads === 0) {
+    finalIcon = "●";
+  } else if (totalReads > 3) {
+    finalIcon = "3+";
+  } else {
+    finalIcon = totalReads.toString();
+  }
+
+  dataModified = dataModified.slice(0, 3);
+
+  const markAsRead = (notificationId: string) => (e: any) => {
+    e.preventDefault();
+    axios.patch('http://localhost:3001/notifications/' + notificationId, { read: true }, { withCredentials: true });
+  };
+
+  const redirectToNotification = (notificationId: string) => (e: any) => {
+    e.preventDefault();
+    redirect('http://localhost:3000/Notification/' + notificationId);
+  };
+
+  console.log("Data passed to Notification is: " + JSON.stringify(data));
+  console.log("Data Modified is: " + JSON.stringify(dataModified));
+
+  return (
+    <>
+      {opened ? (
         <>
         <button onClick={() => setOpened(false)} className="relative bg-teal-100 p-2 rounded-lg">
         <svg className="w-8 h-8 text-teal-600 animate-wiggle" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 21 21">
@@ -60,18 +60,20 @@ const NotificationBell = ({data} : {data : any}) => {
         </button>
         <div id="dropdown" className="z-10 overflow-visible bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
             <ul className="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
-            {dataModified.map((item : any) => 
-            <li key={item._id}>
-                <a onClick={redirectToNotification(item._id)} className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{item.message}</a>
-            </li>
-            )}
-            <li key={'seeAll'}>
+              {dataModified.map((item: any) =>
+                <li key={item._id}>
+                  <a onClick={redirectToNotification(item._id)} className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
+                    {item.message}
+                  </a>
+                </li>
+              )}
+              <li key={'seeAll'}>
                 <a onClick={redirectToNotification('')} className="block font-bold px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">See All</a>
-            </li>
+              </li>
             </ul>
-        </div>
-        </> 
-        : 
+          </div>
+        </>
+      ) :
         <>
         <button onClick={() => setOpened(true)} className="relative bg-teal-100 p-2 rounded-lg">
         <svg className="w-8 h-8 text-teal-600 animate-wiggle" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 21 21">
@@ -84,9 +86,9 @@ const NotificationBell = ({data} : {data : any}) => {
         </div>
         </button>
         </>
-        }
-        </>
-    )
+      }
+    </>
+  );
 }
 
 export default NotificationBell;

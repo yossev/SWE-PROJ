@@ -42,7 +42,7 @@ export class UserController {
       return this.userService.findStudentByEmail(email);
     }
   
-    @Roles(Role.Instructor, Role.Admin)
+    @Roles(Role.Instructor, Role.Admin, Role.Student)
     @UseGuards(authorizationGuard)
     @Get('fetch/:id')// /student/:id
     // Get a single student by ID

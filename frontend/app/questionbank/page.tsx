@@ -1,8 +1,16 @@
 "use client";
 import { useState } from "react";
 import axios from "axios";
+import { usePathname } from "next/navigation";
 
 export default function QuestionBankPage() {
+   const path = usePathname().split('/');
+          
+            const getInstructorData = async () => {
+              const instructorId = path[path.length - 1];
+              const res = await fetch('http://localhost:3001/users/fetch/' + instructorId, { credentials: 'include' });
+              return res.json();
+            };
   const [showFindById, setShowFindById] = useState(false);
   const [id, setId] = useState<string>(""); // Input ID
   const [questionBank, setQuestionBank] = useState<any>(null); // Fetched question bank
@@ -21,7 +29,7 @@ export default function QuestionBankPage() {
 
     try {
       const response = await axios.get(
-        `http://localhost:3001/questionbank/questionbank?id=${id}`
+        `http://localhost:3001/questionbank/questionbank?id=${id}`,{withCredentials:true}
       );
       setQuestionBank(response.data);
     } catch (err) {
