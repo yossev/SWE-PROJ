@@ -57,7 +57,7 @@ import { QuizModule } from './quiz/quiz.module';
      InteractiveModule,
      QuestionBankModule,
      RoomModule,
-     //QuizModule
+     QuizModule
 
     /*
   

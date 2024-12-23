@@ -32,7 +32,7 @@ import { AuthController } from './auth.controller';
     }),forwardRef(() => UserModule),
   ],
   controllers:[AuthController],
-  providers: [AuthService,JwtStrategy],
+  providers: [AuthService],
   exports: [AuthService,JwtModule], // Export necessary services for other modules
 })
 export class AuthModule {}
