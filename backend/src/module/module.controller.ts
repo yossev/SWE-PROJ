@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 
-import { Body, Controller, Get, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
+import { Body, Delete, Controller, Get, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
 import { ModuleService } from './module.service'; 
 import { CreateModuleDto } from './DTO/createModule.dto';
 import { UpdateModuleDto } from './DTO/updateModule.dto';
@@ -122,7 +122,7 @@ export class ModuleController {
     getFile(@Param('id') module_id : string , @Param('file') file : string): StreamableFile {
       
       return this.moduleService.getFile(file);
-    }
+}
 
 
 }
