@@ -2,8 +2,18 @@
 
 import { useState } from "react";
 import axios from "axios";
+import { getCookie } from "cookies-next";
+import { usePathname } from "next/navigation";
 
 export default function CreateQuizPage() {
+  const path = usePathname().split('/');
+  
+    const getInstructorData = async () => {
+      const instructorId = path[path.length - 1];
+      const res = await fetch('http://localhost:3001/users/fetch/' + instructorId, { credentials: 'include' });
+      return res.json();
+    };
+    
   const [formData, setFormData] = useState({
     moduleId: "",
     questionType: "MCQ",
@@ -12,6 +22,12 @@ export default function CreateQuizPage() {
   });
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+
+  const role = getCookie("role");
+  console.log("Role fetched: " + role);
+
+  const userid = getCookie("userId");
+  console.log("User ID: " + userid);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -38,13 +54,13 @@ export default function CreateQuizPage() {
         moduleId: formData.moduleId.trim(),
         questionType: formData.questionType,
         numberOfQuestions: formData.numberOfQuestions, // Corrected key
-        userId: formData.userId.trim(),
+        userId: userid,
       };
 
       const response = await axios.post(
         "http://localhost:3001/quiz/generateQuiz",
         payload,
-        { params: { userId: payload.userId } }
+        { withCredentials: true }
       );
 
       console.log("Quiz Created Successfully:", response.data);

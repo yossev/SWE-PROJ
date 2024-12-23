@@ -2,8 +2,17 @@
 import { useState } from "react";
 import axios from "axios";
 import { Quizupdate } from "../../../types/quizupdate";
+import { usePathname } from "next/navigation";
+import { getCookie } from "cookies-next";
 
 export default function UpdateQuizPage() {
+  const path = usePathname().split('/');
+    
+    const getInstructorData = async () => {
+      const instructorId = path[path.length - 1];
+      const res = await fetch('http://localhost:3001/users/fetch/' + instructorId, { credentials: 'include' });
+      return res.json();
+    };
   const [quizId, setQuizId] = useState<string>(""); // Quiz ID
   const [isPopupVisible, setIsPopupVisible] = useState<boolean>(false); // Popup visibility
   const [quizDetails, setQuizDetails] = useState<Quizupdate | null>(null); // Quiz details
@@ -12,7 +21,11 @@ export default function UpdateQuizPage() {
     numberOfQuestions: 0,
   });
   const [message, setMessage] = useState<string>("");
+ const role = getCookie("role");
+  console.log("Role fetched: " + role);
 
+  const userid = getCookie("userId");
+  console.log("User ID: " + userid);
   // Show popup
   const handleShowPopup = () => setIsPopupVisible(true);
 
@@ -24,9 +37,9 @@ export default function UpdateQuizPage() {
         return;
       }
 
-      const response = await axios.get("http://localhost:3001/quiz/singlequiz", {
-        params: { id: quizId },
-      });
+      const response = await axios.get(`http://localhost:3001/quiz/singlequiz?id=${quizId}`, 
+        {withCredentials:true}
+      );
 
       // Check if there are responses for the quiz
       if (response.data.responses && response.data.responses.length > 0) {
@@ -66,7 +79,8 @@ export default function UpdateQuizPage() {
 
       const response = await axios.put(
         `http://localhost:3001/quiz/updatequiz?quizId=${quizId}`,
-        payload
+        payload,
+        { withCredentials: true }
       );
 
       setQuizDetails(response.data);

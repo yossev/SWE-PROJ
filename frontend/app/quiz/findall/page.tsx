@@ -2,19 +2,28 @@
 
 import React, { useState, useEffect } from "react";
 import { Quiz } from "../../../types/quiz";
+import { usePathname } from "next/navigation";
+import axios from "axios";
 
 export default function FindAllQuizzesPage() {
+  const path = usePathname().split('/');
+      
+      const getInstructorData = async () => {
+        const instructorId = path[path.length - 1];
+        const res = await fetch('http://localhost:3001/users/fetch/' + instructorId, { credentials: 'include' });
+        return res.json();
+      };
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchQuizzes = async () => {
       try {
-        const response = await fetch("http://localhost:3001/quiz/findall");
-        if (!response.ok) {
+        const response = await axios.get(`http://localhost:3001/quiz/findall`,{withCredentials:true});
+        if (response.status !== 200) {
           throw new Error("Failed to fetch quizzes");
         }
-        const data: Quiz[] = await response.json();
+        const data: Quiz[] = await response.data;
         setQuizzes(data);
       } catch (err) {
         setError((err as Error).message);

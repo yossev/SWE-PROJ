@@ -72,6 +72,31 @@ export class ModuleService {
     return null;
   }
 
+  async deleteModule(id : string)
+  {
+    const module = await this.moduleModel.findById(new mongoose.Types.ObjectId(id)).exec();
+    if(module)
+    {
+      await this.moduleModel.findByIdAndDelete(new mongoose.Types.ObjectId(id));
+      return "Module deleted";
+    }
+    
+    return null;
+  }
+
+  async deleteFile(id : string , name : string)
+  {
+    const module = await this.moduleModel.findById(new mongoose.Types.ObjectId(id)).exec();
+    if(module)
+    {
+      module.resources.splice(module.resources.indexOf(name), 1);
+      await module.save();
+      return "File deleted";
+    }
+    
+    return null;
+  }
+
 
   async findAllCourseModules(id: string)
   {

@@ -51,6 +51,13 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -74,9 +81,10 @@ let AuthService = (() => {
     let _classExtraInitializers = [];
     let _classThis;
     var AuthService = _classThis = class {
-        constructor(usersService, jwtService) {
+        constructor(usersService, jwtService, loggerService) {
             this.usersService = usersService;
             this.jwtService = jwtService;
+            this.loggerService = loggerService;
         }
         register(user) {
             return __awaiter(this, void 0, void 0, function* () {
@@ -92,6 +100,7 @@ let AuthService = (() => {
         }
         signIn(email, password) {
             return __awaiter(this, void 0, void 0, function* () {
+                console.log("Email is: " + email + " and password is: " + password);
                 const user = yield this.usersService.findByEmail(email); // Use UserDocument type
                 if (!user) {
                     throw new common_1.NotFoundException('User not found');
@@ -99,6 +108,7 @@ let AuthService = (() => {
                 console.log('password: ', user.password_hash);
                 const isPasswordValid = yield bcrypt.compare(password, user.password_hash);
                 if (!isPasswordValid) {
+                    this.loggerService.logFailedLogin(email, 'Invalid credentials');
                     throw new common_1.UnauthorizedException('Invalid credentials');
                 }
                 const payload = { userid: user._id, role: user.role }; // _id is accessible from UserDocument

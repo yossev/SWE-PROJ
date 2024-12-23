@@ -1,8 +1,16 @@
 "use client";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { usePathname } from "next/navigation";
 
 export default function FindAllQuestionBanks() {
+  const path = usePathname().split('/');
+      
+        const getInstructorData = async () => {
+          const instructorId = path[path.length - 1];
+          const res = await fetch('http://localhost:3001/users/fetch/' + instructorId, { credentials: 'include' });
+          return res.json();
+        };
   const [questionBanks, setQuestionBanks] = useState<any[]>([]); // State to store all question banks
   const [error, setError] = useState<string>(""); // State to handle errors
   const [loading, setLoading] = useState<boolean>(false); // Loading state
@@ -12,7 +20,7 @@ export default function FindAllQuestionBanks() {
     setLoading(true);
     setError("");
     try {
-      const response = await axios.get("http://localhost:3001/questionbank/allquestionbanks");
+      const response = await axios.get("http://localhost:3001/questionbank/allquestionbanks",{withCredentials:true});
       setQuestionBanks(response.data);
     } catch (err) {
       console.error("Error fetching all Question Banks:", err);

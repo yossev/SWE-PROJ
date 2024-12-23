@@ -13,6 +13,7 @@ import { MessageSchema } from '../models/message-schema';
 import { ModuleSchema } from '../models/module-schema';
 import { ProgressSchema } from '../models/progress-schema';
 import { QuestionBankSchema } from '../models/questionbank-schema';
+import { NotificationsController } from './notification.controller';
 import { QuizSchema } from '../models/quizzes-schema';
 import { RatingSchema } from '../models/rating-schema';
 import { ReplySchema } from '../models/reply-schema';
@@ -23,6 +24,7 @@ import { UserSchema } from '../models/user-schema';
 import { ProgressService } from 'src/progress/progress.service';
 import { UserService } from 'src/user/user.service';
 import { LoggerService } from 'src/auth/logger.service';
+import { Logger } from 'winston';
 
 
 @Module({
@@ -51,6 +53,7 @@ import { LoggerService } from 'src/auth/logger.service';
     ]),
   ],
   providers: [NotificationService,JwtService,ProgressService,AuthService,RatingService,UserService,LoggerService],
+  controllers: [NotificationsController],
   exports: [NotificationService,JwtService], // Export the service so it can be used in other modules
 })
 export class NotificationModule {}

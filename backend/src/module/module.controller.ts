@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 
-import { Body, Controller, Get, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
 import { ModuleService } from './module.service'; 
 import { CreateModuleDto } from './DTO/createModule.dto';
 import { UpdateModuleDto } from './DTO/updateModule.dto';
@@ -48,6 +48,18 @@ export class ModuleController {
     async getModule(@Param('id') id: string)
     {
         return this.moduleService.getModule(id);
+    }
+
+    @Delete('delete/:id')
+    async deleteModule(@Param('id') id: string)
+    {
+        return this.moduleService.deleteModule(id);
+    }
+
+    @Delete('deletecontent/:id/:name')
+    async deleteFile(@Param('id') id: string , @Param('name') name: string)
+    {
+        return this.moduleService.deleteFile(id , name);
     }
 
     @Post('moduleLevel')
