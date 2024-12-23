@@ -31,6 +31,7 @@ import { MessageSchema } from '../models/message-schema';
 import { NotificationSchema } from '../models/notification-schema';
 import { UserSchema } from '../models/user-schema';
 import { NotificationService } from 'src/notification/notification.service';
+import { LoggerService } from 'src/auth/logger.service';
 
 @Module({
   imports: [
@@ -53,7 +54,7 @@ import { NotificationService } from 'src/notification/notification.service';
   ],
   controllers: [ModuleController],
   providers: [ModuleService,NotificationService,UserService,CourseService, NotificationService, MessageService, UserService, RoomService, JwtService,
-       ProgressService, AuthService, RatingService,ForumService,ThreadService,ReplyService
+       ProgressService, AuthService, RatingService,ForumService,ThreadService,ReplyService,LoggerService
   ],
   exports:[ModuleService]
 })

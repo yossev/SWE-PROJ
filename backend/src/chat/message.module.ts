@@ -21,6 +21,7 @@ import { Responses, ResponseSchema } from '../models/responses-schema';
 import { User, UserSchema } from '../models/user-schema';
 import { ProgressService } from 'src/progress/progress.service';
 import { RatingService } from 'src/rating/rating.service';
+import { LoggerService } from 'src/auth/logger.service';
 
 
 
@@ -34,7 +35,7 @@ import { RatingService } from 'src/rating/rating.service';
   providers: [MessageService, MessageGateway, RoomService,
     UserService,
     NotificationService,
-  JwtService , ProgressService , AuthService , RatingService],
+  JwtService , ProgressService , AuthService , RatingService,LoggerService],
   exports:[MessageService]
 })
 export class ChatModule {}

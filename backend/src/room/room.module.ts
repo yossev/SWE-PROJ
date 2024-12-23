@@ -18,6 +18,7 @@ import { Responses, ResponseSchema } from '../models/responses-schema';
 import { User, UserSchema } from '../models/user-schema';
 import { ProgressService } from 'src/progress/progress.service';
 import { RatingService } from 'src/rating/rating.service';
+import { LoggerService } from 'src/auth/logger.service';
 
 
 
@@ -39,7 +40,7 @@ import { RatingService } from 'src/rating/rating.service';
     //CourseModule, // Import the CourseModule to use Course services
   ],
   controllers: [RoomController],
-  providers: [RoomService,UserService,JwtService,ProgressService,AuthService,RatingService],
+  providers: [RoomService,UserService,JwtService,ProgressService,AuthService,RatingService,LoggerService],
   exports:[RoomService]
 })
 export class RoomModule {}

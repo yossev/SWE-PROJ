@@ -19,6 +19,7 @@ import { RefreshAccessTokenDto } from './dto/refreshAccessTokenDto.dto';
 import { ProgressService } from 'src/progress/progress.service';
 import { Response } from 'express';
 import { JwtService } from '@nestjs/jwt';
+import { readFileSync } from 'node:fs';
 
 // @UseGuards(AuthGuard) //class level
 @Controller('users') // it means anything starts with /student
@@ -162,4 +163,31 @@ export class UserController {
     getStudentCourses(@Param('userId') userId: string) {
         return this.userService.getStudentCourses(userId);
 }
+@UseGuards(authorizationGuard)
+@Roles(Role.Admin)
+@Get('failed-logins')
+async getFailedLogins(): Promise<any[]> {
+  try {
+    const data = readFileSync('C:\\Users\\Euromedia\\OneDrive\\Documents\\SWE-PROJ\\backend\\failed-logins.log', 'utf-8');
+
+    // Split the log file into individual lines and parse JSON
+    const logs = data
+      .split('\n') // Split lines
+      .filter((line) => line.trim() !== '') // Remove empty lines
+      .map((line) => JSON.parse(line)); // Parse each line as JSON
+
+    // Extract relevant fields from the nested "message" object
+    return logs.map((log, index) => ({
+      id: index + 1, // Add an ID for easy referencing
+      email: log.message.username || 'unknown', // Use "unknown" if username is missing
+      reason: log.message.reason,
+      createdAt: log.message.timestamp, // Extract timestamp from the message object
+    }));
+  } catch (err) {
+    console.error('Error reading log file:', err.message);
+    throw new Error('Failed to process log file');
+  }
+}
+
+
 }

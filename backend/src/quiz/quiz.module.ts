@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { forwardRef, Module, Module as module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { quizController } from './quiz.controller';
 import { QuizService } from './quiz.service';
@@ -20,7 +20,6 @@ import { ForumService } from 'src/forum/forum.service';
 import { CourseSchema } from '../models/course-schema';
 import { ForumSchema } from '../models/forum-schema';
 import { MessageSchema } from '../models/message-schema';
-
 import { NotificationSchema, UserNotification } from '../models/notification-schema';
 import { ProgressSchema } from '../models/progress-schema';
 import { QuestionBankSchema } from '../models/questionbank-schema';
@@ -31,9 +30,11 @@ import { ThreadSchema } from '../models/thread-schema';
 import { UserSchema } from '../models/user-schema';
 import { NotificationService } from 'src/notification/notification.service';
 import { UserService } from 'src/user/user.service';
+import { LoggerService } from 'src/auth/logger.service';
 import { ModuleService } from 'src/module/module.service';
 import { ModuleSchema } from 'src/models/module-schema';
-@module({
+import { ProgressModule } from 'src/progress/progress.module';
+@Module({
   imports: [
     MongooseModule.forFeature([
       { name: 'Quiz', schema: QuizSchema },
@@ -50,11 +51,11 @@ import { ModuleSchema } from 'src/models/module-schema';
       { name: 'Reply', schema: ReplySchema },
       { name: 'Room', schema: RoomSchema },
       { name: 'Rating', schema: RatingSchema },
-    ]),
-    forwardRef(() => Module) 
+    ]) ,
+    forwardRef(() => ProgressModule),
   ],
   controllers: [quizController],
-  providers: [QuizService,RatingService,JwtService,CourseService,NotificationService,ForumService,MessageService,UserService,ThreadService,ReplyService,RoomService,AuthService,ProgressService,ModuleService],
+  providers: [QuizService,RatingService,JwtService,CourseService,NotificationService,ForumService,MessageService,UserService,ThreadService,ReplyService,RoomService,AuthService,ProgressService,LoggerService],
   exports:[QuizService]
 
 })

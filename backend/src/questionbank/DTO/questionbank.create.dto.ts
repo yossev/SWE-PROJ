@@ -41,8 +41,8 @@ export class CreateQuestionBankDto {
   @IsMongoId()
   module_id: Types.ObjectId;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsEnum(QuestionType)
-  question_type: QuestionType; 
+  question_type?: QuestionType; 
 
 }
