@@ -19,7 +19,7 @@ import { UpdateQuizDto } from './DTO/quiz.update.dto';
 export class QuizService {
   constructor(
     @InjectModel('Quiz') private readonly quizModel: Model<QuizDocument>,
-    @InjectModel('Module') private readonly moduleModel: Model<Module>,
+    @InjectModel('Mod') private readonly moduleModel: Model<Module>,
     @InjectModel('QuestionBank') private readonly questionBankModel: Model<QuestionBank>,
     @InjectModel('User') private readonly userModel: Model<User>,
     @InjectModel('Progress') private readonly progressModel: Model<ProgressDocument>,

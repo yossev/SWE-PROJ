@@ -1,15 +1,14 @@
 import { Inject, Injectable } from "@nestjs/common";
-
+import { Note , NoteDocument, NoteSchema } from "../models/note-schema";
+import {User , UserDocument, UserSchema} from "../models/user-schema";
+import { Course, CourseSchema } from "../models/course-schema";
 import { CreateNoteDto } from "./dto/createNote.dto";
 import { UpdateNoteDto } from "./dto/updateNote.dto";
 import { Model } from "mongoose";
 import mongoose from "mongoose";
 import { create } from "domain";
-
+import { CourseDocument } from "../models/course-schema";
 import { InjectModel } from "@nestjs/mongoose";
-import { Course, CourseDocument } from "src/models/course-schema";
-import { NoteDocument } from "src/models/note-schema";
-import { User, UserDocument } from "src/models/user-schema";
 
 
 @Injectable()

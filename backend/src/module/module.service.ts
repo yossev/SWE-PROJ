@@ -19,7 +19,7 @@ import { NotificationService } from 'src/notification/notification.service';
 @Injectable()
 export class ModuleService {
   constructor(
-    @InjectModel('Module') private readonly moduleModel: Model<Module>, 
+    @InjectModel('Mod') private readonly moduleModel: Model<Module>, 
     @InjectModel('Course') private readonly courseModel: Model<Course>,
     private readonly notificationService: NotificationService
   ) {}
@@ -67,6 +67,31 @@ export class ModuleService {
         message
     );
         return module.save()
+    }
+    
+    return null;
+  }
+
+  async deleteModule(id : string)
+  {
+    const module = await this.moduleModel.findById(new mongoose.Types.ObjectId(id)).exec();
+    if(module)
+    {
+      await this.moduleModel.findByIdAndDelete(new mongoose.Types.ObjectId(id));
+      return "Module deleted";
+    }
+    
+    return null;
+  }
+
+  async deleteFile(id : string , name : string)
+  {
+    const module = await this.moduleModel.findById(new mongoose.Types.ObjectId(id)).exec();
+    if(module)
+    {
+      module.resources.splice(module.resources.indexOf(name), 1);
+      await module.save();
+      return "File deleted";
     }
     
     return null;

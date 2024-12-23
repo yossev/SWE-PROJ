@@ -39,18 +39,29 @@ export class NotificationsController {
   @UseGuards(AuthGuard)
   @Roles(Role.Student, Role.Instructor)
   @UseGuards(authorizationGuard)
-  @Get(':userId')
+  @Get()
   async getUserNotifications(@Req () req): Promise<UserNotification[]> {
     const userId = req.cookies.userId;
+    console.log("User ID in get user notifications is: " + userId);
     return this.notificationService.getUserNotifications(userId);
+  }
+
+  @UseGuards(AuthGuard)
+  @Roles(Role.Student, Role.Instructor)
+  @UseGuards(authorizationGuard)
+  @Get('getNotification/:notificationId')
+  async getNotification(@Req () req , @Param('notificationId') notificationId: string) {
+    const userId = req.cookies.userId;
+    return this.notificationService.getNotification(userId , notificationId);
   }
    
   
   @Roles(Role.Student, Role.Instructor)
   @UseGuards(authorizationGuard)
   @UseGuards(AuthGuard)
-  @Patch(':notificationId')
+  @Patch('read/:notificationId')
   async markAsRead(@Param('notificationId') notificationId: string) {
+    console.log("Called read function");
     return this.notificationService.markAsRead(notificationId);
   }
   @Roles(Role.Student, Role.Instructor)
