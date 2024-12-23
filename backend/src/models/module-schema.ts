@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-wrapper-object-types */
 /* eslint-disable prettier/prettier */
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
@@ -22,7 +23,7 @@ export class Module {
   content: string;
 
   @Prop( {type : Boolean , required: true , default : true})
-  valid_content : Boolean
+  valid_content : Boolean;
 
   @Prop({ type: [String], required: false })
   resources: string[];

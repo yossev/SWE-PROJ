@@ -11,8 +11,7 @@ import {ModuleSchema } from '../models/module-schema';
 import { RatingSchema } from '../models/rating-schema';
 import { RatingService } from '../rating/rating.service';
 
-import { RatingModule } from '../rating/rating.module'; // Import RatingModule
-import { ResponseModule } from '../response/response.module';
+
 
 
 import { JwtService } from '@nestjs/jwt';
