@@ -5,7 +5,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import {  UserNotification } from '../models/notification-schema';
 import { Message } from '../models/message-schema';
-
+import mongoose from 'mongoose';
 import { UserService } from 'src/user/user.service';
 
 import { User, UserDocument } from '../models/user-schema';
@@ -179,7 +179,9 @@ export class NotificationService {
 
   // Get all notifications for a user
   async getUserNotifications(userId: string): Promise<UserNotification[]> {
-    return this.notificationModel.find({ userId }).sort({ createdAt: -1 }).exec();
+    const notifications = await this.notificationModel.find({ user_id : new mongoose.Types.ObjectId(userId) }).sort({ createdAt: -1 }).exec(); 
+    console.log("Notifications are: " + JSON.stringify(notifications));
+    return notifications;
   }
 
   // Mark a notification as read
@@ -206,5 +208,26 @@ export class NotificationService {
       .find({ userId: new Types.ObjectId(userId), read: false })
       .select('message createdAt read')
       .exec();
+  }
+
+  async getNotification(userId : string , notificationId : string) {
+    const notification = await this.notificationModel.findById(new mongoose.Types.ObjectId(notificationId)).exec();
+    notification.read = true;
+    await notification.save();
+    if(notification)
+    {
+      if(notification.user_id.toString() === userId)
+      {
+        return notification;
+      }
+      else
+      {
+        return {"Error" : "You are not authorized to view this notification"};
+      }
+    }
+    else
+    {
+      return {"Error" : "Notification not found"};
+    }
   }
 }

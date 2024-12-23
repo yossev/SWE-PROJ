@@ -51,6 +51,18 @@ export class ModuleController {
         return this.moduleService.getModule(id);
     }
 
+    @Delete('delete/:id')
+    async deleteModule(@Param('id') id: string)
+    {
+        return this.moduleService.deleteModule(id);
+    }
+
+    @Delete('deletecontent/:id/:name')
+    async deleteFile(@Param('id') id: string , @Param('name') name: string)
+    {
+        return this.moduleService.deleteFile(id , name);
+    }
+
     @Post('moduleLevel')
     async checkModuleCompatibility(@Param('id') id: string)
     {
