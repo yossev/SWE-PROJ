@@ -1,11 +1,23 @@
 "use client";
 import { useState } from "react";
 import axios from "axios";
+import { usePathname } from "next/navigation";
+import { getCookie } from "cookies-next";
 
 export default function DeleteQuizPage() {
   const [quizId, setQuizId] = useState<string>(""); // Stores the Quiz ID
-  const [message, setMessage] = useState<string>(""); // Notification message
-
+  const [message, setMessage] = useState<string>("");
+    const path = usePathname().split('/'); // Notification message
+    const getInstructorData = async () => {
+      const instructorId = path[path.length - 1];
+      const res = await fetch('http://localhost:3001/users/fetch/' + instructorId, { credentials: 'include' });
+      return res.json();
+    };
+   const role = getCookie("role");
+    console.log("Role fetched: " + role);
+  
+    const userid = getCookie("userId");
+    console.log("User ID: " + userid);
   // Handle Deletion of Quiz
   const handleDeleteQuiz = async () => {
     try {
@@ -18,9 +30,8 @@ export default function DeleteQuizPage() {
       console.log("Deleting quiz with ID:", quizId); // Check if the correct quizId is printed
   
       // Fetch Quiz details to check if there are any responses
-      const response = await axios.get("http://localhost:3001/quiz/getresponsestotal", {
-        params: { id: quizId },
-      }
+      const response = await axios.get(`http://localhost:3001/quiz/getresponsestotal?id=${quizId}`, 
+        { withCredentials: true }
     )
  console.log("Response from backend:", response.data);
       if (response.data && response.data > 0) {
@@ -32,11 +43,11 @@ export default function DeleteQuizPage() {
       if (allow) {
         // Send DELETE request to backend if no responses exist
       const deleteResponse = await axios.delete(
-        `http://localhost:3001/quiz/deletequiz?id=${quizId}`
+        `http://localhost:3001/quiz/deletequiz?id=${quizId}`,{withCredentials:true}
       ).catch(function (error) {
         console.log(error);
         return error;
-      });;
+      });
   
       setMessage("Quiz deleted successfully!");
       setQuizId(""); // Clear input box
