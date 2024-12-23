@@ -204,7 +204,7 @@ export default function InstructorDashboard() {
             <p className="text-gray-600">Organize and manage your courses effectively.</p>
           </Link>
           <Link
-            href="/interactive-modules"
+            href="http://localhost:3000/modules/moduleid"
             className="p-6 bg-white shadow rounded-lg hover:shadow-lg transition transform hover:scale-105 text-center"
           >
             <h2 className="text-xl font-semibold text-gray-800 mb-4">Interactive Modules</h2>

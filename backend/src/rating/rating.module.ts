@@ -36,7 +36,7 @@ import { LoggerService } from 'src/auth/logger.service';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: 'Rating', schema: RatingSchema },{ name: 'Module', schema: ModuleSchema },{name:'Course',schema:CourseSchema},{name:'Notification',schema:NotificationSchema},{name:'User',schema:UserSchema},{name:'Forum',schema:ForumSchema},
+    MongooseModule.forFeature([{ name: 'Rating', schema: RatingSchema },{ name: 'Mod', schema: ModuleSchema },{name:'Course',schema:CourseSchema},{name:'Notification',schema:NotificationSchema},{name:'User',schema:UserSchema},{name:'Forum',schema:ForumSchema},
       {name:'Message',schema:MessageSchema},
       {name:'UserNotification',schema:NotificationSchema},
       {name:'Progress',schema:ProgressSchema},

@@ -13,7 +13,7 @@ import { Module, ModuleDocument } from '../models/module-schema';
 export class RatingService {
     constructor(
         @InjectModel('Rating') private readonly ratingModel: Model<RatingDocument>,
-        @InjectModel('Module') private readonly moduleModel: Model<Module>, 
+        @InjectModel('Mod') private readonly moduleModel: Model<Module>, 
     ) { }
 
 

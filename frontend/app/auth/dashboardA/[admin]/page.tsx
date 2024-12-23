@@ -1,12 +1,48 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { getCookie, getCookies } from 'cookies-next';
+import { set } from 'mongoose';
 
 export default function AdminDashboard() {
+  const path = usePathname().split('/');
+  
+    const getAdminData = async () => {
+      const adminId = path[path.length - 1];
+      const res = await fetch('http://localhost:3001/users/fetch/' + adminId, { credentials: 'include' });
+      return res.json();
+    };
   const [searchTerm, setSearchTerm] = useState('');
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
+  const role = getCookie("role");
+  console.log("Role fetched: " + role);
+
+  const userId = getCookie("userId");
+  console.log("User ID: " + userId);
+
+  useEffect(() => {
+    console.log('All cookies are ' + JSON.stringify(getCookies()));
+    const role = getCookie('role');
+    console.log("Role: ", role);
+    if (role === 'admin') {
+      setIsAdmin(true);
+    } else {
+      setError('You are not authorized to view this page.');
+    }
+  }, []);
+  if (error && !isAdmin) {
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-gray-100">
+        <p className="text-red-500 font-bold text-lg">{error}</p>
+      </div>
+    );
+  }
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}

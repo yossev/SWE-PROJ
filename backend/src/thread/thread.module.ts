@@ -47,7 +47,7 @@ import { LoggerService } from 'src/auth/logger.service';
           { name: "Progress", schema: ProgressSchema},
            { name: "Responses", schema: ResponseSchema},
            { name: "Quiz", schema: QuizSchema },
-           { name: "Module", schema: ModuleSchema},
+           { name: "Mod", schema: ModuleSchema},
            { name: "Rating", schema: RatingSchema},
     ]),
   ],
