@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Injectable, Req, UnauthorizedException } from "@nestjs/common";
+import { Injectable, NotFoundException, Req, UnauthorizedException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Thread, ThreadDocument } from "../models/thread-schema";
 import { Model, Types } from "mongoose";
@@ -11,6 +11,7 @@ import { ForumService } from "src/forum/forum.service";
 import { CourseService } from "src/course/course.service";
 import { NotificationService } from "src/notification/notification.service";
 import { Reply } from "../models/reply-schema";
+import { User, UserDocument } from "src/models/user-schema";
 
 
 @Injectable()
@@ -18,6 +19,7 @@ export class ThreadService {
   constructor(
     @InjectModel(Thread.name) private threadModel: Model<ThreadDocument>,
     @InjectModel(Reply.name) private replyModel: Model<ThreadDocument>,
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
     private readonly forumService : ForumService,
     private readonly courseService :CourseService,
     private readonly notificationService :NotificationService
@@ -82,40 +84,44 @@ export class ThreadService {
       throw new Error('Invalid thread ID');
     }*/
 
-    return await this.replyModel.find({ thread_id: threadId }).exec();
+    return await this.replyModel.find({ thread_id: threadId })
+    .populate('createdBy', 'name email')
+    .exec();
   }
 
   async getAllThreads(userId: string ) {
     const threads = await this.threadModel.find({ createdBy: userId }).exec();
-    return threads;
+    let returnJsonArray = [];
+    threads.forEach(async (thread) => {
+      const user = await this.userModel.findById(thread.createdBy).exec();
+      returnJsonArray.push({thread : thread , username : user.name});
+    });
+    return returnJsonArray;
   }
 
-  async deleteThread(userId : string , threadId : string)
-  {
-    const thread = await this.threadModel.findById(new Types.ObjectId(threadId)).exec();
-    if(thread.createdBy.toString()===userId)
-    {
-      return await this.threadModel.findByIdAndDelete(new Types.ObjectId(threadId));
+  async deleteThread(@Req () req, threadId: string) {
+    const thread = await this.threadModel.findById(threadId).exec();
+  
+    if (!thread) {
+      throw new NotFoundException('Thread not found');
     }
-    else
-    {
-      const forum=await this.forumService.getForumById(thread.forum_id.toString());
-      const course=await this.courseService.findOne((await forum).course_id.toString());
-      const instructorId = course.created_by;
-      if(instructorId.toString()===userId)
-        {
-          return await this.threadModel.findByIdAndDelete(new Types.ObjectId(threadId));
-        }
-      else
-        {
-          throw new Error("You are not authorized to delete this thread");
-        }
+    const userId = req.cookies.userId; 
+    // Check if the logged-in user is the creator of the thread or an instructor
+      const userRole = req.cookies.role?.toLowerCase(); // Get role from cookies (ensure it is lowercase)
+    
+      if (userRole === 'instructor' || thread.createdBy.toString() === userId) {
+      // If the user is an instructor or the thread creator, allow deletion
+      return await this.threadModel.findByIdAndDelete(new Types.ObjectId(threadId));
+    } else {
+      throw new UnauthorizedException('You are not authorized to delete this thread');
     }
   }
+  
   async getThreadsByForumId(forumId: string): Promise<Thread[]> {
     return this.threadModel
-      .find({ forum_id: new Types.ObjectId(forumId) }) // Populate createdBy with user details (e.g., name)
+      .find({ forum_id: new Types.ObjectId(forumId) })
+      .populate('createdBy', 'name email') // Populate createdBy with the user's name
       .exec();
   }
-
+  
 }

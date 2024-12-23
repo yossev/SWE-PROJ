@@ -31,13 +31,12 @@ export class ThreadController {
     async searchThreads(@Query('keyword') keyword: string) {
         return this.threadService.searchThreadsByKeyword(keyword);
     }
-    @Roles(Role.Instructor,Role.Student)
+    @Roles(Role.Instructor, Role.Student)
     @UseGuards(authorizationGuard)
     @Delete('delete')
-    async deleteThread(@Req() req,@Query('id') id: string) {
-
-        const userid=req.cookies.userId;
-        return this.threadService.deleteThread(userid,id);
+    async deleteThread(@Req() req, @Query('id') id: string) {
+      const userId = req.cookies.userId; // Extract the userId from cookies
+      return this.threadService.deleteThread(req, id);
     }
     
     @Roles(Role.Instructor,Role.Student)
