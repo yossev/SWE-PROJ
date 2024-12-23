@@ -30,7 +30,7 @@ import { LoggerService } from 'src/auth/logger.service';
       { name: Progress.name, schema: ProgressSchema },
       { name: Responses.name, schema: ResponseSchema },
       { name: Quiz.name, schema: QuizSchema },
-      { name: 'Module', schema: ModuleSchema },
+      { name: 'Mod', schema: ModuleSchema },
       { name: Rating.name, schema: RatingSchema },
       { name: Message.name, schema: MessageSchema }
 

@@ -19,7 +19,7 @@ import { NotificationService } from 'src/notification/notification.service';
 @Injectable()
 export class ModuleService {
   constructor(
-    @InjectModel('Module') private readonly moduleModel: Model<Module>, 
+    @InjectModel('Mod') private readonly moduleModel: Model<Module>, 
     @InjectModel('Course') private readonly courseModel: Model<Course>,
     private readonly notificationService: NotificationService
   ) {}

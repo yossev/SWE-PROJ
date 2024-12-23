@@ -37,7 +37,7 @@ import { LoggerService } from 'src/auth/logger.service';
             { name: 'Responses', schema: ResponseSchema }, 
             
             { name: 'Quiz', schema: QuizSchema }, 
-            { name: 'Module', schema: ModuleSchema},
+            { name: 'Mod', schema: ModuleSchema},
             {name: 'Rating', schema: RatingSchema},
             
             {name:"Forum",schema:ForumSchema},

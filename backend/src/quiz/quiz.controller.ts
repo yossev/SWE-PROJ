@@ -42,7 +42,8 @@ export class quizController {
     const quiz = await this.quizService.getresponsestotal(id);
     return quiz;
   }
-    @UseGuards(AuthGuard)
+    @UseGuards(authorizationGuard)
+    @Roles(Role.Student)
     @Get('assigned')
         async getQuizByUserId(@Req() req ): Promise<Quiz> {
       const userid=req.cookies.userId;

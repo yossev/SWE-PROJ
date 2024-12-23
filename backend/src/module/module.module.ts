@@ -36,7 +36,7 @@ import { LoggerService } from 'src/auth/logger.service';
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: 'Quiz', schema: QuizSchema }]),
-    MongooseModule.forFeature([{ name: 'Module', schema: ModuleSchema }]),
+    MongooseModule.forFeature([{ name: 'Mod', schema: ModuleSchema }]),
     MongooseModule.forFeature([{ name: 'Question Bank', schema: QuestionBankSchema }]),
     MongooseModule.forFeature([{ name: 'Course', schema: CourseSchema }]),
     MongooseModule.forFeature([{ name: 'UserNotification', schema: NotificationSchema }]),
