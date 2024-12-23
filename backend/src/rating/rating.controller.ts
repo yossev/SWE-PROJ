@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Put, Param, Get, NotFoundException, Delete} from '@nestjs/common';
+import { Controller, Post, Body, Put, Param, Get, NotFoundException, Delete, BadRequestException } from '@nestjs/common';
 import { RatingService } from './rating.service';
 import { CreateRatingDto } from './dto/createRating.dto';
 import { UpdateRatingDto } from './dto/updateRating.dto';
@@ -6,7 +6,7 @@ import { Rating } from '../../models/rating-schema';
 
 @Controller('ratings')
 export class RatingController {
-  constructor(private readonly ratingService: RatingService) {}
+  constructor(private readonly ratingService: RatingService) { }
 
   @Post('createrating')
   async createRating(@Body() createRatingDto: CreateRatingDto): Promise<Rating> {
@@ -34,9 +34,9 @@ export class RatingController {
     } catch (error) {
       throw new NotFoundException(error.message);
     }
-}
+  }
 
-@Get('module-rating/:moduleId')
+  @Get('module-rating/:moduleId')
   async getModuleRatingsByCourse(@Param('moduleId') courseId: string) {
     return await this.ratingService.getModuleRatingsByCourse(courseId);
   }
@@ -51,6 +51,24 @@ export class RatingController {
   @Get('instructor-rating/:instructorId')
   async getInstructorRating(@Param('instructorId') instructorId: string) {
     return await this.ratingService.getInstructorRating(instructorId);
+  }
+
+  @Post()
+  async rateEntity(@Body() createRatingDto: CreateRatingDto) {
+    try {
+      return await this.ratingService.createRating(createRatingDto);
+    } catch (error) {
+      throw new BadRequestException('Error creating rating');
+    }
+  }
+
+  @Post('rateinstructor')
+  async rateInstructor(@Body() createRatingDto: CreateRatingDto) {
+    try {
+      return await this.ratingService.createRating(createRatingDto);
+    } catch (error) {
+      throw new BadRequestException('Error creating rating');
+    }
   }
 
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Res } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Res, NotFoundException } from '@nestjs/common';
 import { ProgressService } from './progress.service';
 import { Progress, ProgressDocument } from '../../models/progress-schema';
 import { CreateProgressDTO } from './dto/createProgress.dto';
@@ -95,6 +95,25 @@ export class ProgressController {
       classification,
     };
   }
+
+  @Get('/instructor/:instructorId')
+async getInstructorById(@Param('instructorId') instructorId: string) {
+  const instructor = await this.progressService.getInstructorById(instructorId);
+  if (!instructor) {
+    throw new NotFoundException('Instructor not found.');
+  }
+  return instructor;
+}
+
+
+  // @Get('/instructor/:courseId')
+  // async getInstructorByCourse(@Param('courseId') courseId: string) {
+  //   const instructor = await this.progressService.getInstructorForCourse(courseId);
+  //   if (!instructor) {
+  //     throw new NotFoundException('Instructor not found for this course');
+  //   }
+  //   return instructor;
+  // }
 
 
 

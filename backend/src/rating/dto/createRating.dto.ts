@@ -1,7 +1,12 @@
+import { IsInt, IsString, IsMongoId, Min, Max } from 'class-validator';
 export class CreateRatingDto {
+
+  @IsInt()
+  @Min(1)
+  @Max(5)
     rating: number;
 
-    ratedEntity: 'Module' | 'Course' | 'Instructor';
+    ratedEntity: 'Module' | 'Instructor';
 
     ratedEntityId: string;
 

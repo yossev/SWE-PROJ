@@ -50,11 +50,12 @@ export default function DashboardPage() {
   };
 
   const handleRateInstructor = () => {
-    router.push(`/rate-instructor/${userId}`);
+    router.push(`/progress/dashboard/rate-instructor/${userId}`);
   };
 
+  
   const handleRateModule = () => {
-    router.push(`/rate-module/${userId}`);
+    router.push(`/progress/dashboard/rate-module/${userId}`);
   };
 
   return (

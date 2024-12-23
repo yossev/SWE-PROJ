@@ -5,10 +5,8 @@ import axios from 'axios';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Tooltip, Legend } from 'chart.js';
 
-// Register chart.js components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
-// Define interface for Student Engagement
 interface StudentEngagement {
   enrolledStudentsCount: number;
   completedStudentsCount: number;
@@ -56,12 +54,11 @@ export default function StudentEngagementPage() {
     return <p className="text-red-500 text-center">{error}</p>;
   }
 
-  // Null check for studentEngagementData
   if (!studentEngagementData) {
     return <p className="text-red-500 text-center">No data available for student engagement.</p>;
   }
 
-  // Bar chart data for visualizing student performance
+ 
   const performanceData = {
     labels: ['Below Average', 'Average', 'Above Average', 'Excellent'],
     datasets: [
@@ -73,24 +70,24 @@ export default function StudentEngagementPage() {
           studentEngagementData.performanceMetrics.aboveAverage,
           studentEngagementData.performanceMetrics.excellent,
         ],
-        backgroundColor: '#4BC0C0', // You can change this color as needed
+        backgroundColor: '#4BC0C0', 
         borderColor: '#36A2EB',
         borderWidth: 1,
       },
     ],
   };
 
-  // Export PDF for the student engagement data
+ 
   const handleExportPDF = async () => {
     setLoading(true);
     try {
       const response = await axios.get(`http://localhost:3001/progress/export-student-engagement/pdf/${courseId}`, {
-        responseType: 'blob', // Expecting PDF in response
+        responseType: 'blob', 
       });
       const blob = new Blob([response.data], { type: 'application/pdf' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = 'student_engagement_report.pdf'; // Filename for the downloaded PDF
+      link.download = 'student_engagement_report.pdf'; 
       link.click();
     } catch (err) {
       console.error('Error exporting student engagement PDF:', err);
@@ -104,14 +101,12 @@ export default function StudentEngagementPage() {
     <div className="h-screen w-full bg-gray-900 text-white p-4 flex flex-col items-center overflow-auto">
       <h1 className="text-2xl font-bold mb-4">Student Engagement</h1>
 
-      {/* Enrolled and Completed Students */}
       <div className="bg-gray-800 p-4 rounded-lg mb-4 text-center">
         <h2 className="text-lg font-semibold">Course Engagement</h2>
         <p className="text-white">Enrolled Students: {studentEngagementData.enrolledStudentsCount}</p>
         <p className="text-white">Completed Students: {studentEngagementData.completedStudentsCount}</p>
       </div>
 
-      {/* Performance Metrics Visualization */}
       <div className="bg-gray-800 p-4 rounded-lg mb-4 text-center">
         <h2 className="text-lg font-semibold">Performance Metricss</h2>
         <div className="w-full h-[300px] mx-auto">
@@ -119,7 +114,6 @@ export default function StudentEngagementPage() {
         </div>
       </div>
 
-      {/* PDF Export Button */}
       <button
         onClick={handleExportPDF}
         className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded mt-4"

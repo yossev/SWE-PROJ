@@ -11,6 +11,7 @@ import { ModuleSchema } from '../../models/module-schema';
 import { RatingSchema } from '../../models/rating-schema';
 import { RatingModule } from '../rating/rating.module'; // Import RatingModule
 import { ResponseModule } from '../response/response.module';
+import { UserSchema } from 'models/user-schema';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { ResponseModule } from '../response/response.module';
       { name: 'Quiz', schema: QuizSchema },
       { name: 'Module', schema: ModuleSchema },
       { name: 'Rating', schema: RatingSchema },
+      {name:'User', schema: UserSchema}
     ]),
     RatingModule, // Import the RatingModule
     ResponseModule, // Import ResponseModule if needed
