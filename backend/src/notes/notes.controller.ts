@@ -16,6 +16,7 @@ export class NotesController {
     @Post('create')
     async createNote(@Req() req,@Body() createNoteDto: CreateNoteDto)
     {
+        console.log("Controller : Entered function createNote");
         return this.notesService.createNote(createNoteDto);
     }
 
