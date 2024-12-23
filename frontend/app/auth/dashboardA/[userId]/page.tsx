@@ -11,8 +11,8 @@ export default function AdminDashboard() {
   const path = usePathname().split('/');
 
   const getAdminData = async () => {
-    const adminId = path[path.length - 1];
-    const res = await fetch('http://localhost:3001/users/fetch/' + adminId, { credentials: 'include' });
+    const admin = path[path.length - 1];
+    const res = await fetch('http://localhost:3001/users/fetch/' + admin, { credentials: 'include' });
     return res.json();
   };
   

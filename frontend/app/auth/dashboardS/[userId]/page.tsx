@@ -19,7 +19,7 @@ type Course = {
 
 export default function StudentDashboard() {
   const path = usePathname().split('/');
-  const studentId = path[path.length - 1]; // Extract the student ID from the URL
+  const student = path[path.length - 1]; // Extract the student ID from the URL
 
   const [courses, setCourses] = useState<Course[]>([]);
   const [studentName, setStudentName] = useState('');
@@ -38,7 +38,7 @@ export default function StudentDashboard() {
 
   const fetchStudentData = async () => {
     try {
-      const res = await axios.get(`http://localhost:3001/users/fetch/${studentId}`, { withCredentials: true });
+      const res = await axios.get(`http://localhost:3001/users/fetch/${student}`, { withCredentials: true });
       const data = res.data;
 
       if (data) {

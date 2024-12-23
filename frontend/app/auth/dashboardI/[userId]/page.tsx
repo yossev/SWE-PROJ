@@ -16,8 +16,8 @@ export default function InstructorDashboard() {
   const path = usePathname().split('/');
 
   const getInstructorData = async () => {
-    const instructorId = path[path.length - 1];
-    const res = await fetch('http://localhost:3001/users/fetch/' + instructorId, { credentials: 'include' });
+    const instructor = path[path.length - 1];
+    const res = await fetch('http://localhost:3001/users/fetch/' + instructor, { credentials: 'include' });
     return res.json();
   };
 
