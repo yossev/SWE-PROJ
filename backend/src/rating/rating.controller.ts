@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Post, Body, Put, Param, Get, NotFoundException, UseGuards} from '@nestjs/common';
+import { Controller, Post, Body, Put, Param, Get, NotFoundException, BadRequestException, UseGuards } from '@nestjs/common';
 import { RatingService } from './rating.service';
 import { CreateRatingDto } from './dto/createRating.dto';
 import { UpdateRatingDto } from './dto/updateRating.dto';
@@ -9,7 +9,7 @@ import { authorizationGuard } from 'src/auth/guards/authorization.guards';
 
 @Controller('ratings')
 export class RatingController {
-  constructor(private readonly ratingService: RatingService) {}
+  constructor(private readonly ratingService: RatingService) { }
 
 @UseGuards(authorizationGuard)
 @Roles(Role.Student)
@@ -46,23 +46,40 @@ export class RatingController {
 }
 @Roles(Role.Instructor, Role.Admin, Role.Student)
 @UseGuards(authorizationGuard)
+  @Get('module-rating/:moduleId')
+  async getModuleRatingsByCourse(@Param('moduleId') courseId: string) {
+    return await this.ratingService.getModuleRatingsByCourse(courseId);
+  }
+
+  @Roles(Role.Instructor, Role.Admin, Role.Student)
+  @UseGuards(authorizationGuard)
   @Get('course-rating/:courseId')
   async getCourseRatingFromModules(@Param('courseId') courseId: string) {
     return await this.ratingService.getCourseRatingFromModules(courseId);
   }
+
   @Roles(Role.Instructor, Role.Admin, Role.Student)
   @UseGuards(authorizationGuard)
-
-
   @Get('instructor-rating/:instructorId')
   async getInstructorRating(@Param('instructorId') instructorId: string) {
     return await this.ratingService.getInstructorRating(instructorId);
   }
-  @Roles(Role.Instructor, Role.Admin, Role.Student)
+  
+  @Roles(Role.Student)
   @UseGuards(authorizationGuard)
-  @Get('module-rating/:moduleId')
-  async getModuleRatingsByCourse(@Param('moduleId') courseId: string) {
-    return await this.ratingService.getModuleRatingsByCourse(courseId);
+  @Post()
+  async rateEntity(@Body() createRatingDto: CreateRatingDto) {
+
+      return await this.ratingService.createRating(createRatingDto);
+    
+  }
+  @Roles(Role.Student)
+  @UseGuards(authorizationGuard)
+  @Post('rateinstructor')
+  async rateInstructor(@Body() createRatingDto: CreateRatingDto) {
+
+      return await this.ratingService.createRating(createRatingDto);
+
   }
 
 }

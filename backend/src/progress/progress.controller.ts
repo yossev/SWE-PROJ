@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Get, Post, Put, Delete, Body, Param, Res, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Res } from '@nestjs/common';
 import { ProgressService } from './progress.service';
 import { Progress } from '../models/progress-schema';
 import { CreateProgressDTO } from './dto/createProgress.dto';
@@ -122,8 +122,7 @@ export class ProgressController {
   async exportAssessmentResultPDF(@Param('courseId') courseId: string, @Res() res: Response) {
     await this.progressService.exportInstructorAnalyticsAssessmentResultsPDF(courseId, res);
   }
-  @Roles(Role.Instructor)
-  @UseGuards(authorizationGuard)
+
   @Get('/export-content-effectivenes/pdf/:courseId')
   async exportContentEffectivenessPDF(@Param('courseId') courseId: string, userId: string, @Res() res: Response) {
     await this.progressService.exportInstructorAnalyticsContentEffectivenessPDF(courseId, userId, res);
@@ -157,6 +156,25 @@ export class ProgressController {
     const rate = await this.progressService.calculateAttendanceRate(userId, courseId);
     return { attendanceRate: rate };
   }
+
+  @Get('/instructor/:instructorId')
+async getInstructorById(@Param('instructorId') instructorId: string) {
+  const instructor = await this.progressService.getInstructorById(instructorId);
+  if (!instructor) {
+    throw new NotFoundException('Instructor not found.');
+  }
+  return instructor;
+}
+
+
+  // @Get('/instructor/:courseId')
+  // async getInstructorByCourse(@Param('courseId') courseId: string) {
+  //   const instructor = await this.progressService.getInstructorForCourse(courseId);
+  //   if (!instructor) {
+  //     throw new NotFoundException('Instructor not found for this course');
+  //   }
+  //   return instructor;
+  // }
 
 
 
