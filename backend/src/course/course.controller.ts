@@ -39,7 +39,7 @@ export class CourseController {
     }
 
     @Get(':id')
-    @Roles(Role.Instructor,Role.Admin)
+    @Roles(Role.Instructor,Role.Admin, Role.Student)
     @UseGuards(authorizationGuard)
     findOne(@Param('id') id: string) {
         return this.courseService.findOne(id);
