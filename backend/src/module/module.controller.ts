@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 
-import { Body, Controller, Get, Param, Post, Put, Req, UseGuards,Delete } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards,Delete } from '@nestjs/common';
 import { ModuleService } from './module.service'; 
 import { CreateModuleDto } from './DTO/createModule.dto';
 import { UpdateModuleDto } from './DTO/updateModule.dto';

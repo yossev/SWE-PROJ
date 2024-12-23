@@ -59,7 +59,7 @@ export default function SecurityManagement() {
           <ul className="space-y-4">
             <li>
               <Link
-                href="/auth/dashboardA"
+                href="/auth/dashboardA/admin"
                 className="block py-3 px-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-all duration-300 transform hover:scale-105"
               >
                 ⬅ Back to Dashboard

@@ -9,7 +9,6 @@ import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
 import * as mongoose from 'mongoose';
 
-
 async function bootstrap() {
   const { DATABASE, PORT = 3001 } = process.env;
 
@@ -40,9 +39,10 @@ async function bootstrap() {
 
   // Middleware
   app.use(cookieParser());
+
+  // Start the server
   await app.listen(3001);
-  console.log('Server is running on http://localhost:3001');
-  app.enableCors();
+  console.log(`Server is running on http://localhost:${PORT}`);
 }
 
 bootstrap();
