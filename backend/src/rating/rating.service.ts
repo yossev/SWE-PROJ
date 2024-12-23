@@ -6,7 +6,7 @@ import { Rating, RatingDocument } from '../models/rating-schema';
 import mongoose from 'mongoose';
 import { CreateRatingDto } from './dto/createRating.dto';
 import { UpdateRatingDto } from './dto/updateRating.dto';
-import { Module, ModuleDocument } from '../models/module-schema';
+import { Module } from '../models/module-schema';
 
 
 @Injectable()

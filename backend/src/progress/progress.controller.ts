@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Get, Post, Put, Delete, Body, Param, Res } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Res, NotFoundException, Req, UseGuards } from '@nestjs/common';
 import { ProgressService } from './progress.service';
 import { Progress } from '../models/progress-schema';
 import { CreateProgressDTO } from './dto/createProgress.dto';

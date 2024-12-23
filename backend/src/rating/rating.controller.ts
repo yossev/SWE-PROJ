@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Post, Body, Put, Param, Get, NotFoundException, BadRequestException, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Put, Param, Get, NotFoundException, UseGuards } from '@nestjs/common';
 import { RatingService } from './rating.service';
 import { CreateRatingDto } from './dto/createRating.dto';
 import { UpdateRatingDto } from './dto/updateRating.dto';
