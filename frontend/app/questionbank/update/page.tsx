@@ -1,8 +1,17 @@
 "use client";
 import { useState } from "react";
 import axios from "axios";
+import { usePathname } from "next/navigation";
+import { getCookie } from "cookies-next";
 
 export default function UpdateQuestion() {
+   const path = usePathname().split('/');
+        
+          const getInstructorData = async () => {
+            const instructorId = path[path.length - 1];
+            const res = await fetch('http://localhost:3001/users/fetch/' + instructorId, { credentials: 'include' });
+            return res.json();
+          };
   const [id, setId] = useState<string>(""); // Input ID
   const [questionData, setQuestionData] = useState<any>(null); // Fetched question data
   const [formData, setFormData] = useState<any>({}); // Editable form data
@@ -10,6 +19,8 @@ export default function UpdateQuestion() {
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
 
+  const token = getCookie('token'); 
+  
   // Fetch Question by ID
   const fetchQuestionById = async () => {
     if (!id) {
@@ -22,7 +33,7 @@ export default function UpdateQuestion() {
 
     try {
       const response = await axios.get(
-        `http://localhost:3001/questionbank/questionbank?id=${id}`
+        `http://localhost:3001/questionbank/questionbank?id=${id}`,{withCredentials:true}
       );
       setQuestionData(response.data);
       setFormData(response.data);
@@ -48,7 +59,8 @@ export default function UpdateQuestion() {
     try {
       await axios.put(
         `http://localhost:3001/questionbank/updatequestionbank?id=${id}`,
-        formData
+        formData,
+        {withCredentials:true}
       );
       setSuccess("Question updated successfully!");
     } catch {

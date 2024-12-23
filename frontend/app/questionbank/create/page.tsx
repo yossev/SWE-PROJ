@@ -1,8 +1,16 @@
 "use client";
 import { useState } from "react";
 import axios from "axios";
+import { usePathname } from "next/navigation";
 
 export default function CreateQuestion() {
+  const path = usePathname().split('/');
+    
+      const getInstructorData = async () => {
+        const instructorId = path[path.length - 1];
+        const res = await fetch('http://localhost:3001/users/fetch/' + instructorId, { credentials: 'include' });
+        return res.json();
+      };
   const [formData, setFormData] = useState({
     question: "",
     options: "",
@@ -33,7 +41,8 @@ export default function CreateQuestion() {
         {
           ...formData,
           options: formData.options.split(",").map((opt) => opt.trim()), // Convert options to an array
-        }
+        },
+        {withCredentials:true}
       );
       setSuccess("Question created successfully!");
       setFormData({

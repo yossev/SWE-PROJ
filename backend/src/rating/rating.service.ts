@@ -6,22 +6,33 @@ import { Rating, RatingDocument } from '../models/rating-schema';
 import mongoose from 'mongoose';
 import { CreateRatingDto } from './dto/createRating.dto';
 import { UpdateRatingDto } from './dto/updateRating.dto';
-import { Module, ModuleDocument } from '../models/module-schema';
+import { Module } from '../models/module-schema';
 
 
 @Injectable()
 export class RatingService {
+    userModel: any;
     constructor(
         @InjectModel('Rating') private readonly ratingModel: Model<RatingDocument>,
-        @InjectModel('Mod') private readonly moduleModel: Model<Module>, 
+        @InjectModel('Mod') private readonly moduleModel: Model<Module>,
     ) { }
 
-
-    async createRating(createRatingDto: CreateRatingDto): Promise<Rating> {
+        async createRating(createRatingDto: CreateRatingDto): Promise<Rating> {
         const newRating = new this.ratingModel(createRatingDto);
         return await newRating.save();
     }
 
+    async rateInstructor(ratedEntityType: 'Instructor', ratedInstructorId: string, rating: number, userId: string) {
+        const createRatingDto = {
+          rating,
+          ratedEntity: ratedEntityType,  
+          ratedEntityId: ratedInstructorId,  
+          user_id: userId,
+        };
+      
+        return await this.createRating(createRatingDto);
+      }
+      
     async updateRating(id: string, updateRatingDto: UpdateRatingDto): Promise<Rating> {
         return await this.ratingModel.findByIdAndUpdate(id, updateRatingDto, { new: true });
     }
@@ -37,52 +48,50 @@ export class RatingService {
         }
         return rating;
     }
-    async getModuleRatingsByCourse(courseId: string): Promise<{ moduleId: string; averageRating: number }[]> {
 
+    async getModuleRatingsByCourse(courseId: string): Promise<{ moduleId: string; averageRating: number | string }[]> {
         const modules = await this.moduleModel.find({ course_id: courseId }).select('_id').exec();
-    
         const moduleRatings = [];
+
         for (const module of modules) {
-    
             const ratings = await this.ratingModel.aggregate([
                 { $match: { ratedEntity: 'Module', ratedEntityId: new mongoose.Types.ObjectId(module._id) } },
                 { $group: { _id: '$ratedEntityId', averageRating: { $avg: '$rating' } } },
             ]);
-    
+
             moduleRatings.push({
                 moduleId: module._id.toString(),
-                averageRating: ratings.length > 0 ? ratings[0].averageRating : 0,
+                averageRating: ratings.length > 0 ? ratings[0].averageRating : "No ratings yet", 
             });
         }
 
         return moduleRatings;
     }
-    
-    async getCourseRatingFromModules(courseId: string): Promise<number> {
+
+    async getCourseRatingFromModules(courseId: string): Promise<number | string> {
         const moduleRatings = await this.getModuleRatingsByCourse(courseId);
 
-        
-        const totalRating = moduleRatings.reduce((sum, module) => sum + module.averageRating, 0);
-        const averageCourseRating = moduleRatings.length > 0 ? totalRating / moduleRatings.length : 0;
+      // exclude string
+        const totalRating = moduleRatings.reduce((sum, module) => {
+            if (typeof module.averageRating === "number") {
+                sum += module.averageRating; // Only sum numbers
+            }
+            return sum;
+        }, 0);
+
+        const validRatingsCount = moduleRatings.filter(module => typeof module.averageRating === "number").length;
+        const averageCourseRating = validRatingsCount > 0 ? totalRating / validRatingsCount : "No ratings yet";
 
         return averageCourseRating;
     }
 
-    
-    async getInstructorRating(instructorId: string): Promise<number> {
+    async getInstructorRating(instructorId: string): Promise<number | string> {
         const ratings = await this.ratingModel.aggregate([
             { $match: { ratedEntity: 'Instructor', ratedEntityId: new mongoose.Types.ObjectId(instructorId) } },
             { $group: { _id: '$ratedEntityId', averageRating: { $avg: '$rating' } } },
         ]);
 
-        return ratings.length > 0 ? ratings[0].averageRating : 0;
+        return ratings.length > 0 ? ratings[0].averageRating : "No ratings yet"; 
     }
 }
-
-
-
-
-
-   
-
 

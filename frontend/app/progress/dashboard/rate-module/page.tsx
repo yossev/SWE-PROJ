@@ -5,66 +5,49 @@ import axios from 'axios';
 
 export default function RateModulePage() {
   const { userId } = useParams();
+  const { moduleId } = useParams();
   const router = useRouter();
-  const [modules, setModules] = useState([]);
-  const [selectedModule, setSelectedModule] = useState<string | null>(null);
-  const [rating, setRating] = useState<number | null>(null);
+  const [rating, setRating] = useState<number>(0);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchModules = async () => {
-      try {
-        const response = await axios.get(`http://localhost:3001/modules`);
-        setModules(response.data);
-      } catch (err) {
-        console.error('Failed to fetch modules', err);
-      }
-    };
-
-    fetchModules();
-  }, []);
-
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     try {
-      await axios.post('http://localhost:3001/ratings', {
-        ratedEntity: 'Module',
-        ratedEntityId: selectedModule,
-        user_id: userId,
+      const response = await axios.post('http://localhost:3001/ratings', {
+        ratedEntityType: 'Module',
+        ratedEntityId: moduleId,
         rating,
+        userId,
       });
-      alert('Rating submitted successfully!');
-      router.push('/dashboard');
+      console.log('Rating submitted:', response.data);
+      router.push(`/dashboard/${userId}`); // Redirect to the dashboard after successful rating
     } catch (err) {
-      console.error('Failed to submit rating', err);
+      setError('Failed to submit the rating.');
+      console.error(err);
     }
   };
 
   return (
-    <div>
-      <h1>Rate Module</h1>
-      <label>
-        Select Module:
-        <select onChange={(e) => setSelectedModule(e.target.value)}>
-          <option value="">Select a module</option>
-          {modules.map((module: any) => (
-            <option key={module._id} value={module._id}>
-              {module.title}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label>
-        Rating:
+    <div className="h-screen w-full bg-gray-900 text-white p-4 flex flex-col items-center overflow-auto">
+      <h1 className="text-2xl font-bold mb-4">Rate Module</h1>
+      {error && <p className="text-red-500">{error}</p>}
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <label className="block text-lg">Rating (1-5):</label>
         <input
           type="number"
-          value={rating || ''}
+          value={rating}
           onChange={(e) => setRating(Number(e.target.value))}
-          min={1}
-          max={5}
+          min="1"
+          max="5"
+          required
+          className="w-full p-2 bg-gray-800 text-white rounded"
         />
-      </label>
-      <button onClick={handleSubmit} className="btn btn-primary">
-        Submit
-      </button>
+        <button type="submit" className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
+          Submit Rating
+        </button>
+      </form>
     </div>
   );
 }
+

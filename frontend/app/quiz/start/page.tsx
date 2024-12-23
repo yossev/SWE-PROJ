@@ -1,8 +1,17 @@
 "use client"; // This directive marks the file as a client component
 
+import axios from "axios";
+import { usePathname } from "next/navigation";
 import React, { useState } from "react";
 
 export default function QuizStart() {
+  const path = usePathname().split('/');
+            
+  const getStudentData = async () => {
+    const studentId = path[path.length - 1];
+    const res = await fetch('http://localhost:3001/users/fetch/' + studentId, { credentials: 'include' });
+    return res.json();
+  };
   const [userId, setUserId] = useState<string>(""); // User ID input
   const [quizData, setQuizData] = useState<any>(null); // Quiz data from backend
   const [userAnswers, setUserAnswers] = useState<string[]>([]); // User answers
@@ -21,12 +30,12 @@ export default function QuizStart() {
 
     try {
       setError(null);
-      const response = await fetch(`http://localhost:3001/quiz/assigned?userId=${userId}`);
-      if (!response.ok) {
+      const response = await axios.get(`http://localhost:3001/quiz/assigned?userId=${userId}`,{withCredentials:true});
+      if (response.status!==200) {
         throw new Error("Failed to fetch quiz.");
       }
 
-      const quiz = await response.json();
+      const quiz = await response.data;
       setQuizData(quiz);
       setUserAnswers(new Array(quiz.questions.length).fill("")); // Initialize answers
       setStep("quiz");
@@ -61,17 +70,13 @@ export default function QuizStart() {
         userId,
       };
 
-      const response = await fetch(`http://localhost:3001/quiz/evaluate?userId=${userId}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      const response = await axios.post(`http://localhost:3001/quiz/evaluate?userId=${userId}`,{withCredentials:true});
 
-      if (!response.ok) {
+      if (response.status!==200) {
         throw new Error("Failed to evaluate quiz.");
       }
 
-      const result = await response.json();
+      const result = await response.data;
       setScore(result.data.score);
       setFeedback(result.data.feedback);
       setResultDetails(result.data); // Store result details from backend
