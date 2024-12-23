@@ -14,7 +14,7 @@ export class RatingService {
     userModel: any;
     constructor(
         @InjectModel('Rating') private readonly ratingModel: Model<RatingDocument>,
-        @InjectModel('Module') private readonly moduleModel: Model<Module>,
+        @InjectModel('Mod') private readonly moduleModel: Model<Module>,
     ) { }
 
         async createRating(createRatingDto: CreateRatingDto): Promise<Rating> {
