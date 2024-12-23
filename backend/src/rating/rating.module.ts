@@ -32,10 +32,11 @@ import { UserSchema } from '../models/user-schema';
 import { ModuleService } from 'src/module/module.service';
 import { NotificationService } from 'src/notification/notification.service';
 import { UserService } from 'src/user/user.service';
+import { LoggerService } from 'src/auth/logger.service';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: 'Rating', schema: RatingSchema },{ name: 'Module', schema: ModuleSchema },{name:'Course',schema:CourseSchema},{name:'Notification',schema:NotificationSchema},{name:'User',schema:UserSchema},{name:'Forum',schema:ForumSchema},
+    MongooseModule.forFeature([{ name: 'Rating', schema: RatingSchema },{ name: 'Mod', schema: ModuleSchema },{name:'Course',schema:CourseSchema},{name:'Notification',schema:NotificationSchema},{name:'User',schema:UserSchema},{name:'Forum',schema:ForumSchema},
       {name:'Message',schema:MessageSchema},
       {name:'UserNotification',schema:NotificationSchema},
       {name:'Progress',schema:ProgressSchema},
@@ -50,7 +51,7 @@ import { UserService } from 'src/user/user.service';
   ],
   controllers: [RatingController],
   providers: [RatingService,ModuleService,CourseService,NotificationService,UserService,ForumService,MessageService,NotificationService,
-    JwtService,ProgressService,AuthService,RoomService,ResponseService,QuizService,QuestionBankService],
+    JwtService,ProgressService,AuthService,RoomService,ResponseService,QuizService,QuestionBankService,LoggerService],
     exports:[RatingService]
 })
 

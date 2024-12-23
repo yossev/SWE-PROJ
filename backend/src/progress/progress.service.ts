@@ -24,7 +24,7 @@ export class ProgressService {
     @InjectModel(Responses.name) private responseModel: Model<Responses>,
     @InjectModel(Course.name) private courseModel: Model<Course>,
     @InjectModel(Quiz.name) private quizModel: Model<Quiz>,
-    @InjectModel(Module.name) private moduleModel: Model<Module>,
+    @InjectModel('Mod') private moduleModel: Model<Module>,
     @InjectModel(Rating.name) private ratingModel: Model<Rating>,
     private ratingService: RatingService,
 

@@ -30,6 +30,7 @@ import { RoomService } from 'src/room/room.service';
 import { ThreadService } from 'src/thread/thread.service';
 import { UserModule } from 'src/user/user.module';
 import { UserService } from 'src/user/user.service';
+import { LoggerService } from 'src/auth/logger.service';
 
 
 @Module({
@@ -40,7 +41,7 @@ import { UserService } from 'src/user/user.service';
      { name: "Progress", schema: ProgressSchema},
      { name: "Responses", schema: ResponseSchema},
      { name: "Quiz", schema: QuizSchema },
-     { name: "Module", schema: ModuleSchema},
+     { name: "Mod", schema: ModuleSchema},
      { name: "Rating", schema: RatingSchema},
      {name:"Forum",schema:ForumSchema},
      {name:"Thread",schema:ThreadSchema},
@@ -49,7 +50,7 @@ import { UserService } from 'src/user/user.service';
   UserModule],
   controllers: [CourseController],
   providers: [CourseService, NotificationService, MessageService, UserService, RoomService, JwtService,
-     ProgressService, AuthService, RatingService,ForumService,ThreadService,ReplyService
+     ProgressService, AuthService, RatingService,ForumService,ThreadService,ReplyService,LoggerService
 
   ],
   exports:[CourseService]

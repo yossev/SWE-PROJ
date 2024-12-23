@@ -23,6 +23,7 @@ import { ThreadSchema } from '../models/thread-schema';
 import { UserSchema } from '../models/user-schema';
 import { ProgressService } from 'src/progress/progress.service';
 import { UserService } from 'src/user/user.service';
+import { LoggerService } from 'src/auth/logger.service';
 
 
 @Module({
@@ -37,7 +38,7 @@ import { UserService } from 'src/user/user.service';
             { name: 'Responses', schema: ResponseSchema }, 
             
             { name: 'Quiz', schema: QuizSchema }, 
-            { name: 'Module', schema: ModuleSchema},
+            { name: 'Mod', schema: ModuleSchema},
             {name: 'Rating', schema: RatingSchema},
             
             {name:"Forum",schema:ForumSchema},

@@ -1,7 +1,4 @@
-/* eslint-disable prettier/prettier */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
-import { Injectable, Req, UnauthorizedException } from '@nestjs/common';
+import { Injectable ,UnauthorizedException,BadRequestException, HttpStatus, HttpException, Req} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import{ Module} from '../models/module-schema';
 import mongoose, { Model, Types } from 'mongoose';
@@ -22,7 +19,7 @@ import { UpdateQuizDto } from './DTO/quiz.update.dto';
 export class QuizService {
   constructor(
     @InjectModel('Quiz') private readonly quizModel: Model<QuizDocument>,
-    @InjectModel('Module') private readonly moduleModel: Model<Module>,
+    @InjectModel('Mod') private readonly moduleModel: Model<Module>,
     @InjectModel('QuestionBank') private readonly questionBankModel: Model<QuestionBank>,
     @InjectModel('User') private readonly userModel: Model<User>,
     @InjectModel('Progress') private readonly progressModel: Model<ProgressDocument>,
@@ -43,46 +40,141 @@ export class QuizService {
     const objectId = new mongoose.Types.ObjectId(inpStr);  
     return await this.quizModel.findById(objectId).exec();
 }
-async findByUserId(userId: string): Promise<Quiz> {
+async findByUserId(userId: string): Promise<any> {
   console.log('Querying quiz for userId:', userId);
 
   const objectId = new mongoose.Types.ObjectId(userId);
 
-
   const quiz = await this.quizModel.findOne({ userId: objectId }).exec();
 
+  if (!quiz) {
+    throw new Error('No quiz found for the provided user ID.');
+  }
+
+  // Extract question ids and pass them along with the questions
+  const questionIds = quiz.question_ids;
+  const questions = await this.questionBankModel.find({
+    _id: { $in: questionIds },
+  });
+
+  const responseQuiz = {
+    quizId: quiz._id,
+    questions: questions.map((q: any) => ({
+      questionId: q._id.toString(),
+      question: q.question,
+      options: q.options,
+      correctAnswer: q.correct_answer,
+      explanation: q.explanation, 
+    })),
+    questionIds: questionIds, // Include the question ids
+  };
+
+  return responseQuiz;
+}
+
+async update(quizId: string, updateData: UpdateQuizDto): Promise<Quiz> {
+  // Check if the quiz exists
+  const quiz = await this.quizModel.findById(quizId);
+  if (!quiz) {
+    throw new BadRequestException('Quiz not found.');
+  }
+
+  // Check if there are responses for this quiz (should happen before any update logic)
+  const responsesExist = await this.responsesModel.findOne({ quiz_id: quizId });
+  if (responsesExist) {
+    throw new UnauthorizedException('This quiz has already been taken by a student and cannot be edited.');
+  }
+
+  // Proceed with the update only if no responses exist
+  quiz.questionType = updateData.questionType || quiz.questionType;
+  quiz.numberOfQuestions = updateData.numberOfQuestions || quiz.numberOfQuestions;
+
+  // Validate required fields
+  if (!quiz.questionType || !quiz.numberOfQuestions) {
+    throw new BadRequestException('numberOfQuestions and questionType are required fields.');
+  }
+
+  // Fetch all questions from the QuestionBank
+  const allQuestions = await this.questionBankModel.find();
+
+  // Define the filter for selecting questions based on the provided questionType
+  let difficultyLevels: string[] = [];
+  if (quiz.questionType === QuestionType.MCQ) {
+    difficultyLevels = ['Easy', 'Medium', 'Hard'];
+  } else if (quiz.questionType === QuestionType.TrueFalse) {
+    difficultyLevels = ['Easy', 'Medium'];
+  }
+
+  let questionFilter: any = {
+    module_id: quiz.module_id,
+    difficulty_level: { $in: difficultyLevels },
+  };
+
+  if (quiz.questionType === QuestionType.MCQ) {
+    questionFilter.question_type = 'MCQ';
+  } else if (quiz.questionType === QuestionType.TrueFalse) {
+    questionFilter.question_type = 'True/False';
+  } else {
+    questionFilter.question_type = { $in: ['MCQ', 'True/False'] };
+  }
+
+  const filteredQuestions = allQuestions.filter((q) => {
+    const matchesType =
+      (quiz.questionType === QuestionType.MCQ && q.question_type === 'MCQ') ||
+      (quiz.questionType === QuestionType.TrueFalse && q.question_type === 'True/False') ||
+      (quiz.questionType === QuestionType.Both && ['MCQ', 'True/False'].includes(q.question_type));
+
+    const matchesModule = q.module_id.toString() === quiz.module_id.toString();
+
+    return matchesType && matchesModule;
+  });
+
+  if (filteredQuestions.length < quiz.numberOfQuestions) {
+    throw new BadRequestException('Not enough questions to satisfy the quiz requirements.');
+  }
+
+  // Randomly select questions
+  const selectedQuestions = this.getRandomQuestions(filteredQuestions, quiz.numberOfQuestions);
+
+  quiz.questions = selectedQuestions.map((q) => ({
+    questionId: q._id,
+    question: q.question,
+    options: q.options,
+    correct_answer: q.correct_answer,
+    difficultyLevel: q.difficulty_level,
+  }));
+
+  quiz.question_ids = selectedQuestions.map((q) => q._id);
+
+  // Save the updated quiz
+  await quiz.save();
   return quiz;
 }
 
 
-async update(@Req() req, id: string, updateData: UpdateQuizDto): Promise<Quiz> {
-  const userId = req.cookies.userId;
-  const quiz=await this.quizModel.findById(id).exec();
-  const module=await this.moduleModel.findOne({module_id:quiz.module_id});
-  const instructor=(await this.courseModel.findOne({course_id:module.course_id})).instructor;
-  if(instructor.toString()!==userId)
-  {
-    throw new UnauthorizedException("You are not authorized to update this quiz");
-  }
-  const inpStr: string= id;
-  const objectId = new mongoose.Types.ObjectId(inpStr);  
-  return await this.quizModel.findByIdAndUpdate(objectId, updateData, { new: true }).exec();
-}
 
 
-async delete(@Req() req,id: string): Promise<Quiz> {
-  const userId = req.cookies.userId;
-  const quiz=await this.quizModel.findById(id).exec();
-  const module=await this.moduleModel.findOne({module_id:quiz.module_id});
-  const instructor=(await this.courseModel.findOne({course_id:module.course_id})).instructor;
-  if(instructor.toString()!==userId)
-  {
-    throw new UnauthorizedException("You are not authorized to update this quiz");
+
+async delete(id: string): Promise<Quiz> {
+  const objectId = new mongoose.Types.ObjectId(id); 
+  console.log('Quiz ID to delete:', objectId);
+
+  // Check if there are responses for this quiz (should happen before any deletion logic)
+  const responsesExist = await this.responsesModel.findOne({ quiz_id: objectId });
+  
+  if (responsesExist) {
+    throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
   }
-  const inpStr: string= id;
-  const objectId = new mongoose.Types.ObjectId(inpStr);  
-  return await this.quizModel.findByIdAndDelete(objectId).exec();
+
+  //await this.responsesModel.deleteMany({ quiz_id: objectId });
+  const deletedQuiz = await this.quizModel.findByIdAndDelete(objectId);
+  if (!deletedQuiz) {
+    throw new BadRequestException('Quiz not found.');
+  }
+
+  return deletedQuiz;
 }
+
 
 // DONT TOUCH THIS VODOO ( IT WORKS AND IDK HOW )
 async generateQuiz(createQuizDto: CreateQuizDto, userId: string): Promise<any> {
@@ -165,7 +257,7 @@ async generateQuiz(createQuizDto: CreateQuizDto, userId: string): Promise<any> {
   console.log('Selected Questions:', selectedQuestions);
 
   const transformedQuestions = selectedQuestions.map((q) => ({
-    questionId: q._id,
+    questionId: q._id.toString(),
     question: q.question,
     options: q.options,
     correct_answer: q.correct_answer,
@@ -179,12 +271,17 @@ async generateQuiz(createQuizDto: CreateQuizDto, userId: string): Promise<any> {
   console.log("Extracted: " + extractedQuestionIds);
   const quiz = {
     module_id: moduleId,
-    question_ids: extractedQuestionIds , 
+    question_ids: extractedQuestionIds,
     questions: transformedQuestions,
     created_at: new Date(),
-    userId: new mongoose.Types.ObjectId(userId), 
+    userId: new mongoose.Types.ObjectId(userId),
+    numberOfQuestions: numberOfQuestions, // Include this
+    questionType: questionType, // Include this
   };
+  console.log("Quiz Object Before Save:", quiz);
+
   
+
   const savedQuiz = await new this.quizModel(quiz).save();
 
   this.notificationService.createNotification(new Types.ObjectId(userId), 'New quiz has been generated for you.', savedQuiz._id.toString());
@@ -228,74 +325,94 @@ private shuffleArray(array: any[]): any[] {
   }
 
 
-  
-
-  async evaluateQuiz(
-    userAnswers: string[],
-    selectedQuestions: any[],
-    userId: string,
-    quizId: string, // Add quizId parameter
-  ): Promise<any> {
+  private calculateScore(
+    answers: { questionId: mongoose.Types.ObjectId; answer: string }[],
+    selectedQuestions: { questionId: string; correctAnswer: string }[],
+  ): number {
     let correctAnswersCount = 0;
-    const incorrectAnswers = [];
   
-    // Fetch correct answers using question IDs
-    const question_ids = selectedQuestions.map((q) => q.questionId);
-    const fetchedQuestions = await this.questionBankModel.find({ _id: { $in: question_ids } });
+    // Compare user answers with the correct answers
+    answers.forEach((answerObj) => {
+      const matchedQuestion = selectedQuestions.find(
+        (q) => q.questionId === answerObj.questionId.toString(),
+      );
   
-    const questionMap = fetchedQuestions.reduce((map, question) => {
-      map[question._id.toString()] = question.correct_answer;
-      return map;
-    }, {});
-  
-    const answersToSave = [];
-    selectedQuestions.forEach((question, index) => {
-      const userAnswer = userAnswers[index];
-      const correctAnswer = questionMap[question.questionId];
-  
-      answersToSave.push({
-        questionId: question.questionId,
-        answer: userAnswer,
-      });
-  
-      if (userAnswer === correctAnswer) {
+      if (matchedQuestion && matchedQuestion.correctAnswer === answerObj.answer) {
         correctAnswersCount++;
-      } else {
-        incorrectAnswers.push({
-          question: question.question,
-          correctAnswer: correctAnswer || "N/A",
-          userAnswer: userAnswer || "N/A",
-        });
       }
     });
   
+    // Calculate score as a percentage
     const score = (correctAnswersCount / selectedQuestions.length) * 100;
-    let feedbackMessage = '';
-    if (score < 60) {
-      feedbackMessage = 'You have not scored enough. We recommend revisiting the module content and studying the material again.';
-    } else {
-      feedbackMessage = 'Great job! You have passed the quiz. Keep up the good work!';
-    }
   
-    // Save the results in the Responses schema
-    const responseDocument = new this.responsesModel({
-      user_id: new mongoose.Types.ObjectId(userId),
-      quiz_id: quizId, // Use quizId passed from Postman
-      answers: answersToSave,
-      score,
-      submittedAt: new Date(),
-    });
-  
-    await responseDocument.save();
-  
-    return {
-      score,
-      feedback: feedbackMessage,
-      incorrectAnswers,
-    };
+    return score;
   }
-}
-  
-  
   
 
+  async evaluateQuiz(
+    userAnswers: string[], 
+    selectedQuestions: { questionId: string }[], 
+    userId: string, 
+    quizId: string
+): Promise<any> {
+    const questionIds = selectedQuestions.map((q) => q.questionId);
+    const objectIds = questionIds.map((id) => new mongoose.Types.ObjectId(id));
+
+    // Fetch correct answers using the questionIds
+    const questionsFromDB = await this.questionBankModel.find({
+        _id: { $in: objectIds },
+    }).select('correct_answer explanation');
+
+    const answers = selectedQuestions.map((question, index) => {
+        const correctAnswer = questionsFromDB.find(
+            (q) => q._id.toString() === question.questionId
+        )?.correct_answer;
+
+        const explanation = questionsFromDB.find(
+            (q) => q._id.toString() === question.questionId
+        )?.explanation;
+
+        // Compare answers (trim whitespace and standardize case)
+        const userAnswer = userAnswers[index]?.trim().toLowerCase();
+        const correctAnswerTrimmed = correctAnswer?.trim().toLowerCase();
+
+        return {
+            questionId: new mongoose.Types.ObjectId(question.questionId),
+            answer: userAnswer || '',
+            correctAnswer: correctAnswer || 'Not available',
+            explanation: explanation || 'No explanation available',
+            isCorrect: userAnswer === correctAnswerTrimmed // Flag if answer is correct
+        };
+    });
+
+    const correctAnswersCount = answers.filter(a => a.isCorrect).length;
+
+    const score = (correctAnswersCount / selectedQuestions.length) * 100;
+
+    // Save responses
+    const responseDocument = new this.responsesModel({
+        user_id: new mongoose.Types.ObjectId(userId),
+        quiz_id: new mongoose.Types.ObjectId(quizId),
+        answers,
+        correctAnswers: answers.filter(a => a.isCorrect),
+        incorrectAnswers: answers.filter(a => !a.isCorrect),
+        score,
+        submittedAt: new Date(),
+    });
+
+    await responseDocument.save();
+
+    return { 
+        score, 
+        feedback: score >= 50 ? 'Good job!, you are ready for the next module!' : 'Needs improvement, please re-study the module again',
+        correctAnswers: answers.filter(a => a.isCorrect),
+        incorrectAnswers: answers.filter(a => !a.isCorrect)
+    };
+}
+async getresponsestotal(id: string): Promise<any> {
+  const objectId = new mongoose.Types.ObjectId(id);
+  const responses = await this.responsesModel.find({ quiz_id: objectId });
+  return responses.length;
+}
+}
+  

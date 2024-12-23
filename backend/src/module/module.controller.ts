@@ -3,15 +3,14 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 
-import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
 import { ModuleService } from './module.service'; 
 import { CreateModuleDto } from './DTO/createModule.dto';
 import { UpdateModuleDto } from './DTO/updateModule.dto';
 import { UseInterceptors , Query } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { StreamableFile } from '@nestjs/common';
-import { createReadStream } from 'fs';
-import { join } from 'path';
+
 import { UploadedFile } from '@nestjs/common';
 import { Express } from 'express';
 import { diskStorage } from 'multer';
@@ -20,7 +19,7 @@ import { Roles, Role } from 'src/auth/decorators/roles.decorator';
 import { authorizationGuard } from 'src/auth/guards/authorization.guards';
 import { AuthGuard } from 'src/auth/guards/auth.guards';
 import { InjectModel } from '@nestjs/mongoose';
-import { Reply } from '../models/reply-schema';
+
 import { Model } from 'mongoose';
 import { Course } from '../models/course-schema';
 

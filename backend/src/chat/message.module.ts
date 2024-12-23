@@ -21,6 +21,7 @@ import { Responses, ResponseSchema } from '../models/responses-schema';
 import { User, UserSchema } from '../models/user-schema';
 import { ProgressService } from 'src/progress/progress.service';
 import { RatingService } from 'src/rating/rating.service';
+import { LoggerService } from 'src/auth/logger.service';
 
 
 
@@ -28,13 +29,13 @@ import { RatingService } from 'src/rating/rating.service';
   imports: [MongooseModule.forFeature([{ name: Message.name, schema: MessageSchema },{ name: 'Room', schema: RoomSchema },
     { name: UserNotification.name, schema: NotificationSchema } , { name: Course.name, schema: CourseSchema } , 
     { name: User.name, schema: UserSchema } , { name: Progress.name, schema: ProgressSchema } , { name: Responses.name, schema: ResponseSchema },
-    { name: Quiz.name, schema: QuizSchema } , { name: 'Module', schema: ModuleSchema } , { name: Rating.name, schema: RatingSchema },
+    { name: Quiz.name, schema: QuizSchema } , { name: 'Mod', schema: ModuleSchema } , { name: Rating.name, schema: RatingSchema },
     { name: RefreshToken.name, schema: RefreshTokenSchema }
   ])],
   providers: [MessageService, MessageGateway, RoomService,
     UserService,
     NotificationService,
-  JwtService , ProgressService , AuthService , RatingService],
+  JwtService , ProgressService , AuthService , RatingService,LoggerService],
   exports:[MessageService]
 })
 export class ChatModule {}

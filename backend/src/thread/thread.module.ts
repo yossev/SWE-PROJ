@@ -28,6 +28,7 @@ import { Room, RoomSchema } from '../models/room-schema';
 import { User, UserSchema } from '../models/user-schema';
 import { NotificationService } from 'src/notification/notification.service';
 import { ReplyService } from 'src/reply/reply.service';
+import { LoggerService } from 'src/auth/logger.service';
 
 
 
@@ -46,13 +47,13 @@ import { ReplyService } from 'src/reply/reply.service';
           { name: "Progress", schema: ProgressSchema},
            { name: "Responses", schema: ResponseSchema},
            { name: "Quiz", schema: QuizSchema },
-           { name: "Module", schema: ModuleSchema},
+           { name: "Mod", schema: ModuleSchema},
            { name: "Rating", schema: RatingSchema},
     ]),
   ],
   controllers:[ThreadController],
   providers: [ThreadService,ReplyService,NotificationService,UserService,JwtService,CourseService, MessageService, RoomService,
-       ProgressService, AuthService, RatingService,ForumService],
+       ProgressService, AuthService, RatingService,ForumService,LoggerService],
        exports:[ThreadService]
        
   })
