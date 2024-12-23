@@ -94,6 +94,7 @@ export class UserService {
     
     // Get a student by ID malhash lazma
     async findById(id: string): Promise<User> {
+      console.log("User ID in fetch is: " + id);
         const student=  await this.userModel.findById(new Types.ObjectId(id));  // Fetch a student by ID
         return student
     }

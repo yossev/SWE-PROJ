@@ -106,10 +106,17 @@ export class ModuleService {
 
   async getModule(id: string)
   {
+    const allModules = await this.moduleModel.find();
+    console.log("All modules are: " + allModules);
+    console.log("Module called with id: " + id);
     const module = await this.moduleModel.findById(new mongoose.Types.ObjectId(id)).exec(); 
     if(module)
     {
-      console.log(module);
+      console.log("Module valid and is: " + module);
+    }
+    else
+    {
+      console.log("Module is not valid");
     }
     return module;
   }
@@ -158,11 +165,12 @@ export class ModuleService {
   }
 
   async uploadFile(@Req() req,@UploadedFile() file: Express.Multer.File , moduleId : string , fileName: string) {
-    const userid=req.cookies.userid;
+    const userid=req.cookies.userId;
     const usedModule=this.moduleModel.findById(new mongoose.Types.ObjectId(moduleId));
     const courseid=(await usedModule).course_id;
-    const course=this.courseModel.findById(courseid);
-    if (userid!=(await course).created_by){
+    const course= await this.courseModel.findById(courseid);
+    if (userid!= course.created_by){
+      console.log("User ID is: " + userid + " and course created by is: " + course.created_by);
       throw new UnauthorizedException("You are not authorized to update this module");
     }
     const currentModule = await this.moduleModel.findById(new mongoose.Types.ObjectId(moduleId)).exec();

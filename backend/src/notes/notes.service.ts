@@ -21,9 +21,16 @@ export class NotesService {
 
     async createNote(createNoteDto : CreateNoteDto)
     {
-        const note = new this.noteModel(createNoteDto);
-        await note.save();
-        return "Note created";
+        try
+        {
+            const note = new this.noteModel(createNoteDto);
+            await note.save();
+            return "Note created";
+        }
+        catch(error)
+        {
+            throw new Error(error.message);
+        }
     }
 
     async getNote(id : string , userId : string)

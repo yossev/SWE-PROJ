@@ -38,12 +38,13 @@ export class CourseController {
         return this.courseService.search(query);
     }
 
-    @Get(':id')
-    @Roles(Role.Instructor,Role.Admin)
+    @Get('/:id')
+    @Roles(Role.Instructor,Role.Admin , Role.Student)
     @UseGuards(authorizationGuard)
     findOne(@Param('id') id: string) {
         return this.courseService.findOne(id);
     }
+
     @Roles(Role.Instructor)
     @UseGuards(authorizationGuard)
     @Put(':id')

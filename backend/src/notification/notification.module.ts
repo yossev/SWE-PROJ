@@ -51,7 +51,7 @@ import { LoggerService } from 'src/auth/logger.service';
       
     ]),
   ],
-  providers: [NotificationService,JwtService,ProgressService,AuthService,RatingService,UserService],
+  providers: [NotificationService,JwtService,ProgressService,AuthService,RatingService,UserService , LoggerService],
   controllers: [NotificationsController],
   exports: [NotificationService,JwtService], // Export the service so it can be used in other modules
 })

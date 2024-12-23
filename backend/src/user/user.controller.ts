@@ -45,7 +45,6 @@ export class UserController {
     @Roles(Role.Instructor, Role.Admin)
     @UseGuards(authorizationGuard)
     @Get('fetch/:id')// /student/:id
-    
     // Get a single student by ID
     async getUserById(@Param('id') id: string):Promise<User> {// Get the student ID from the route parameters
         const user = await this.userService.findById(id);
@@ -85,6 +84,13 @@ export class UserController {
         throw new NotFoundException('Instructor not found');
       }
     
+      return user;
+    }
+
+    @Get('fetchme')
+    async getUserByReq(@Req() req): Promise<User> {
+      const userId = req.cookies.userId;
+      const user = await this.userService.findById(userId);
       return user;
     }
 

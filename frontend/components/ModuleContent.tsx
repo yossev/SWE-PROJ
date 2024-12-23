@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import axios from "axios";
 import React, { useState } from 'react'
+import FileUpload from "./FileUpload";
 
 const ModuleContent = ({moduleId , data , role , setRefresh} : {moduleId : string , data : any , role : any , setRefresh : any}) => {
 
@@ -9,7 +10,7 @@ const ModuleContent = ({moduleId , data , role , setRefresh} : {moduleId : strin
     }
 
     const deleteFile = (fileName: string) => {
-        axios.delete("http://localhost:3001/modules/deletecontent/" + moduleId + "/" + fileName).then(response => response).then(() => {
+        axios.delete("http://localhost:3001/modules/deletecontent/" + moduleId + "/" + fileName , {withCredentials : true}).then(response => response).then(() => {
             setRefresh(true);
         });
     }
@@ -18,7 +19,9 @@ const ModuleContent = ({moduleId , data , role , setRefresh} : {moduleId : strin
         <>
         {role === "student" ? 
                 <>
-                {data? <div key={"moduleContent"}>
+                {data? 
+                <>
+                <div key="moduleContent">
                 {data.map((content : any) => (
                         <>
                         <div
@@ -33,7 +36,7 @@ const ModuleContent = ({moduleId , data , role , setRefresh} : {moduleId : strin
                         <br />
                         </>
                 ))}
-                </div> : 
+                </div></> : 
                 <> <p>No Data Found</p></>}
                 </>
                  :
@@ -57,6 +60,10 @@ const ModuleContent = ({moduleId , data , role , setRefresh} : {moduleId : strin
                          <br />
                          </>
                  ))}
+                  <div
+                         className="block w-full p-6 mb-6">
+                            <FileUpload moduleId={moduleId} setRefresh={setRefresh} />
+                         </div>
                  </div> : 
                  <> <p>No Data Found</p></>}
                  </>}
