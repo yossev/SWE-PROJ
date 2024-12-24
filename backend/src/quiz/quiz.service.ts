@@ -76,6 +76,45 @@ async findByUserId(userId: string): Promise<any> {
   return responseQuiz;
 }
 
+async getQuizById(id: string, userId: string): Promise<Quiz> {
+  const quiz = await this.quizModel.findById(id).exec();
+  const arrayQuestions : any = [];
+  if(quiz)
+  {
+    const module = await this.moduleModel.findById(quiz.module_id).exec();
+    if(module)
+    {
+      const course = await this.courseModel.findById(module.course_id).exec();
+      if(course)
+      {
+        const user = await this.userModel.findById(userId).exec();
+        if(user)
+        {
+          const enrolled = user.courses;
+          if(enrolled.includes(course._id))
+          {
+            const allQuestions = await this.questionBankModel.find();
+            quiz.question_ids.forEach( (question) => {
+              const questionObj = allQuestions.find((q) => q._id.toString() === question.toString());
+              if(questionObj)
+              {
+                arrayQuestions.push(questionObj);
+              }
+              
+            });
+            console.log("Array of questions is: " + arrayQuestions);
+            quiz.questions = arrayQuestions;
+            return quiz;
+          }
+        }
+      }
+    }
+  }
+  console.log("Array of questions is: " + arrayQuestions);
+  quiz.questions = arrayQuestions;
+  return quiz;
+}
+
 async update(quizId: string, updateData: UpdateQuizDto): Promise<Quiz> {
   // Check if the quiz exists
   const quiz = await this.quizModel.findById(quizId);
@@ -362,10 +401,20 @@ private shuffleArray(array: any[]): any[] {
     const questionIds = selectedQuestions.map((q) => q.questionId);
     const objectIds = questionIds.map((id) => new mongoose.Types.ObjectId(id));
 
+    const allQuestions = await this.questionBankModel.find();
+    console.log("All questions are: " + allQuestions);
+    let questionsFromDatabase : any = [];
+    objectIds.forEach(async (id) => {
+      const question = await this.questionBankModel.findById(id).exec();
+      questionsFromDatabase.push(question);
+    });
+    console.log("Questions from database are: " + questionsFromDatabase);
     // Fetch correct answers using the questionIds
     const questionsFromDB = await this.questionBankModel.find({
         _id: { $in: objectIds },
-    }).select('correct_answer explanation');
+    });
+
+    console.log("Questions from DB are: " + questionsFromDB); 
 
     const answers = selectedQuestions.map((question, index) => {
         const correctAnswer = questionsFromDB.find(

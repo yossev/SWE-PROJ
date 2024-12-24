@@ -151,6 +151,14 @@ export class CourseService {
       throw new Error('Failed to enroll the student in the course');
     }
   }
+
+  async enrolled(userId : string) {
+    const user = await this.userModel.findById(new Types.ObjectId(userId)).exec();
+    const courseeIds = user.courses;
+    const courses = await this.courseModel.find({ _id: { $in: courseeIds } }).exec();
+    console.log("courses are : " + courses);
+    return courses;
+  }
   
 }
 

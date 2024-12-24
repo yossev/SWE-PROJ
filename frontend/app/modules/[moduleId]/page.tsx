@@ -49,7 +49,7 @@ export default function Home()
 
     const [userDetails , setUserDetails] = useState({
         name : "",
-        course_id : ["" , ""]
+        courses : ["" , ""]
     });
     
     let moduleId : string = path[path.length - 1];
@@ -172,7 +172,7 @@ export default function Home()
                         <>
                         <Navbar userId={userId} />
                         
-                        {userDetails.course_id.includes(course._id) ? 
+                        {userDetails.courses.includes(course._id) ? 
                         <>
                         <div className="flex min-h-screen bg-gray-50">
                         <ModuleSidebar courseId={data.course_id} data={quizzes} />

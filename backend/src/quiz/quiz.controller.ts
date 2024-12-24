@@ -68,6 +68,16 @@ export class quizController {
       return quiz;
     }
 
+    @Roles(Role.Student)
+    @UseGuards(authorizationGuard)
+    @Get('getquizbyId/:id')
+    async getQuizForStudent(@Req() req, @Param('id') id: string): Promise<Quiz> {
+      const userId = req.cookies.userId;
+      console.log("Received ID in get quiz by id:", id);
+      const quiz = await this.quizService.getQuizById(id , userId);
+      return quiz;
+    }
+
     @Roles(Role.Instructor)
     @UseGuards(authorizationGuard)
       @Put('updatequiz')
