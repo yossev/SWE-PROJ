@@ -58,7 +58,7 @@ export class CourseController {
     enroll(@Param('id') id: string, @Req() req) {
         this.courseService.enroll(id,req);
     }
-    @Roles(Role.Student)
+    @Roles(Role.Student,Role.Instructor)
     @UseGuards(authorizationGuard)
     @Get('forum/:courseId')
     async getForumForCourse(@Param('courseId') courseId: string) {

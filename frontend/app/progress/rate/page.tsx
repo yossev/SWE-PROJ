@@ -13,7 +13,7 @@ const AllRatings = () => {
   useEffect(() => {
     const fetchRatings = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/ratings/all-ratings');
+        const response = await axios.get('http://localhost:3001/ratings');
         setModuleRatings(response.data.moduleRatings);
         setInstructorRatings(response.data.instructorRatings);
         setLoading(false);

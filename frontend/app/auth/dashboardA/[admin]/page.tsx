@@ -59,7 +59,7 @@ export default function AdminDashboard() {
             <ul className="space-y-4">
               <li>
                 <Link
-                  href="#"
+                  href="/manage-courses"
                   className="block py-3 px-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-all duration-300 transform hover:scale-105"
                 >
                   📚 Manage Courses
@@ -67,7 +67,7 @@ export default function AdminDashboard() {
               </li>
               <li>
                 <Link
-                  href="#"
+                  href="/auth/dashboardA/manage-users"
                   className="block py-3 px-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-all duration-300 transform hover:scale-105"
                 >
                   🧑 Manage Users
@@ -75,7 +75,7 @@ export default function AdminDashboard() {
               </li>
               <li>
                 <Link
-                  href="#"
+                  href="/auth/dashboardA/security-management"
                   className="block py-3 px-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-all duration-300 transform hover:scale-105"
                 >
                   🔐 Security Management
@@ -83,7 +83,7 @@ export default function AdminDashboard() {
               </li>
               <li>
                 <Link
-                  href="#"
+                  href="/auth/dashboardA/create-notification"
                   className="block py-3 px-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-all duration-300 transform hover:scale-105"
                 >
                   📢 Send Notifications
@@ -91,7 +91,7 @@ export default function AdminDashboard() {
               </li>
               <li>
                 <Link
-                  href="#"
+                  href="/progress/rate"
                   className="block py-3 px-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-all duration-300 transform hover:scale-105"
                 >
                   ⭐ View Ratings
@@ -115,7 +115,7 @@ export default function AdminDashboard() {
               className="p-6 bg-white shadow rounded-lg hover:shadow-lg transition transform hover:scale-105 text-center"
             >
               <h2 className="text-xl font-semibold text-gray-800 mb-4">Course Management</h2>
-              <p className="text-gray-600">Add, update, or delete courses.</p>
+              <p className="text-gray-600">View and delete courses.</p>
             </Link>
             <Link
               href="/auth/dashboardA/manage-users"
@@ -134,14 +134,14 @@ export default function AdminDashboard() {
             </Link>
 
             <Link
-              href="/notifications"
+              href="/auth/dashboardA/create-notification"
               className="p-6 bg-white shadow rounded-lg hover:shadow-lg transition transform hover:scale-105 text-center"
             >
               <h2 className="text-xl font-semibold text-gray-800 mb-4">Send Notifications</h2>
               <p className="text-gray-600">Broadcast announcements to users.</p>
             </Link>
             <Link
-              href="/view-ratings"
+              href="/progress/rate"
               className="p-6 bg-white shadow rounded-lg hover:shadow-lg transition transform hover:scale-105 text-center"
             >
               <h2 className="text-xl font-semibold text-gray-800 mb-4">View Ratings</h2>
