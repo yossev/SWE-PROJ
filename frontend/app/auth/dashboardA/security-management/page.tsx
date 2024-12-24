@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
 import Navbar from 'components/Navbar'; // Import Navbar component
+import { getCookie } from 'cookies-next/client';
 
 type FailedLoginAttempt = {
   id: number;
@@ -51,10 +52,12 @@ export default function SecurityManagement() {
     return <div className="flex justify-center items-center min-h-screen text-red-500">{error}</div>;
   }
 
+  const userId = getCookie('userId');
+
   return (
     <>
       {/* Navbar added here */}
-      <Navbar />
+      <Navbar userId={userId}/>
 
       <div className="flex min-h-screen bg-gray-50">
         {/* Sidebar */}

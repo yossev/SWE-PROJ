@@ -56,6 +56,7 @@ export class CourseController {
     @UseGuards(authorizationGuard)
     @Post('enroll/:id')
     enroll(@Param('id') id: string, @Req() req) {
+        console.log("Enrolling student");
         this.courseService.enroll(id,req);
     }
     @Roles(Role.Student,Role.Instructor)

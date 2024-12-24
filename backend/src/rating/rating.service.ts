@@ -39,8 +39,8 @@ export class RatingService {
     }
 
      async findAll(): Promise<Rating[]> {
-        return this.ratingModel.find().exec();
-     }
+         return this.ratingModel.find().exec();
+    }
 
     async findOne(id: string): Promise<Rating> {
         const rating = await this.ratingModel.findOne({ _id: id }).exec();

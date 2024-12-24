@@ -56,6 +56,12 @@ export class ModuleController {
         return this.moduleService.deleteModule(id);
     }
 
+    @Get('getmodules/:id')
+    async getAllModules(@Param('id') id: string)
+    {
+        return this.moduleService.findAllCourseModules(id);
+    }
+
     @Delete('deletecontent/:id/:name')
     async deleteFile(@Param('id') id: string , @Param('name') name: string)
     {
