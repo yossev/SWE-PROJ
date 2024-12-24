@@ -49,7 +49,7 @@ export default function AdminDashboard() {
   return (
     <>
       {/* Add Navbar above Sidebar */}
-      <Navbar />
+      <Navbar userId={userId} />
 
       <div className="flex min-h-screen bg-gray-50">
         {/* Sidebar */}

@@ -2,28 +2,48 @@
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useParams } from 'next/navigation';
+import { useParams, usePathname } from 'next/navigation';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Tooltip, Legend } from 'chart.js';
+import { getCookie } from 'cookies-next';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
 export default function ContentEffectivenessPage() {
-  const { courseId, userId } = useParams(); 
+  const { courseId } = useParams(); 
   const [contentData, setContentData] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isStudent, setIsStudent] = useState(false);
+  const path = usePathname().split('/');
+  
+    const getStudentData = async () => {
+      const student = path[path.length - 1];
+      const res = await fetch('http://localhost:3001/users/fetch/' + student, { credentials: 'include' });
+      return res.json();
+    };
+    const role = getCookie("role");
+    console.log("Role fetched: " + role);
+  
+    const userId = getCookie("userId");
 
   useEffect(() => {
     if (!courseId || !userId) {
       setError('Missing course or user ID.');
       return;
     }
+    const role = getCookie('role');
+      console.log("Role: ", role);
+      if (role === 'student') {
+        setIsStudent(true);
+      } else {
+        setError('You are not authorized to view this page.');
+      }
 
     const fetchContentEffectiveness = async () => {
       try {
         const url = `http://localhost:3001/progress/content-effectiveness/${courseId}/${userId}`;
-        const response = await axios.get(url);
+        const response = await axios.get(url,{withCredentials: true});
         setContentData(response.data);
         setLoading(false);
       } catch (err) {

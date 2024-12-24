@@ -151,7 +151,7 @@ export default function InstructorDashboard() {
   return (
     <>
       {/* Add Navbar above Sidebar */}
-      <Navbar />
+      <Navbar userId={userId} />
 
       <div className="flex min-h-screen bg-gray-50">
         {/* Sidebar */}
@@ -215,7 +215,7 @@ export default function InstructorDashboard() {
               <p className="text-gray-600">Engage students with interactive content.</p>
             </Link>
             <Link
-              href="/performance-tracking"
+              href="/progress/instructor-analytics"
               className="p-6 bg-white shadow rounded-lg hover:shadow-lg transition transform hover:scale-105 text-center"
             >
               <h2 className="text-xl font-semibold text-gray-800 mb-4">Performance Tracking</h2>

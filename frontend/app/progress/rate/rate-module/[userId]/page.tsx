@@ -1,7 +1,9 @@
 'use client';
-import { useParams } from 'next/navigation';
+import { useParams, usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { get } from 'http';
+import { getCookie } from 'cookies-next';
 
 interface Module {
   _id: string;
@@ -13,16 +15,31 @@ interface Module {
 }
 
 export default function RateModulePage() {
-  const { userId } = useParams();
   const [modules, setModules] = useState<Module[]>([]);
   const [selectedModule, setSelectedModule] = useState<string>('');
   const [rating, setRating] = useState<number>(0);
   const [feedback, setFeedback] = useState<string>('');
-
+  const [isStudent, setIsStudent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const userId=getCookie("userId");
+  const path = usePathname().split('/');
+  
+    const getStudentData = async () => {
+      const student = path[path.length - 1];
+      const res = await fetch('http://localhost:3001/users/fetch/' + student, { credentials: 'include' });
+      return res.json();
+    };
   useEffect(() => {
+    const role = getCookie('role');
+    console.log("Role: ", role);
+    if (role === 'student') {
+      setIsStudent(true);
+    } else {
+      setError('You are not authorized to view this page.');
+    }
     const fetchModules = async () => {
       try {
-        const response = await axios.get(`http://localhost:3001/modules/by-course/${userId}`);
+        const response = await axios.get(`http://localhost:3001/modules/by-course/${userId}`,{withCredentials: true});
         setModules(response.data);
       } catch (err) {
         console.error('Error fetching modules:', (err as Error).message);
@@ -44,7 +61,7 @@ export default function RateModulePage() {
         ratedEntityId: selectedModule,
         rating,
         user_id: userId,
-      });
+      },{withCredentials: true});
       setFeedback('Thank you for rating the module!');
     } catch (err) {
       console.error('Error rating module:', (err as Error).message);

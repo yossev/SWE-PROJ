@@ -1,9 +1,10 @@
 'use client';
-import { useParams } from 'next/navigation';
+import { useParams, usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Tooltip, Legend } from 'chart.js';
+import { getCookie } from 'cookies-next';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
@@ -19,15 +20,32 @@ interface StudentEngagement {
 }
 
 export default function StudentEngagementPage() {
+  const path = usePathname().split('/');
+  
+    const getInstructorData = async () => {
+      const instructor = path[path.length - 1];
+      const res = await fetch('http://localhost:3001/users/fetch/' + instructor, { credentials: 'include' });
+      return res.json();
+    };
   const { courseId } = useParams(); // Get courseId from the URL
   const [studentEngagementData, setStudentEngagementData] = useState<StudentEngagement | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-
+  const [isInstructor, setIsInstructor] = useState(false);
+  const userId = getCookie('userId');
+  const role = getCookie("role");
+  console.log("Role fetched: " + role);
   useEffect(() => {
+    const role = getCookie('role');
+    console.log("Role: ", role);
+    if (role === 'instructor') {
+      setIsInstructor(true);
+    } else {
+      setError('You are not authorized to view this page.');
+    }
     const fetchStudentEngagement = async () => {
       try {
-        const response = await axios.get(`http://localhost:3001/progress/student-engagement/${courseId}`);
+        const response = await axios.get(`http://localhost:3001/progress/student-engagement/${courseId}`,{withCredentials: true});  
         setStudentEngagementData(response.data);
         setLoading(false);
       } catch (err: any) {

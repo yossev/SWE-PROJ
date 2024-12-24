@@ -1,17 +1,17 @@
 'use client'
 
+import { getCookie } from 'cookies-next';
+import { get } from 'http';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 
 export default function DashboardPortal() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [userId, setUserId] = useState<string | null>(null);
   
   useEffect(() => {
-    const id = searchParams.get('userId');
-    setUserId(id);
-  }, [searchParams]);
+    const userId=getCookie("userId");
+  }, []);
 
   const handleViewDashboard = () => {
     if (userId) {

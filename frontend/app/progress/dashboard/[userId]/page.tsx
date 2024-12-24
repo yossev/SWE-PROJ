@@ -1,5 +1,5 @@
 'use client';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Doughnut } from 'react-chartjs-2';
@@ -12,6 +12,7 @@ import {
   Legend,
 } from 'chart.js';
 import { getCookie } from 'cookies-next';
+import { getCookies } from 'cookies-next/client';
 
 ChartJS.register(CategoryScale, LinearScale, ArcElement, Tooltip, Legend);
 
@@ -25,17 +26,33 @@ interface Dashboard {
 }
 
 export default function DashboardPage() {
+const path = usePathname().split('/');
 
+  const getInstructorData = async () => {
+    const student = path[path.length - 1];
+    const res = await fetch('http://localhost:3001/users/fetch/' + student, { credentials: 'include' });
+    return res.json();
+  };
   const router = useRouter();
   const [dashboardData, setDashboardData] = useState<Dashboard | null>(null);
   const [error, setError] = useState<string | null>(null);
-
+  const [isStudent, setIsStudent] = useState(false);
   const userId = getCookie('userId');
+  const role = getCookie("role");
+  console.log("Role fetched: " + role);
 
   useEffect(() => {
+    console.log('All cookies are ' + JSON.stringify(getCookies()));
+    const role = getCookie('role');
+    console.log("Role: ", role);
+    if (role === 'student') {
+      setIsStudent(true);
+    } else {
+      setError('You are not authorized to view this page.');
+    }
     const fetchDashboard = async () => {
       try {
-        const response = await axios.get(`http://localhost:3001/progress/dashboard/${userId}`);
+        const response = await axios.get(`http://localhost:3001/progress/dashboard/${userId}`,{withCredentials: true});
         setDashboardData(response.data);
       } catch (err: any) {
         setError('Failed to fetch dashboard data.');

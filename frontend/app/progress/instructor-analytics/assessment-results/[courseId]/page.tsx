@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useParams } from 'next/navigation';
+import { useParams, usePathname } from 'next/navigation';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Tooltip, Legend } from 'chart.js';
 
@@ -24,11 +24,17 @@ export default function AssessmentResultsPage() {
   const [assessmentResultsData, setAssessmentResultsData] = useState<AssessmentResults | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-
+const path = usePathname().split('/');
+  
+    const getInstructorData = async () => {
+      const instructor = path[path.length - 1];
+      const res = await fetch('http://localhost:3001/users/fetch/' + instructor, { credentials: 'include' });
+      return res.json();
+    };
   useEffect(() => {
     const fetchAssessmentResults = async () => {
       try {
-        const response = await axios.get(`http://localhost:3001/progress/assessment-results/${courseId}`);
+        const response = await axios.get(`http://localhost:3001/progress/assessment-results/${courseId}`,{withCredentials: true});
         if (response.data && response.data.results) {
           setAssessmentResultsData(response.data);
         } else {
@@ -104,7 +110,7 @@ export default function AssessmentResultsPage() {
     setLoading(true);
     try {
       const response = await axios.get(`http://localhost:3001/progress/export-assessment-results/pdf/${courseId}`, {
-        responseType: 'blob', 
+        responseType: 'blob' 
       });
       const blob = new Blob([response.data], { type: 'application/pdf' });
       const link = document.createElement('a');
