@@ -124,7 +124,9 @@ export class UserService {
       res.clearCookie('token');
       res.clearCookie('RefreshToken');
       res.clearCookie('jwt');
-      return await { message: 'Logout successful' };
+      return res.status(200).send({ message: 'Logout successful' });
+      
+   
     }
     async getMyCourses(@Req() req): Promise<any> {
       const userId = req.cookies.userId;
