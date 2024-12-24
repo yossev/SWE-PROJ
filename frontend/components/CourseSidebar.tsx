@@ -4,11 +4,12 @@ import Link from "next/link";
 import { getCookie } from "cookies-next";
 import { Dispatch , SetStateAction } from "react";
 
-const CourseSidebar = ({forumId , data , enrolled} : {forumId : any , data : any , enrolled : boolean}) => {
+const CourseSidebar = ({courseId , forumId , data , enrolled} : {courseId : any , forumId : any , data : any , enrolled : boolean}) => {
   const userId = getCookie("userId");
   const [courses, setCourses] = useState([]);
 
   const forumReference = "http://localhost:3000/forum/" + forumId;
+  const chatRoomReference = "http://localhost:3000/chatroom/" + courseId;
   useEffect(() => {
   }, []);
   
@@ -46,6 +47,14 @@ const CourseSidebar = ({forumId , data , enrolled} : {forumId : any , data : any
                     className="block py-3 px-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-all duration-300 transform hover:scale-105"
                 >
                     🌐 Forum
+                </Link>
+            </li>
+            <li>
+            <Link
+                    href={chatRoomReference} // Correctly reference the forum ID
+                    className="block py-3 px-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-all duration-300 transform hover:scale-105"
+                >
+                    💬 Chatrooms
                 </Link>
             </li>
            </>

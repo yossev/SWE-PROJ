@@ -44,59 +44,7 @@ export class RoomService {
     // Step 4: Save and return the room
     return room.save();
   }
-  async createPrivateRoom(loggedInUserId: Types.ObjectId, createRoomDto: CreateRoomDto, courseId: Types.ObjectId): Promise<Room> {
-    // Step 1: Fetch the logged-in user
-    const loggedInUser = await this.userService.findById(loggedInUserId.toString());
-    if (!loggedInUser) {
-      throw new HttpException('Logged-in user not found', HttpStatus.NOT_FOUND);
-    }
-  
-    // Step 2: Ensure that one of the users is an instructor
-    const instructor = createRoomDto.instructor;
-    if (instructor.toString() !== loggedInUserId.toString() && loggedInUser.role !== 'Instructor') {
-      throw new HttpException('Only the instructor can create the room', HttpStatus.FORBIDDEN);
-    }
-  
-    // Step 3: Fetch the course by ID
-    const course = await this.courseModel.findById(courseId);
-    if (!course) {
-      throw new HttpException('Course not found', HttpStatus.NOT_FOUND);
-    }
-  
-    // Step 4: Ensure that the instructor is the one teaching the course
-    if (course.instructor.toString() !== instructor.toString()) {
-      throw new HttpException('Instructor does not teach this course', HttpStatus.FORBIDDEN);
-    }
-  
-    // Step 5: Ensure both the instructor and the students are enrolled in the course
-    const studentIds = createRoomDto.students;
-    const allUsersEnrolled = [...studentIds, instructor.toString()].every((userId) =>
-      course.students.some((student: Types.ObjectId) => student.toString() === userId)
-    );
-    if (!allUsersEnrolled) {
-      throw new HttpException('All users must be enrolled in the course', HttpStatus.FORBIDDEN);
-    }
-  
-    // Step 6: Generate a private room ID
-    const roomId = await this.generatePrivateRoomId(instructor, studentIds[0]);  // Assumes one student for private room creation
-  
-    // Step 7: Check if the private room already exists
-    const existingRoom = await this.roomModel.findOne({ roomId });
-    if (existingRoom) {
-      throw new HttpException('Private room already exists.', HttpStatus.BAD_REQUEST);
-    }
-  
-    // Step 8: Create the private room using DTO
-    const newRoom = new this.roomModel({
-      roomId,
-      users: [createRoomDto.instructor, ...createRoomDto.students],  // Uses the DTO instructor and students
-      isPrivate: true,
-      course: courseId,  // Associate the room with the course
-      name: createRoomDto.name,  // Use the name from DTO
-    });
-  
-    return newRoom.save();
-  }
+
   async generatePrivateRoomId(userId1: Types.ObjectId, userId2: Types.ObjectId): Promise<string> {
     // Sort user IDs so that the room ID is always the same regardless of the order
     const ids = [userId1.toString(), userId2.toString()];
@@ -106,7 +54,7 @@ export class RoomService {
   
   // Get rooms by course ID
   async getRoomsByCourse(courseId: string): Promise<Room[]> {
-    return this.roomModel.find({ course: courseId }).populate('users');
+    return await this.roomModel.find({ course_id: courseId });
   }
 
   // Get room details by name

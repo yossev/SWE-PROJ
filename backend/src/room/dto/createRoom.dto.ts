@@ -4,14 +4,15 @@ import { Types } from 'mongoose';
 
 export class CreateRoomDto {
   
-  @IsMongoId()
-  instructor: Types.ObjectId; // Reference to the instructor (User ID)
+  @IsString()
+  name: string; // Room name
 
   @IsArray()
   @ArrayNotEmpty()
   @IsMongoId({ each: true })
-  students: Types.ObjectId[]; // List of students (User IDs)
+  user_id: Types.ObjectId[]; // List of students (User IDs)
 
-  @IsString()
-  name: string; // Room name
+  @IsMongoId()
+  course_id: Types.ObjectId; // Course ID
+  
 }

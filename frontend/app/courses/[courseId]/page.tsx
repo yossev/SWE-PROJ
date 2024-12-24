@@ -124,7 +124,7 @@ export default function CourseDetailsPage() {
          {role === "student" ?
          <>
              <div className="flex min-h-screen bg-gray-50">
-              <CourseSidebar forumId={forumId} data={moduleData} enrolled={enrolled} />
+              <CourseSidebar courseId={courseId} forumId={forumId} data={moduleData} enrolled={enrolled} />
 
             {/* Course Details Content */}
             <div className="course-details-content">
@@ -212,7 +212,7 @@ export default function CourseDetailsPage() {
          <>
             <div className="course-page-container flex">
             {/* Sidebar Container */}
-            <CourseSidebar forumId={forumId} data={moduleData} enrolled={true} />
+            <CourseSidebar courseId={courseId} forumId={forumId} data={moduleData} enrolled={true} />
 
             {/* Course Details Content */}
             <div className="course-details-content">
