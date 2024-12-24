@@ -11,6 +11,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import { getCookie } from 'cookies-next';
 
 ChartJS.register(CategoryScale, LinearScale, ArcElement, Tooltip, Legend);
 
@@ -24,10 +25,12 @@ interface Dashboard {
 }
 
 export default function DashboardPage() {
-  const { userId } = useParams();
+
   const router = useRouter();
   const [dashboardData, setDashboardData] = useState<Dashboard | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const userId = getCookie('userId');
 
   useEffect(() => {
     const fetchDashboard = async () => {

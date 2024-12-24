@@ -1,14 +1,17 @@
 'use client'
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import './App.css';
-import { ToastContainer, toast } from 'react-toastify'; // Import ToastContainer and toast
-import 'react-toastify/dist/ReactToastify.css'; // Import toast styles
-import '../courses/app.css'
+
+import { toast, ToastContainer } from 'react-toastify'; // Import toastify
+import { redirect, useRouter } from 'next/navigation'; // Import useRouter to handle navigation
+import Link from 'next/link';
+import '../courses/App.css'
+import { getCookie } from 'cookies-next';
+
 
 const CoursePage = () => {
- 
     axios.defaults.withCredentials = true;
+
     interface Course {
         _id: string;
         title: string;
@@ -19,207 +22,124 @@ const CoursePage = () => {
         created_at: Date;
     }
 
-    const [Courses, setCourses] = useState<Course[]>([]);
-    const [isModalOpen, setIsModalOpen] = useState(false); 
-    const [newCourse, setNewCourse] = useState({ 
-        title: '',
-        description: '',
-        category: '',
-        difficulty_level: 'Beginner',
-        created_by: '',
-        created_at: new Date(),
-    });
-    const handleEdit = (course: Course) => {
-      setEditingCourse(course);
-      setIsEditModalOpen(true);
-  };
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [editingCourse, setEditingCourse] = useState<Course | null>(null);
+    const [Courses, setCourses] = useState<Course[]>([]); 
+    const [cookieData, setCookieData] = useState<CookieData>({}); 
+    const [userCourses, setUserCourses] = useState<string[]>([]); 
+    const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); 
+
+    interface CookieData {
+        userId?: string;
+        Token?: string;
+    }
+
+    const router = useRouter(); // Initialize useRouter for navigation
+
+    // Check if cookies are available
+    const checkCookies = () => {
+        const userId = getCookie('userId');
+        const token = getCookie('token');
+        if (!userId || !token) {
+            return false; 
+        }
+        setCookieData({ userId: userId as string, Token: token as string }); // Set cookie data
+        return true; 
+    };
+    const userId = getCookie('userId');
+    const token = getCookie('token');
 
 
     useEffect(() => {
-        const fetchCourses = async () => {
-            try {
-                const response = await axios.get('http://localhost:3001/courses');
-                if (Array.isArray(response.data)) {
-                    console.log((response.data));
-                    setCourses(response.data);
-                } else {
-                    console.log("Data isn't of type array: ", response.data);
-                }
-            } catch (error) {
-                console.error('Error fetching courses:', error);
-            }
-        };
-        fetchCourses();
+        if (!checkCookies()) {
+            setIsLoggedIn(false); // User is not logged in
+        } else {
+            setIsLoggedIn(true); // User is logged in
+        }
     }, []);
 
-    const addCourse = async () => {
+    const fetchUserSpecificCourses = async () => {
         try {
-            const response = await axios.post('http://localhost:3001/courses/create', newCourse);
-            setCourses([...Courses, response.data]); 
-            setIsModalOpen(false); 
-            setNewCourse({ title: '', description: '', category: '', difficulty_level: 'Beginner', created_by: '', created_at: new Date() }); // Reset form
-            toast.success('Course added successfully!'); 
+            const response = await axios.get(`http://localhost:3001/users/fetch/${userId}`); 
+            const user = response.data;
+            const enrolledCourseIds = user.courses;
+
+            if (!enrolledCourseIds || enrolledCourseIds.length === 0) {
+                console.log('No courses found for this user');
+                return;
+            }
+
+            const courseResponses = await Promise.all(
+                enrolledCourseIds.map((courseId: any) =>
+                    axios.get(`http://localhost:3001/courses/${courseId}`)
+                )
+            );
+
+            const courses = courseResponses.map((response) => response.data);
+            setCourses(courses);
+            console.log(courses);
         } catch (error) {
-            console.error('Error adding course:', error);
-            toast.error('Failed to add course.'); 
+            console.error('Error fetching user-specific courses:', error);
         }
     };
 
-    const deleteCourse = async (id: string) => {
-      try {
-          await axios.delete(`http://localhost:3001/courses/${id}`); 
-          setCourses(Courses.filter(course => course._id !== id)); 
-          toast.success('Course deleted successfully!'); 
-      } catch (error) {
-          console.error('Error deleting course:', error);
-          toast.error('Failed to delete course.'); 
-      }
-  };
-  const updateCourse = async () => {
-    if (!editingCourse) return;
-    
-    try {
-        const response = await axios.put(`http://localhost:3001/courses/${editingCourse._id}`, editingCourse);
-        setCourses(Courses.map(course => 
-            course._id === editingCourse._id ? response.data : course
-        ));
-        setIsEditModalOpen(false);
-        setEditingCourse(null);
-        toast.success('Course updated successfully!');
-    } catch (error) {
-        console.error('Error updating course:', error);
-        toast.error('Failed to update course.');
+    useEffect(() => {
+        if (cookieData.userId) {
+            fetchUserSpecificCourses();
+        }
+    }, [cookieData.userId]);
+
+
+    if (!isLoggedIn) {
+        return <div className="access-denied">Access not allowed, please log in.</div>; 
     }
-};
 
-
+    // Redirect to the course details page
+    const navigateToCourseDetails = (courseId: string) => {
+        redirect(`/courses/${courseId}`);
+    };
 
     return (
-      <div className="course-table-container">
-        <h1 className="title">Courses</h1>
-        <div className="header-container">
-        <button className="go-to-forum" onClick={() => (window.location.href = '/forum')}>
-            Go to Forum
-        </button>
+        <div className="course-page-container flex">
+            {/* Sidebar */}
+      <aside className="w-64 bg-gradient-to-br from-gray-800 to-gray-900 text-white shadow-lg">
+        <div className="p-6 border-b border-gray-700 text-2xl font-bold">
+          Student Dashboard
         </div>
-        <button onClick={() => setIsModalOpen(true)}>Add Course</button> {/* Button to open modal */}
-        
-        {isModalOpen && ( // Modal for adding a course
-          <div className="modal">
-            <h2>Add New Course</h2>
-            <form onSubmit={(e) => { e.preventDefault(); addCourse(); }}>
-              <input type="text" placeholder="Title" value={newCourse.title} onChange={(e) => setNewCourse({ ...newCourse, title: e.target.value })} required />
-              <input type="text" placeholder="Description" value={newCourse.description} onChange={(e) => setNewCourse({ ...newCourse, description: e.target.value })} required />
-              <input type="text" placeholder="Category" value={newCourse.category} onChange={(e) => setNewCourse({ ...newCourse, category: e.target.value })} required />
-              <select value={newCourse.difficulty_level} onChange={(e) => setNewCourse({ ...newCourse, difficulty_level: e.target.value })}>
-                <option value="Beginner">Beginner</option>
-                <option value="Intermediate">Intermediate</option>
-                <option value="Advanced">Advanced</option>
-              </select>
-              <input type="text" placeholder="Created By" value={newCourse.created_by} onChange={(e) => setNewCourse({ ...newCourse, created_by: e.target.value })} required />
-              <button type="submit">Submit</button>
-              <button type="button" onClick={() => setIsModalOpen(false)}>Cancel</button> {/* Button to close modal */}
-            </form>
-          </div>
-        )}
+        <nav className="mt-6">
+          <ul className="space-y-4">
+            <li>
+              <Link
+                href="/auth/dashboardS/student"
+                className="block py-3 px-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-all duration-300 transform hover:scale-105"
+              >
+                Home Page 
+              </Link>
+            </li>
+          </ul>
+        </nav>
+      </aside>
 
-        {isEditModalOpen && editingCourse && (
-                <div className="modal">
-                    <h2>Edit Course</h2>
-                    <form onSubmit={(e) => { e.preventDefault(); updateCourse(); }}>
-                        <input
-                            type="text"
-                            placeholder="Title"
-                            value={editingCourse.title}
-                            onChange={(e) => setEditingCourse({
-                                ...editingCourse,
-                                title: e.target.value
-                            })}
-                            required
-                        />
-                        <input
-                            type="text"
-                            placeholder="Description"
-                            value={editingCourse.description}
-                            onChange={(e) => setEditingCourse({
-                                ...editingCourse,
-                                description: e.target.value
-                            })}
-                            required
-                        />
-                        <input
-                            type="text"
-                            placeholder="Category"
-                            value={editingCourse.category}
-                            onChange={(e) => setEditingCourse({
-                                ...editingCourse,
-                                category: e.target.value
-                            })}
-                            required
-                        />
-                        <select
-                            value={editingCourse.difficulty_level}
-                            onChange={(e) => setEditingCourse({
-                                ...editingCourse,
-                                difficulty_level: e.target.value as 'Beginner' | 'Intermediate' | 'Advanced'
-                            })}
-                        >
-                            <option value="Beginner">Beginner</option>
-                            <option value="Intermediate">Intermediate</option>
-                            <option value="Advanced">Advanced</option>
-                        </select>
-                        <input
-                            type="text"
-                            placeholder="Created By"
-                            value={editingCourse.created_by}
-                            onChange={(e) => setEditingCourse({
-                                ...editingCourse,
-                                created_by: e.target.value
-                            })}
-                            required
-                        />
-                        <button type="submit">Update</button>
-                        <button type="button" onClick={() => {
-                            setIsEditModalOpen(false);
-                            setEditingCourse(null);
-                        }}>Cancel</button>
-                    </form>
+            <div className="course-content-container flex-grow p-6">
+                <h1 className="title" style={{marginTop: "1rem", marginBottom: "1rem", fontSize: "2rem", fontWeight: "bold"}}>Courses</h1>
+                <div className="header-container">
                 </div>
-            )}
 
-        <table className="course-table">
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th>Description</th>
-              <th>Category</th>
-              <th>Difficulty Level</th>
-              <th>Created By</th>
-              <th>Created At</th>
-            </tr>
-          </thead>
-          <tbody>
-            {Courses.map(course => (
-              <tr key={course._id}>
-                <td>{course.title}</td>
-                <td>{course.description}</td>
-                <td>{course.category}</td>
-                <td>{course.difficulty_level}</td>
-                <td>{course.created_by}</td>
-                <td>{new Date(course.created_at).toLocaleDateString()}</td>
-                <td>
-                  <button onClick={() => handleEdit(course)}>Edit</button>
-                  <button onClick={() => deleteCourse(course._id)}>Delete</button> {/* Delete button */}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        <ToastContainer /> {/* Add ToastContainer to render toasts */}
-      </div>
+                <div className="course-cards-container">
+                    {Courses.map(course => (
+                        <div key={course._id} className="course-card">
+                            <h3>{course.title}</h3>
+                            <p>{course.category}</p>
+                            <p>{course.difficulty_level}</p>
+                            <p>{new Date(course.created_at).toLocaleDateString()}</p>
+                            {/* "Details" button */}
+                            <button onClick={() => navigateToCourseDetails(course._id)} className="details-button">
+                                View Details
+                            </button>
+                        </div>
+                    ))}
+                </div>
+                <ToastContainer />
+            </div>
+        </div>
     );
 };
 
