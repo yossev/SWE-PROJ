@@ -38,9 +38,9 @@ export class RatingService {
         return await this.ratingModel.findByIdAndUpdate(id, updateRatingDto, { new: true });
     }
 
-    // async findAll(): Promise<Rating[]> {
-    //     return this.ratingModel.find().exec();
-    // }
+     async findAll(): Promise<Rating[]> {
+         return this.ratingModel.find().exec();
+    }
 
     async findOne(id: string): Promise<Rating> {
         const rating = await this.ratingModel.findOne({ _id: id }).exec();

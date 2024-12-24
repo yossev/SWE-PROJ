@@ -6,6 +6,7 @@ import axios from 'axios';
 import { getCookie, getCookies } from 'cookies-next/client';
 import { usePathname } from 'next/navigation';
 import Navbar from 'components/Navbar'; // Import the Navbar component
+import InstructorSidebar from 'components/InstructorSidebar';
 
 type User = {
   name: string;
@@ -167,40 +168,7 @@ export default function InstructorDashboard() {
 
       <div className="flex min-h-screen bg-gray-50">
         {/* Sidebar */}
-        <aside className="w-64 bg-gradient-to-br from-gray-800 to-gray-900 text-white shadow-lg">
-          <div className="p-6 border-b border-gray-700 text-2xl font-bold">
-            Instructor Dashboard
-          </div>
-          <nav className="mt-6">
-            <ul className="space-y-4">
-              <li>
-                <Link
-                  href="#"
-                  className="block py-3 px-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-all duration-300 transform hover:scale-105"
-                >
-                  🔍 Search Student by Name
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="#"
-                  className="block py-3 px-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-all duration-300 transform hover:scale-105"
-                >
-                  ✉ Search Student by Email
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="#"
-                  className="block py-3 px-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-all duration-300 transform hover:scale-105"
-                >
-                  ✏ Update Personal Information
-                </Link>
-              </li>
-            </ul>
-          </nav>
-        </aside>
-
+        <InstructorSidebar />
         {/* Main Content */}
         <main className="flex-1 p-8">
           <header className="mb-8">
