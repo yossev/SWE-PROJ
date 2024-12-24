@@ -1,15 +1,25 @@
 'use client';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, usePathname, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { getCookie } from 'cookies-next';
 
 export default function RateModulePage() {
-  const { userId } = useParams();
   const { moduleId } = useParams();
   const router = useRouter();
   const [rating, setRating] = useState<number>(0);
   const [error, setError] = useState<string | null>(null);
-
+const path = usePathname().split('/');
+  
+    const getStudentData = async () => {
+      const student = path[path.length - 1];
+      const res = await fetch('http://localhost:3001/users/fetch/' + student, { credentials: 'include' });
+      return res.json();
+    };
+    const role = getCookie("role");
+    console.log("Role fetched: " + role);
+  
+    const userId = getCookie("userId"); 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -18,7 +28,8 @@ export default function RateModulePage() {
         ratedEntityId: moduleId,
         rating,
         userId,
-      });
+      },{withCredentials: true});
+      
       console.log('Rating submitted:', response.data);
       router.push(`/dashboard/${userId}`); // Redirect to the dashboard after successful rating
     } catch (err) {

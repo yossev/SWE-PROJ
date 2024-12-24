@@ -26,6 +26,8 @@ const CoursePage = () => {
     const [cookieData, setCookieData] = useState<CookieData>({}); 
     const [userCourses, setUserCourses] = useState<string[]>([]); 
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); 
+    const [isStudent, setIsStudent] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     interface CookieData {
         userId?: string;
@@ -45,7 +47,7 @@ const CoursePage = () => {
         return true; 
     };
     const userId = getCookie('userId');
-    const token = getCookie('token');
+    const role = getCookie("role");
 
 
     useEffect(() => {
@@ -55,10 +57,14 @@ const CoursePage = () => {
             setIsLoggedIn(true); // User is logged in
         }
     }, []);
-
+    if (role === 'student') {
+      setIsStudent(true);
+    } else {
+      setError('You are not authorized to view this page.');
+    }
     const fetchUserSpecificCourses = async () => {
         try {
-            const response = await axios.get(`http://localhost:3001/users/fetch/${userId}`); 
+            const response = await axios.get(`http://localhost:3001/users/fetch/${userId}`,{withCredentials: true});
             const user = response.data;
             const enrolledCourseIds = user.courses;
 
@@ -69,7 +75,7 @@ const CoursePage = () => {
 
             const courseResponses = await Promise.all(
                 enrolledCourseIds.map((courseId: any) =>
-                    axios.get(`http://localhost:3001/courses/${courseId}`)
+                    axios.get(`http://localhost:3001/courses/${courseId}`,{withCredentials: true})
                 )
             );
 

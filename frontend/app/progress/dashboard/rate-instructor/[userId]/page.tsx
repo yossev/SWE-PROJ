@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import axios from 'axios';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { getCookie } from 'cookies-next';
 
 export default function RateInstructorPage() {
   const router = useRouter();
@@ -10,7 +11,17 @@ export default function RateInstructorPage() {
   const [rating, setRating] = useState<number>(0); 
   const [error, setError] = useState<string | null>(null); 
   const [ratedEntity] = useState<'Instructor'>('Instructor'); 
-
+const path = usePathname().split('/');
+  
+    const getStudentData = async () => {
+      const student = path[path.length - 1];
+      const res = await fetch('http://localhost:3001/users/fetch/' + student, { credentials: 'include' });
+      return res.json();
+    };
+    const role = getCookie("role");
+    console.log("Role fetched: " + role);
+  
+    const userId = getCookie("userId");
 
   const handleInstructorIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInstructorId(e.target.value);
@@ -29,7 +40,7 @@ export default function RateInstructorPage() {
         ratedEntityId: instructorId, 
         user_id: userId, 
         rating,
-      });
+      },{withCredentials: true});
       console.log('Rating submitted:', response.data);
       router.push(`/progress/dashboard/${userId}`);
     } catch (err) {

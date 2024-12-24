@@ -6,7 +6,11 @@ import ModuleSidebar from 'components/ModuleSidebar';
 import { getCookie } from 'cookies-next';
 import Link from 'next/link';
 
-const CourseDetailsPage = () => {
+type Forum = {
+    _id: string;
+};
+
+export default function CourseDetailsPage() {
     const path = usePathname().split('/'); 
     const router = useRouter();
     const params = useParams();
@@ -16,79 +20,82 @@ const CourseDetailsPage = () => {
     const [course, setCourse] = useState<any>(null); // State to hold the course data
     const [progress, setProgress] = useState<any>(null);
     const [modules, setModules] = useState<any>([]);
+    const [forum, setForum] = useState<Forum | null>(null);
+    const [error, setError] = useState("");
 
     useEffect(() => {
-        const fetchCourseDetails = async () => {
-            console.log("Course ID", courseId);
-            if (!courseId) return;
-            try {
-                const response = await axios.get(`http://localhost:3001/courses/${courseId}`);
-                setCourse(response.data);
-                console.log("Course Res", response.data);
-            } catch (error) {
-                console.error('Error fetching course details:', error);
-            }
-        };
-
-        fetchCourseDetails();
-    }, [courseId]);
-
+      const fetchCourseDetails = async () => {
+        if (!courseId) return;
+        try {
+          const response = await axios.get(`http://localhost:3001/courses/${courseId}`);
+          setCourse(response.data);
+        } catch (error) {
+          console.error('Error fetching course details:', error);
+        }
+      };
+    
+      fetchCourseDetails();
+    }, [courseId]);  // Dependency array includes courseId, fetches data only when courseId changes
+    
     useEffect(() => {
-        const FetchCourseModules = async () => {
-            if (!courseId || !userId) return;
-            try {
-                const res = await axios.get(`http://localhost:3001/coursemodules/${courseId}`);
-                setModules(res.data);
-                console.log("Modules Res", res.data);
-            } catch (error) {
-                console.error('Error fetching course modules:', error);
-            }
-        };
-    }, [courseId, userId]);
-
-
+      const fetchForum = async () => {
+        try {
+          const response = await axios.get(`/courses/${courseId}/forum`);
+          setForum(response.data);
+        } catch (error) {
+          setError("Failed to fetch forum.");
+          console.error(error);
+        }
+      };
+    
+      if (courseId) {
+        fetchForum();
+      }
+    }, [courseId]);  // Ensures this effect only runs when courseId changes
 
     console.log(JSON.stringify(course))
-    
+
     return (
         <div className="course-details-container flex">
             {/* Sidebar Container */}
-                 {/* Sidebar */}
-      <aside className="w-64 bg-gradient-to-br from-gray-800 to-gray-900 text-white shadow-lg">
-        <div className="p-6 border-b border-gray-700 text-2xl font-bold">
-          Course Sidebar
-        </div>
-        <nav className="mt-6">
-          <ul className="space-y-4">
-            <li>
-              <Link
-                href="/auth/dashboardS/student"
-                className="block py-3 px-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-all duration-300 transform hover:scale-105"
-              >
-                Home Page 
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/"
-                className="block py-3 px-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-all duration-300 transform hover:scale-105"
-              >
-                📝 Modules
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/"
-                className="block py-3 px-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-all duration-300 transform hover:scale-105"
-              >
-                🌐 Forum
-              </Link>
-            </li>
-            
-          </ul>
-        </nav>
-      </aside>
-
+            <aside className="w-64 bg-gradient-to-br from-gray-800 to-gray-900 text-white shadow-lg">
+                <div className="p-6 border-b border-gray-700 text-2xl font-bold">
+                    Course Sidebar
+                </div>
+                <nav className="mt-6">
+                    <ul className="space-y-4">
+                        <li>
+                            <Link
+                                href="/auth/dashboardS/student"
+                                className="block py-3 px-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-all duration-300 transform hover:scale-105"
+                            >
+                                Home Page 
+                            </Link>
+                        </li>
+                        <li>
+                            <Link
+                                href="/"
+                                className="block py-3 px-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-all duration-300 transform hover:scale-105"
+                            >
+                                📝 Modules
+                            </Link>
+                        </li>
+                        <li>
+                            {/* Ensure forum is loaded before rendering the link */}
+                            {forum && forum._id && (
+                                <Link
+                                    href={`/forum/${forum._id}`} // Correctly reference the forum ID
+                                    className="block py-3 px-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-all duration-300 transform hover:scale-105"
+                                >
+                                    🌐 Forum
+                                </Link>
+                            )}:(
+                                <span>Loading Forum...</span> // Show a loading state if forum is not yet loaded
+                            )
+                        </li>
+                    </ul>
+                </nav>
+            </aside>
 
             {/* Course Details Content */}
             <div className="course-details-content">
@@ -164,5 +171,3 @@ const CourseDetailsPage = () => {
         </div>
     );
 };
-
-export default CourseDetailsPage;

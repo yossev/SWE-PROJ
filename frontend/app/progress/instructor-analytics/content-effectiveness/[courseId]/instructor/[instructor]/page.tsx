@@ -1,8 +1,10 @@
 'use client';
 
-import { useParams } from 'next/navigation';
+import { useParams, usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { getCookie } from 'cookies-next';
+import { get } from 'http';
 
 interface ModuleRating {
   moduleId: string;
@@ -17,15 +19,31 @@ interface ContentEffectivenessData {
 }
 
 export default function ContentEffectivenessPage() {
-  const { courseId, userId } = useParams(); // Extract courseId and instructorId from URL
+  const path = usePathname().split('/');
+    
+  const getInstructorData = async () => {
+    const instructor = path[path.length - 1];
+    const res = await fetch('http://localhost:3001/users/fetch/' + instructor, { credentials: 'include' });
+    return res.json();
+  };
+  const { courseId} = useParams(); // Extract courseId and instructorId from URL
   const [contentEffectivenessData, setContentEffectivenessData] = useState<ContentEffectivenessData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-
+  const [isInstructor, setIsInstructor] = useState(false);
+const userId=getCookie("userId");
+const role= getCookie("role");
   useEffect(() => {
+    const role = getCookie('role');
+      console.log("Role: ", role);
+      if (role === 'instructor') {
+        setIsInstructor(true);
+      } else {
+        setError('You are not authorized to view this page.');
+      }
     const fetchContentEffectivenessData = async () => {
       try {
-        const response = await axios.get(`http://localhost:3001/progress/content-effectiveness/${courseId}/${userId}`);
+        const response = await axios.get(`http://localhost:3001/progress/content-effectiveness/${courseId}/${userId}`,{withCredentials: true});
         if (response.data) {
           setContentEffectivenessData(response.data);
         } else {

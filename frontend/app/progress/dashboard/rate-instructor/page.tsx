@@ -1,15 +1,33 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { getCookies, getCookie } from 'cookies-next';
 
 export default function RateInstructorPage() {
   const [courseId, setCourseId] = useState<string>(''); // Store course ID
   const [instructor, setInstructor] = useState<any | null>(null); // Store fetched instructor
   const [rating, setRating] = useState<number>(0); // Store rating
   const [error, setError] = useState<string | null>(null); // Store any errors
+  const [isStudent, setIsStudent] = useState(false);
   const router = useRouter();
-
+  const path = usePathname().split('/');
+  
+    const getStudentData = async () => {
+      const student = path[path.length - 1];
+      const res = await fetch('http://localhost:3001/users/fetch/' + student, { credentials: 'include' });
+      return res.json();
+    };
+    useEffect(() => {
+      console.log('All cookies are ' + JSON.stringify(getCookies()));
+      const role = getCookie('role');
+      console.log("Role: ", role);
+      if (role === 'student') {
+        setIsStudent(true);
+      } else {
+        setError('You are not authorized to view this page.');
+      }
+    }, []);
   // Handle course ID input change
   const handleCourseIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCourseId(e.target.value);
@@ -18,7 +36,7 @@ export default function RateInstructorPage() {
   // Fetch instructor based on course ID
   const fetchInstructor = async () => {
     try {
-      const response = await axios.get(`http://localhost:3001/progress/instructor/${courseId}`);
+      const response = await axios.get(`http://localhost:3001/progress/instructor/${courseId}`,{withCredentials: true});
       setInstructor(response.data); // Store the fetched instructor
     } catch (err) {
       setError('Failed to fetch instructor. Please check the course ID.');
@@ -35,7 +53,7 @@ export default function RateInstructorPage() {
         ratedEntityId: instructor._id, // Instructor's ID
         rating,
         userId,
-      });
+      },{withCredentials: true});
       alert('Rating submitted successfully!');
       router.push(`/dashboard/${userId}`); // Redirect to dashboard after submitting
     } catch (err) {
