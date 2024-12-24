@@ -41,6 +41,8 @@ export default function Home()
         "created_by" : "",
     });
 
+    const [quizzes , setQuizzes] = useState([]);
+
     const [notifications, setNotifications] = useState([]);
 
     const [loading , setLoading] = useState(true);
@@ -130,6 +132,18 @@ export default function Home()
     
             getUserDetails();
 
+            async function getQuizzes() {
+                try {
+                    const response = await fetch('http://localhost:3001/quiz/getquizzesofmodule/' + moduleId , {credentials : 'include'});
+                    const dataJson = await response.json();
+                    setQuizzes(dataJson);
+                } catch(error) {
+                    console.log(error);
+                }
+            }
+
+            getQuizzes();
+
             setRefreshContent(false);
         }
 
@@ -144,10 +158,11 @@ export default function Home()
     console.log("Data is: " + JSON.stringify(data));
     console.log("User ID is: " + userId  + " and Course details is: " + JSON.stringify(course));
     console.log("User Details is: " + JSON.stringify(userDetails));
+    console.log("Quizzes is: " + JSON.stringify(quizzes));
     return (
         <>
         {loading ? <div className="flex min-h-screen bg-gray-50">
-        <ModuleSidebar courseId={data.course_id} />
+        <ModuleSidebar courseId={data.course_id} data={quizzes} />
         <main className="flex-1 p-8">
         <div className="flex flex-col items-center justify-center pt-5">
         <h1 className="mb-4 text-3xl font-bold text-gray-800">Loading...</h1></div></main>
@@ -160,7 +175,7 @@ export default function Home()
                         {userDetails.course_id.includes(course._id) ? 
                         <>
                         <div className="flex min-h-screen bg-gray-50">
-                        <ModuleSidebar courseId={data.course_id} />
+                        <ModuleSidebar courseId={data.course_id} data={quizzes} />
                         <main className="flex-1 p-8">
                          <div className="flex flex-col items-left justify-left pl-3 pt-3">
                         <h1 className="text-3xl font-bold text-gray-800">{data.title}</h1>
@@ -190,7 +205,7 @@ export default function Home()
                         <>
                         <Navbar userId={userId} />
                         <div className="flex min-h-screen bg-gray-50">
-                        <ModuleSidebar courseId={data.course_id} />
+                        <ModuleSidebar courseId={data.course_id} data={quizzes} />
                         <main className="flex-1 p-8">
                         {course.created_by !== userId ? 
                         <> <div className="flex flex-col items-center justify-center pt-5">
