@@ -1,45 +1,62 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { getCookie } from 'cookies-next';
 
 export default function RateInstructorPage() {
   const router = useRouter();
-  const [instructorId, setInstructorId] = useState<string>(''); 
+  const [instructorEmail, setInstructorEmail] = useState<string>(''); 
   const [rating, setRating] = useState<number>(0); 
   const [error, setError] = useState<string | null>(null); 
+  const [instructors, setInstructors] = useState<any[]>([]); // To store list of instructors
+  const [loading, setLoading] = useState(true);  // To handle loading state
   const [ratedEntity] = useState<'Instructor'>('Instructor'); 
-const path = usePathname().split('/');
-  
-    const getStudentData = async () => {
-      const student = path[path.length - 1];
-      const res = await fetch('http://localhost:3001/users/fetch/' + student, { credentials: 'include' });
-      return res.json();
-    };
-    const role = getCookie("role");
-    console.log("Role fetched: " + role);
-  
-    const userId = getCookie("userId");
 
-  const handleInstructorIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInstructorId(e.target.value);
+  const userId = getCookie("userId");
+  const role = getCookie("role");
+
+  useEffect(() => {
+    if (role !== 'student') {
+      setError('You are not authorized to view this page.');
+      setLoading(false);
+      return;
+    }
+
+    // Fetch instructors list
+    const fetchInstructors = async () => {
+      try {
+        const response = await axios.get('http://localhost:3001/users/instructors', { withCredentials: true });
+        setInstructors(response.data); // Assuming the response contains a list of instructors
+      } catch (err) {
+        setError('Failed to fetch instructors.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInstructors();
+  }, [role]);
+
+  const handleInstructorEmailChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setInstructorEmail(e.target.value);
   };
 
   const handleRateInstructor = async () => {
-    if (!instructorId) {
-      setError('Please enter a valid instructor ID.');
+    if (!instructorEmail || !rating) {
+      setError('Please select an instructor and provide a rating.');
       return;
     }
 
     try {
       const response = await axios.post('http://localhost:3001/ratings', {
         ratedEntity, 
-        ratedEntityId: instructorId, 
+        ratedEntityId: instructorEmail,  // Use the selected instructor's email
         user_id: userId, 
         rating,
-      },{withCredentials: true});
+      }, { withCredentials: true });
+
       console.log('Rating submitted:', response.data);
       router.push(`/progress/dashboard/${userId}`);
     } catch (err) {
@@ -53,16 +70,25 @@ const path = usePathname().split('/');
       <h1 className="text-2xl font-bold mb-4">Rate Instructor</h1>
       {error && <p className="text-red-500">{error}</p>}
 
-      <div className="mb-4">
-        <label className="text-lg">Enter Instructor ID:</label>
-        <input
-          type="text"
-          value={instructorId}
-          onChange={handleInstructorIdChange}
-          placeholder="Enter instructor ID"
-          className="w-72 p-2 bg-gray-800 text-white rounded"
-        />
-      </div>
+      {loading ? (
+        <p className="text-gray-400">Loading instructors...</p>
+      ) : (
+        <div className="mb-4">
+          <label className="text-lg">Select Instructor:</label>
+          <select
+            value={instructorEmail}
+            onChange={handleInstructorEmailChange}
+            className="w-72 p-2 bg-gray-800 text-white rounded"
+          >
+            <option value="" disabled>Select an instructor</option>
+            {instructors.map((instructor) => (
+              <option key={instructor._id} value={instructor.email}>
+                {instructor.email}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       <div className="mb-4">
         <label className="text-lg">Rate this Instructor (1-5):</label>
