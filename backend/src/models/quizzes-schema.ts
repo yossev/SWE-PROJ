@@ -9,37 +9,14 @@ export class Quiz {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Module', required: true })
   module_id: mongoose.Schema.Types.ObjectId;
 
-  @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'QuestionBank', required: true })
-  question_ids: mongoose.Schema.Types.ObjectId[];
-
   @Prop({ type: String, enum: ['MCQ', 'True/False','Both'], required: true })
   questionType: string;
 
   @Prop({ type: Number, min: 1, required: true })
   numberOfQuestions: number;
 
-  @Prop({
-    type: [
-      {
-        _id: { type: mongoose.Schema.Types.ObjectId, auto: true }, 
-        question: { type: String, required: true },
-        options: { type: [String], required: true },
-        correct_answer: { type: String, required: true }, // Added correct_answer
-      },
-    ],
-    required: true,
-  })
-  questions: Array<{
-    question: string;
-    options: string[];
-    correct_answer: string; // Added correct_answer in the questions type
-  }>;
-
   @Prop({ type: Date, default: new Date(), required: true })
   created_at: Date;
-
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
-  userId: mongoose.Schema.Types.ObjectId;
 }
 
 export const QuizSchema = SchemaFactory.createForClass(Quiz);

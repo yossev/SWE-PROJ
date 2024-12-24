@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { getCookie } from "cookies-next";
 
 export default function QuizStart() {
+  axios.defaults.withCredentials = true;
   const path = usePathname().split('/');
 
   const [quizData, setQuizData] = useState<any>(null); 
@@ -36,7 +37,7 @@ export default function QuizStart() {
     try {
       setError(null);
       const response = await axios.get(
-        `http://localhost:3001/quiz/getquizbyId/${quizId}`,
+        `http://localhost:3001/quiz/generatequizforstudent/${quizId}`,
         { withCredentials: true }
       );
       if (response.status !== 200) {
@@ -71,9 +72,7 @@ export default function QuizStart() {
       const payload = {
         quizId: quizData._id,
         userAnswers,
-        selectedQuestions: quizData.questions.map((q: any) => ({
-          questionId: q._id,
-        })),
+        selectedQuestions: quizData.question_ids,
         userId,
       };
 
@@ -92,9 +91,9 @@ export default function QuizStart() {
       console.log("Result is: " + JSON.stringify(result));
 
       
-      setScore(result.data.score);
-      setFeedback(result.data.feedback);
-      setResultDetails(result.data);
+      setScore(result.score);
+      setFeedback(result.feedback);
+      setResultDetails(result);
       
       setStep("results");
       console.log("Score is: " + score + " and feedback is: " + feedback);
@@ -190,10 +189,10 @@ export default function QuizStart() {
           {quizData.questions.map((question: any, index: number) => {
             const userAnswer = userAnswers[index];
             const correctAnswer = resultDetails?.correctAnswers?.find(
-              (answer: any) => answer.questionId.toString() === question._id.toString()
+              (answer: any) => answer.questionId.toString() === question.questionId.toString()
             );
             const incorrectAnswer = resultDetails?.incorrectAnswers?.find(
-              (answer: any) => answer.questionId.toString() === question._id.toString()
+              (answer: any) => answer.questionId.toString() === question.questionId.toString()
             );
 
             // Check if the user answer matches the correct or incorrect answers (case insensitive)

@@ -54,14 +54,17 @@ const CoursePage = () => {
                         { withCredentials: true }
                     );
                     const studentData = await response.data.courses;
+                    console.log("Student data is: " + JSON.stringify(studentData));
                     const courses = await axios.get(
                         `http://localhost:3001/courses/getAll`,
                         { withCredentials: true }
                     );
+                    console.log("All courses are: " + JSON.stringify(courses.data));
                     const filteredCourses = courses.data.filter(
                         (course: any) =>
-                            studentData.includes(course._id) && course.available !== false
+                            studentData.includes(course._id)
                     );
+                    console.log("Filtered courses are: " + JSON.stringify(filteredCourses));
                     setCourses(filteredCourses);
                 }
 

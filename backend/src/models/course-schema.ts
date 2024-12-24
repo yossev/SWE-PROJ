@@ -34,7 +34,7 @@ export class Course {
   @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'User' })
   students: mongoose.Types.ObjectId[];
 
-  @Prop({ type: Boolean, default: false })
+  @Prop({ type: Boolean, default: true })
   available: boolean;
 }
 
