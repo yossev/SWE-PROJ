@@ -89,7 +89,7 @@ export default function InstructorDashboard() {
 
     setLoading(true);
     setUpdateMessage('');
-    setUpdateError(''); // Clear previous update errors
+    setUpdateError('');
 
     try {
       const res = await axios.put(
@@ -99,13 +99,11 @@ export default function InstructorDashboard() {
       );
       if (res.status === 200) {
         setUpdateMessage('Profile updated successfully.');
-        setUpdateForm({ name: '', email: '' });
       } else {
         throw new Error('Failed to update profile');
       }
     } catch (err: any) {
       if (err.response && err.response.data) {
-        // Display the custom error message from the backend
         setUpdateError(err.response.data.message || 'An error occurred while updating.');
       } else {
         setUpdateError(err.message || 'An error occurred');
@@ -114,6 +112,14 @@ export default function InstructorDashboard() {
       setLoading(false);
     }
   };
+
+  const handleInputChange = (field: 'name' | 'email', value: string) => {
+    setUpdateForm((prevForm) => ({
+      ...prevForm,
+      [field]: value || prevForm[field], // Retain current value if input is empty
+    }));
+  };
+
 
   const searchByName = async () => {
     if (!searchTerm) {
@@ -247,8 +253,8 @@ export default function InstructorDashboard() {
 </section>
 
 
-          {/* Update Section */}
-          <section className="mb-10">
+           {/* Update Section */}
+           <section className="mb-10">
             <h2 className="text-2xl font-semibold text-gray-800 mb-4">Update Personal Information</h2>
             <div className="flex space-x-4">
               <input
@@ -256,14 +262,14 @@ export default function InstructorDashboard() {
                 className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-indigo-300 transition-all duration-300"
                 placeholder="Enter new name"
                 value={updateForm.name}
-                onChange={(e) => setUpdateForm({ ...updateForm, name: e.target.value })}
+                onChange={(e) => handleInputChange('name', e.target.value)}
               />
               <input
                 type="email"
                 className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-indigo-300 transition-all duration-300"
                 placeholder="Enter new email"
                 value={updateForm.email}
-                onChange={(e) => setUpdateForm({ ...updateForm, email: e.target.value })}
+                onChange={(e) => handleInputChange('email', e.target.value)}
               />
               <button
                 className="px-4 py-2 bg-purple-600 text-white rounded-lg shadow hover:bg-purple-700 transition-all duration-300 transform hover:scale-105"
