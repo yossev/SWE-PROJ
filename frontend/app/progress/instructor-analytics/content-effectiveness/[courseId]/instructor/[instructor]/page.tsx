@@ -1,10 +1,8 @@
-'use client';
-
-import { useParams, usePathname } from 'next/navigation';
+'use client'
+import { useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { getCookie } from 'cookies-next';
-import { get } from 'http';
 
 interface ModuleRating {
   moduleId: string;
@@ -19,31 +17,22 @@ interface ContentEffectivenessData {
 }
 
 export default function ContentEffectivenessPage() {
-  const path = usePathname().split('/');
-    
-  const getInstructorData = async () => {
-    const instructor = path[path.length - 1];
-    const res = await fetch('http://localhost:3001/users/fetch/' + instructor, { credentials: 'include' });
-    return res.json();
-  };
-  const { courseId} = useParams(); // Extract courseId and instructorId from URL
+  const { courseId } = useParams();  // Use useParams to directly extract courseId
   const [contentEffectivenessData, setContentEffectivenessData] = useState<ContentEffectivenessData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isInstructor, setIsInstructor] = useState(false);
-const userId=getCookie("userId");
-const role= getCookie("role");
+  const userId = getCookie("userId");
+  const role = getCookie("role");
+
   useEffect(() => {
-    const role = getCookie('role');
-      console.log("Role: ", role);
-      if (role === 'instructor') {
-        setIsInstructor(true);
-      } else {
-        setError('You are not authorized to view this page.');
-      }
+    if (role !== 'instructor') {
+      setError('You are not authorized to view this page.');
+      return;
+    }
+
     const fetchContentEffectivenessData = async () => {
       try {
-        const response = await axios.get(`http://localhost:3001/progress/content-effectiveness/${courseId}`,{withCredentials: true});
+        const response = await axios.get(`http://localhost:3001/progress/content-effectiveness/${courseId}`, { withCredentials: true });
         if (response.data) {
           setContentEffectivenessData(response.data);
         } else {
@@ -57,7 +46,7 @@ const role= getCookie("role");
     };
 
     if (courseId && userId) fetchContentEffectivenessData();
-  }, [courseId, userId]);
+  }, [courseId, userId, role]);
 
   if (loading) {
     return <p className="text-gray-400 text-center">Loading content effectiveness data...</p>;
@@ -74,13 +63,11 @@ const role= getCookie("role");
   const handleExportPDF = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`http://localhost:3001/progress/export-content-effectiveness-pdf/${courseId}`, {
-        responseType: 'blob', // Expecting PDF in response
-      });
+      const response = await axios.get(`http://localhost:3001/progress/export-content-effectiveness-pdf/${courseId}`, { responseType: 'blob' });
       const blob = new Blob([response.data], { type: 'application/pdf' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = 'content_effectiveness_report.pdf'; // Filename for the downloaded PDF
+      link.download = 'content_effectiveness_report.pdf';
       link.click();
     } catch (err) {
       console.error('Error exporting content effectiveness PDF:', err);
@@ -93,7 +80,7 @@ const role= getCookie("role");
   return (
     <div className="h-screen w-full bg-gray-900 text-white p-4 flex flex-col items-center overflow-auto">
       <h1 className="text-2xl font-bold mb-4">Content Effectiveness</h1>
-      
+
       {/* Course Rating Overview */}
       <div className="bg-gray-800 p-4 rounded-lg mb-4 text-center">
         <h2 className="text-lg font-semibold">Course Rating Overview</h2>
