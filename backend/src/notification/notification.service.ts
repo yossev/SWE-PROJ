@@ -180,7 +180,6 @@ export class NotificationService {
   // Get all notifications for a user
   async getUserNotifications(userId: string): Promise<UserNotification[]> {
     const notifications = await this.notificationModel.find({ user_id : new mongoose.Types.ObjectId(userId) }).sort({ createdAt: -1 }).exec(); 
-    console.log("Notifications are: " + JSON.stringify(notifications));
     return notifications;
   }
 

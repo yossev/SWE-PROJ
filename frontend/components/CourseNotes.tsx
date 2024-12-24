@@ -25,7 +25,7 @@ const CourseNotes = ({data , userId , courseId , setRefresh} : {data : any , use
 
     const handleEditNote = (e : React.FormEvent) => {
         e.preventDefault();
-        axios.put('http://localhost:3001/notes/update/' + noteId , {title : noteTitle , content : noteContent , last_at : new Date()}) , {withCredentials : true};
+        axios.put('http://localhost:3001/notes/update/' + noteId , {title : noteTitle , content : noteContent , last_at : new Date()} , {withCredentials : true}); 
         setEditMode(false);
         setNoteTitle('');
         setNoteContent('');
@@ -35,19 +35,22 @@ const CourseNotes = ({data , userId , courseId , setRefresh} : {data : any , use
 
     const handleSubmitNote = (e : React.FormEvent) => {
         e.preventDefault();
-        axios.post('http://localhost:3001/notes/create' , {title : noteTitle , content : noteContent , user_id : userId , course_id : courseId , last_at : new Date()}) , {withCredentials : true};
-        setEditMode(false);
-        setNoteTitle('');
-        setNoteContent('');
-        setNoteId('');
-        setNewNote(false);
-        setRefresh(true);
+        axios.post('http://localhost:3001/notes/create' , {title : noteTitle , content : noteContent , user_id : userId , course_id : courseId , last_at : new Date()} , {withCredentials : true}).then(() =>{
+            setEditMode(false);
+            setNoteTitle('');
+            setNoteContent('');
+            setNoteId('');
+            setNewNote(false);
+            setRefresh(true);
+        })
+
     }
 
     const handleDeleteNote = (noteDeleteId : any) => (e : React.FormEvent) => {
         e.preventDefault();
-        axios.delete('http://localhost:3001/notes/delete/' + noteDeleteId) , {withCredentials : true};
-        setRefresh(true);
+        axios.delete('http://localhost:3001/notes/delete/' + noteDeleteId , {withCredentials : true}).then(response => {
+            setRefresh(true);
+        });
     }
 
     return (

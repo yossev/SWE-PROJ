@@ -52,7 +52,7 @@ import { Logger } from 'winston';
       
     ]),
   ],
-  providers: [NotificationService,JwtService,ProgressService,AuthService,RatingService,UserService,LoggerService],
+  providers: [NotificationService,JwtService,ProgressService,AuthService,RatingService,UserService , LoggerService],
   controllers: [NotificationsController],
   exports: [NotificationService,JwtService], // Export the service so it can be used in other modules
 })

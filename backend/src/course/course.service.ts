@@ -69,6 +69,7 @@ export class CourseService {
 
   // Find a course by ID
   async findOne(id: string): Promise<CourseDocument> {
+    console.log("Course ID is: " + id);
     return this.courseModel.findById(id).exec();
   }
 

@@ -21,10 +21,9 @@ export class NotesService {
 
     async createNote(createNoteDto : CreateNoteDto)
     {
-        console.log("Entered function createNote");
         try
         {
-            const note = new this.noteModel(createNoteDto); 
+            const note = new this.noteModel(createNoteDto);
             await note.save();
             return "Note created";
         }

@@ -87,6 +87,13 @@ export class UserController {
       return user;
     }
 
+    @Get('fetchme')
+    async getUserByReq(@Req() req): Promise<User> {
+      const userId = req.cookies.userId;
+      const user = await this.userService.findById(userId);
+      return user;
+    }
+
     @Roles(Role.Admin)
     @UseGuards(authorizationGuard)
     @Get('instructors')

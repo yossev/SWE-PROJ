@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { BadRequestException, Body, Controller, Delete, Get, Post, Put, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { QuizService } from './quiz.service'; 
  
 import { CreateQuizDto } from './DTO/quiz.create.dto';
@@ -56,6 +56,15 @@ export class quizController {
         throw new BadRequestException('No quiz found for the provided user ID.');
       }
 
+      return quiz;
+    }
+
+    @Roles(Role.Student , Role.Instructor)
+    @UseGuards(authorizationGuard)
+    @Get('getquizzesofmodule/:id')
+    async getQuizzesOfModule(@Param('id') id: string): Promise<Quiz[]> {
+      console.log("Received ID in get quizzes module:", id);
+      const quiz = await this.quizService.getQuizzesOfModule(id);
       return quiz;
     }
 

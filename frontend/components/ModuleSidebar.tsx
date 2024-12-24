@@ -3,8 +3,9 @@
 import React, { useState } from 'react'
 import Link from "next/link";
 
-const ModuleSidebar = ({courseId} : {courseId : string}) => {
+const ModuleSidebar = ({courseId , data} : {courseId : string , data : any}) => { 
     const [open , setOpen] = useState(false);
+    let counter : number = 1;
     const handleClick = () => {
         setOpen(!open);
     }
@@ -17,14 +18,18 @@ const ModuleSidebar = ({courseId} : {courseId : string}) => {
         </div>
         <nav className="mt-6">
           <ul className="space-y-4">
-            <li>
-              <Link
-                href="#"
-                className="block py-3 px-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-all duration-300 transform hover:scale-105"
-              >
-                📝 Module Quizzes
-              </Link>
-            </li>
+            {data.map((quiz : any) => (
+              <>
+                <li>
+                  <Link
+                  href={"http://localhost:3000/quiz/start/" + quiz._id}
+                  className="block py-3 px-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-all duration-300 transform hover:scale-105">
+                    📝 {"Quiz #" + counter++}
+                  </Link>
+                </li>
+              </>
+                
+            ))}
             <li>
               <Link
                 href={reference}

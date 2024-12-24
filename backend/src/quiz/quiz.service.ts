@@ -35,6 +35,10 @@ export class QuizService {
     return await this.quizModel.find();
   }
 
+  async getQuizzesOfModule(id: string): Promise<Quiz[]> {
+    return await this.quizModel.find({ module_id: id });
+  }
+
   async findById(id: string): Promise<Quiz> {
     const inpStr: string= id;
     const objectId = new mongoose.Types.ObjectId(inpStr);  
