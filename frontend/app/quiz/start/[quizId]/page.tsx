@@ -42,6 +42,7 @@ export default function QuizStart() {
       setQuizData(quiz);
       setUserAnswers(new Array(quiz.questions.length).fill("")); 
       setStep("quiz");
+
     } catch (err) {
       console.error(err);
       setError("Error fetching quiz. Please try again.");
@@ -60,7 +61,6 @@ export default function QuizStart() {
       setError("Please answer all questions before submitting.");
       return;
     }
-
     try {
       setError(null);
       const payload = {
@@ -83,10 +83,16 @@ export default function QuizStart() {
       }
 
       const result = response.data;
+
+      console.log("Result is: " + JSON.stringify(result));
+
+      
       setScore(result.data.score);
       setFeedback(result.data.feedback);
       setResultDetails(result.data);
+      
       setStep("results");
+      console.log("Score is: " + score + " and feedback is: " + feedback);
     } catch (err) {
       console.error(err);
       setError("Error submitting quiz. Please try again.");
