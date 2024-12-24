@@ -54,7 +54,7 @@ import { LoggerService } from 'src/auth/logger.service';
   ],
   controllers: [ModuleController],
   providers: [ModuleService,NotificationService,UserService,CourseService, NotificationService, MessageService, UserService, RoomService, JwtService,
-       ProgressService, AuthService, RatingService,ForumService,ThreadService,ReplyService,LoggerService
+       ProgressService, AuthService, RatingService,ForumService,ThreadService,ReplyService,LoggerService , ProgressService
   ],
   exports:[ModuleService]
 })
