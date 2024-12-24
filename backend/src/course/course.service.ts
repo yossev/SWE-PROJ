@@ -80,7 +80,8 @@ export class CourseService {
   ): Promise<CourseDocument | null> {
     try {
       const course = await this.courseModel.findById(id).exec();
-  
+
+      console.log("UPDATEDDDDDDDDDDDDDDDDDDD");
       if (!course) {
         throw new Error(`Course with ID ${id} not found.`);
       }
