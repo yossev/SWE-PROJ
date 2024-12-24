@@ -10,6 +10,7 @@ export default function QuizStart() {
   const [quizData, setQuizData] = useState<any>(null); 
   const [userAnswers, setUserAnswers] = useState<string[]>([]); 
   const [step, setStep] = useState<"start" | "quiz" | "results">("start");
+  const [quizFetched , setQuizFetched] = useState<boolean>(false);
   const [score, setScore] = useState<number | null>(null); 
   const [feedback, setFeedback] = useState<string | null>(null); 
   const [error, setError] = useState<string | null>(null); 
@@ -23,8 +24,12 @@ export default function QuizStart() {
       setError("User ID not found in cookies.");
       return;
     }
-    fetchQuiz(userId, quizId);
-  }, [userId, quizId]);
+
+    if(!quizFetched){
+      fetchQuiz(userId, quizId);
+      setQuizFetched(true);
+    }
+  }, [step ]);
 
 
   const fetchQuiz = async (userId: string, quizId: string) => {
@@ -100,6 +105,7 @@ export default function QuizStart() {
   };
 
   console.log("Quizzes is: " + JSON.stringify(quizData));
+  console.log("Answers are: " + JSON.stringify(resultDetails));
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-800 text-white">
       {step === "start" && (
@@ -114,8 +120,8 @@ export default function QuizStart() {
           {error && <p className="text-red-500 mt-4">{error}</p>}
         </div>
       )}
-
-      {step === "quiz" && quizData && (
+      {step === "quiz" ? <>
+        {step === "quiz" && quizData && (
         <div className="max-w-2xl w-full p-6 bg-white rounded-lg shadow-lg text-black">
           <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">Quiz</h1>
           {quizData.questions.map((question: any, index: number) => (
@@ -169,8 +175,9 @@ export default function QuizStart() {
           {error && <p className="text-red-500 mt-4">{error}</p>}
         </div>
       )}
-
-{step === "results" && (
+      
+      </> : <> 
+    
   <div className="text-center p-6 bg-gray-900 text-white rounded-lg w-full max-w-lg">
     <h1 className="text-4xl font-extrabold mb-6">Quiz Results</h1>
     {score !== null && feedback ? (
@@ -183,10 +190,10 @@ export default function QuizStart() {
           {quizData.questions.map((question: any, index: number) => {
             const userAnswer = userAnswers[index];
             const correctAnswer = resultDetails?.correctAnswers?.find(
-              (answer: any) => answer.questionId.toString() === question.questionId.toString()
+              (answer: any) => answer.questionId.toString() === question._id.toString()
             );
             const incorrectAnswer = resultDetails?.incorrectAnswers?.find(
-              (answer: any) => answer.questionId.toString() === question.questionId.toString()
+              (answer: any) => answer.questionId.toString() === question._id.toString()
             );
 
             // Check if the user answer matches the correct or incorrect answers (case insensitive)
@@ -233,11 +240,11 @@ export default function QuizStart() {
           })}
         </div>
       </>
-    ) : (
+      ) : (
       <p>Loading results...</p>
-    )}
-  </div>
-)}
+      )}
+    </div>
+      </>}
 
 
     </div>

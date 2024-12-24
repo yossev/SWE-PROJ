@@ -11,6 +11,7 @@ import NotificationBell from "components/NotificationBell";
 import FileUpload from "components/FileUpload";
 import Navbar from "components/Navbar";
 import { set } from "mongoose";
+import CreateQuestion from "components/QuestionBank";
 
 type Dispatcher<S> = Dispatch<SetStateAction<S>>;
 
@@ -149,7 +150,7 @@ export default function Home()
 
         setLoading(false);
 
-    }, [loading , foundData , refreshNotes , refreshContent]);
+    }, [foundData , refreshNotes , refreshContent]);
 
     const downloadFile = (fileName: string) => {
         redirect("http://localhost:3001/modules/download/" + moduleId + "/" + fileName);
@@ -161,8 +162,17 @@ export default function Home()
     console.log("Quizzes is: " + JSON.stringify(quizzes));
     return (
         <>
+        {!loading && !userId ? 
+        <>
+        <Navbar userId={userId}/>
+        <main className="flex-1 p-8">
+        <div className="flex flex-col items-center justify-center pt-5">
+        <h1 className="mb-4 text-3xl font-bold text-gray-800">Please Login to View this Module.</h1></div></main>
+        </> 
+        : 
+        <>
         {loading ? <div className="flex min-h-screen bg-gray-50">
-        <ModuleSidebar courseId={data.course_id} data={quizzes} />
+        <ModuleSidebar courseId={data.course_id} data={quizzes}  moduleId={moduleId} created_by={course.created_by} />
         <main className="flex-1 p-8">
         <div className="flex flex-col items-center justify-center pt-5">
         <h1 className="mb-4 text-3xl font-bold text-gray-800">Loading...</h1></div></main>
@@ -175,7 +185,7 @@ export default function Home()
                         {userDetails.courses.includes(course._id) ? 
                         <>
                         <div className="flex min-h-screen bg-gray-50">
-                        <ModuleSidebar courseId={data.course_id} data={quizzes} />
+                        <ModuleSidebar courseId={data.course_id} data={quizzes}  moduleId={moduleId} created_by={course.created_by} />
                         <main className="flex-1 p-8">
                          <div className="flex flex-col items-left justify-left pl-3 pt-3">
                         <h1 className="text-3xl font-bold text-gray-800">{data.title}</h1>
@@ -205,7 +215,7 @@ export default function Home()
                         <>
                         <Navbar userId={userId}/>
                         <div className="flex min-h-screen bg-gray-50">
-                        <ModuleSidebar courseId={data.course_id} data={quizzes} />
+                        <ModuleSidebar courseId={data.course_id} data={quizzes} moduleId={moduleId} created_by={course.created_by} />
                         <main className="flex-1 p-8">
                         {course.created_by !== userId ? 
                         <> <div className="flex flex-col items-center justify-center pt-5">
@@ -233,6 +243,7 @@ export default function Home()
                         </>
             }
                 </>}
+        </>}
         </>
     );
 }
