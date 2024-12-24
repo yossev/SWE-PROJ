@@ -51,6 +51,17 @@ export class UserController {
         return user;
     }
 
+    @Roles(Role.Instructor, Role.Admin, Role.Student)
+    @UseGuards(authorizationGuard)
+    @Get('getemails')
+    async getEmails(@Req() req): Promise<any>
+    {
+      const userId = req.cookies.userId;
+      console.log("Id passed to get emails is: " + userId);
+      const emails = await this.userService.getInstructorsEmails(userId);
+      return emails;
+    }
+
     @Roles(Role.Instructor)
     @UseGuards(authorizationGuard)
     @Get('Studentfetch/:name') // /student/:id

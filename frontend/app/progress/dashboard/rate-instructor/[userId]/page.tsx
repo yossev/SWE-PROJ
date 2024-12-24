@@ -6,38 +6,42 @@ import { useRouter } from 'next/navigation';
 import { getCookie } from 'cookies-next';
 
 export default function RateInstructorPage() {
+  axios.defaults.withCredentials = true;
   const router = useRouter();
   const [instructorEmail, setInstructorEmail] = useState<string>(''); 
+  const [selectedInstructors, setSelectedInstructors] = useState<any>({});
   const [rating, setRating] = useState<number>(0); 
   const [error, setError] = useState<string | null>(null); 
   const [instructors, setInstructors] = useState<any[]>([]); // To store list of instructors
   const [loading, setLoading] = useState(true);  // To handle loading state
   const [ratedEntity] = useState<'Instructor'>('Instructor'); 
+  const [courses, setCourses] = useState<any[]>([]);
 
   const userId = getCookie("userId");
   const role = getCookie("role");
 
   useEffect(() => {
-    if (role !== 'student') {
-      setError('You are not authorized to view this page.');
-      setLoading(false);
-      return;
-    }
-
-    // Fetch instructors list
-    const fetchInstructors = async () => {
+    const fetchUserSpecificCourses = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/users/instructors', { withCredentials: true });
-        setInstructors(response.data); // Assuming the response contains a list of instructors
-      } catch (err) {
-        setError('Failed to fetch instructors.');
-      } finally {
+        const response = await axios.get(`http://localhost:3001/users/getemails`); 
+        console.log("Response is: " + JSON.stringify(response.data));
+        setInstructors(response.data);
         setLoading(false);
+      } catch (error) {
+        console.error('Error fetching user-specific courses:', error);
+        setError('Failed to load courses.');
       }
     };
 
-    fetchInstructors();
-  }, [role]);
+    fetchUserSpecificCourses();
+  }, [userId , loading]);
+
+  const handleInstructorChange = (courseId: string, instructorEmail: string) => {
+    setSelectedInstructors((prev: any) => ({
+      ...prev,
+      [courseId]: instructorEmail,
+    }));
+  };
 
   const handleInstructorEmailChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setInstructorEmail(e.target.value);
@@ -49,10 +53,12 @@ export default function RateInstructorPage() {
       return;
     }
 
+    console.log("Instructor email is: " + instructorEmail);
+    const instructor =instructors.find(instructor => instructor.email === instructorEmail);
     try {
-      const response = await axios.post('http://localhost:3001/ratings', {
+      const response = await axios.post('http://localhost:3001/ratings/', {
         ratedEntity, 
-        ratedEntityId: instructorEmail,  // Use the selected instructor's email
+        ratedEntityId: instructor._id,  // Use the selected instructor's email
         user_id: userId, 
         rating,
       }, { withCredentials: true });

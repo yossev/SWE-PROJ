@@ -29,9 +29,14 @@ const Navbar = ({ userId }: { userId: any }) => {
           setUserDetails(dataJson);
           if (role === "student") {
             setUrl("http://localhost:3000/auth/dashboardS/student");
-          } else {
+          } else if(role=== "instructor") {
             setUrl("http://localhost:3000/auth/dashboardI/instructor");
           }
+          else
+          {
+            setUrl("http://localhost:3000/auth/dashboardA/admin");
+          }
+
         });
 
       fetch('http://localhost:3001/notifications/', { credentials: 'include' })
