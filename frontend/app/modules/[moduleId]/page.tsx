@@ -48,9 +48,12 @@ export default function Home()
 
     const [loading , setLoading] = useState(true);
 
+    const [compatible , setCompatible] = useState(false);
+
     const [userDetails , setUserDetails] = useState({
         name : "",
-        courses : ["" , ""]
+        courses : ["" , ""],
+        role : ""
     });
     
     let moduleId : string = path[path.length - 1];
@@ -132,6 +135,22 @@ export default function Home()
             }
     
             getUserDetails();
+            
+            if(role === "student")
+            {
+                console.log("entering student");
+                async function getCompatibility() {
+                    try {
+                        const response = await fetch('http://localhost:3001/modules/performancelevel/' + moduleId , {credentials : 'include'});
+                        const dataJson = await response.json();
+                        setCompatible(dataJson);
+                    } catch (error) {
+                        console.log(error);
+                    }
+                }
+        
+                getCompatibility();
+            }
 
             async function getQuizzes() {
                 try {
@@ -160,6 +179,7 @@ export default function Home()
     console.log("User ID is: " + userId  + " and Course details is: " + JSON.stringify(course));
     console.log("User Details is: " + JSON.stringify(userDetails));
     console.log("Quizzes is: " + JSON.stringify(quizzes));
+    console.log("Compatibility is: " + compatible);
     return (
         <>
         {!loading && !userId ? 

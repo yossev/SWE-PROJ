@@ -14,6 +14,7 @@ import { UploadedFile } from '@nestjs/common';
 
 import { Course } from '../models/course-schema';
 import { NotificationService } from 'src/notification/notification.service';
+import { ProgressService } from 'src/progress/progress.service';
 
 
 @Injectable()
@@ -21,7 +22,8 @@ export class ModuleService {
   constructor(
     @InjectModel('Mod') private readonly moduleModel: Model<Module>, 
     @InjectModel('Course') private readonly courseModel: Model<Course>,
-    private readonly notificationService: NotificationService
+    private readonly notificationService: NotificationService,
+    private readonly progressService : ProgressService
   ) {}
 
   async createModule(@Req() req, createModuleDto: CreateModuleDto) {
@@ -121,25 +123,19 @@ export class ModuleService {
     return module;
   }
 
-  async checkModuleCompatibility(moduleId: string , performanceMetric : string)
+  async checkModuleCompatibility(moduleId: string , userId : string)
   {
-    let performanceLevel : string;
-    if (performanceMetric === 'Above Average') {
-      performanceLevel = 'Hard';
-    } else if (performanceMetric === 'Average') {
-      performanceLevel = 'Medium';
-    } else {
-      performanceLevel = 'East';
-    }
+
+    const performanceLevel = await this.progressService.classifyUserPerformance(userId);
 
     const moduleDifficulty : string = (await this.moduleModel.findById(moduleId).exec()).difficulty;
     switch(performanceLevel)
     {
-      case 'Hard':
+      case 'Excellent': case 'Above Average':
         return true;
       break;
 
-      case 'Medium':
+      case 'Average':
         if(moduleDifficulty === 'Hard')
         {
           return false;
@@ -150,7 +146,7 @@ export class ModuleService {
         }
       break;
 
-      case 'Easy':
+      case 'Below Average':
         if(moduleDifficulty === 'Easy')
         {
           return true;

@@ -50,6 +50,13 @@ export class ModuleController {
         return this.moduleService.getModule(id);
     }
 
+    @Get('performancelevel/:id')
+    async getPerformanceLevel(@Param('id') id: string , @Req() req)
+    {
+      const userid=req.cookies.userId;
+      return this.moduleService.checkModuleCompatibility(id , userid);
+    }
+
     @Delete('delete/:id')
     async deleteModule(@Param('id') id: string)
     {
