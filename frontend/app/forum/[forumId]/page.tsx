@@ -40,6 +40,8 @@ export default function ForumPage() {
   const { forumId } = useParams();
   const [forum, setForum] = useState<Forum | null>(null);
   const [threads, setThreads] = useState<Thread[]>([]);
+  const [refresh , setRefresh] = useState(true);
+  const [courseId , setCourseId] = useState("");
   const [filteredThreads, setFilteredThreads] = useState<Thread[]>([]);
   const [search, setSearch] = useState("");
   const [error, setError] = useState("");
@@ -62,6 +64,7 @@ export default function ForumPage() {
                 id: forumRes.data._id,
                 forumTitle: forumRes.data.forumTitle,
               });
+              setCourseId(forumRes.data.course_id);
       
               const threadsRes = await axios.get(`${backend_url}/threads/by-forum/${forumId}`, {
                 withCredentials: true,
@@ -95,9 +98,13 @@ export default function ForumPage() {
       
         // Fetch user role and username from the backend
         
-        fetchForumData();
+        if(refresh)
+        {
+          fetchForumData();
+          setRefresh(false);
+        }
       
-      }, [forumId]);
+      }, [forumId , refresh]);
       
   
   
@@ -146,6 +153,7 @@ export default function ForumPage() {
       setThreads(newThreads);
       setFilteredThreads(newThreads);
       setNewThread({ title: "", content: "" });
+      setRefresh(true);
     } catch (err) {
       console.error("Error creating thread:", err);
       setError("Failed to create thread.");
@@ -171,6 +179,7 @@ export default function ForumPage() {
       setThreads(updatedThreads);
       setFilteredThreads(updatedThreads);
       setNewReply({ threadId: "", content: "" });
+      setRefresh(true);
     } catch (err) {
       console.error("Error adding reply:", err);
       setError("Failed to add reply.");
@@ -201,6 +210,7 @@ export default function ForumPage() {
 
       setThreads(updatedThreads);
       setFilteredThreads(updatedThreads);
+      setRefresh(true);
 
       alert("Reply updated successfully.");
     } catch (err) {
@@ -242,6 +252,7 @@ export default function ForumPage() {
             : thread
         )
       );
+      setRefresh(true);
     } catch (err) {
       console.error("Error editing thread:", err);
       alert("Failed to update the thread. Please try again.");
@@ -256,6 +267,7 @@ export default function ForumPage() {
       });
       setThreads((prevThreads) => prevThreads.filter((thread) => thread._id !== threadId));
       setFilteredThreads((prevThreads) => prevThreads.filter((thread) => thread._id !== threadId));
+      setRefresh(true);
     } catch (err) {
       console.error("Error deleting thread:", err);
       alert("Failed to delete thread. Please try again.");
@@ -279,6 +291,7 @@ export default function ForumPage() {
             replies: thread.replies.filter((reply) => reply._id !== replyId),
           }))
         );
+        setRefresh(true);
       } catch (err) {
         console.error("Error deleting reply:", err);
       }
@@ -298,9 +311,7 @@ export default function ForumPage() {
           <div className="p-6">
             <div className="border-b border-gray-700 text-2xl font-bold mb-4">Forum Navigation</div>
             <ul className="space-y-2">
-              <li><a href="/" className="text-gray-300 hover:text-white">Home</a></li>
-              <li><a href="/forums" className="text-gray-300 hover:text-white">Forums</a></li>
-              <li><a href="/profile" className="text-gray-300 hover:text-white">Profile</a></li>
+              <li><a href={"http://localhost:3000/courses/" + courseId} className="text-gray-300 hover:text-white">Return to Course</a></li>
             </ul>
           </div>
         </aside>
