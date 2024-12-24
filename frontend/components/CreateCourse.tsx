@@ -120,7 +120,7 @@ const CreateCourse = ({userId , setRefresh} : {userId : any , setRefresh : Dispa
           onClick={handleSubmit}
           className="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg"
         >
-          Create Question
+          Create Course
         </button>
 
         {/* Success and Error Messages */}

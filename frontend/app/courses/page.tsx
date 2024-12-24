@@ -9,6 +9,7 @@ import StudentSidebar from "components/StudentSidebar";
 import InstructorSidebar from "components/InstructorSidebar";
 import CreateCourse from "components/CreateCourse";
 import AdminSidebar from "components/AdminSideBar";
+import { redirect } from "next/navigation";
 
 const CoursePage = () => {
     axios.defaults.withCredentials = true;
@@ -34,6 +35,10 @@ const CoursePage = () => {
     const [error, setError] = useState<string | null>(null);
     const userId = getCookie("userId");
     const role = getCookie("role");
+
+    const redirectToCourse = (courseId: string) => {
+        redirect("http://localhost:3000/courses/" + courseId);
+    };
 
     useEffect(() => {
         if (role === "student") {
@@ -124,15 +129,33 @@ const CoursePage = () => {
                         <div className="header-container"></div>
                         <div className="course-cards-container">
                             {Courses.map((course) => (
-                                <div key={course._id} className={`course-card ${!course.available ? "unavailable" : ""}`} style={{ opacity: course.available ? 1 : 0.5 }}>
+                                <button
+                                    onClick={() => redirectToCourse(course._id)}
+                                    key={course._id}
+                                    className={`course-card ${!course.available ? "unavailable" : ""}`}
+                                    style={{ opacity: course.available ? 1 : 0.5 }}
+                                >
                                     <h3>{course.title}</h3>
-                                    <p><strong>Description:</strong> {course.description}</p>
-                                    <p><strong>Category:</strong> {course.category}</p>
-                                    <p><strong>Difficulty Level:</strong> {course.difficulty_level}</p>
-                                    <p><strong>Created By:</strong> {course.created_by}</p>
-                                    <p><strong>Created At:</strong> {new Date(course.created_at).toLocaleDateString()}</p>
-                                    <p><strong>Available:</strong> {course.available ? "Yes" : "No"}</p>
-                                </div>
+                                    <p>
+                                        <strong>Description:</strong> {course.description}
+                                    </p>
+                                    <p>
+                                        <strong>Category:</strong> {course.category}
+                                    </p>
+                                    <p>
+                                        <strong>Difficulty Level:</strong> {course.difficulty_level}
+                                    </p>
+                                    <p>
+                                        <strong>Created By:</strong> {course.created_by}
+                                    </p>
+                                    <p>
+                                        <strong>Created At:</strong>{" "}
+                                        {new Date(course.created_at).toLocaleDateString()}
+                                    </p>
+                                    <p>
+                                        <strong>Available:</strong> {course.available ? "Yes" : "No"}
+                                    </p>
+                                </button>
                             ))}
                         </div>
                         <ToastContainer />
@@ -146,7 +169,12 @@ const CoursePage = () => {
                         <div className="header-container"></div>
                         <div className="course-cards-container">
                             {Courses.map((course) => (
-                                <div key={course._id} className={`course-card ${!course.available ? "unavailable" : ""}`} style={{ opacity: course.available ? 1 : 0.5 }}>
+                                <button
+                                onClick={() => redirectToCourse(course._id)}
+                                key={course._id}
+                                className={`course-card ${!course.available ? "unavailable" : ""}`}
+                                style={{ opacity: course.available ? 1 : 0.5 }}
+                            >
                                     <h3>{course.title}</h3>
                                     <p><strong>Description:</strong> {course.description}</p>
                                     <p><strong>Category:</strong> {course.category}</p>
@@ -159,7 +187,7 @@ const CoursePage = () => {
                                             Mark as Unavailable
                                         </button>
                                     )}
-                                </div>
+                                </button>
                             ))}
                         </div>
                         <CreateCourse userId={userId} setRefresh={setRefresh} />

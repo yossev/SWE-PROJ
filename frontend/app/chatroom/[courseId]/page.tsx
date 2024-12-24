@@ -95,6 +95,8 @@ export default function ChatRoom() {
               }
   
               fetchRooms();
+
+              setRefresh(false);
         }
     }, [refresh]);
     console.log("User ID in chat is: " + userId);
