@@ -59,17 +59,14 @@ const CoursePage = () => {
                         { withCredentials: true }
                     );
                     const studentData = await response.data.courses;
-                    console.log("Student data is: " + JSON.stringify(studentData));
                     const courses = await axios.get(
                         `http://localhost:3001/courses/getAll`,
                         { withCredentials: true }
                     );
-                    console.log("All courses are: " + JSON.stringify(courses.data));
                     const filteredCourses = courses.data.filter(
                         (course: any) =>
-                            studentData.includes(course._id)
+                            studentData.includes(course._id) && course.available !== false
                     );
-                    console.log("Filtered courses are: " + JSON.stringify(filteredCourses));
                     setCourses(filteredCourses);
                 }
 
@@ -79,8 +76,7 @@ const CoursePage = () => {
                         { withCredentials: true }
                     );
                     const filteredCourses = courses.data.filter(
-                        (course: any) =>
-                            course.created_by === userId && course.available !== false
+                        (course: any) => course.created_by === userId
                     );
                     setCourses(filteredCourses);
                 }
@@ -129,17 +125,7 @@ const CoursePage = () => {
                 <div className="course-page-container flex">
                     <StudentSidebar />
                     <div className="course-content-container flex-grow p-6">
-                        <h1
-                            className="title"
-                            style={{
-                                marginTop: "1rem",
-                                marginBottom: "1rem",
-                                fontSize: "2rem",
-                                fontWeight: "bold",
-                            }}
-                        >
-                            Courses
-                        </h1>
+                        <h1 className="title" style={{ marginTop: "1rem", marginBottom: "1rem", fontSize: "2rem", fontWeight: "bold" }}>Courses</h1>
                         <div className="header-container"></div>
                         <div className="course-cards-container">
                             {Courses.map((course) => (
@@ -179,17 +165,7 @@ const CoursePage = () => {
                 <div className="course-page-container flex">
                     <InstructorSidebar />
                     <div className="course-content-container flex-grow p-6">
-                        <h1
-                            className="title"
-                            style={{
-                                marginTop: "1rem",
-                                marginBottom: "1rem",
-                                fontSize: "2rem",
-                                fontWeight: "bold",
-                            }}
-                        >
-                            Courses
-                        </h1>
+                        <h1 className="title" style={{ marginTop: "1rem", marginBottom: "1rem", fontSize: "2rem", fontWeight: "bold" }}>My Courses</h1>
                         <div className="header-container"></div>
                         <div className="course-cards-container">
                             {Courses.map((course) => (
@@ -200,33 +176,14 @@ const CoursePage = () => {
                                 style={{ opacity: course.available ? 1 : 0.5 }}
                             >
                                     <h3>{course.title}</h3>
-                                    <p>
-                                        <strong>Description:</strong> {course.description}
-                                    </p>
-                                    <p>
-                                        <strong>Category:</strong> {course.category}
-                                    </p>
-                                    <p>
-                                        <strong>Difficulty Level:</strong> {course.difficulty_level}
-                                    </p>
-                                    <p>
-                                        <strong>Created At:</strong>{" "}
-                                        {new Date(course.created_at).toLocaleDateString()}
-                                    </p>
-                                    <p>
-                                        <strong>Available:</strong> {course.available ? "Yes" : "No"}
-                                    </p>
-                                    <p>
-                                        <strong>Students:</strong>{" "}
-                                        {course.students?.length
-                                            ? course.students.join(", ")
-                                            : "None"}
-                                    </p>
+                                    <p><strong>Description:</strong> {course.description}</p>
+                                    <p><strong>Category:</strong> {course.category}</p>
+                                    <p><strong>Difficulty Level:</strong> {course.difficulty_level}</p>
+                                    <p><strong>Created At:</strong> {new Date(course.created_at).toLocaleDateString()}</p>
+                                    <p><strong>Available:</strong> {course.available ? "Yes" : "No"}</p>
+                                    <p><strong>Students:</strong> {course.students?.length ? course.students.join(", ") : "None"}</p>
                                     {course.available && (
-                                        <button
-                                            onClick={() => deleteCourse(course._id)}
-                                            className="details-button py-2"
-                                        >
+                                        <button onClick={() => deleteCourse(course._id)} className="details-button py-2">
                                             Mark as Unavailable
                                         </button>
                                     )}
@@ -241,56 +198,21 @@ const CoursePage = () => {
                 <div className="course-page-container flex">
                     <AdminSidebar />
                     <div className="course-content-container flex-grow p-6">
-                        <h1
-                            className="title"
-                            style={{
-                                marginTop: "1rem",
-                                marginBottom: "1rem",
-                                fontSize: "2rem",
-                                fontWeight: "bold",
-                            }}
-                        >
-                            Admin - All Courses
-                        </h1>
+                        <h1 className="title" style={{ marginTop: "1rem", marginBottom: "1rem", fontSize: "2rem", fontWeight: "bold" }}>Admin - All Courses</h1>
                         <div className="header-container"></div>
                         <div className="course-cards-container">
                             {Courses.map((course) => (
-                                <div
-                                    key={course._id}
-                                    className={`course-card ${!course.available ? "unavailable" : ""}`}
-                                    style={{ opacity: course.available ? 1 : 0.5 }}
-                                >
+                                <div key={course._id} className={`course-card ${!course.available ? "unavailable" : ""}`} style={{ opacity: course.available ? 1 : 0.5 }}>
                                     <h3>{course.title}</h3>
-                                    <p>
-                                        <strong>Description:</strong> {course.description}
-                                    </p>
-                                    <p>
-                                        <strong>Category:</strong> {course.category}
-                                    </p>
-                                    <p>
-                                        <strong>Difficulty Level:</strong> {course.difficulty_level}
-                                    </p>
-                                    <p>
-                                        <strong>Created By:</strong> {course.created_by}
-                                    </p>
-                                    <p>
-                                        <strong>Created At:</strong>{" "}
-                                        {new Date(course.created_at).toLocaleDateString()}
-                                    </p>
-                                    <p>
-                                        <strong>Available:</strong> {course.available ? "Yes" : "No"}
-                                    </p>
-                                    <p>
-                                        <strong>Students:</strong>{" "}
-                                        {course.students?.length
-                                            ? course.students.join(", ")
-                                            : "None"}
-                                    </p>
+                                    <p><strong>Description:</strong> {course.description}</p>
+                                    <p><strong>Category:</strong> {course.category}</p>
+                                    <p><strong>Difficulty Level:</strong> {course.difficulty_level}</p>
+                                    <p><strong>Created By:</strong> {course.created_by}</p>
+                                    <p><strong>Created At:</strong> {new Date(course.created_at).toLocaleDateString()}</p>
+                                    <p><strong>Available:</strong> {course.available ? "Yes" : "No"}</p>
+                                    <p><strong>Students:</strong> {course.students?.length ? course.students.join(", ") : "None"}</p>
                                     {course.available && (
-                                        <button
-                                            onClick={() => deleteCourse(course._id)}
-                                            className="details-button py-2"
-                                        >
+                                        <button onClick={() => deleteCourse(course._id)} className="details-button py-2">
                                             Mark as Unavailable
                                         </button>
                                     )}

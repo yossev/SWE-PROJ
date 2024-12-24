@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { getCookie } from 'cookies-next';
 
 export default function RateInstructorPage() {
+  axios.defaults.withCredentials = true;
   const router = useRouter();
   const [instructorEmail, setInstructorEmail] = useState<string>(''); 
   const [selectedInstructors, setSelectedInstructors] = useState<any>({});
@@ -22,30 +23,10 @@ export default function RateInstructorPage() {
   useEffect(() => {
     const fetchUserSpecificCourses = async () => {
       try {
-        const response = await axios.get(`http://localhost:3001/users/fetch/${userId}`); 
-        const user = response.data;
-        const enrolledCourseIds = user.courses;
-
-        if (!enrolledCourseIds || enrolledCourseIds.length === 0) {
-          console.log('No courses found for this user');
-          return;
-        }
-
-        const courseResponses = await Promise.all(
-          enrolledCourseIds.map((courseId: any) =>
-            axios.get(`http://localhost:3001/courses/${courseId}`)
-          )
-        );
-
-        const coursesWithInstructors = await Promise.all(courseResponses.map(async (response) => {
-          const course = response.data;
-          // Fetch the instructor info based on the created_by field (assuming this is the instructor's ID)
-          const instructorResponse = await axios.get(`http://localhost:3001/users/fetch/${course.created_by}`);
-          const instructorEmail = instructorResponse.data.email; // Or any other instructor info
-          return { ...course, instructorEmail };
-        }));
-
-        setCourses(coursesWithInstructors);
+        const response = await axios.get(`http://localhost:3001/users/getemails`); 
+        console.log("Response is: " + JSON.stringify(response.data));
+        setInstructors(response.data);
+        setLoading(false);
       } catch (error) {
         console.error('Error fetching user-specific courses:', error);
         setError('Failed to load courses.');
@@ -53,7 +34,7 @@ export default function RateInstructorPage() {
     };
 
     fetchUserSpecificCourses();
-  }, [userId]);
+  }, [userId , loading]);
 
   const handleInstructorChange = (courseId: string, instructorEmail: string) => {
     setSelectedInstructors((prev: any) => ({
@@ -72,10 +53,12 @@ export default function RateInstructorPage() {
       return;
     }
 
+    console.log("Instructor email is: " + instructorEmail);
+    const instructor =instructors.find(instructor => instructor.email === instructorEmail);
     try {
-      const response = await axios.post('http://localhost:3001/ratings', {
+      const response = await axios.post('http://localhost:3001/ratings/', {
         ratedEntity, 
-        ratedEntityId: instructorEmail,  // Use the selected instructor's email
+        ratedEntityId: instructor._id,  // Use the selected instructor's email
         user_id: userId, 
         rating,
       }, { withCredentials: true });

@@ -51,14 +51,27 @@ export class UserController {
         return user;
     }
 
+    @Roles(Role.Instructor, Role.Admin, Role.Student)
+    @UseGuards(authorizationGuard)
+    @Get('getemails')
+    async getEmails(@Req() req): Promise<any>
+    {
+      const userId = req.cookies.userId;
+      console.log("Id passed to get emails is: " + userId);
+      const emails = await this.userService.getInstructorsEmails(userId);
+      return emails;
+    }
+
     @Roles(Role.Instructor)
     @UseGuards(authorizationGuard)
     @Get('Studentfetch/:name') // /student/:id
     async getStudentsByName(@Param('name') name: string): Promise<User[]> {
       // Find all users with the same name
       const users = await this.userService.findByName(name);
-    
-      if (!users || users.length === 0) {
+      if (!users) {
+        throw new BadRequestException('User not found');
+      }
+      if ( users.length === 0) {
         throw new BadRequestException('No students found with the provided name');
       }
     

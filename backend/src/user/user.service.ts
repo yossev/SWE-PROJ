@@ -47,6 +47,7 @@ export class UserService {
       
       async findByName(name: string): Promise<User[]> {
         // Searching for users by name (case-insensitive)
+        
         return await this.userModel.find({ name: { $regex: new RegExp(name, 'i') } });
       }
       
@@ -136,6 +137,26 @@ export class UserService {
     async getStudentCourses(userId: string): Promise<any> {
       const user = await this.userModel.findById(userId);
       return user.courses;
+    }
+
+    async getInstructorsEmails(userId: string): Promise<any> {
+      const user = await this.userModel.findById(userId);
+      let courses = await this.courseModel.find();
+      courses = courses.filter(course => user.courses.includes(course._id));
+      console.log("user courses are: " + JSON.stringify(courses));
+
+      let instructorIds = courses.map(course => course.created_by);
+      let instructorIdsString = instructorIds.map(instructorId => instructorId.toString());
+      console.log("instructor ids are: " + JSON.stringify(instructorIds));
+      let instructors = await this.userModel.find();
+      instructors = instructors.filter(instructor => instructor.role === 'instructor');
+      let instructorIdsandEmails = instructors.map(instructor => ({ _id: instructor._id.toString(), email: instructor.email }));
+      console.log("instructor ids and emails are: " + JSON.stringify(instructorIdsandEmails));
+
+      instructorIdsandEmails = instructorIdsandEmails.filter(instructor => instructorIdsString.includes(instructor._id));
+      console.log("filtered instructors are: " + JSON.stringify(instructorIdsandEmails));
+      return instructorIdsandEmails;
+
     }
 }
 
