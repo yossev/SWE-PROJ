@@ -42,7 +42,7 @@ export default function ContentEffectivenessPage() {
 
     const fetchContentEffectiveness = async () => {
       try {
-        const url = `http://localhost:3001/progress/content-effectiveness/${courseId}/${userId}`;
+        const url = `http://localhost:3001/progress/content-effectiveness/${courseId}`;
         const response = await axios.get(url,{withCredentials: true});
         setContentData(response.data);
         setLoading(false);
@@ -93,7 +93,7 @@ export default function ContentEffectivenessPage() {
 
   const handleExportPDF = async () => {
     try {
-      const response = await axios.get(`http://localhost:3001/progress/export-content-effectivenes/pdf/${courseId}/${userId}`, {
+      const response = await axios.get(`http://localhost:3001/progress/export-content-effectivenes/pdf/${courseId}`, {
         responseType: 'blob', 
       });
       const blob = new Blob([response.data], { type: 'application/pdf' });

@@ -1,17 +1,14 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import axios from 'axios';
-import { useRouter } from 'next/navigation'; // Import useRouter to handle navigation
-import { getCookie } from 'cookies-next';
-import Link from 'next/link';
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { getCookie } from "cookies-next";
 import "./app.css";
-import { toast, ToastContainer } from 'react-toastify'; // Import toastify
-import StudentSidebar from 'components/StudentSidebar';
-import InstructorDashboard from 'app/auth/dashboardI/[instructorId]/page';
-import InstructorSidebar from 'components/InstructorSidebar';
-import CreateCourse from 'components/CreateCourse';
-import { set } from 'mongoose';
+import { toast, ToastContainer } from "react-toastify";
+import StudentSidebar from "components/StudentSidebar";
+import InstructorSidebar from "components/InstructorSidebar";
+import CreateCourse from "components/CreateCourse";
+import AdminSidebar from "components/AdminSideBar";
 
 const CoursePage = () => {
     axios.defaults.withCredentials = true;
@@ -21,68 +18,74 @@ const CoursePage = () => {
         title: string;
         description: string;
         category: string;
-        difficulty_level: 'Beginner' | 'Intermediate' | 'Advanced';
+        difficulty_level: "Beginner" | "Intermediate" | "Advanced";
         created_by: string;
         created_at: Date;
+        available: boolean; // Track availability for soft delete
+        versions?: any[]; // Versions array
+        students?: any[]; // Students array
     }
 
-    const [Courses, setCourses] = useState<Course[]>([]); 
-    const [userCourses, setUserCourses] = useState<string[]>([]); 
+    const [Courses, setCourses] = useState<Course[]>([]);
     const [isStudent, setIsStudent] = useState(false);
-    const [refresh , setRefresh] = useState(true);
+    const [isInstructor, setIsInstructor] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [refresh, setRefresh] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const userId = getCookie('userId');
+    const userId = getCookie("userId");
     const role = getCookie("role");
-    interface CookieData {
-        userId?: string;
-        Token?: string;
-    }
 
-    
-
-    const router = useRouter(); // Initialize useRouter for navigation
-
-    // Consolidated useEffect to handle cookies, user role, and course fetching
     useEffect(() => {
-
-        if (role === 'student') {
+        if (role === "student") {
             setIsStudent(true);
+        } else if (role === "instructor") {
+            setIsInstructor(true);
+        } else if (role === "admin") {
+            setIsAdmin(true);
         } else {
-            setError('You are not authorized to view this page.');
+            setError("You are not authorized to view this page.");
         }
 
-        // Fetch user-specific courses if user is logged in
         const fetchUserSpecificCourses = async () => {
             try {
-                const response = await axios.get(`http://localhost:3001/users/fetch/${userId}`, { withCredentials: true });
-
-
-                if(role === "student")
-                {
-                    let courses = await axios.get(`http://localhost:3001/courses/getAll`, { withCredentials: true });
-                    console.log("All courses are: " + JSON.stringify(courses.data));
+                if (role === "student") {
+                    const response = await axios.get(
+                        `http://localhost:3001/users/fetch/${userId}`,
+                        { withCredentials: true }
+                    );
                     const studentData = await response.data.courses;
-                    console.log("Student data is: " + JSON.stringify(studentData));
-                    courses.data = courses.data.filter((course: any) => studentData.includes(course._id) );
-
-                    console.log("Filtered courses are: " + JSON.stringify(courses.data));
-                    setCourses(courses.data);
+                    const courses = await axios.get(
+                        `http://localhost:3001/courses/getAll`,
+                        { withCredentials: true }
+                    );
+                    const filteredCourses = courses.data.filter(
+                        (course: any) =>
+                            studentData.includes(course._id) && course.available !== false
+                    );
+                    setCourses(filteredCourses);
                 }
 
-
-                if(role === "instructor")
-                {
-                    let courses = await axios.get(`http://localhost:3001/courses/getAll`, { withCredentials: true });
-                    console.log("All courses are: " + JSON.stringify(courses.data));
-
-                    courses.data = courses.data.filter((course: any) => course.created_by === userId);
-
-                    console.log("Filtered courses are: " + JSON.stringify(courses.data));
-                    setCourses(courses.data);
+                if (role === "instructor") {
+                    const courses = await axios.get(
+                        `http://localhost:3001/courses/getAll`,
+                        { withCredentials: true }
+                    );
+                    const filteredCourses = courses.data.filter(
+                        (course: any) =>
+                            course.created_by === userId && course.available !== false
+                    );
+                    setCourses(filteredCourses);
                 }
 
+                if (role === "admin") {
+                    const courses = await axios.get(
+                        `http://localhost:3001/courses/getAll`,
+                        { withCredentials: true }
+                    );
+                    setCourses(courses.data);
+                }
             } catch (error) {
-                console.error('Error fetching user-specific courses:', error);
+                console.error("Error fetching user-specific courses:", error);
             }
         };
 
@@ -90,90 +93,206 @@ const CoursePage = () => {
             fetchUserSpecificCourses();
             setRefresh(false);
         }
-
-    }, [userId , refresh]);
-
-    // Redirect to the course details page
-    const navigateToCourseDetails = (courseId: string) => {
-        router.push(`/courses/${courseId}`);
-    };
+    }, [userId, refresh, role]);
 
     const deleteCourse = async (courseId: string) => {
         try {
-            const response = await axios.delete(`http://localhost:3001/courses/${courseId}`, { withCredentials: true });
-            console.log("Deleted course: " + response.data);
-            toast.success("Course deleted successfully!");
+            const response = await axios.delete(
+                `http://localhost:3001/courses/${courseId}`,
+                { withCredentials: true }
+            );
+            toast.success("Course marked as unavailable successfully!");
+
+            // Update the course availability in the frontend
+            setCourses((prevCourses) =>
+                prevCourses.map((course) =>
+                    course._id === courseId ? { ...course, available: false } : course
+                )
+            );
         } catch (error) {
-            console.error("Error deleting course:", error);
+            console.error("Error marking course as unavailable:", error);
+            toast.error("Failed to mark the course as unavailable.");
         }
     };
 
     return (
         <>
-        {role === "student" ? 
-        <>
+            {role === "student" ? (
                 <div className="course-page-container flex">
-            {/* Sidebar */}
-            <StudentSidebar />
-
-            <div className="course-content-container flex-grow p-6">
-                <h1 className="title" style={{ marginTop: "1rem", marginBottom: "1rem", fontSize: "2rem", fontWeight: "bold" }}>Courses</h1>
-                <div className="header-container"></div>
-
-                <div className="course-cards-container">
-                    {Courses.map(course => (
-                        <div key={course._id} className="course-card">
-                            <h3>{course.title}</h3>
-                            <p>{course.category}</p>
-                            <p>{course.difficulty_level}</p>
-                            <p>{new Date(course.created_at).toLocaleDateString()}</p>
-                            {/* "Details" button */}
-                            <button onClick={() => navigateToCourseDetails(course._id)} className="details-button">
-                                View Details
-                            </button>
+                    <StudentSidebar />
+                    <div className="course-content-container flex-grow p-6">
+                        <h1
+                            className="title"
+                            style={{
+                                marginTop: "1rem",
+                                marginBottom: "1rem",
+                                fontSize: "2rem",
+                                fontWeight: "bold",
+                            }}
+                        >
+                            Courses
+                        </h1>
+                        <div className="header-container"></div>
+                        <div className="course-cards-container">
+                            {Courses.map((course) => (
+                                <div
+                                    key={course._id}
+                                    className={`course-card ${!course.available ? "unavailable" : ""}`}
+                                    style={{ opacity: course.available ? 1 : 0.5 }}
+                                >
+                                    <h3>{course.title}</h3>
+                                    <p>
+                                        <strong>Description:</strong> {course.description}
+                                    </p>
+                                    <p>
+                                        <strong>Category:</strong> {course.category}
+                                    </p>
+                                    <p>
+                                        <strong>Difficulty Level:</strong> {course.difficulty_level}
+                                    </p>
+                                    <p>
+                                        <strong>Created By:</strong> {course.created_by}
+                                    </p>
+                                    <p>
+                                        <strong>Created At:</strong>{" "}
+                                        {new Date(course.created_at).toLocaleDateString()}
+                                    </p>
+                                    <p>
+                                        <strong>Available:</strong> {course.available ? "Yes" : "No"}
+                                    </p>
+                                </div>
+                            ))}
                         </div>
-                    ))}
+                        <ToastContainer />
+                    </div>
                 </div>
-                <ToastContainer />
-            </div>
-        </div>
-        </> 
-        : 
-        <>
-        {role === "instructor" ? 
-        <>
-        <div className="course-page-container flex">
-        <InstructorSidebar />
-        <div className="course-content-container flex-grow p-6">
-                <h1 className="title" style={{ marginTop: "1rem", marginBottom: "1rem", fontSize: "2rem", fontWeight: "bold" }}>Courses</h1>
-                <div className="header-container"></div>
-
-                <div className="course-cards-container">
-                    {Courses.map(course => (
-                        <div key={course._id} className="course-card">
-                            <h3>{course.title}</h3>
-                            <p>{course.category}</p>
-                            <p>{course.difficulty_level}</p>
-                            <p>{new Date(course.created_at).toLocaleDateString()}</p>
-                            {/* "Details" button */}
-                            <button onClick={() => navigateToCourseDetails(course._id)} className="details-button py-2">
-                                View Course
-                            </button>
-                            <button onClick={() => deleteCourse(course._id)} className="bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded">
-                                Delete Course
-                            </button>
+            ) : role === "instructor" ? (
+                <div className="course-page-container flex">
+                    <InstructorSidebar />
+                    <div className="course-content-container flex-grow p-6">
+                        <h1
+                            className="title"
+                            style={{
+                                marginTop: "1rem",
+                                marginBottom: "1rem",
+                                fontSize: "2rem",
+                                fontWeight: "bold",
+                            }}
+                        >
+                            Courses
+                        </h1>
+                        <div className="header-container"></div>
+                        <div className="course-cards-container">
+                            {Courses.map((course) => (
+                                <div
+                                    key={course._id}
+                                    className={`course-card ${!course.available ? "unavailable" : ""}`}
+                                    style={{ opacity: course.available ? 1 : 0.5 }}
+                                >
+                                    <h3>{course.title}</h3>
+                                    <p>
+                                        <strong>Description:</strong> {course.description}
+                                    </p>
+                                    <p>
+                                        <strong>Category:</strong> {course.category}
+                                    </p>
+                                    <p>
+                                        <strong>Difficulty Level:</strong> {course.difficulty_level}
+                                    </p>
+                                    <p>
+                                        <strong>Created At:</strong>{" "}
+                                        {new Date(course.created_at).toLocaleDateString()}
+                                    </p>
+                                    <p>
+                                        <strong>Available:</strong> {course.available ? "Yes" : "No"}
+                                    </p>
+                                    <p>
+                                        <strong>Students:</strong>{" "}
+                                        {course.students?.length
+                                            ? course.students.join(", ")
+                                            : "None"}
+                                    </p>
+                                    {course.available && (
+                                        <button
+                                            onClick={() => deleteCourse(course._id)}
+                                            className="details-button py-2"
+                                        >
+                                            Mark as Unavailable
+                                        </button>
+                                    )}
+                                </div>
+                            ))}
                         </div>
-                    ))}
+                        <CreateCourse userId={userId} setRefresh={setRefresh} />
+                        <ToastContainer />
+                    </div>
                 </div>
-                <CreateCourse userId={userId} setRefresh={setRefresh} />
-                <ToastContainer />
-            </div>
-        </div>
-        </> 
-        : 
-        <></>}
-        </>
-        }
+            ) : role === "admin" ? (
+                <div className="course-page-container flex">
+                    <AdminSidebar />
+                    <div className="course-content-container flex-grow p-6">
+                        <h1
+                            className="title"
+                            style={{
+                                marginTop: "1rem",
+                                marginBottom: "1rem",
+                                fontSize: "2rem",
+                                fontWeight: "bold",
+                            }}
+                        >
+                            Admin - All Courses
+                        </h1>
+                        <div className="header-container"></div>
+                        <div className="course-cards-container">
+                            {Courses.map((course) => (
+                                <div
+                                    key={course._id}
+                                    className={`course-card ${!course.available ? "unavailable" : ""}`}
+                                    style={{ opacity: course.available ? 1 : 0.5 }}
+                                >
+                                    <h3>{course.title}</h3>
+                                    <p>
+                                        <strong>Description:</strong> {course.description}
+                                    </p>
+                                    <p>
+                                        <strong>Category:</strong> {course.category}
+                                    </p>
+                                    <p>
+                                        <strong>Difficulty Level:</strong> {course.difficulty_level}
+                                    </p>
+                                    <p>
+                                        <strong>Created By:</strong> {course.created_by}
+                                    </p>
+                                    <p>
+                                        <strong>Created At:</strong>{" "}
+                                        {new Date(course.created_at).toLocaleDateString()}
+                                    </p>
+                                    <p>
+                                        <strong>Available:</strong> {course.available ? "Yes" : "No"}
+                                    </p>
+                                    <p>
+                                        <strong>Students:</strong>{" "}
+                                        {course.students?.length
+                                            ? course.students.join(", ")
+                                            : "None"}
+                                    </p>
+                                    {course.available && (
+                                        <button
+                                            onClick={() => deleteCourse(course._id)}
+                                            className="details-button py-2"
+                                        >
+                                            Mark as Unavailable
+                                        </button>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                        <ToastContainer />
+                    </div>
+                </div>
+            ) : (
+                <></>
+            )}
         </>
     );
 };

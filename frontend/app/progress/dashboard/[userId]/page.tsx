@@ -28,7 +28,7 @@ interface Dashboard {
 export default function DashboardPage() {
 const path = usePathname().split('/');
 
-  const getInstructorData = async () => {
+  const getStudentData = async () => {
     const student = path[path.length - 1];
     const res = await fetch('http://localhost:3001/users/fetch/' + student, { credentials: 'include' });
     return res.json();

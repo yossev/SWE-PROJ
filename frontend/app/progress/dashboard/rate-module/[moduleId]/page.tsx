@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import { get } from 'http';
+import { getCookie } from 'cookies-next';
 
 
 export default function RateModulePage() {
@@ -11,7 +13,7 @@ export default function RateModulePage() {
   const [rating, setRating] = useState<number>(0); // Store rating value
   const [error, setError] = useState<string | null>(null); // Store error message
   const [ratedEntity] = useState<'Module'>('Module'); // Rated entity is always "Module"
-
+const userId= getCookie("userId");
   // Handle module ID input change
   const handleModuleIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setModuleId(e.target.value);
@@ -25,7 +27,7 @@ export default function RateModulePage() {
     }
 
     try {
-      const userId = '67686e00d80675bf621fdd21';  
+ 
       const response = await axios.post('http://localhost:3001/ratings', {
         ratedEntity, // "Module" is the only entity being rated
         ratedEntityId: moduleId, // The Module ID is directly used here
