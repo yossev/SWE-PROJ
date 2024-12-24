@@ -208,7 +208,8 @@ async updateUserProfile(@Req() req, @Body() updateData: updateUserDto) {
 @Get('failed-logins')
 async getFailedLogins(): Promise<any[]> {
   try {
-    const data = readFileSync('C:\\Users\\Euromedia\\OneDrive\\Documents\\SWE-PROJ\\backend\\failed-logins.log', 'utf-8');
+    console.log("Fetching failed login attemps...");
+    const data = readFileSync('failed-logins.log', 'utf-8');
 
     // Split the log file into individual lines and parse JSON
     const logs = data

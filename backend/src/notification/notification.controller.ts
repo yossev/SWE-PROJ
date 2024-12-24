@@ -14,6 +14,8 @@ import { CreateNotificationDto } from './dto/createNotification.dto';
 export class NotificationsController {
   constructor(private notificationService: NotificationService) {}
 
+  @Roles(Role.Admin)
+  @UseGuards(authorizationGuard)
   @Post('create-for-all')
   async createNotificationForAll(
     @Body() body: { message: string}
