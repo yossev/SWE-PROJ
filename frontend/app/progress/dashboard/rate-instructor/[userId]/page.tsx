@@ -34,7 +34,6 @@ const path = usePathname().split('/');
     }
 
     try {
-      const userId = '67686e00d80675bf621fdd21';  //needs to change after merging hardcoded userid
       const response = await axios.post('http://localhost:3001/ratings', {
         ratedEntity, 
         ratedEntityId: instructorId, 

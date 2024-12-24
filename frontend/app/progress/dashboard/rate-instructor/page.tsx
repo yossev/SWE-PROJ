@@ -18,9 +18,11 @@ export default function RateInstructorPage() {
       const res = await fetch('http://localhost:3001/users/fetch/' + student, { credentials: 'include' });
       return res.json();
     };
+    const userId = getCookie("userId"); 
     useEffect(() => {
       console.log('All cookies are ' + JSON.stringify(getCookies()));
       const role = getCookie('role');
+
       console.log("Role: ", role);
       if (role === 'student') {
         setIsStudent(true);
@@ -46,8 +48,7 @@ export default function RateInstructorPage() {
 
   // Submit rating for the instructor
   const handleRateInstructor = async () => {
-    try {
-      const userId = 'exampleUserId'; // Replace with actual user ID
+    try { // Replace with actual user ID
       await axios.post('http://localhost:3001/ratings', {
         ratedEntityType: 'Instructor',
         ratedEntityId: instructor._id, // Instructor's ID

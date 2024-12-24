@@ -43,7 +43,7 @@ const role= getCookie("role");
       }
     const fetchContentEffectivenessData = async () => {
       try {
-        const response = await axios.get(`http://localhost:3001/progress/content-effectiveness/${courseId}/${userId}`,{withCredentials: true});
+        const response = await axios.get(`http://localhost:3001/progress/content-effectiveness/${courseId}`,{withCredentials: true});
         if (response.data) {
           setContentEffectivenessData(response.data);
         } else {
@@ -74,7 +74,7 @@ const role= getCookie("role");
   const handleExportPDF = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`http://localhost:3001/progress/export-content-effectiveness-pdf/${courseId}/${userId}`, {
+      const response = await axios.get(`http://localhost:3001/progress/export-content-effectiveness-pdf/${courseId}`, {
         responseType: 'blob', // Expecting PDF in response
       });
       const blob = new Blob([response.data], { type: 'application/pdf' });

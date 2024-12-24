@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Get, Post, Put, Delete, Body, Param, Res, NotFoundException, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Res, NotFoundException, Req, UseGuards, UnauthorizedException } from '@nestjs/common';
 import { ProgressService } from './progress.service';
 import { Progress } from '../models/progress-schema';
 import { CreateProgressDTO } from './dto/createProgress.dto';
@@ -79,13 +79,24 @@ export class ProgressController {
     return await this.progressService.getEnrolledCourses(userId);
   }
 
-  // Get dashboard
-  @UseGuards(AuthGuard)
-  @Get('dashboard')
-  async getDashboard(@Req() req) {
-    const userid=req.cookies.userId;
-    return await this.progressService.getDashboard(userid);
+  @Get('dashboard/:userId')
+  async getDashboard(@Param('userId') userId: string, @Req() req) {
+    const userIdFromCookie = req.cookies.userId; // Accessing the userId from cookies
+    console.log('User ID from cookies:', userIdFromCookie);  // Debugging to see if the cookie is present
+  
+    if (!userIdFromCookie) {
+      throw new UnauthorizedException('Unauthorized access: User is not logged in.');
+    }
+  
+    // Make sure the userId matches the one in the cookie (optional security step)
+    if (userIdFromCookie !== userId) {
+      throw new UnauthorizedException('Unauthorized access: User IDs do not match.');
+    }
+  
+    // Continue to fetch the dashboard data
+    return await this.progressService.getDashboard(userId);
   }
+  
   
   //getInstructorAnalyticsAssessmentResults
   @Roles(Role.Instructor)

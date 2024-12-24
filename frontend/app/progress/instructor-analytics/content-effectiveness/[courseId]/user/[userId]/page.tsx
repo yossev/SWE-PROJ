@@ -42,7 +42,7 @@ export default function ContentEffectivenessPage() {
 
     const fetchContentEffectiveness = async () => {
       try {
-        const url = `http://localhost:3001/progress/content-effectiveness/${courseId}/${userId}`;
+        const url = `http://localhost:3001/progress/content-effectiveness/${courseId}`;
         const response = await axios.get(url,{withCredentials: true});
         setContentData(response.data);
         setLoading(false);
