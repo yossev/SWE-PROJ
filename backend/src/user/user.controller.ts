@@ -54,38 +54,46 @@ export class UserController {
     @Roles(Role.Instructor)
     @UseGuards(authorizationGuard)
     @Get('Studentfetch/:name') // /student/:id
-    async getStudentByName(@Param('name') name: string): Promise<User> {
-      const user = await this.userService.findByName(name);
-      if (user.role === 'student') {
-        return user;
-      }else{
-        throw new NotFoundException('User is not a student');
+    async getStudentsByName(@Param('name') name: string): Promise<User[]> {
+      // Find all users with the same name
+      const users = await this.userService.findByName(name);
+    
+      if (!users || users.length === 0) {
+        throw new BadRequestException('No students found with the provided name');
       }
     
-      if (!user) {
-        throw new NotFoundException('Instructor not found');
+      // Filter only students (if needed, if findByName could return all types of users)
+      const students = users.filter(user => user.role === 'student');
+    
+      if (students.length === 0) {
+        throw new NotFoundException('No students found with the provided name');
       }
     
-      return user;
-    
+      return students;
     }
     @Roles(Role.Student)
     @UseGuards(authorizationGuard)
     @Get('Instructorfetch/:name') // /student/:id
-    async getInstructorByName(@Param('name') name: string): Promise<User> {
-      const user = await this.userService.findByName(name);
-      if (user.role === 'instructor') {
-        return user;
-      }else{
-        throw new NotFoundException('User is not an instructor');
+    async getInstructorsByName(@Param('name') name: string): Promise<User[]> {
+      // Fetch all users with the same name
+      const users = await this.userService.findByName(name);
+  
+      // If no users are found with the name
+      if (!users || users.length === 0) {
+        throw new BadRequestException('No users found with the provided name');
       }
-    
-      if (!user) {
-        throw new NotFoundException('Instructor not found');
+  
+      // Filter the users to return only instructors
+      const instructors = users.filter((user) => user.role === 'instructor');
+  
+      // If no instructors are found
+      if (instructors.length === 0) {
+        throw new NotFoundException('No instructors found with the provided name');
       }
-    
-      return user;
+  
+      return instructors;
     }
+  
 
     @Get('fetchme')
     async getUserByReq(@Req() req): Promise<User> {
@@ -111,19 +119,45 @@ export class UserController {
     @UseGuards(authorizationGuard)
     @Put('me')
     @UseGuards(AuthGuard)
-    async updateUserProfile(@Req() req, @Body() updateData: updateUserDto) {
-   
-      const userId = req.cookies.userId;
-      const updatedUser = await this.userService.update(userId, updateData);
-      console.log('Updated user data:', updatedUser);
-    
-        return updatedUser;
-      } catch (error) {
-        console.error('Token verification failed:', error);
-        throw new UnauthorizedException('Invalid token');
-      }
-    
-   
+    // Update a user's profile
+async updateUserProfile(@Req() req, @Body() updateData: updateUserDto) {
+  const userId = req.cookies.userId; // Extract the user ID from cookies
+  
+  // Check if email is being updated
+  if (updateData.email) {
+    // Check if the email is already taken by another user, excluding the current user
+    const existingUser = await this.userService.findByEmail(updateData.email);
+    if (existingUser && existingUser._id.toString() !== userId) {
+      // If another user already has this email, throw an error
+      throw new BadRequestException('Email is already taken by another user.');
+    }
+  }
+
+  // Fetch the current user data to preserve unchanged fields
+  const currentUser = await this.userService.findById(userId);
+  
+  if (!currentUser) {
+    throw new NotFoundException('User not found');
+  }
+
+  // If no new name is provided, keep the current name
+  if (!updateData.name) {
+    updateData.name = currentUser.name; // Preserve the current name if not provided in the request
+  }
+
+  try {
+    // Update the user's profile with the new data (name and/or email)
+    const updatedUser = await this.userService.update(userId, updateData);
+    console.log('Updated user data:', updatedUser);
+
+    // Return the updated user data
+    return updatedUser;
+  } catch (error) {
+    console.error('Error while updating user profile:', error);
+    throw new UnauthorizedException('Failed to update profile due to an error.');
+  }
+}
+
 
     // Delete a student by ID
     @Delete('delete/:id')

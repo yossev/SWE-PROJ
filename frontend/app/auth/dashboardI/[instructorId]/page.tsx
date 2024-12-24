@@ -26,6 +26,10 @@ export default function InstructorDashboard() {
   const [searchResult, setSearchResult] = useState<User | null>(null);
   const [updateForm, setUpdateForm] = useState({ name: '', email: '' });
   const [updateMessage, setUpdateMessage] = useState('');
+  const [searchError, setSearchError] = useState('');
+  const [updateError, setUpdateError] = useState('');
+  
+
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -48,12 +52,12 @@ export default function InstructorDashboard() {
 
   const searchByEmail = async () => {
     if (!searchTerm) {
-      setError('Please enter an email to search.');
+      setSearchError('Please enter an email to search.');
       return;
     }
   
     setLoading(true);
-    setError('');
+    setSearchError(''); // Clear previous search errors
     setSearchResult(null);
   
     try {
@@ -68,24 +72,26 @@ export default function InstructorDashboard() {
       setSearchResult(userData);
     } catch (err: any) {
       if (err.response && err.response.data) {
-        setError(err.response.data.message || 'An error occurred');
+        setSearchError(err.response.data.message || 'An error occurred');
       } else {
-        setError(err.message || 'An error occurred');
+        setSearchError(err.message || 'An error occurred');
       }
     } finally {
       setLoading(false);
     }
   };
+  
 
   const handleUpdateSubmit = async () => {
     if (!updateForm.name && !updateForm.email) {
-      setError('Please provide at least one field to update.');
+      setUpdateError('Please provide at least one field to update.');
       return;
     }
-
+  
     setLoading(true);
     setUpdateMessage('');
-
+    setUpdateError(''); // Clear previous update errors
+  
     try {
       const res = await axios.put(
         'http://localhost:3001/users/me',
@@ -99,11 +105,17 @@ export default function InstructorDashboard() {
         throw new Error('Failed to update profile');
       }
     } catch (err: any) {
-      setError(err.message || 'An error occurred while updating.');
+      if (err.response && err.response.data) {
+        // Display the custom error message from the backend
+        setUpdateError(err.response.data.message || 'An error occurred while updating.');
+      } else {
+        setUpdateError(err.message || 'An error occurred');
+      }
     } finally {
       setLoading(false);
     }
   };
+  
 
   const searchByName = async () => {
     if (!searchTerm) {
@@ -260,65 +272,83 @@ export default function InstructorDashboard() {
 
           {/* Search Section */}
           <section className="mb-10">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Search for a Student</h2>
-            <div className="flex space-x-4">
-              <input
-                type="text"
-                className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-indigo-300 transition-all duration-300"
-                placeholder="Enter student name or email"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <button
-                className="px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition-all duration-300 transform hover:scale-105"
-                onClick={searchByName}
-              >
-                Search by Name
-              </button>
-              <button
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition-all duration-300 transform hover:scale-105"
-                onClick={searchByEmail}
-              >
-                {loading ? 'Searching...' : 'Search by Email'}
-              </button>
-            </div>
-            {error && <p className="text-red-500 mt-4">{error}</p>}
-            {searchResult && (
-              <div className="mt-6 p-4 bg-gray-100 border rounded-lg">
-                <h3 className="text-lg font-semibold text-gray-800">Search Result:</h3>
-                <p className="text-gray-700">Name: {searchResult.name}</p>
-                <p className="text-gray-700">Email: {searchResult.email}</p>
-              </div>
-            )}
-          </section>
+  <h2 className="text-2xl font-semibold text-gray-800 mb-4">Search for a Student</h2>
+  <div className="flex space-x-4">
+    <input
+      type="text"
+      className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-indigo-300 transition-all duration-300"
+      placeholder="Enter student name or email"
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)}
+    />
+    <button
+      className="px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition-all duration-300 transform hover:scale-105"
+      onClick={searchByName}
+    >
+      Search by Name
+    </button>
+    <button
+      className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition-all duration-300 transform hover:scale-105"
+      onClick={searchByEmail}
+      disabled={loading}
+    >
+      {loading ? (
+        <span className="spinner-border spinner-border-sm"></span> // Add a spinner when loading
+      ) : (
+        'Search by Email'
+      )}
+    </button>
+  </div>
+  {searchError && <p className="text-red-500 mt-4">{searchError}</p>}
+  {searchResult && Array.isArray(searchResult) ? (
+    <div className="mt-6 p-4 bg-gray-100 border rounded-lg">
+      <h3 className="text-lg font-semibold text-gray-800">Search Results:</h3>
+      {searchResult.map((user, index) => (
+        <div key={index}>
+          <p className="text-gray-700">Name: {user.name}</p>
+          <p className="text-gray-700">Email: {user.email}</p>
+        </div>
+      ))}
+    </div>
+  ) : searchResult ? (
+    <div className="mt-6 p-4 bg-gray-100 border rounded-lg">
+      <h3 className="text-lg font-semibold text-gray-800">Search Result:</h3>
+      <p className="text-gray-700">Name: {searchResult.name}</p>
+      <p className="text-gray-700">Email: {searchResult.email}</p>
+    </div>
+  ) : null}
+</section>
 
-          {/* Update Section */}
-          <section className="mb-10">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Update Personal Information</h2>
-            <div className="flex space-x-4">
-              <input
-                type="text"
-                className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-indigo-300 transition-all duration-300"
-                placeholder="Enter new name"
-                value={updateForm.name}
-                onChange={(e) => setUpdateForm({ ...updateForm, name: e.target.value })}
-              />
-              <input
-                type="email"
-                className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-indigo-300 transition-all duration-300"
-                placeholder="Enter new email"
-                value={updateForm.email}
-                onChange={(e) => setUpdateForm({ ...updateForm, email: e.target.value })}
-              />
-              <button
-                className="px-4 py-2 bg-purple-600 text-white rounded-lg shadow hover:bg-purple-700 transition-all duration-300 transform hover:scale-105"
-                onClick={handleUpdateSubmit}
-              >
-                {loading ? 'Updating...' : 'Update Information'}
-              </button>
-            </div>
-            {updateMessage && <p className="text-green-600 mt-4">{updateMessage}</p>}
-          </section>
+{/* Update Section */}
+<section className="mb-10">
+  <h2 className="text-2xl font-semibold text-gray-800 mb-4">Update Personal Information</h2>
+  <div className="flex space-x-4">
+    <input
+      type="text"
+      className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-indigo-300 transition-all duration-300"
+      placeholder="Enter new name"
+      value={updateForm.name}
+      onChange={(e) => setUpdateForm({ ...updateForm, name: e.target.value })}
+    />
+    <input
+      type="email"
+      className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-indigo-300 transition-all duration-300"
+      placeholder="Enter new email"
+      value={updateForm.email}
+      onChange={(e) => setUpdateForm({ ...updateForm, email: e.target.value })}
+    />
+    <button
+      className="px-4 py-2 bg-purple-600 text-white rounded-lg shadow hover:bg-purple-700 transition-all duration-300 transform hover:scale-105"
+      onClick={handleUpdateSubmit}
+    >
+      {loading ? 'Updating...' : 'Update Information'}
+    </button>
+  </div>
+  {updateError && <p className="text-red-500 mt-4">{updateError}</p>}
+  {updateMessage && <p className="text-green-600 mt-4">{updateMessage}</p>}
+</section>
+
+
         </main>
       </div>
     </>
