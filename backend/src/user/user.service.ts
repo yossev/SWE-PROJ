@@ -45,9 +45,11 @@ export class UserService {
         return await this.userModel.find({role: { $in: ['student', 'instructor'] }}).exec();
       }
       
-      async findByName(name: string): Promise<User> {
-        return this.userModel.findOne({ name}).exec();
+      async findByName(name: string): Promise<User[]> {
+        // Searching for users by name (case-insensitive)
+        return await this.userModel.find({ name: { $regex: new RegExp(name, 'i') } });
       }
+      
       
       
       async findByEmail(email: string): Promise<UserDocument | null> {
