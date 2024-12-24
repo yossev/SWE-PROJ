@@ -50,9 +50,6 @@ export default function ForumPage() {
   const role = getCookie('role'); // Get role from cookies
 
    // Assuming the username is stored in the cookie
-
-
-    
     
       useEffect(() => {
         const fetchForumData = async () => {

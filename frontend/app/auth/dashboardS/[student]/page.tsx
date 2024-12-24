@@ -41,7 +41,7 @@ export default function StudentDashboard() {
 
   const fetchStudentData = async () => {
     try {
-      const res = await axios.get(`http://localhost:3001/users/fetch/${student}`, { withCredentials: true });
+      const res = await axios.get(`http://localhost:3001/users/fetch/${userId}`, { withCredentials: true });
       const data = res.data;
 
       if (data) {
@@ -57,19 +57,31 @@ export default function StudentDashboard() {
     }
   };
 
-  const fetchEnrolledCourses = async () => {
-    if (!userId) {
-      console.error('User ID is not available.');
-      return;
-    }
-
+  const fetchUserSpecificCourses = async () => {
     try {
-      const response = await axios.get(`http://localhost:3001/courses/enrolls/find`, { withCredentials: true });
-      setCourses(response.data);
+        const response = await axios.get(`http://localhost:3001/users/fetch/${userId}`); 
+        const user = response.data;
+        const enrolledCourseIds = user.courses;
+
+        if (!enrolledCourseIds || enrolledCourseIds.length === 0) {
+            console.log('No courses found for this user');
+            return;
+        }
+
+        const courseResponses = await Promise.all(
+            enrolledCourseIds.map((courseId: any) =>
+                axios.get(`http://localhost:3001/courses/${courseId}`)
+            )
+        );
+
+        const courses = courseResponses.map((response) => response.data);
+        setCourses(courses);
+        console.log(courses);
     } catch (error) {
-      console.error('Error fetching enrolled courses:', JSON.stringify(error));
+        console.error('Error fetching user-specific courses:', error);
     }
-  };
+};
+
 
   const updateUserInfo = async () => {
     setLoading(true);
@@ -96,7 +108,7 @@ export default function StudentDashboard() {
     }
 
     fetchStudentData();
-    fetchEnrolledCourses();
+    fetchUserSpecificCourses();
 
     if(notesRefresh)
     {
