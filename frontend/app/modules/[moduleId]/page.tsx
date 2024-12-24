@@ -12,6 +12,7 @@ import FileUpload from "components/FileUpload";
 import Navbar from "components/Navbar";
 import { set } from "mongoose";
 import CreateQuestion from "components/QuestionBank";
+import EditModule from "components/EditModule";
 
 type Dispatcher<S> = Dispatch<SetStateAction<S>>;
 
@@ -261,11 +262,12 @@ export default function Home()
                         <div className="h-screen dark:bg-gray-800">
         
                         <div className="py-6 px-3 lg:grid lg:grid-cols-2 lg:gap-8">
-        
                         {
                             
                             data ? <ModuleContent moduleId={moduleId} data={data.resources} role={role} setRefresh={setRefreshContent} /> : <p>No Data Found</p>
                         }
+
+                        <EditModule title={data.title} content={data.content} difficulty={data.difficulty} course_id={data.course_id} module_id={moduleId} setRefresh={setRefreshContent} />
                         </div>
                         </div>
                         </> }

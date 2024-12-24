@@ -80,7 +80,8 @@ export class CourseService {
   ): Promise<CourseDocument | null> {
     try {
       const course = await this.courseModel.findById(id).exec();
-  
+
+      console.log("UPDATEDDDDDDDDDDDDDDDDDDD");
       if (!course) {
         throw new Error(`Course with ID ${id} not found.`);
       }
@@ -107,11 +108,15 @@ export class CourseService {
 
   // Search for courses based on a search term
   async search(searchTerm: string): Promise<CourseDocument[]> {
+    searchTerm = searchTerm.toLowerCase();
     const allCourses = await this.courseModel.find().exec();
+    let instructors = await this.userModel.find().exec();
+    instructors = instructors.filter(instructor => instructor.role === 'instructor');
     const filteredCourses = allCourses.filter((course) => {
       const courseName = course.title.toLowerCase();
       const courseDescription = course.description.toLowerCase();
-      return courseName.includes(searchTerm) || courseDescription.includes(searchTerm);
+      const courseInstructor = instructors.find(instructor => instructor._id.toString() === course.created_by.toString());
+      return courseName.includes(searchTerm) || courseDescription.includes(searchTerm) || courseInstructor.name.toLowerCase().includes(searchTerm);
     });
     return filteredCourses;
   }

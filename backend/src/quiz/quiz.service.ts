@@ -289,6 +289,12 @@ const score = (correctAnswersCount / selectedQuestions.length) * 100;
 
   await responseDocument.save();
 
+  const quiz = await this.quizModel.findById(new mongoose.Types.ObjectId(quizId));
+  const module = await this.moduleModel.findById(quiz.module_id);
+  const course = await this.courseModel.findById(module.course_id);
+  const modules = await this.moduleModel.find({ course_id: course._id });
+  const moduleSize = modules.length;
+
   return { 
       score, 
       feedback: score >= 50 ? 'Good job!, you are ready for the next module!' : 'Needs improvement, please re-study the module again',

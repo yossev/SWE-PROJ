@@ -9,6 +9,7 @@ import CourseSidebar from 'components/CourseSidebar';
 import CreateModule from 'components/CreateModule';
 import { get } from 'http';
 import Navbar from 'components/Navbar';
+import EditCourse from 'components/EditCourse';
 
 type Forum = {
     _id: string;
@@ -248,6 +249,7 @@ export default function CourseDetailsPage() {
               ))}
             </div>
           </section>
+                <EditCourse course_id={courseId} title={course?.title} description={course?.description} category={course?.category} difficulty_level={course?.difficulty_level} userId={userId} setRefresh={setRefresh} />
                 <CreateModule courseId={courseId} setRefresh={setRefresh} />
             </div>
 
