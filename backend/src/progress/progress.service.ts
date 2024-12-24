@@ -85,11 +85,14 @@ export class ProgressService {
   }
   // Get the Enrolled Courses of the specific user
   async getEnrolledCourses(userId: string): Promise<Progress[]> {
-    return await this.progressModel.find({
+    console.log("Inside get enrolled courses , userId is : " + userId);
+    const courses = await this.progressModel.find({
       user_id: new mongoose.Types.ObjectId(userId),
       completion_percentage: { $gte: 1 }, // Filter for completion_percentage >= 1
     })
     .populate('course_id');
+    console.log("courses inside progress are : " + courses);
+    return courses;
   }
   
   // LOGIC FOR ATTENDANCE

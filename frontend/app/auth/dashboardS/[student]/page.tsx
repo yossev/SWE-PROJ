@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { usePathname } from 'next/navigation';
 import { getCookie, getCookies } from 'cookies-next';
+import CourseNotes from 'components/CourseNotes';
 import Link from 'next/link';
 import Navbar from 'components/Navbar'; // Import the Navbar component
 
@@ -24,6 +25,8 @@ export default function StudentDashboard() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [studentName, setStudentName] = useState('');
   const [error, setError] = useState('');
+  const [notesRefresh , setNotesRefresh] = useState(true);
+  const [notes , setNotes] = useState<any>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -61,10 +64,10 @@ export default function StudentDashboard() {
     }
 
     try {
-      const response = await axios.get(`http://localhost:3001/progress/enrolled-courses/${userId}`, { withCredentials: true });
+      const response = await axios.get(`http://localhost:3001/courses/enrolls/find`, { withCredentials: true });
       setCourses(response.data);
     } catch (error) {
-      console.error('Error fetching enrolled courses:', error);
+      console.error('Error fetching enrolled courses:', JSON.stringify(error));
     }
   };
 
@@ -94,7 +97,26 @@ export default function StudentDashboard() {
 
     fetchStudentData();
     fetchEnrolledCourses();
-  }, []);
+
+    if(notesRefresh)
+    {
+      async function getNotes() {
+        try {
+            const response = await fetch('http://localhost:3001/notes/getAll' , {credentials : 'include'});
+            const dataJson = await response.json();
+            setNotes(dataJson);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    getNotes();
+
+    setNotesRefresh(false);
+
+
+    }
+  }, [notesRefresh]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -173,41 +195,6 @@ export default function StudentDashboard() {
               <h2 className="text-xl font-semibold text-gray-800 mb-4">Performance Tracking</h2>
               <p className="text-gray-600">Monitor student progress and scores.</p>
             </Link>
-            <Link
-              href="/quiz"
-              className="p-6 bg-white shadow rounded-lg hover:shadow-lg transition transform hover:scale-105 text-center"
-            >
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">Quiz</h2>
-              <p className="text-gray-600">Create and manage quizzes for your courses.</p>
-            </Link>
-            <Link
-              href="/questionbank"
-              className="p-6 bg-white shadow rounded-lg hover:shadow-lg transition transform hover:scale-105 text-center"
-            >
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">Question Bank</h2>
-              <p className="text-gray-600">Build and maintain a repository of questions.</p>
-            </Link>
-            <Link
-              href="http://localhost:3000/chat/chatid"
-              className="p-6 bg-white shadow rounded-lg hover:shadow-lg transition transform hover:scale-105 text-center"
-            >
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">Real-Time Chat</h2>
-              <p className="text-gray-600">Communicate instantly with students.</p>
-            </Link>
-            <Link
-              href="http://localhost:3000/forum/forumid"
-              className="p-6 bg-white shadow rounded-lg hover:shadow-lg transition transform hover:scale-105 text-center"
-            >
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">Discussion Forums</h2>
-              <p className="text-gray-600">Create forums for meaningful discussions.</p>
-            </Link>
-            <Link
-              href="/notes"
-              className="p-6 bg-white shadow rounded-lg hover:shadow-lg transition transform hover:scale-105 text-center"
-            >
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">Notes</h2>
-              <p className="text-gray-600">Help students take and organize notes.</p>
-            </Link>
           </section>
 
 
@@ -232,7 +219,15 @@ export default function StudentDashboard() {
               ))}
             </div>
           </section>
+
+          {/* Notes Section */}
+            <section className="mb-10">
+              <h2 className="text-2xl font-semibold text-gray-800 mb-4">My Notes</h2>
+              <CourseNotes data = { notes } userId={userId} courseId={null} setRefresh={setNotesRefresh} />
+            </section>
         </main>
+
+        
 
         {/* Modal */}
         {isModalOpen && (

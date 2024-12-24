@@ -1,10 +1,10 @@
 /* eslint-disable prettier/prettier */
 // SWE-PROJ/backend/src/course/course.controller.ts
-import { Controller, Get, Post, Body, Put, Param, Query, Delete, UseGuards, Req } from '@nestjs/common';
+import { Controller, Post, Body, Put, Param, Query, Delete, Req, UseGuards, Get } from '@nestjs/common';
 import { CourseService } from './course.service';
 import { CreateCourseDto } from './dto/createCourse.dto'; 
 import { UpdateCourseDto } from './dto/updateCourse.dto'; 
-import { Roles, Role } from 'src/auth/decorators/roles.decorator';
+import { Role, Roles } from 'src/auth/decorators/roles.decorator';
 import { authorizationGuard } from 'src/auth/guards/authorization.guards';
 import { AuthGuard } from 'src/auth/guards/auth.guards';
 
@@ -19,7 +19,7 @@ export class CourseController {
         return this.courseService.create(createCourseDto, req);
     }
     @Roles(Role.Instructor,Role.Student,Role.Admin)
-    @Get()
+    @Get('getAll')
     findAll() {
         return this.courseService.findAll();
     }
@@ -51,7 +51,7 @@ export class CourseController {
     update(@Param('id') id: string, @Body() updateCourseDto: UpdateCourseDto) {
         return this.courseService.update(id, updateCourseDto);
     }
-    @UseGuards(AuthGuard)
+
     @Roles(Role.Student)
     @UseGuards(authorizationGuard)
     @Post('enroll/:id')
@@ -66,6 +66,13 @@ export class CourseController {
         } catch (error) {
         throw new Error('Unable to fetch the forum for this course.');
         }
+    }
+    @UseGuards(authorizationGuard)
+    @Get('enrolls/find')
+    @Roles(Role.Student)
+    enrolled(@Req() req) {
+        const userId = req.cookies.userId;
+        return this.courseService.enrolled(userId);
     }
    
     }

@@ -107,11 +107,13 @@ export class CourseService {
 
   // Search for courses based on a search term
   async search(searchTerm: string): Promise<CourseDocument[]> {
-    return this.courseModel
-      .find({
-        $text: { $search: searchTerm }, // Use full-text search
-      })
-      .exec();
+    const allCourses = await this.courseModel.find().exec();
+    const filteredCourses = allCourses.filter((course) => {
+      const courseName = course.title.toLowerCase();
+      const courseDescription = course.description.toLowerCase();
+      return courseName.includes(searchTerm) || courseDescription.includes(searchTerm);
+    });
+    return filteredCourses;
   }
 
   // Delete a course by ID
@@ -165,6 +167,14 @@ async getForumByCourseId(courseId: string): Promise<ForumDocument | null> {
   }
 }
 
+
+  async enrolled(userId : string) {
+    const user = await this.userModel.findById(new Types.ObjectId(userId)).exec();
+    const courseeIds = user.courses;
+    const courses = await this.courseModel.find({ _id: { $in: courseeIds } }).exec();
+    console.log("courses are : " + courses);
+    return courses;
+  }
   
 }
 
