@@ -47,6 +47,7 @@ export class UserService {
       
       async findByName(name: string): Promise<User[]> {
         // Searching for users by name (case-insensitive)
+        
         return await this.userModel.find({ name: { $regex: new RegExp(name, 'i') } });
       }
       

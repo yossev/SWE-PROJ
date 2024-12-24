@@ -57,8 +57,10 @@ export class UserController {
     async getStudentsByName(@Param('name') name: string): Promise<User[]> {
       // Find all users with the same name
       const users = await this.userService.findByName(name);
-    
-      if (!users || users.length === 0) {
+      if (!users) {
+        throw new BadRequestException('User not found');
+      }
+      if ( users.length === 0) {
         throw new BadRequestException('No students found with the provided name');
       }
     

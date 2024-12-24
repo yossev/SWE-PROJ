@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -29,7 +29,6 @@ export default function InstructorDashboard() {
   const [updateMessage, setUpdateMessage] = useState('');
   const [searchError, setSearchError] = useState('');
   const [updateError, setUpdateError] = useState('');
-  
 
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -56,14 +55,14 @@ export default function InstructorDashboard() {
       setSearchError('Please enter an email to search.');
       return;
     }
-  
+
     setLoading(true);
     setSearchError(''); // Clear previous search errors
     setSearchResult(null);
-  
+
     try {
       const res = await axios.get(
-        `http://localhost:3001/users/by-email?email=${searchTerm}`, 
+        `http://localhost:3001/users/by-email?email=${searchTerm}`,
         { withCredentials: true }
       );
       if (res.status !== 200) {
@@ -81,18 +80,17 @@ export default function InstructorDashboard() {
       setLoading(false);
     }
   };
-  
 
   const handleUpdateSubmit = async () => {
     if (!updateForm.name && !updateForm.email) {
       setUpdateError('Please provide at least one field to update.');
       return;
     }
-  
+
     setLoading(true);
     setUpdateMessage('');
     setUpdateError(''); // Clear previous update errors
-  
+
     try {
       const res = await axios.put(
         'http://localhost:3001/users/me',
@@ -116,16 +114,15 @@ export default function InstructorDashboard() {
       setLoading(false);
     }
   };
-  
 
   const searchByName = async () => {
     if (!searchTerm) {
-      setError('Please enter a name to search.');
+      setSearchError('Please enter a name to search.');
       return;
     }
   
     setLoading(true);
-    setError('');
+    setSearchError(''); // Clear previous search errors
     setSearchResult(null);
   
     try {
@@ -134,20 +131,27 @@ export default function InstructorDashboard() {
         { withCredentials: true }
       );
       if (res.status !== 200) {
-        throw new Error(res.statusText || 'Failed to fetch user');
+        throw new Error(`Failed to fetch user: ${res.status}`);
       }
+  
       const userData = res.data;
+      if (!userData || (Array.isArray(userData) && userData.length === 0)) {
+        throw new Error('No user found with the given name.');
+      }
+  
       setSearchResult(userData);
     } catch (err: any) {
       if (err.response && err.response.data) {
-        setError(err.response.data.message || 'An error occurred');
+        setSearchError(err.response.data.message || 'An error occurred while searching.');
       } else {
-        setError(err.message || 'An error occurred');
+        setSearchError(err.message || 'An error occurred while searching.');
       }
     } finally {
       setLoading(false);
     }
   };
+  
+  
 
   const scrollToCourses = () => {
     document.getElementById('my-courses')?.scrollIntoView({ behavior: 'smooth' });
@@ -188,53 +192,11 @@ export default function InstructorDashboard() {
               <p className="text-gray-600">Organize and manage your courses effectively.</p>
             </Link>
             <Link
-              href="http://localhost:3000/modules/moduleid"
-              className="p-6 bg-white shadow rounded-lg hover:shadow-lg transition transform hover:scale-105 text-center"
-            >
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">Interactive Modules</h2>
-              <p className="text-gray-600">Engage students with interactive content.</p>
-            </Link>
-            <Link
               href="/progress/instructor-analytics"
               className="p-6 bg-white shadow rounded-lg hover:shadow-lg transition transform hover:scale-105 text-center"
             >
               <h2 className="text-xl font-semibold text-gray-800 mb-4">Performance Tracking</h2>
               <p className="text-gray-600">Monitor student progress and scores.</p>
-            </Link>
-            <Link
-              href="/quiz"
-              className="p-6 bg-white shadow rounded-lg hover:shadow-lg transition transform hover:scale-105 text-center"
-            >
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">Quiz</h2>
-              <p className="text-gray-600">Create and manage quizzes for your courses.</p>
-            </Link>
-            <Link
-              href="/questionbank"
-              className="p-6 bg-white shadow rounded-lg hover:shadow-lg transition transform hover:scale-105 text-center"
-            >
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">Question Bank</h2>
-              <p className="text-gray-600">Build and maintain a repository of questions.</p>
-            </Link>
-            <Link
-              href="http://localhost:3000/chat/chatid"
-              className="p-6 bg-white shadow rounded-lg hover:shadow-lg transition transform hover:scale-105 text-center"
-            >
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">Real-Time Chat</h2>
-              <p className="text-gray-600">Communicate instantly with students.</p>
-            </Link>
-            <Link
-              href="http://localhost:3000/forum/forumid"
-              className="p-6 bg-white shadow rounded-lg hover:shadow-lg transition transform hover:scale-105 text-center"
-            >
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">Discussion Forums</h2>
-              <p className="text-gray-600">Create forums for meaningful discussions.</p>
-            </Link>
-            <Link
-              href="/notes"
-              className="p-6 bg-white shadow rounded-lg hover:shadow-lg transition transform hover:scale-105 text-center"
-            >
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">Notes</h2>
-              <p className="text-gray-600">Help students take and organize notes.</p>
             </Link>
           </section>
 
@@ -252,19 +214,16 @@ export default function InstructorDashboard() {
     <button
       className="px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition-all duration-300 transform hover:scale-105"
       onClick={searchByName}
+      disabled={loading}
     >
-      Search by Name
+      {loading ? 'Searching...' : 'Search by Name'}
     </button>
     <button
       className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition-all duration-300 transform hover:scale-105"
       onClick={searchByEmail}
       disabled={loading}
     >
-      {loading ? (
-        <span className="spinner-border spinner-border-sm"></span> // Add a spinner when loading
-      ) : (
-        'Search by Email'
-      )}
+      {loading ? 'Searching...' : 'Search by Email'}
     </button>
   </div>
   {searchError && <p className="text-red-500 mt-4">{searchError}</p>}
@@ -287,36 +246,35 @@ export default function InstructorDashboard() {
   ) : null}
 </section>
 
-{/* Update Section */}
-<section className="mb-10">
-  <h2 className="text-2xl font-semibold text-gray-800 mb-4">Update Personal Information</h2>
-  <div className="flex space-x-4">
-    <input
-      type="text"
-      className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-indigo-300 transition-all duration-300"
-      placeholder="Enter new name"
-      value={updateForm.name}
-      onChange={(e) => setUpdateForm({ ...updateForm, name: e.target.value })}
-    />
-    <input
-      type="email"
-      className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-indigo-300 transition-all duration-300"
-      placeholder="Enter new email"
-      value={updateForm.email}
-      onChange={(e) => setUpdateForm({ ...updateForm, email: e.target.value })}
-    />
-    <button
-      className="px-4 py-2 bg-purple-600 text-white rounded-lg shadow hover:bg-purple-700 transition-all duration-300 transform hover:scale-105"
-      onClick={handleUpdateSubmit}
-    >
-      {loading ? 'Updating...' : 'Update Information'}
-    </button>
-  </div>
-  {updateError && <p className="text-red-500 mt-4">{updateError}</p>}
-  {updateMessage && <p className="text-green-600 mt-4">{updateMessage}</p>}
-</section>
 
-
+          {/* Update Section */}
+          <section className="mb-10">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Update Personal Information</h2>
+            <div className="flex space-x-4">
+              <input
+                type="text"
+                className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-indigo-300 transition-all duration-300"
+                placeholder="Enter new name"
+                value={updateForm.name}
+                onChange={(e) => setUpdateForm({ ...updateForm, name: e.target.value })}
+              />
+              <input
+                type="email"
+                className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-indigo-300 transition-all duration-300"
+                placeholder="Enter new email"
+                value={updateForm.email}
+                onChange={(e) => setUpdateForm({ ...updateForm, email: e.target.value })}
+              />
+              <button
+                className="px-4 py-2 bg-purple-600 text-white rounded-lg shadow hover:bg-purple-700 transition-all duration-300 transform hover:scale-105"
+                onClick={handleUpdateSubmit}
+              >
+                {loading ? 'Updating...' : 'Update Information'}
+              </button>
+            </div>
+            {updateError && <p className="text-red-500 mt-4">{updateError}</p>}
+            {updateMessage && <p className="text-green-600 mt-4">{updateMessage}</p>}
+          </section>
         </main>
       </div>
     </>
