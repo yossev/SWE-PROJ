@@ -36,6 +36,12 @@ export class RatingController {
   }
   @UseGuards(authorizationGuard)
   @Roles(Role.Admin)
+
+  // @Get()
+  // async findAll(): Promise<Rating[]> {
+  //   return await this.ratingService.findAll();
+  // }
+
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<Rating> {
     try {
@@ -81,5 +87,16 @@ export class RatingController {
       return await this.ratingService.createRating(createRatingDto);
 
   }
+
+  @Get() 
+  async getAllRatings() {
+    try {
+      return await this.ratingService.getAllRatings();
+    } catch (error) {
+      throw new NotFoundException('Error retrieving ratings');
+    }
+  }
+
+ 
 
 }

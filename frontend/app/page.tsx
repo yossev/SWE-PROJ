@@ -1,8 +1,20 @@
-/* eslint-disable react/jsx-no-undef */
+"use client"
 import Image from "next/image"; 
-
+import { useCookies } from "react-cookie";
+import { useEffect , useState } from "react";
+import { getCookie } from "cookies-next";
+import Navbar from "components/Navbar";
 export default function Home() {
+
+
+  const userId = getCookie("userId");
+  const role = getCookie("role");
+  useEffect(() => {
+  }, []);
   return (
+
+    <>
+    <Navbar userId={userId}/>
     <div className="min-h-screen bg-gradient-to-b from-blue-900 to-blue-700 text-white flex flex-col justify-between p-8 pb-20">
       <header className="text-center sm:text-left">
         <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600">
@@ -38,6 +50,12 @@ export default function Home() {
       <footer className="text-center mt-8 mb-4 text-sm text-white opacity-70">
         <p>&copy; {new Date().getFullYear()} eLearners Academy. All Rights Reserved.</p>
       </footer>
+
+      {/* Footer */}
+      <footer className="text-center mt-8 mb-4 text-sm text-white opacity-70">
+        <p>&copy; {new Date().getFullYear()} eLearners Academy. All Rights Reserved.</p>
+      </footer>
     </div>
+    </>
   );
 }
