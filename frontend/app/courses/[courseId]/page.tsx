@@ -24,7 +24,11 @@ export default function CourseDetailsPage() {
     const role = getCookie("role");
     const [course, setCourse] = useState<any>(null); // State to hold the course data
     const [forumId, setForumId] = useState('');
-    const [moduleData , setModuleData] = useState([]);
+    const [moduleData , setModuleData] = useState([{
+        "_id" : "",
+        "title" : "",
+        "content" : "",
+    }]);
     const [error, setError] = useState("");
     const [loading , setLoading] = useState(true);
     const [enrolled , setEnrolled] = useState(false);
@@ -37,6 +41,16 @@ export default function CourseDetailsPage() {
       setRefresh(true);
     }
 
+    const deleteModule = async (moduleId : string) => {
+      try {
+        const response = await axios.delete('http://localhost:3001/modules/delete/' + moduleId , {withCredentials : true});
+
+        // Update the module availability in the frontend
+        setRefresh(true);
+      } catch (error) {
+        console.error("Error marking module as unavailable:", error);
+      }
+    };
     // Fetch course details on page load
     useEffect(() => {
         if(loading || refresh)
@@ -222,6 +236,18 @@ export default function CourseDetailsPage() {
                 <p><strong>Difficulty Level:</strong> {course?.difficulty_level}</p>
                 <p><strong>Created By:</strong> {course?.created_by}</p>
                 <p><strong>Created At:</strong> {new Date(course?.created_at).toLocaleDateString()}</p>
+                <section className="">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Modules</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {moduleData.map((module) => (
+                <div key={module._id} className="p-6 bg-white shadow rounded-lg hover:shadow-lg transition transform hover:scale-105">
+                  <h3 className="text-xl font-semibold text-gray-800">{module.title}</h3>
+                  <h3 className="text-xl font-semibold text-gray-800">{module.content}</h3>
+                  <button onClick={() => deleteModule(module._id)}  className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full">Delete</button>
+                </div>
+              ))}
+            </div>
+          </section>
                 <CreateModule courseId={courseId} setRefresh={setRefresh} />
             </div>
 

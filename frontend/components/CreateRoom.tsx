@@ -37,12 +37,12 @@ const CreateRoom = ({courseId , userId , setRefresh} : {courseId : any , userId 
         {withCredentials:true}
       );
       setSuccess("Room created successfully!");
+      setRefresh(true);
       setFormData({
         name : "",
         course_id : courseId,
         user_id: [new Types.ObjectId(userId)]
       });
-      setRefresh(true);
     } catch (err) {
       console.error("Error creating Room:", err);
       setError("Failed to create the Room. Please try again.");
@@ -71,7 +71,7 @@ const CreateRoom = ({courseId , userId , setRefresh} : {courseId : any , userId 
           onClick={handleSubmit}
           className="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg"
         >
-          Create Question
+          Create Room
         </button>
 
         {/* Success and Error Messages */}
