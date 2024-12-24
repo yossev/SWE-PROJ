@@ -216,7 +216,18 @@ export default function Home()
                         <div className="h-screen dark:bg-gray-800">
                 
                         <div className="py-6 px-3 lg:grid lg:grid-cols-2 lg:gap-8">
-                
+                        {compatible? 
+                        <>
+                        <div className="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400" role="alert">
+                        <span className="font-medium">You're Qualified to Complete This Module!</span>
+                        </div>
+                        </> 
+                        : 
+                        <>
+                        <div className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
+                        <span className="font-medium">You're Not Qualified to Complete this Module</span>
+                        </div>
+                        </>}
                         {
                             
                             data ? <ModuleContent moduleId={moduleId} data={data.resources} role={role} setRefresh={setRefreshNotes} /> : <p>No Data Found</p>
