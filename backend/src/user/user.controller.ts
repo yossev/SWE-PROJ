@@ -185,7 +185,7 @@ async updateUserProfile(@Req() req, @Body() updateData: updateUserDto) {
     
     }
     @Post('logout')
-    @Roles(Role.Student,Role.Instructor)
+    @Roles(Role.Student,Role.Instructor,Role.Admin)
     @UseGuards(authorizationGuard)
     async logout(@Res({passthrough:true}) res: Response) {
       return await this.userService.logout(res);
