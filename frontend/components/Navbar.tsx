@@ -4,17 +4,14 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation'; // Using next/navigation for Next.js 13+
 import { getCookie } from 'cookies-next';
 import NotificationBell from './NotificationBell';
-import Link from 'next/link';
 
 const Navbar = ({ userId }: { userId: any }) => {
-  const [update, setUpdate] = useState(false); // State to force re-render
   const [data, setData] = useState([]);
   const [userDetails, setUserDetails] = useState({
     name: ""
   });
   const [url, setUrl] = useState("");
-  
-  // Client-side check to ensure useRouter is used only after mounting on the client
+
   const [isClient, setIsClient] = useState(false);
   const role = getCookie("role");
   const [search, setSearch] = useState('');
@@ -23,14 +20,13 @@ const Navbar = ({ userId }: { userId: any }) => {
   const router = useRouter();
 
   useEffect(() => {
-    setIsClient(true); // Ensure the component is running on the client side
+    setIsClient(true);
 
     if (userId) {
       fetch('http://localhost:3001/users/fetchme', { credentials: 'include' })
         .then(response => response.json())
         .then(dataJson => {
           setUserDetails(dataJson);
-          console.log("Data is: " + dataJson);
           if (role === "student") {
             setUrl("http://localhost:3000/auth/dashboardS/student");
           } else {
@@ -42,9 +38,9 @@ const Navbar = ({ userId }: { userId: any }) => {
         .then(response => response.json())
         .then(dataJson => {
           setData(dataJson);
-          console.log("Data is: " + dataJson);
         });
     }
+
     setUrl("http://localhost:3000/auth/login");
   }, []);
 
@@ -55,32 +51,31 @@ const Navbar = ({ userId }: { userId: any }) => {
   // Logout Functionality
   const handleLogout = async () => {
     try {
-      // Send a request to the backend logout endpoint
+      // Send logout request
       const response = await fetch('http://localhost:3001/users/logout', {
         method: 'POST',
         credentials: 'include', // Include cookies in the request
       });
-
+  
+      console.log('Logout response status:', response.status); // Log response status
+  
       if (response.status === 200) {
         // Clear cookies manually in the client as well
         document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';  // Clear the token cookie
         document.cookie = 'RefreshToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'; // Clear the RefreshToken cookie
         document.cookie = 'jwt=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'; // Clear the jwt cookie
+  
+        // Redirect to the homepage after successful logout
         console.log('Redirecting to homepage...');
-        // Redirect the user to the homepage after successful logout
-        router.push('/');  // This will redirect the user to the homepage
+        window.location.href = '/';  // Use window.location.href to redirect the user
       } else {
-        console.log('Logout failed.');
+        console.error('Logout failed. Response status:', response.status);
       }
     } catch (error) {
       console.error('Error during logout:', error);
     }
   };
-
-  if (!isClient) {
-    return null; // Render nothing until we're on the client side
-  }
-
+  
   return (
     <nav className="bg-gray-300 dark:bg-gray-900">
       <div className="flex flex-wrap items-center justify-between mx-auto p-4">
@@ -126,13 +121,13 @@ const Navbar = ({ userId }: { userId: any }) => {
                 </>
               )}
               {/* Logout link */}
-              <Link
-                href="http://localhost:3000/"  // Using href="#" to prevent unwanted navigatio
+              <a
+                href="#"
                 onClick={(e) => { e.preventDefault(); handleLogout(); }}  // Prevent default link behavior and call handleLogout
                 className="bg-red-600 text-white font-bold py-2 px-4 rounded hover:bg-red-700 transition duration-300"
               >
                 Logout
-              </Link>
+              </a>
             </>
           ) : (
             <a href={url} className="text-white font-bold py-2 px-4 rounded">Login</a>
