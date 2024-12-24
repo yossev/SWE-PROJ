@@ -1,34 +1,21 @@
 /* eslint-disable react/jsx-no-undef */
 import Image from "next/image"; 
+
 export default function Home() {
-
-
-  const userId = getCookie("userId");
-  const role = getCookie("role");
-
-  useEffect(() => {
-  }, []);
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <div className="min-h-screen bg-gradient-to-b from-blue-900 to-blue-700 text-white flex flex-col justify-between p-8 pb-20">
+      <header className="text-center sm:text-left">
+        <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600">
+          Welcome to eLearners Academy
+        </h1>
+        <p className="text-lg sm:text-xl font-medium mb-6 text-white opacity-80">
+          Your gateway to learning, mastering, and achieving.
+        </p>
+      </header>
+      <main className="flex flex-col gap-8 items-center sm:items-start text-center sm:text-left">
+        <p className="text-sm sm:text-base text-white opacity-70 mb-8">
+          Get started today!
+        </p>
 
         <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 items-center justify-center sm:justify-start">
           <a
@@ -46,6 +33,11 @@ export default function Home() {
           </a>
         </div>
       </main>
+
+      {/* Footer */}
+      <footer className="text-center mt-8 mb-4 text-sm text-white opacity-70">
+        <p>&copy; {new Date().getFullYear()} eLearners Academy. All Rights Reserved.</p>
+      </footer>
     </div>
   );
 }

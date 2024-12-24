@@ -156,7 +156,7 @@ export class CourseService {
   // In CourseService (course.service.ts)
 async getForumByCourseId(courseId: string): Promise<ForumDocument | null> {
   try {
-    const forum = await this.forumModel.findOne({ course_id: new Types.ObjectId(courseId) }).exec();
+    const forum = await this.forumModel.findOne({ course_id: courseId }).exec();
     if (!forum) {
       throw new Error(`Forum for course ID ${courseId} not found.`);
     }

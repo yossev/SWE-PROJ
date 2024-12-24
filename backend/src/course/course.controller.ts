@@ -58,13 +58,15 @@ export class CourseController {
     enroll(@Param('id') id: string, @Req() req) {
         this.courseService.enroll(id,req);
     }
-    @Get(':courseId/forum')
+    @Roles(Role.Student)
+    @UseGuards(authorizationGuard)
+    @Get('forum/:courseId')
     async getForumForCourse(@Param('courseId') courseId: string) {
         try {
-        const forum = await this.courseService.getForumByCourseId(courseId);
-        return forum;
+            const forum = await this.courseService.getForumByCourseId(courseId);
+            return forum;
         } catch (error) {
-        throw new Error('Unable to fetch the forum for this course.');
+            throw new Error('Unable to fetch the forum for this course.');
         }
     }
     @UseGuards(authorizationGuard)

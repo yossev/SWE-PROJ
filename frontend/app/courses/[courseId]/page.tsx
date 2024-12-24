@@ -81,7 +81,6 @@ export default function CourseDetailsPage() {
                             </Link>
                         </li>
                         <li>
-                            {/* Ensure forum is loaded before rendering the link */}
                             {forum && forum._id && (
                                 <Link
                                     href={`/forum/${forum._id}`} // Correctly reference the forum ID
@@ -89,9 +88,7 @@ export default function CourseDetailsPage() {
                                 >
                                     🌐 Forum
                                 </Link>
-                            )}:(
-                                <span>Loading Forum...</span> // Show a loading state if forum is not yet loaded
-                            )
+                            )}
                         </li>
                     </ul>
                 </nav>
