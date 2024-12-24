@@ -22,10 +22,10 @@ export class RatingController {
   }
 
 
-  @Get()
-  async findAll(): Promise<Rating[]> {
-    return await this.ratingService.findAll();
-  }
+  // @Get()
+  // async findAll(): Promise<Rating[]> {
+  //   return await this.ratingService.findAll();
+  // }
 
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<Rating> {
@@ -70,5 +70,16 @@ export class RatingController {
       throw new BadRequestException('Error creating rating');
     }
   }
+
+  @Get() 
+  async getAllRatings() {
+    try {
+      return await this.ratingService.getAllRatings();
+    } catch (error) {
+      throw new NotFoundException('Error retrieving ratings');
+    }
+  }
+
+ 
 
 }
