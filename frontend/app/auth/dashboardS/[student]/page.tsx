@@ -208,27 +208,7 @@ export default function StudentDashboard() {
             {updateMessage && <p className="text-green-600 mt-4">{updateMessage}</p>}
           </section>
 
-          {/* Courses Section */}
-          <section className="mb-10">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4">My Courses</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {courses.map((course) => (
-                <div key={course.id} className="p-6 bg-white shadow rounded-lg hover:shadow-lg transition transform hover:scale-105">
-                  <h3 className="text-xl font-semibold text-gray-800">{course.title}</h3>
-                  <p className="text-gray-600">Instructor: {course.instructor}</p>
-                  <div className="mt-4">
-                    <div className="h-2 bg-gray-300 rounded-full">
-                      <div
-                        className="h-full bg-green-500 rounded-full"
-                        style={{ width: `${course.progress}%` }}
-                      ></div>
-                    </div>
-                    <p className="text-gray-600 text-sm mt-2">{course.progress}% Complete</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
+
 
           {/* Notes Section */}
           <section className="mb-10">

@@ -66,7 +66,7 @@ export default function CourseDetailsPage() {
                   setCourse(JSON.parse(cachedCourse));
                 } else {
                   try {
-                    const response = await axios.get(`http://localhost:3001/courses/${courseId}`);
+                    const response = await axios.get(`http://localhost:3001/courses/${courseId}` , {withCredentials : true});
                     setCourse(response.data);
                     localStorage.setItem(`course_${courseId}`, JSON.stringify(response.data)); // Store in localStorage
                   } catch (error) {
@@ -79,7 +79,7 @@ export default function CourseDetailsPage() {
   
               const fetchForum = async () => {
                 try {
-                const response = await axios.get(`http://localhost:3001/courses/forum/${courseId}` , {withCredentials : true});
+                const response = await axios.get(`http://localhost:3001/courses/forum/${courseId}` , {withCredentials : true });
                 console.log("Forum fetched!!");
                   setForumId(response.data);
                 } catch (error) {

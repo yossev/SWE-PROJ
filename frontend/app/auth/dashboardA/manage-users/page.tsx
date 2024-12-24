@@ -4,6 +4,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Navbar from 'components/Navbar'; // Import Navbar component
+import { getCookie } from 'cookies-next';
 
 const backend_url = 'http://localhost:3001/users';
 
@@ -18,7 +19,7 @@ export default function ManageUsers() {
   const [users, setUsers] = useState<User[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
+const userId = getCookie("userId");
   const fetchUsers = async () => {
     if (loading) return; // Prevent redundant fetches
     setLoading(true);
@@ -63,7 +64,7 @@ export default function ManageUsers() {
   return (
     <>
       {/* Navbar added here */}
-      <Navbar />
+      <Navbar userId={userId}/>
 
       <div className="min-h-screen bg-gray-100 p-8">
         <header className="mb-6">
