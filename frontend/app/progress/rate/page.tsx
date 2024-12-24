@@ -2,18 +2,33 @@
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { getCookie } from 'cookies-next';
+import { usePathname } from 'next/navigation';
 
 const AllRatings = () => {
+  const path = usePathname().split('/');
   const [moduleRatings, setModuleRatings] = useState<any[]>([]);
   const [instructorRatings, setInstructorRatings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+  const [isAdmin, setIsAdmin] = useState(false);
+const userId = getCookie('userId');
+  const role = getCookie("role");
+  const getStudentData = async () => {
+    const student = path[path.length - 1];
+    const res = await fetch('http://localhost:3001/users/fetch/' + student, { credentials: 'include' });
+    return res.json();
+  };
   // Fetch ratings when the component mounts
   useEffect(() => {
+    if (role === 'admin') {
+      setIsAdmin(true);
+    } else {
+      setError('You are not authorized to view this page.');
+    }
     const fetchRatings = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/ratings');
+        const response = await axios.get('http://localhost:3001/ratings',{withCredentials: true});
         setModuleRatings(response.data.moduleRatings);
         setInstructorRatings(response.data.instructorRatings);
         setLoading(false);
@@ -49,12 +64,12 @@ const AllRatings = () => {
             </tr>
           </thead>
           <tbody>
-            {moduleRatings.length === 0 ? (
+            {Array.isArray(moduleRatings) && moduleRatings.length === 0 ? (
               <tr>
                 <td colSpan={2} className="text-center py-4 text-gray-400">No module ratings available</td>
               </tr>
             ) : (
-              moduleRatings.map((rating) => (
+              Array.isArray(moduleRatings) && moduleRatings.map((rating) => (
                 <tr key={rating._id} className="border-b border-gray-600">
                   <td className="px-4 py-2">{rating._id}</td>
                   <td className="px-4 py-2">{rating.averageRating}</td>
@@ -62,6 +77,8 @@ const AllRatings = () => {
               ))
             )}
           </tbody>
+
+
         </table>
       </div>
 
@@ -76,19 +93,20 @@ const AllRatings = () => {
             </tr>
           </thead>
           <tbody>
-            {instructorRatings.length === 0 ? (
-              <tr>
-                <td colSpan={2} className="text-center py-4 text-gray-400">No instructor ratings available</td>
+          {Array.isArray(instructorRatings) && instructorRatings.length === 0 ? (
+            <tr>
+              <td colSpan={2} className="text-center py-4 text-gray-400">No instructor ratings available</td>
+            </tr>
+          ) : (
+            Array.isArray(instructorRatings) && instructorRatings.map((rating) => (
+              <tr key={rating._id} className="border-b border-gray-600">
+                <td className="px-4 py-2">{rating._id}</td>
+                <td className="px-4 py-2">{rating.averageRating}</td>
               </tr>
-            ) : (
-              instructorRatings.map((rating) => (
-                <tr key={rating._id} className="border-b border-gray-600">
-                  <td className="px-4 py-2">{rating._id}</td>
-                  <td className="px-4 py-2">{rating.averageRating}</td>
-                </tr>
-              ))
-            )}
-          </tbody>
+            ))
+          )}
+        </tbody>
+
         </table>
       </div>
     </div>

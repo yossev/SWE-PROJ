@@ -8,36 +8,59 @@ import { getCookie } from 'cookies-next';
 export default function RateInstructorPage() {
   const router = useRouter();
   const [instructorEmail, setInstructorEmail] = useState<string>(''); 
+  const [selectedInstructors, setSelectedInstructors] = useState<any>({});
   const [rating, setRating] = useState<number>(0); 
   const [error, setError] = useState<string | null>(null); 
   const [instructors, setInstructors] = useState<any[]>([]); // To store list of instructors
   const [loading, setLoading] = useState(true);  // To handle loading state
   const [ratedEntity] = useState<'Instructor'>('Instructor'); 
+  const [courses, setCourses] = useState<any[]>([]);
 
   const userId = getCookie("userId");
   const role = getCookie("role");
 
   useEffect(() => {
-    if (role !== 'student') {
-      setError('You are not authorized to view this page.');
-      setLoading(false);
-      return;
-    }
-
-    // Fetch instructors list
-    const fetchInstructors = async () => {
+    const fetchUserSpecificCourses = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/users/instructors', { withCredentials: true });
-        setInstructors(response.data); // Assuming the response contains a list of instructors
-      } catch (err) {
-        setError('Failed to fetch instructors.');
-      } finally {
-        setLoading(false);
+        const response = await axios.get(`http://localhost:3001/users/fetch/${userId}`); 
+        const user = response.data;
+        const enrolledCourseIds = user.courses;
+
+        if (!enrolledCourseIds || enrolledCourseIds.length === 0) {
+          console.log('No courses found for this user');
+          return;
+        }
+
+        const courseResponses = await Promise.all(
+          enrolledCourseIds.map((courseId: any) =>
+            axios.get(`http://localhost:3001/courses/${courseId}`)
+          )
+        );
+
+        const coursesWithInstructors = await Promise.all(courseResponses.map(async (response) => {
+          const course = response.data;
+          // Fetch the instructor info based on the created_by field (assuming this is the instructor's ID)
+          const instructorResponse = await axios.get(`http://localhost:3001/users/fetch/${course.created_by}`);
+          const instructorEmail = instructorResponse.data.email; // Or any other instructor info
+          return { ...course, instructorEmail };
+        }));
+
+        setCourses(coursesWithInstructors);
+      } catch (error) {
+        console.error('Error fetching user-specific courses:', error);
+        setError('Failed to load courses.');
       }
     };
 
-    fetchInstructors();
-  }, [role]);
+    fetchUserSpecificCourses();
+  }, [userId]);
+
+  const handleInstructorChange = (courseId: string, instructorEmail: string) => {
+    setSelectedInstructors((prev: any) => ({
+      ...prev,
+      [courseId]: instructorEmail,
+    }));
+  };
 
   const handleInstructorEmailChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setInstructorEmail(e.target.value);
