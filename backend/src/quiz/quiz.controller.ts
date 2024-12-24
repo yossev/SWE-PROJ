@@ -19,6 +19,18 @@ interface DeleteQuizResponse {
 @Controller('quiz')
 export class quizController {
     constructor(private readonly quizService: QuizService) {} 
+
+    @Roles(Role.Instructor)
+    @UseGuards(authorizationGuard) 
+    @Post('createQuiz')
+    async createQuiz(
+      @Body() createQuizDto: CreateQuizDto,
+    )
+    {
+      this.quizService.createQuiz(createQuizDto);
+    }
+
+
     @Roles(Role.Instructor)
     @UseGuards(authorizationGuard)    
     @Get('findall')
@@ -28,36 +40,19 @@ export class quizController {
 
     @Roles(Role.Instructor)
     @UseGuards(authorizationGuard)
-    @Get('singlequiz')
-    async getQuizById(@Query('id') id: string): Promise<Quiz> {
-        console.log('Received ID: ' + id);
-        const quiz = await this.quizService.findById(id);  
-        return quiz;
-    }
-    @Roles(Role.Instructor)
-    @UseGuards(authorizationGuard)
     @Get('getresponsestotal')
   async getResponsesTotal(@Query('id') id: string): Promise<any> {
     console.log('Received ID: ' + id);
     const quiz = await this.quizService.getresponsestotal(id);
     return quiz;
   }
-    @UseGuards(authorizationGuard)
-    @Roles(Role.Student)
-    @Get('assigned')
-        async getQuizByUserId(@Req() req ): Promise<Quiz> {
-      const userid=req.cookies.userId;
-
-          console.log('Fetching quiz for User ID:', userid);
-
-      const quiz = await this.quizService.findByUserId(userid);
-
-      if (!quiz) {
-        throw new BadRequestException('No quiz found for the provided user ID.');
-      }
-
+    @Get('generatequizforstudent/:id')
+    async generateQuizForStudent(@Param('id') id: string , @Req() req): Promise<Quiz> {
+      console.log("Fetching quiz tailored for student");
+      const quiz = await this.quizService.generateQuiz(id , req.cookies.userId);
       return quiz;
     }
+
 
     @Roles(Role.Student , Role.Instructor)
     @UseGuards(authorizationGuard)
@@ -66,44 +61,6 @@ export class quizController {
       console.log("Received ID in get quizzes module:", id);
       const quiz = await this.quizService.getQuizzesOfModule(id);
       return quiz;
-    }
-
-    @Roles(Role.Student)
-    @UseGuards(authorizationGuard)
-    @Get('getquizbyId/:id')
-    async getQuizForStudent(@Req() req, @Param('id') id: string): Promise<Quiz> {
-      const userId = req.cookies.userId;
-      console.log("Received ID in get quiz by id:", id);
-      const quiz = await this.quizService.getQuizById(id , userId);
-      return quiz;
-    }
-
-    @Roles(Role.Instructor)
-    @UseGuards(authorizationGuard)
-      @Put('updatequiz')
-      async updateQuiz(
-        @Req() req,
-        @Query('quizId') quizId: string, 
-        @Body() updateData: UpdateQuizDto
-      ): Promise<Quiz> {
-        console.log("Received ID:", quizId);
-        console.log("Update Data:", updateData); // Debugging log
-      
-        // Ensure the data is valid
-        if (!quizId || !updateData) {
-          throw new BadRequestException('Quiz ID or update data is missing.');
-        }
-      
-        // Fetch the quiz document using the quizId
-        const quiz = await this.quizService.findById(quizId);
-      
-        if (!quiz) {
-          throw new BadRequestException('Quiz not found.');
-        }     
-        const userId = quiz.userId.toString();  // Ensure userId is a string
-  
-  // Pass the userId to the service method
-        return await this.quizService.update(quizId, updateData);
     }
     @Roles(Role.Instructor)
     @UseGuards(authorizationGuard)
@@ -121,21 +78,6 @@ export class quizController {
         throw new BadRequestException('Quiz not found or already deleted.');
       }
     }
-    @Roles(Role.Instructor)
-    @UseGuards(authorizationGuard)
-    @Post('generateQuiz')
-  async generateQuiz(
-    @Body() createQuizDto: CreateQuizDto,
-    @Query('userId') userId: string
-  ) {
-    const quiz = await this.quizService.generateQuiz(createQuizDto, userId);
-
-    return {
-      success: true,
-      message: 'Quiz generated and saved successfully.',
-      data: quiz,
-    };
-  }  
 
   @Post('evaluate')
   async evaluateQuiz(
@@ -144,31 +86,6 @@ export class quizController {
     @Body('selectedQuestions') selectedQuestions: { questionId: string }[], // Array of selected questions with questionId
     @Query('userId') userId: string, // User ID passed as query parameter
   ) {
-    console.log('POST /quiz/evaluate called');
-    console.log('quizId:', quizId);
-    console.log('userId:', userId);
-    console.log('userAnswers:', userAnswers);
-    console.log('selectedQuestions:', selectedQuestions);
-
-    // Ensure selectedQuestions contains valid questionIds
-    if (!selectedQuestions || selectedQuestions.length === 0) {
-      throw new Error('Selected questions are missing.');
-    }
-
-    // Call the service to evaluate the quiz
-    const evaluation = await this.quizService.evaluateQuiz(
-      userAnswers,
-      selectedQuestions,
-      userId,
-      quizId,
-    );
-
-    console.log('Evaluation Result:', evaluation);
-
-    return {
-      success: true,
-      message: 'Quiz evaluated successfully.',
-      data: evaluation,
-    };
+    return await this.quizService.evaluateQuiz(userAnswers, selectedQuestions, userId, quizId);
   }
 }

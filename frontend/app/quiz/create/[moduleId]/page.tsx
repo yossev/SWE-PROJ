@@ -23,7 +23,6 @@ export default function CreateQuizPage() {
     moduleId: moduleId,
     questionType: "MCQ",
     numberOfQuestions: 1, // Corrected key
-    userId: "",
   });
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -66,14 +65,13 @@ export default function CreateQuizPage() {
       setSuccessMessage("");
 
       const payload = {
-        moduleId: moduleId,
+        module_id: moduleId,
         questionType: formData.questionType,
         numberOfQuestions: formData.numberOfQuestions, // Corrected key
-        userId: userid,
       };
 
       const response = await axios.post(
-        "http://localhost:3001/quiz/generateQuiz",
+        "http://localhost:3001/quiz/createQuiz",
         payload,
         { withCredentials: true }
       );
@@ -116,18 +114,6 @@ export default function CreateQuizPage() {
               className="p-3 border border-gray-700 rounded text-black"
               placeholder="Enter Number of Questions"
 
-            />
-          </label>
-
-          <label className="flex flex-col gap-2">
-            <span>User ID:</span>
-            <input
-              type="text"
-              name="userId"
-              value={formData.userId}
-              onChange={handleInputChange}
-              className="p-3 border border-gray-700 rounded text-black"
-              placeholder="Enter User ID"
             />
           </label>
 
