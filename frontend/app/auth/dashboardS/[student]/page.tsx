@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { usePathname } from 'next/navigation';
-import { getCookie, getCookies } from 'cookies-next';
+import { getCookie } from 'cookies-next';
 import CourseNotes from 'components/CourseNotes';
 import Link from 'next/link';
 import Navbar from 'components/Navbar'; // Import the Navbar component
@@ -28,14 +28,10 @@ export default function StudentDashboard() {
   const [error, setError] = useState('');
   const [notesRefresh , setNotesRefresh] = useState(true);
   const [notes , setNotes] = useState<any>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    profile_picture_url: '',
-  });
   const [loading, setLoading] = useState(false);
+  const [updateForm, setUpdateForm] = useState({ name: '', email: '' });
+  const [updateError, setUpdateError] = useState('');
+  const [updateMessage, setUpdateMessage] = useState('');
 
   const role = getCookie('role');
   const userId = getCookie('userId') || '';
@@ -47,7 +43,7 @@ export default function StudentDashboard() {
 
       if (data) {
         setStudentName(data.name);
-        setFormData((prev) => ({
+        setUpdateForm((prev) => ({
           ...prev,
           name: data.name,
           email: data.email,
@@ -60,43 +56,58 @@ export default function StudentDashboard() {
 
   const fetchUserSpecificCourses = async () => {
     try {
-        const response = await axios.get(`http://localhost:3001/users/fetch/${userId}`); 
-        const user = response.data;
-        const enrolledCourseIds = user.courses;
+      const response = await axios.get(`http://localhost:3001/users/fetch/${userId}`); 
+      const user = response.data;
+      const enrolledCourseIds = user.courses;
 
-        if (!enrolledCourseIds || enrolledCourseIds.length === 0) {
-            console.log('No courses found for this user');
-            return;
-        }
-
-        const courseResponses = await Promise.all(
-            enrolledCourseIds.map((courseId: any) =>
-                axios.get(`http://localhost:3001/courses/${courseId}`)
-            )
-        );
-
-        const courses = courseResponses.map((response) => response.data);
-        setCourses(courses);
-        console.log(courses);
-    } catch (error) {
-        console.error('Error fetching user-specific courses:', error);
-    }
-};
-
-
-  const updateUserInfo = async () => {
-    setLoading(true);
-    try {
-      const res = await axios.put('http://localhost:3001/users/me', formData, { withCredentials: true });
-      if (res.status === 200) {
-        alert('User info updated successfully!');
-        setIsModalOpen(false);
-      } else {
-        alert('Failed to update user info.');
+      if (!enrolledCourseIds || enrolledCourseIds.length === 0) {
+        console.log('No courses found for this user');
+        return;
       }
+
+      const courseResponses = await Promise.all(
+        enrolledCourseIds.map((courseId: any) =>
+          axios.get(`http://localhost:3001/courses/${courseId}`)
+        )
+      );
+
+      const courses = courseResponses.map((response) => response.data);
+      setCourses(courses);
+      console.log(courses);
     } catch (error) {
-      console.error('Error updating user info:', error);
-      alert('Failed to update user info.');
+      console.error('Error fetching user-specific courses:', error);
+    }
+  };
+
+  const handleUpdateSubmit = async () => {
+    if (!updateForm.name && !updateForm.email) {
+      setUpdateError('Please provide at least one field to update.');
+      return;
+    }
+
+    setLoading(true);
+    setUpdateMessage('');
+    setUpdateError(''); // Clear previous update errors
+
+    try {
+      const res = await axios.put(
+        'http://localhost:3001/users/me',
+        updateForm,
+        { withCredentials: true }
+      );
+      if (res.status === 200) {
+        setUpdateMessage('Profile updated successfully.');
+        setUpdateForm({ name: '', email: '' });
+      } else {
+        throw new Error('Failed to update profile');
+      }
+    } catch (err: any) {
+      if (err.response && err.response.data) {
+        // Display the custom error message from the backend
+        setUpdateError(err.response.data.message || 'An error occurred while updating.');
+      } else {
+        setUpdateError(err.message || 'An error occurred');
+      }
     } finally {
       setLoading(false);
     }
@@ -111,30 +122,21 @@ export default function StudentDashboard() {
     fetchStudentData();
     fetchUserSpecificCourses();
 
-    if(notesRefresh)
-    {
+    if(notesRefresh) {
       async function getNotes() {
         try {
-            const response = await fetch('http://localhost:3001/notes/getAll' , {credentials : 'include'});
-            const dataJson = await response.json();
-            setNotes(dataJson);
+          const response = await fetch('http://localhost:3001/notes/getAll' , {credentials : 'include'});
+          const dataJson = await response.json();
+          setNotes(dataJson);
         } catch (error) {
-            console.log(error);
+          console.log(error);
         }
-    }
+      }
 
-    getNotes();
-
-    setNotesRefresh(false);
-
-
+      getNotes();
+      setNotesRefresh(false);
     }
   }, [notesRefresh]);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
 
   if (error) {
     return (
@@ -146,7 +148,6 @@ export default function StudentDashboard() {
 
   return (
     <>
-      {/* Add Navbar above Sidebar */}
       <Navbar userId={userId} />
 
       <div className="flex min-h-screen bg-gray-50">
@@ -161,7 +162,6 @@ export default function StudentDashboard() {
           </header>
 
           {/* Redirection Box */}
-          {/* Dashboard Sections */}
           <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
             <Link
               href="http://localhost:3000/courses"
@@ -169,13 +169,6 @@ export default function StudentDashboard() {
             >
               <h2 className="text-xl font-semibold text-gray-800 mb-4">Course Management</h2>
               <p className="text-gray-600">Organize and manage your courses effectively.</p>
-            </Link>
-            <Link
-              href="http://localhost:3000/modules/moduleid"
-              className="p-6 bg-white shadow rounded-lg hover:shadow-lg transition transform hover:scale-105 text-center"
-            >
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">Interactive Modules</h2>
-              <p className="text-gray-600">Engage students with interactive content.</p>
             </Link>
             <Link
               href="/progress/dashboard/userId"
@@ -186,6 +179,34 @@ export default function StudentDashboard() {
             </Link>
           </section>
 
+          {/* Update Section */}
+          <section className="mb-10">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Update Personal Information</h2>
+            <div className="flex space-x-4">
+              <input
+                type="text"
+                className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-indigo-300 transition-all duration-300"
+                placeholder="Enter new name"
+                value={updateForm.name}
+                onChange={(e) => setUpdateForm({ ...updateForm, name: e.target.value })}
+              />
+              <input
+                type="email"
+                className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-indigo-300 transition-all duration-300"
+                placeholder="Enter new email"
+                value={updateForm.email}
+                onChange={(e) => setUpdateForm({ ...updateForm, email: e.target.value })}
+              />
+              <button
+                className="px-4 py-2 bg-purple-600 text-white rounded-lg shadow hover:bg-purple-700 transition-all duration-300 transform hover:scale-105"
+                onClick={handleUpdateSubmit}
+              >
+                {loading ? 'Updating...' : 'Update Information'}
+              </button>
+            </div>
+            {updateError && <p className="text-red-500 mt-4">{updateError}</p>}
+            {updateMessage && <p className="text-green-600 mt-4">{updateMessage}</p>}
+          </section>
 
           {/* Courses Section */}
           <section className="mb-10">
@@ -210,78 +231,11 @@ export default function StudentDashboard() {
           </section>
 
           {/* Notes Section */}
-            <section className="mb-10">
-              <h2 className="text-2xl font-semibold text-gray-800 mb-4">My Notes</h2>
-              <CourseNotes data = { notes } userId={userId} courseId={null} setRefresh={setNotesRefresh} />
-            </section>
+          <section className="mb-10">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">My Notes</h2>
+            <CourseNotes data={notes} userId={userId} courseId={null} setRefresh={setNotesRefresh} />
+          </section>
         </main>
-
-        
-
-        {/* Modal */}
-        {isModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-              <h2 className="text-xl font-bold mb-4">Edit Profile</h2>
-              <form onSubmit={(e) => { e.preventDefault(); updateUserInfo(); }}>
-                <label className="block mb-2">
-                  Name:
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2 border rounded-lg focus:outline-none"
-                  />
-                </label>
-                <label className="block mb-2">
-                  Email:
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2 border rounded-lg focus:outline-none"
-                  />
-                </label>
-                <label className="block mb-2">
-                  Password:
-                  <input
-                    type="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2 border rounded-lg focus:outline-none"
-                  />
-                </label>
-                <label className="block mb-2">
-                  Profile Picture URL:
-                  <input
-                    type="text"
-                    name="profile_picture_url"
-                    value={formData.profile_picture_url}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2 border rounded-lg focus:outline-none"
-                  />
-                </label>
-                <button
-                  type="submit"
-                  className="mt-4 w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-300"
-                  disabled={loading}
-                >
-                  {loading ? 'Updating...' : 'Save Changes'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="mt-4 w-full py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-all duration-300"
-                >
-                  Cancel
-                </button>
-              </form>
-            </div>
-          </div>
-        )}
       </div>
     </>
   );
