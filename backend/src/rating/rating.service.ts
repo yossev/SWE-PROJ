@@ -12,6 +12,7 @@ import { Module } from '../models/module-schema';
 @Injectable()
 export class RatingService {
     userModel: any;
+    courseModel: any;
     constructor(
         @InjectModel('Rating') private readonly ratingModel: Model<RatingDocument>,
         @InjectModel('Mod') private readonly moduleModel: Model<Module>,
@@ -37,9 +38,9 @@ export class RatingService {
         return await this.ratingModel.findByIdAndUpdate(id, updateRatingDto, { new: true });
     }
 
-    async findAll(): Promise<Rating[]> {
-        return this.ratingModel.find().exec();
-    }
+    // async findAll(): Promise<Rating[]> {
+    //     return this.ratingModel.find().exec();
+    // }
 
     async findOne(id: string): Promise<Rating> {
         const rating = await this.ratingModel.findOne({ _id: id }).exec();
@@ -93,5 +94,53 @@ export class RatingService {
 
         return ratings.length > 0 ? ratings[0].averageRating : "No ratings yet"; 
     }
-}
 
+    private async getAllModuleRatings(): Promise<any[]> {
+        try {
+            const moduleRatings = await this.ratingModel.aggregate([
+                { $match: { ratedEntity: 'Module' } }, // Filter for modules
+                { $group: { _id: '$ratedEntityId', averageRating: { $avg: '$rating' } } }, // Group by module ID and average rating
+            ]);
+            return moduleRatings;
+        } catch (err) {
+            console.error('Error fetching module ratings:', err);
+            throw new NotFoundException('Error fetching module ratings');
+        }
+    }
+    
+    // Method to fetch ratings for all instructors
+    private async getAllInstructorRatings(): Promise<any[]> {
+        try {
+            const instructorRatings = await this.ratingModel.aggregate([
+                { $match: { ratedEntity: 'Instructor' } }, // Filter for instructors
+                { $group: { _id: '$ratedEntityId', averageRating: { $avg: '$rating' } } }, // Group by instructor ID and average rating
+            ]);
+            return instructorRatings;
+        } catch (err) {
+            console.error('Error fetching instructor ratings:', err);
+            throw new NotFoundException('Error fetching instructor ratings');
+        }
+    }
+  
+    
+
+    async getAllRatings(): Promise<any> {
+        try {
+    
+            const moduleRatings = await this.getAllModuleRatings();
+        
+            const instructorRatings = await this.getAllInstructorRatings();
+         
+    
+            return {
+                moduleRatings,
+                instructorRatings,
+            };
+        } catch (err) {
+            console.error('Error retrieving ratings:', err);
+            throw new NotFoundException('Error retrieving ratings');
+        }
+    }
+
+
+    }
