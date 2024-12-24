@@ -3,15 +3,16 @@ import React, { useEffect, useState } from 'react';
 import { useCookies } from 'react-cookie'; 
 import { useRouter } from 'next/router';
 import NotificationBell from './NotificationBell';
+import { getCookie } from 'cookies-next';
 
 const Navbar = ({userId} : {userId : any}) => {
-    const [cookies] = useCookies(['token', 'role']);
     const [update, setUpdate] = useState(false); // State to force re-render
-    const [profileOpened , setProfileOpened] = useState(false);
     const [data, setData] = useState([]);
     const [userDetails, setUserDetails] = useState({
         name : ""
     });
+
+    const role = getCookie("role");
 
     useEffect(() => {
             fetch('http://localhost:3001/users/fetchme', {credentials : 'include'}).then(response => response.json()).then(dataJson => {
@@ -25,14 +26,13 @@ const Navbar = ({userId} : {userId : any}) => {
             });
         }, []);
 
-    console.log('Current role:', cookies.role);
-
     const [search, setSearch] = useState('');
 
     const searchFunction = (e : any) => {
         redirect('http://localhost:3000/search/' + search);
     }
 
+    console.log("Role inside Navbar is: " + role);
     return (
         <>
 
@@ -46,11 +46,34 @@ const Navbar = ({userId} : {userId : any}) => {
         </a>
         <div className="flex items-center md:order-3 space-x-3 md:space-x-0 rtl:space-x-reverse">
             <NotificationBell data={data} />
-            <button onClick={() => setProfileOpened(!profileOpened)} type="button" className="pl-5" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="bottom">
+            {userId? 
+            <>
+            {role === "student" ? 
+            <>
+            <button type="button" className="pl-5" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="bottom">
                 <a href={"http://localhost:3000/auth/dashboardS/student"} className='text-white font-bold block py-2 px-3 text-white rounded md:bg-transparent md:text-gray-900 md:p-0 md:dark:text-blue-500' aria-current="page">
                     {userDetails.name}
                 </a>
             </button>
+            </> :
+            <>
+             <button type="button" className="pl-5" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="bottom">
+                <a href={"http://localhost:3000/auth/dashboardS/instructor"} className='text-white font-bold block py-2 px-3 text-white rounded md:bg-transparent md:text-gray-900 md:p-0 md:dark:text-blue-500' aria-current="page">
+                    {userDetails.name}
+                </a>
+            </button>
+            </>
+            }
+            </> 
+            : 
+            <>
+            
+            <button type="button" className="pl-5" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="bottom">
+                <a href={"http://localhost:3000/auth/login"} className='text-white font-bold block py-2 px-3 text-white rounded md:bg-transparent md:text-gray-900 md:p-0 md:dark:text-blue-500' aria-current="page">
+                    Login
+                </a>
+            </button>
+            </>}
         </div>
         <div className="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-user">
             <ul className="flex flex-col font-medium p-4 md:p-0 mt-4 border md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0">

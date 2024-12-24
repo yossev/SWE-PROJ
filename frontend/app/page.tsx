@@ -9,6 +9,7 @@ export default function Home() {
 
 
   const userId = getCookie("userId");
+  const role = getCookie("role");
 
   useEffect(() => {
   }, []);

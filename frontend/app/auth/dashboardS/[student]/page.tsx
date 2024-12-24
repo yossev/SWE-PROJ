@@ -134,7 +134,7 @@ export default function StudentDashboard() {
   return (
     <>
       {/* Add Navbar above Sidebar */}
-      <Navbar userId={null}/>
+      <Navbar userId={userId}/>
 
       <div className="flex min-h-screen bg-gray-50">
         {/* Sidebar */}

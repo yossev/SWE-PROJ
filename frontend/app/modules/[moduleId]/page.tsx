@@ -203,7 +203,7 @@ export default function Home()
                         </>
             :
                         <>
-                        <Navbar userId={userId} />
+                        <Navbar userId={userId}/>
                         <div className="flex min-h-screen bg-gray-50">
                         <ModuleSidebar courseId={data.course_id} data={quizzes} />
                         <main className="flex-1 p-8">

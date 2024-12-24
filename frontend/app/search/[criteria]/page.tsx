@@ -11,6 +11,7 @@ export default function Search() {
     const path = usePathname().split('/');
 
     const userId = getCookie("userId");
+    const role = getCookie("role");
     const[loading , setLoading] = useState(true);
 
     const search = path[path.length - 1];
@@ -38,7 +39,7 @@ export default function Search() {
     console.log("Path is: " + search);
     return (
         <>
-        <Navbar userId={userId} />
+        <Navbar userId={userId}/>
         <div className="flex flex-col items-center justify-center pt-5">
         <h1 className="mb-4 text-3xl font-bold text-gray-800">Search Results</h1>
         </div>
