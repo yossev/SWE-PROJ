@@ -154,20 +154,18 @@ export class CourseService {
     }
   }
   // In CourseService (course.service.ts)
-async getForumByCourseId(courseId: string): Promise<ForumDocument | null> {
+async getForumByCourseId(courseId: string): Promise<Types.ObjectId | null> {
   try {
-    const forum = await this.forumModel.findOne({ course_id: new Types.ObjectId(courseId) }).exec();
+    const forum = await this.forumModel.findOne({ course_id: courseId }).exec();
     if (!forum) {
       throw new Error(`Forum for course ID ${courseId} not found.`);
     }
-    return forum;
+    return forum._id;
   } catch (error) {
     console.error("Error fetching forum:", error);
     throw new Error("Failed to retrieve forum for the course.");
   }
 }
-
-
   async enrolled(userId : string) {
     const user = await this.userModel.findById(new Types.ObjectId(userId)).exec();
     const courseeIds = user.courses;

@@ -50,6 +50,11 @@ export default function Home() {
       <footer className="text-center mt-8 mb-4 text-sm text-white opacity-70">
         <p>&copy; {new Date().getFullYear()} eLearners Academy. All Rights Reserved.</p>
       </footer>
+
+      {/* Footer */}
+      <footer className="text-center mt-8 mb-4 text-sm text-white opacity-70">
+        <p>&copy; {new Date().getFullYear()} eLearners Academy. All Rights Reserved.</p>
+      </footer>
     </div>
     </>
   );

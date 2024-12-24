@@ -1,7 +1,7 @@
 'use client';
-import { use, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useRouter, useParams, usePathname } from 'next/navigation'; // Import useRouter
+import { useRouter, useParams } from 'next/navigation';
 import ModuleSidebar from 'components/ModuleSidebar';
 import { getCookie } from 'cookies-next';
 import Link from 'next/link';
@@ -11,49 +11,56 @@ type Forum = {
 };
 
 export default function CourseDetailsPage() {
-    const path = usePathname().split('/'); 
     const router = useRouter();
     const params = useParams();
     const courseId = params.courseId;
 
     const userId = getCookie('userId');
     const [course, setCourse] = useState<any>(null); // State to hold the course data
-    const [progress, setProgress] = useState<any>(null);
-    const [modules, setModules] = useState<any>([]);
-    const [forum, setForum] = useState<Forum | null>(null);
+    const [forumId, setForumId] = useState('');
     const [error, setError] = useState("");
 
+    // Fetch course details on page load
     useEffect(() => {
       const fetchCourseDetails = async () => {
         if (!courseId) return;
-        try {
-          const response = await axios.get(`http://localhost:3001/courses/${courseId}`);
-          setCourse(response.data);
-        } catch (error) {
-          console.error('Error fetching course details:', error);
+
+        // Try fetching the course data from localStorage first
+        const cachedCourse = localStorage.getItem(`course_${courseId}`);
+        if (cachedCourse) {
+          setCourse(JSON.parse(cachedCourse));
+        } else {
+          try {
+            const response = await axios.get(`http://localhost:3001/courses/${courseId}`);
+            setCourse(response.data);
+            localStorage.setItem(`course_${courseId}`, JSON.stringify(response.data)); // Store in localStorage
+          } catch (error) {
+            console.error('Error fetching course details:', error);
+          }
         }
       };
-    
+
       fetchCourseDetails();
-    }, [courseId]);  // Dependency array includes courseId, fetches data only when courseId changes
-    
+    }, [courseId]);
+
+    // Fetch forum ID
     useEffect(() => {
       const fetchForum = async () => {
         try {
-          const response = await axios.get(`/courses/${courseId}/forum`);
-          setForum(response.data);
+          const response = await axios.get(`http://localhost:3001/courses/forum/${courseId}`);
+          setForumId(response.data);
         } catch (error) {
           setError("Failed to fetch forum.");
           console.error(error);
         }
       };
-    
+
       if (courseId) {
         fetchForum();
       }
-    }, [courseId]);  // Ensures this effect only runs when courseId changes
+    }, [courseId]);
 
-    console.log(JSON.stringify(course))
+    const forumReference = "http://localhost:3000/forum/" + forumId;
 
     return (
         <div className="course-details-container flex">
@@ -81,17 +88,12 @@ export default function CourseDetailsPage() {
                             </Link>
                         </li>
                         <li>
-                            {/* Ensure forum is loaded before rendering the link */}
-                            {forum && forum._id && (
-                                <Link
-                                    href={`/forum/${forum._id}`} // Correctly reference the forum ID
-                                    className="block py-3 px-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-all duration-300 transform hover:scale-105"
-                                >
-                                    🌐 Forum
-                                </Link>
-                            )}:(
-                                <span>Loading Forum...</span> // Show a loading state if forum is not yet loaded
-                            )
+                            <Link
+                                href={forumReference} // Correctly reference the forum ID
+                                className="block py-3 px-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-all duration-300 transform hover:scale-105"
+                            >
+                                🌐 Forum
+                            </Link>
                         </li>
                     </ul>
                 </nav>
@@ -106,6 +108,8 @@ export default function CourseDetailsPage() {
                 <p><strong>Created By:</strong> {course?.created_by}</p>
                 <p><strong>Created At:</strong> {new Date(course?.created_at).toLocaleDateString()}</p>
             </div>
+
+            Forum iD is {forumId}
 
             <style jsx>{`
                 .course-details-container {
