@@ -3,7 +3,7 @@ import { useState } from "react";
 import axios from "axios";
 import { usePathname } from "next/navigation";
 
-export default function CreateQuestion() {
+const CreateQuestion = () => {
   const path = usePathname().split('/');
     
       const getInstructorData = async () => {
@@ -174,3 +174,5 @@ export default function CreateQuestion() {
     </div>
   );
 }
+
+export default CreateQuestion;

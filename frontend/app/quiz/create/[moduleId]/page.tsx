@@ -13,11 +13,16 @@ export default function CreateQuizPage() {
       const res = await fetch('http://localhost:3001/users/fetch/' + instructorId, { credentials: 'include' });
       return res.json();
     };
+
+  const moduleId = path[path.length - 1];
+
+  const min = 1;
+  const max = 99;
     
   const [formData, setFormData] = useState({
-    moduleId: "",
+    moduleId: moduleId,
     questionType: "MCQ",
-    numberOfQuestions: 0, // Corrected key
+    numberOfQuestions: 1, // Corrected key
     userId: "",
   });
   const [successMessage, setSuccessMessage] = useState("");
@@ -32,8 +37,18 @@ export default function CreateQuizPage() {
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    const { name, value } = e.target;
+    let { name , value} = e.target;
 
+    if(name === "numberOfQuestions"){
+      if(parseInt(value) < min)
+      {
+        value = min.toString();
+      }
+      else if(parseInt(value) > max)
+      {
+        value = max.toString();
+      }
+    }
     setFormData({
       ...formData,
       [name]: name === "numberOfQuestions" ? parseInt(value, 10) || 0 : value,
@@ -41,7 +56,7 @@ export default function CreateQuizPage() {
   };
 
   const handleSubmit = async () => {
-    if (!formData.moduleId || !formData.numberOfQuestions || !formData.questionType) {
+    if (!formData.numberOfQuestions || !formData.questionType) {
       setErrorMessage("All fields are required. Please check your input.");
       return;
     }
@@ -51,7 +66,7 @@ export default function CreateQuizPage() {
       setSuccessMessage("");
 
       const payload = {
-        moduleId: formData.moduleId.trim(),
+        moduleId: moduleId,
         questionType: formData.questionType,
         numberOfQuestions: formData.numberOfQuestions, // Corrected key
         userId: userid,
@@ -76,17 +91,6 @@ export default function CreateQuizPage() {
       <main className="max-w-lg w-full">
         <h1 className="text-4xl font-bold text-center mb-6">Create a Quiz</h1>
         <div className="flex flex-col gap-4">
-          <label className="flex flex-col gap-2">
-            <span>Module ID:</span>
-            <input
-              type="text"
-              name="moduleId"
-              value={formData.moduleId}
-              onChange={handleInputChange}
-              className="p-3 border border-gray-700 rounded text-black"
-              placeholder="Enter Module ID"
-            />
-          </label>
 
           <label className="flex flex-col gap-2">
             <span>Question Type:</span>
@@ -111,6 +115,7 @@ export default function CreateQuizPage() {
               onChange={handleInputChange}
               className="p-3 border border-gray-700 rounded text-black"
               placeholder="Enter Number of Questions"
+
             />
           </label>
 
